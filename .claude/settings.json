@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '[hook] File changed: run your linter/formatter here. Fill in .claude/settings.json with the real command once the stack is chosen, e.g.: npx eslint --fix $CLAUDE_FILE_PATH  or  ruff format $CLAUDE_FILE_PATH'"
+          }
+        ]
+      }
+    ]
+  },
+  "_comment": "Placeholder hook. Replace the echo command above with your actual linter/formatter invocation once the tech stack is locked (see CLAUDE.md). Keep this fast — it runs on every file edit across every subagent."
+}
