@@ -9,6 +9,14 @@ description: Open a pull request for a completed module, following this repo's P
 > stack. Fill in `[PLACEHOLDER]`s once repo conventions (branch naming,
 > required reviewers, CI checks) are decided.
 
+## Preconditions
+
+This skill uses the `gh` CLI, not MCP — check it's authenticated before
+anything else: run `gh auth status`. If it reports not logged in, stop and
+tell the user: "GitHub CLI isn't authenticated. Run `gh auth login`, then
+retry." Do not attempt `git push`/`gh pr create` against an unauthenticated
+`gh` — it fails mid-way and can leave a pushed branch with no PR opened.
+
 ## Steps
 
 1. Confirm the module's Jira ticket is in "Review" (or later) status and the

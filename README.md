@@ -49,8 +49,12 @@ transitions).
 ## How to use this at the hackathon
 
 1. **Before the idea is locked**: work in this repo. Finish wiring the
-   Atlassian MCP server, test the hooks, review the four full agents as a
-   team so everyone knows what each one does.
+   Atlassian MCP server and authenticate `gh` — see
+   [`docs/AGENTIC_SDLC.md` §2 Setup](docs/AGENTIC_SDLC.md#2-setup--connecting-external-systems)
+   for exact commands. Every agent checks its own connection and will stop
+   with an explicit message if you skip this, rather than failing silently
+   — but it's still faster to do it once up front. Test the hooks, review
+   the four full agents as a team so everyone knows what each one does.
 2. **When the idea locks**:
    - Copy `.claude/`, `CLAUDE.md`, `backend/CLAUDE.md`, and
      `frontend/CLAUDE.md` into your real project repo root.

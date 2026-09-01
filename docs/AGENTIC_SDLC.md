@@ -15,7 +15,39 @@ implementation → review → test → merge. Built to be copied into a real
 project once the idea locks; nothing in `.claude/` references a specific
 product until placeholders are filled in.
 
-## 2. Repo shape
+## 2. Setup — connecting external systems
+
+**Nothing in this scaffold auto-connects or auto-authenticates to MCP
+servers or CLIs.** Every agent that needs Jira/Confluence or GitHub checks
+for the connection itself and stops with an explicit message if it's
+missing (see each agent's "Preconditions" section) — but the actual
+connection is a one-time human step, done once per machine/session, not
+something an agent can do on your behalf. This is a deliberate security
+boundary, not a gap to work around.
+
+Required before running the pipeline for real:
+
+1. **Atlassian MCP** (Jira + Confluence) — used by Planner, Architect,
+   Coder agents, Reviewer, Tester.
+   - Register the server: `claude mcp add` (or check in a `.mcp.json` at
+     repo root — neither exists in this scaffold yet, add one when you set
+     this up for real).
+   - Authenticate: run `/mcp` in an interactive Claude Code session and
+     follow the OAuth flow. This cannot be done non-interactively.
+   - Verify: the tools `mcp__atlassian__jira_create_issue`,
+     `mcp__atlassian__confluence_create_page`, etc. should appear in an
+     agent's available tools. If they don't, the connection didn't take.
+2. **GitHub** — used only by the `open-pr` skill, via the `gh` CLI (not
+   MCP, so no separate server registration needed).
+   - Authenticate: `gh auth login`, once.
+   - Verify: `gh auth status`.
+
+If you add an MCP-backed tool for a new system later (e.g. Slack, a
+deploy target), give the agent that uses it the same treatment: declare
+the tool in its frontmatter, add a "Preconditions" check before its
+Process section, and document the connection step here.
+
+## 3. Repo shape
 
 Monorepo: one git history, no git submodules. Two subfolders, each with its
 own nested rules file:
@@ -37,7 +69,7 @@ backend/frontend contract change, no pinned-SHA drift, no
 owned by separate teams with independent release cadences — see the
 Decisions Log in `CLAUDE.md` for the record of this call.
 
-## 3. The four levers
+## 4. The four levers
 
 Every subagent's behavior is shaped by four mechanisms. Know which one to
 reach for when changing how an agent behaves:
@@ -53,7 +85,7 @@ Rule of thumb: a fact/standard → Rules. A permission → Tools. A repeatable
 *procedure* multiple agents should do identically → Skills. An automatic
 enforcement/side-effect → Hooks.
 
-## 4. Pipeline
+## 5. Pipeline
 
 ```mermaid
 flowchart LR
@@ -75,7 +107,7 @@ each scoped to its own file tree and its own Jira ticket. Backend and
 frontend modules are always separate tickets/agents, joined only by the
 interface contract the Architect writes down.
 
-## 5. Agent roster
+## 6. Agent roster
 
 | Agent | File | Model | Tools | Role |
 |---|---|---|---|---|
@@ -90,7 +122,7 @@ interface contract the Architect writes down.
 Coder agents are named `coder-<module>` (not a generic name) so multiple
 can be dispatched concurrently without colliding.
 
-## 6. Skills roster
+## 7. Skills roster
 
 | Skill | Used by | Purpose |
 |---|---|---|
@@ -101,7 +133,7 @@ can be dispatched concurrently without colliding.
 Add a new skill when ≥2 agents would otherwise each improvise the same
 multi-step procedure.
 
-## 7. Hooks roster
+## 8. Hooks roster
 
 Defined in [`.claude/settings.json`](../.claude/settings.json):
 
@@ -113,7 +145,7 @@ Defined in [`.claude/settings.json`](../.claude/settings.json):
 Both are inert until the stack is locked and the real commands are filled
 in (Architect agent does this as part of its process, step 5–6).
 
-## 8. Context engineering summary
+## 9. Context engineering summary
 
 - **Global** (`CLAUDE.md`): stable, shared, low-churn — grows only via a
   deliberate Decisions Log entry, never by accumulation.
@@ -127,22 +159,31 @@ in (Architect agent does this as part of its process, step 5–6).
 
 Full detail in [`CLAUDE.md`](../CLAUDE.md) §"Context engineering rules".
 
-## 9. Bootstrapping a real project from this scaffold
+## 10. Bootstrapping a real project from this scaffold
 
 1. Copy `.claude/`, `CLAUDE.md`, `backend/CLAUDE.md`, `frontend/CLAUDE.md`,
    and this `docs/AGENTIC_SDLC.md` into the real project repo root.
-2. Run Planner on the actual idea/requirements.
-3. Run Architect: locks stack, fills nested `CLAUDE.md`s, writes interface
+2. Complete §2 Setup (Atlassian MCP connected, `gh` authenticated) — every
+   agent will stop and ask for this if skipped, so do it up front.
+3. Run Planner on the actual idea/requirements.
+4. Run Architect: locks stack, fills nested `CLAUDE.md`s, writes interface
    contracts, creates tickets, copies coder templates per module.
-4. Fill in `run-backend-tests`/`run-frontend-tests` skill commands and wire
+5. Fill in `run-backend-tests`/`run-frontend-tests` skill commands and wire
    the `PreToolUse` test-gate hook to them.
-5. Dispatch coder agents per module (parallel where independent) → Reviewer
+6. Dispatch coder agents per module (parallel where independent) → Reviewer
    → Tester → merge.
 
 ## Changelog
 
 > One line per change to the scaffold itself. Newest first.
 
+- **2026-09-01** — Added §2 Setup and a "Preconditions" section to every
+  agent (Planner, Architect, Coder templates, Reviewer, Tester) and the
+  `open-pr` skill: each now checks its required MCP tools / `gh auth
+  status` before doing anything, and stops with an explicit reconnect
+  instruction instead of failing silently mid-task or improvising a
+  workaround. Nothing auto-connects — connection remains a one-time human
+  step (`/mcp`, `gh auth login`).
 - **2026-09-01** — Initial version: monorepo backend/frontend split (nested
   `CLAUDE.md`s, `coder-backend-template.md`/`coder-frontend-template.md`),
   skills (`run-backend-tests`, `run-frontend-tests`, `open-pr`), test-gate

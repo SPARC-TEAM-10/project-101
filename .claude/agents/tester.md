@@ -18,6 +18,14 @@ not a generic "something broke" message to the whole pipeline.
 - The module's code and its test suite.
 - The Jira ticket for the module being tested.
 
+# Preconditions
+
+Before doing anything else, confirm `mcp__atlassian__jira_add_comment` and
+`mcp__atlassian__jira_transition_issue` are available. If not: stop, tell
+the user "Atlassian MCP isn't connected. Run `/mcp` to connect it (see
+`docs/AGENTIC_SDLC.md` §Setup), then re-invoke me" — do not run tests and
+then have nowhere to record/route the result.
+
 # Process
 
 1. Run the module's test suite via the `run-backend-tests` or

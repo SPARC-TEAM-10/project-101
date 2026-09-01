@@ -18,6 +18,15 @@ contract, and `CLAUDE.md`'s standards/definition-of-done.
 - The Jira ticket (acceptance criteria) and linked Confluence pages.
 - `CLAUDE.md` at the repo root.
 
+# Preconditions
+
+Before doing anything else, confirm `mcp__atlassian__jira_add_comment`,
+`mcp__atlassian__jira_transition_issue`, and
+`mcp__atlassian__confluence_get_page` are available. If not: stop, tell the
+user "Atlassian MCP isn't connected. Run `/mcp` to connect it (see
+`docs/AGENTIC_SDLC.md` §Setup), then re-invoke me" — do not approve or
+reject a ticket you can't actually read/write.
+
 # Process
 
 1. Read the ticket's acceptance criteria.

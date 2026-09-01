@@ -18,6 +18,17 @@ consequential decision in the pipeline.
 - The spec (Confluence page + Jira Epic) created by the Planner.
 - `CLAUDE.md` at the repo root.
 
+# Preconditions
+
+Before doing anything else, confirm `mcp__atlassian__confluence_create_page`,
+`mcp__atlassian__jira_create_issue`, and `mcp__atlassian__jira_link_issues`
+are available and working.
+
+If any is unavailable: stop, do not create tickets/pages partially or
+improvise local substitutes, and tell the user: "Atlassian MCP isn't
+connected. Run `/mcp` in an interactive session to connect and authenticate
+it (see `docs/AGENTIC_SDLC.md` §Setup), then re-invoke the Architect."
+
 # Process
 
 1. Read the spec's acceptance criteria in full.

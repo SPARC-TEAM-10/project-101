@@ -24,6 +24,15 @@ the Architect — nothing outside your scope, and nothing on the backend.
 - **Domain context**: {{DOMAIN_CONTEXT}} (anything module-specific the
   Architect flagged — UX rules, edge cases, design constraints)
 
+# Preconditions
+
+Before step 1, confirm `mcp__atlassian__jira_transition_issue` and
+`mcp__atlassian__jira_add_comment` are available. If not: stop, tell the
+user "Atlassian MCP isn't connected. Run `/mcp` to connect it (see
+`docs/AGENTIC_SDLC.md` §Setup), then re-invoke me" — do not silently code
+the module without ever touching the ticket, that hides your progress from
+the rest of the pipeline.
+
 # Process
 
 1. Transition the Jira ticket to "In Progress".

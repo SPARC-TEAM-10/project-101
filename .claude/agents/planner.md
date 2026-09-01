@@ -20,6 +20,22 @@ is measured** — not **how** it will be built.
 - The raw idea/requirements as given by the user.
 - `CLAUDE.md` at the repo root, if it exists (for standards/context).
 
+# Preconditions
+
+Before writing anything, confirm `mcp__atlassian__confluence_create_page`
+and `mcp__atlassian__jira_create_issue` are actually available and working
+— don't discover a missing connection mid-spec. A quick way to check: the
+tools simply won't be in your tool list, or a call to either will error.
+
+If either is unavailable:
+
+- Stop. Do not fall back to writing the spec only in local files, and do
+  not invent a fake Jira/Confluence link — a downstream agent (Architect)
+  will treat that as real and silently build against nothing.
+- Tell the user exactly this: "Atlassian MCP isn't connected. Run `/mcp` in
+  an interactive session to connect and authenticate it (see
+  `docs/AGENTIC_SDLC.md` §Setup for details), then re-invoke the Planner."
+
 # Process
 
 1. Read the raw requirements carefully. If something is ambiguous, make the
