@@ -20,8 +20,10 @@ not a generic "something broke" message to the whole pipeline.
 
 # Process
 
-1. Run the module's test suite (`{{TEST_COMMAND}}` — fill in once the stack
-   is chosen, e.g. `pytest tests/auth/`, `npm test -- auth`).
+1. Run the module's test suite via the `run-backend-tests` or
+   `run-frontend-tests` skill (whichever matches the module's side) — don't
+   invent your own test command, use the shared one so results are
+   consistent with what the coder/reviewer already ran.
 2. If integration tests exist that span multiple modules, run those too,
    but only once all involved modules have individually passed — running
    integration tests against unfinished modules wastes tokens on noise.

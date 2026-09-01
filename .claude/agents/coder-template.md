@@ -5,6 +5,15 @@ tools: Read, Write, Edit, Bash, Grep, Glob, mcp__atlassian__jira_transition_issu
 model: sonnet
 ---
 
+<!--
+  Generic fallback template — use for modules that aren't backend or
+  frontend (e.g. infra, a standalone worker/service). If the module is
+  backend or frontend, copy coder-backend-template.md or
+  coder-frontend-template.md instead — they're pre-wired to the nested
+  backend/CLAUDE.md or frontend/CLAUDE.md and to not cross the FE/BE
+  boundary.
+-->
+
 # Role
 
 You are the Coder agent for the **{{MODULE_NAME}}** module. You implement

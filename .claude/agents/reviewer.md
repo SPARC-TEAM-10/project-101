@@ -27,7 +27,9 @@ contract, and `CLAUDE.md`'s standards/definition-of-done.
    - [ ] The module's interface contract (from the architecture doc) is implemented exactly as specified — no silent signature/shape changes
    - [ ] `CLAUDE.md` standards followed (naming, structure, commit format)
    - [ ] Lint/format checks pass (run them, don't assume the hook caught everything)
-   - [ ] Tests exist and pass for the new/changed code
+   - [ ] Tests exist and pass — run via the `run-backend-tests` or
+         `run-frontend-tests` skill (whichever matches the module's side),
+         don't assume the coder agent's self-reported pass is current
    - [ ] No scope creep — nothing implemented outside this ticket's stated scope
 4. If everything passes: approve. Comment on the ticket with a short
    approval note. Transition ticket toward Done/Integration.

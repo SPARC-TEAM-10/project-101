@@ -10,7 +10,18 @@
           }
         ]
       }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "mcp__atlassian__jira_transition_issue",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '[hook] Ticket transition requested — this should gate transitions to Review/Done on tests passing. Currently inert (always allows). Once the stack is locked, replace this with a real check, e.g.: run the run-backend-tests / run-frontend-tests skill command for the module and exit non-zero (blocking the transition) on failure.'"
+          }
+        ]
+      }
     ]
   },
-  "_comment": "Placeholder hook. Replace the echo command above with your actual linter/formatter invocation once the tech stack is locked (see CLAUDE.md). Keep this fast — it runs on every file edit across every subagent."
+  "_comment": "Placeholder hooks. PostToolUse: once backend/frontend stacks are locked (see backend/CLAUDE.md, frontend/CLAUDE.md), replace the echo with a command that dispatches by path, e.g.: case \"$CLAUDE_FILE_PATH\" in backend/*) ruff format \"$CLAUDE_FILE_PATH\";; frontend/*) npx eslint --fix \"$CLAUDE_FILE_PATH\";; esac. PreToolUse: currently inert (exit 0 via echo) — wire it to actually run tests and exit non-zero to block the transition once test commands exist (see .claude/skills/run-backend-tests, run-frontend-tests). Keep both fast — PostToolUse runs on every file edit across every subagent."
 }
