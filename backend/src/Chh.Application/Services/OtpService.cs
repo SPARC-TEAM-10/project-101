@@ -17,16 +17,19 @@ public class OtpService : IOtpService
 
     private readonly IOtpRequestRepository _otpRequestRepository;
     private readonly ISmsGatewayClient _smsGatewayClient;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<OtpService> _logger;
 
-    /// <summary>Creates the service with its repository, SMS gateway, and logger dependencies.</summary>
+    /// <summary>Creates the service with its repository, SMS gateway, unit-of-work, and logger dependencies.</summary>
     public OtpService(
         IOtpRequestRepository otpRequestRepository,
         ISmsGatewayClient smsGatewayClient,
+        IUnitOfWork unitOfWork,
         ILogger<OtpService> logger)
     {
         _otpRequestRepository = otpRequestRepository;
         _smsGatewayClient = smsGatewayClient;
+        _unitOfWork = unitOfWork;
         _logger = logger;
     }
 
@@ -61,12 +64,16 @@ public class OtpService : IOtpService
             throw new OtpDispatchException(ex);
         }
 
-        return new OtpRequestResponse
+        var response = new OtpRequestResponse
         {
             MaskedMobileNumber = MaskMobileNumber(request.MobileNumber),
             OtpExpiresAtUtc = otpRequest.OtpExpiresAtUtc,
             ResendAvailableAtUtc = otpRequest.ResendAvailableAtUtc
         };
+
+        await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
+
+        return response;
     }
 
     private static string GenerateOtpCode()

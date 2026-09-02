@@ -8,7 +8,6 @@ namespace Chh.Api.Controllers;
 
 /// <summary>Mobile-number + OTP authentication endpoints (CHH-F01).</summary>
 [ApiController]
-[Authorize]
 [Route("api/v1/auth")]
 public class AuthController : ControllerBase
 {
@@ -26,6 +25,7 @@ public class AuthController : ControllerBase
     /// <param name="request">The mobile number to send the OTP to.</param>
     /// <param name="cancellationToken">Cancellation token forwarded through the service and repository layers.</param>
     [HttpPost("otp/request")]
+    // One of only 2 endpoints allowed [AllowAnonymous] in this system — see api-standards.md §5
     [AllowAnonymous]
     [ProducesResponseType(typeof(OtpRequestResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]

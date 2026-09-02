@@ -26,6 +26,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IOtpRequestRepository, OtpRequestRepository>();
         services.AddScoped<IOtpService, OtpService>();
         services.AddScoped<ISmsGatewayClient, LoggingSmsGatewayClient>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         services.AddValidatorsFromAssembly(typeof(OtpRequestRequestValidator).Assembly);
         services.AddFluentValidationAutoValidation();
