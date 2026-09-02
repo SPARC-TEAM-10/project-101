@@ -122,6 +122,13 @@ interface contract the Architect writes down.
 Coder agents are named `coder-<module>` (not a generic name) so multiple
 can be dispatched concurrently without colliding.
 
+> **CHH-specific note:** for this project, the backend and frontend Coder
+> roles above are implemented by a richer sub-pipeline instead of the plain
+> templates — see `.claude/agents/orchestrator.md` and root `CLAUDE.md`
+> §"Coder pipeline for backend/frontend modules". `coder-backend-template.md`
+> / `coder-frontend-template.md` remain the fallback only for modules
+> outside that split.
+
 ## 7. Skills roster
 
 | Skill | Used by | Purpose |
@@ -177,6 +184,17 @@ Full detail in [`CLAUDE.md`](../CLAUDE.md) §"Context engineering rules".
 
 > One line per change to the scaffold itself. Newest first.
 
+- **2026-09-02** — Documented the relationship between this scaffold's
+  Planner/Architect/Coder/Reviewer/Tester pipeline and the richer
+  `orchestrator.md` sub-pipeline used for CHH's backend/frontend modules
+  (see §6 note and root `CLAUDE.md`). The orchestrator sub-pipeline was
+  itself reconciled the same day: locked CHH as the product (replacing
+  stale content from an unrelated prior template), simplified from
+  multi-repo/microservices assumptions to this repo's single-monorepo
+  shape, dropped the RCA bugfix workflow, and gained frontend-*-agent.md
+  counterparts — see `.claude/agents/orchestrator.md` and `backend/CLAUDE.md`
+  / `frontend/CLAUDE.md` for the current state; not re-detailed here since
+  that sub-pipeline maintains its own docs.
 - **2026-09-01** — Added §2 Setup and a "Preconditions" section to every
   agent (Planner, Architect, Coder templates, Reviewer, Tester) and the
   `open-pr` skill: each now checks its required MCP tools / `gh auth

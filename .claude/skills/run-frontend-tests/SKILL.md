@@ -5,14 +5,15 @@ description: Run the frontend test suite. Use before transitioning a frontend ti
 
 # Run frontend tests
 
-> Fill in the real command once the frontend stack is locked (see
-> `frontend/CLAUDE.md`). This skill exists so every agent — coder, reviewer,
-> tester — runs tests the *same* way instead of each guessing a command.
+Frontend stack is locked (see `frontend/CLAUDE.md`): React + TypeScript +
+Vite / Vitest + Testing Library. This skill exists so every agent — coder,
+reviewer, tester — runs tests the *same* way instead of each guessing a
+command.
 
 ## Steps
 
 1. `cd frontend`
-2. Run the test command: `[PLACEHOLDER — e.g. npm test, vitest run, npx jest]`
+2. Run the test command: `npm run test -- --run` (Vitest in CI/non-watch mode)
 3. Report pass/fail and, on failure, the specific failing test names/files —
    don't just report "tests failed."
 

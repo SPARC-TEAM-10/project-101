@@ -5,14 +5,14 @@ description: Run the backend test suite. Use before transitioning a backend tick
 
 # Run backend tests
 
-> Fill in the real command once the backend stack is locked (see
-> `backend/CLAUDE.md`). This skill exists so every agent — coder, reviewer,
-> tester — runs tests the *same* way instead of each guessing a command.
+Backend stack is locked (see `backend/CLAUDE.md`): ASP.NET Core 8 / xUnit.
+This skill exists so every agent — coder, reviewer, tester — runs tests the
+*same* way instead of each guessing a command.
 
 ## Steps
 
 1. `cd backend`
-2. Run the test command: `[PLACEHOLDER — e.g. pytest -q, npm test, go test ./...]`
+2. Run the test command: `dotnet test`
 3. Report pass/fail and, on failure, the specific failing test names/files —
    don't just report "tests failed."
 

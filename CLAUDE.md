@@ -7,8 +7,14 @@
 
 ## Project
 
-- **Idea**: [PLACEHOLDER — one-line description]
-- **Modules**: [PLACEHOLDER — top-level list, e.g. backend, frontend]
+- **Idea**: Community Health Hub (CHH) — a mobile-first web platform
+  connecting blood donors, seekers, hospitals, and NGOs: OTP-first login,
+  real-time proximity alerts for blood requests and events, hospital
+  inventory/resource visibility, and facility verification. Source of
+  truth: PRD-CHH-v2.2 (Confluence) and the Jira `CHH` project.
+- **Modules**:
+  - `backend` — ASP.NET Core 8 Web API + PostgreSQL, single service (see `backend/CLAUDE.md`)
+  - `frontend` — React + TypeScript + Vite, mobile-first responsive web (see `frontend/CLAUDE.md`)
 
 ## Repo structure
 
@@ -23,6 +29,31 @@ frontend-only rules and vice versa.
 
 The Architect agent creates these nested files (and the folders) when it
 locks the tech stack per module — see `.claude/agents/architect.md`.
+
+## Coder pipeline for backend/frontend modules
+
+The generic `coder-{module}` stage referenced elsewhere in this file (and
+in `docs/AGENTIC_SDLC.md`) is, for this project, implemented by a richer
+sub-pipeline: `.claude/agents/orchestrator.md`, driving a
+Startup → Knowledge → Planning → Coding → Code Review → Unittest → PR flow
+with its own developer/lead approval gates and Confluence-published
+implementation plans.
+
+- **It supersedes `coder-backend-template.md` / `coder-frontend-template.md`**
+  for backend and frontend module tickets. Once the Architect creates a
+  module's Jira ticket, hand it to the orchestrator (paste the Jira URL, or
+  `/task <TICKET_ID>`) rather than copying a generic `coder-<module>` agent.
+- The orchestrator's own **Code Review Agent** and **Unittest Agent** stages
+  fulfill the role of the macro `reviewer.md` / `tester.md` agents for these
+  tickets — the macro Reviewer/Tester are **not** separately invoked for
+  backend/frontend module work.
+- The macro `reviewer.md` / `tester.md` and the generic `coder-template.md`
+  remain the path for any module **outside** the backend/frontend split
+  (e.g. a standalone infra module).
+- Concrete agent files: `backend-*-agent.md` (backend side) and
+  `frontend-*-agent.md` (frontend side) in `.claude/agents/`; `startup-agent`
+  and `pr-agent` are shared across both sides. Full roster and behavior:
+  `backend/CLAUDE.md` §Agent Directory (the orchestrator's entry point doc).
 
 ## Shared coding standards (apply to every module)
 
@@ -66,11 +97,19 @@ Module-specific additions to this checklist (e.g. "matches OpenAPI spec",
 > One entry per architectural decision or completed module. Keep each entry
 > to 2-3 lines. This is what keeps global context small as the project grows.
 
-<!-- Example:
-- **2026-08-31 — Auth module**: JWT-based, tokens in httpOnly cookies.
-  See Confluence page "Auth design" for full rationale.
--->
+- **2026-09-02 — Pipeline reconciliation**: Locked Idea as Community Health
+  Hub (CHH, PRD-CHH-v2.2); replaced backend content that had been copied in
+  from an unrelated prior template ("KTA"). Simplified the orchestrator
+  sub-pipeline from multi-repo/microservices assumptions (shared NuGet repo,
+  sibling cloned repos) down to this repo's actual single-monorepo shape,
+  and dropped the RCA bugfix workflow (no bug tickets exist yet — add back
+  when needed). Added `frontend-*-agent.md` counterparts (React + TS + Vite)
+  alongside the existing `backend-*-agent.md` set, and a design-readiness
+  check in the Planning Agent for tickets labeled `needs-design`.
 
 ## Non-goals / out of scope
 
-- [PLACEHOLDER — anything explicitly not being built, to prevent scope drift]
+- Live GPS tracking of moving ambulances
+- Active sleep tracking (UI placeholder only — no functional tracking)
+- Medical diagnosis or clinical advice
+- Multi-tenant / multi-repo infrastructure (this is a single-team, single-repo build)
