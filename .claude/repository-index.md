@@ -5,7 +5,7 @@
 
 | Module | Path | Description |
 |---|---|---|
-| backend | backend/ | ASP.NET Core 8 Web API — see backend/CLAUDE.md. `[NOT SCAFFOLDED]` — no project files yet, stack described but not created |
+| backend | backend/ | ASP.NET Core 8 Web API — see backend/CLAUDE.md. Scaffolded 2026-09-02 (`backend/Chh.sln`, Clean Architecture skeleton: Chh.Api/Application/Domain/Infrastructure + test projects). Build unverified — no .NET 8 SDK in this environment. |
 | frontend | frontend/ | React + TypeScript + Vite web app — see frontend/CLAUDE.md. `[NOT SCAFFOLDED]` — no project files yet, stack described but not created |
 
 > **Note:** Each row represents a **module folder within this single repo**,

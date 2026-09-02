@@ -1,0 +1,19 @@
+# .NET build output
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+*.user
+*.suo
+
+# Test / coverage output
+TestResults/
+coverage*.xml
+coverage*.json
+
+# Local logs written by the Serilog File sink
+logs/
+
+# Local secrets (secrets belong in Azure Key Vault / user-secrets, never in the repo)
+appsettings.Local.json
+*.pfx
