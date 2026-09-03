@@ -9,6 +9,7 @@ import "./index.css";
 
 const queryClient = new QueryClient();
 
+// index.html always defines #root — safe to assert non-null.
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>

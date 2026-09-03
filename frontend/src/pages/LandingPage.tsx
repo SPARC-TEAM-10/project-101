@@ -119,8 +119,8 @@ export function LandingPage() {
       <header className="sticky top-0 z-40 border-b border-line bg-cream/90 backdrop-blur">
         <div className="mx-auto flex max-w-[1180px] items-center justify-between gap-4 px-6 py-3.5">
           <span className="flex items-center gap-2.5 text-[16.5px] font-extrabold tracking-tight text-ink">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blood">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="#fff" aria-hidden="true">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blood text-white">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                 <path d="M12 3.2c3.4 4 6 6.9 6 10a6 6 0 0 1-12 0c0-3.1 2.6-6 6-10Z" />
               </svg>
             </span>
@@ -150,8 +150,8 @@ export function LandingPage() {
           <div className="mx-auto max-w-[1180px] overflow-hidden rounded-xl border border-line shadow-[var(--e3)] md:flex md:min-h-[460px]">
             <div className="flex w-full flex-none flex-col items-center bg-cream px-6 py-12 text-center md:w-[400px] md:justify-center md:border-r md:border-line">
               <div className="mb-4 flex h-20 w-20 items-center justify-center">
-                <span className="flex h-13 w-13 items-center justify-center rounded-full bg-blood shadow-[var(--e1)]">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="#fff" aria-hidden="true">
+                <span className="flex h-13 w-13 items-center justify-center rounded-full bg-blood text-white shadow-[var(--e1)]">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                     <path d="M12 3.2c3.4 4 6 6.9 6 10a6 6 0 0 1-12 0c0-3.1 2.6-6 6-10Z" />
                   </svg>
                 </span>
@@ -196,6 +196,7 @@ export function LandingPage() {
               {SLIDES.map((slide, i) => (
                 <div
                   key={slide.key}
+                  aria-hidden={i !== activeSlide}
                   className={`flex h-full flex-col items-center gap-4 p-6 text-center transition-opacity duration-500 md:flex-row md:items-center md:gap-6 md:p-12 md:text-left ${
                     i === activeSlide ? "opacity-100" : "pointer-events-none absolute inset-0 opacity-0"
                   }`}
@@ -286,8 +287,8 @@ export function LandingPage() {
             <div className="relative flex min-h-[260px] items-center justify-center py-8" aria-hidden="true">
               <span className="absolute h-[260px] w-[260px] rounded-full border-[1.5px] border-dashed border-line-strong" />
               <span className="absolute h-[200px] w-[200px] rounded-full border-[1.5px] border-dashed border-line-strong" />
-              <div className="relative z-10 flex h-[150px] w-[150px] items-center justify-center rounded-full bg-blood shadow-[var(--e2)]">
-                <svg width="68" height="68" viewBox="0 0 24 24" fill="#fff">
+              <div className="relative z-10 flex h-[150px] w-[150px] items-center justify-center rounded-full bg-blood text-white shadow-[var(--e2)]">
+                <svg width="68" height="68" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M12 3.2c3.4 4 6 6.9 6 10a6 6 0 0 1-12 0c0-3.1 2.6-6 6-10Z" />
                 </svg>
               </div>

@@ -15,6 +15,17 @@ export interface OtpRequestSubmitResult {
   data?: OtpRequestResponse;
 }
 
+export interface UseOtpRequestResult {
+  mobileNumber: string;
+  setMobileNumber: (value: string) => void;
+  isValid: boolean;
+  touched: boolean;
+  markTouched: () => void;
+  submit: () => Promise<OtpRequestSubmitResult>;
+  isPending: boolean;
+  error: OtpRequestError | null;
+}
+
 function toOtpRequestError(err: unknown): OtpRequestError {
   if (err instanceof ApiError) {
     if (err.status === 422) {
@@ -34,7 +45,7 @@ function toOtpRequestError(err: unknown): OtpRequestError {
   return { status: null, message: "Couldn't send the code. Try again." };
 }
 
-export function useOtpRequest() {
+export function useOtpRequest(): UseOtpRequestResult {
   const [mobileNumber, setMobileNumberState] = useState("");
   const [touched, setTouched] = useState(false);
 
