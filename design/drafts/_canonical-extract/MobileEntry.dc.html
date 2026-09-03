@@ -1,0 +1,108 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --sand:#F6F0E5; --sand-2:#EFE7D9; --cream:#FDFAF4;
+      --line:#E6DAC7; --line-strong:#D6C6AC;
+      --clay:#B06134; --clay-hover:#96502A;
+      --blood:#D32F2F;
+      --ink:#392A1D; --ink-2:#6F5C46; --ink-3:#A08A70; --ink-off:#BFAE96;
+      --error:#A33325; --error-tint:#F7E4E0;
+      --focus:#B06134;
+      --font:"Plus Jakarta Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+      --r-sm:12px; --r-md:16px; --r-full:999px;
+      --e1:0 1px 2px rgba(57,42,29,.04),0 2px 6px rgba(57,42,29,.05);
+    }
+    *{box-sizing:border-box}
+    body{margin:0}
+    .screen{width:390px;height:844px;background:var(--sand);font-family:var(--font);color:var(--ink);
+      display:flex;flex-direction:column;overflow:hidden}
+    a{color:var(--clay)} a:hover{color:var(--clay-hover)}
+    .top{padding:56px 28px 0}
+    .mark{width:52px;height:52px;border-radius:var(--r-full);background:var(--blood);color:#fff;
+      display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+    .word{font-size:15px;font-weight:700;color:var(--ink-2);letter-spacing:-.01em}
+    .mid{flex:1;display:flex;flex-direction:column;justify-content:center;padding:0 28px}
+    h1{font-size:26px;font-weight:800;letter-spacing:-.026em;line-height:1.2;margin:0 0 8px}
+    .sub{font-size:14.5px;color:var(--ink-2);line-height:1.5;margin:0 0 32px;max-width:30ch}
+    .field{display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
+    .inp-wrap{position:relative}
+    .inp-wrap svg{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--ink-3)}
+    input{height:54px;width:100%;padding:0 16px 0 48px;border-radius:var(--r-sm);
+      background:var(--cream);font-family:var(--font);font-size:16px;color:var(--ink);
+      transition:border-color .13s}
+    input.default{border:1.5px solid var(--line-strong)}
+    input.invalid{border:1.5px solid var(--error)}
+    input.valid{border:1.5px solid var(--clay)}
+    .hint{font-size:12.5px;display:flex;align-items:center;gap:5px;min-height:17px}
+    .hint.default{color:var(--ink-3)}
+    .hint.invalid{color:var(--error)}
+    .hint.valid{color:var(--ink-3)}
+    button.cta{height:54px;width:100%;border-radius:var(--r-md);border:none;font-family:var(--font);
+      font-size:16px;font-weight:600;cursor:pointer;transition:background .13s}
+    button.cta.on{background:var(--clay);color:#fff}
+    button.cta.on:hover{background:var(--clay-hover)}
+    button.cta.off{background:var(--sand-2);color:var(--ink-off);cursor:not-allowed}
+    .foot{padding:0 28px 40px;font-size:12px;color:var(--ink-off);text-align:center}
+  </style>
+</helmet>
+
+<div class="screen">
+  <div class="top">
+    <div class="mark">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.2c3.4 4 6 6.9 6 10a6 6 0 0 1-12 0c0-3.1 2.6-6 6-10Z"/></svg>
+    </div>
+    <div class="word">Community Health Hub</div>
+  </div>
+
+  <div class="mid">
+    <h1>Enter your mobile number</h1>
+    <p class="sub">We'll send a 6-digit code to verify it's you.</p>
+
+    <div class="field">
+      <div class="inp-wrap">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4.5H5.8A1.8 1.8 0 0 0 4 6.5c0 7.7 5.8 13.5 13.5 13.5a1.8 1.8 0 0 0 2-1.8V16l-4-1.5-2 2a13 13 0 0 1-5-5l2-2L8 4.5Z"/></svg>
+        <input class="{{state}}" type="tel" inputmode="numeric" placeholder="10-digit mobile number" value="{{value}}">
+      </div>
+      <div class="hint {{state}}">
+        <sc-if value="{{state === 'invalid'}}" hint-placeholder-val="{{false}}">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5 21 19.5H3L12 4.5Z"/><path d="M12 10v4M12 16.8v.1"/></svg>
+        </sc-if>
+        {{hintText}}
+      </div>
+    </div>
+
+    <button class="cta {{ctaClass}}" {{ctaDisabled}}>Get OTP</button>
+  </div>
+
+  <div class="foot">By continuing you agree this device isn't shared for medical alerts.</div>
+</div>
+
+</x-dc>
+<script data-dc-script data-props='{
+  "state": {"editor":"enum","default":"default","options":["default","invalid","valid"],"section":"AC state (CHH-8)"}
+}'>
+class Component extends DCLogic {
+  renderVals() {
+    const state = this.props.state ?? "default";
+    const copy = {
+      default: { value: "", hintText: "", ctaClass: "off", ctaDisabled: "disabled" },
+      invalid: { value: "98765", hintText: "Enter a 10-digit mobile number.", ctaClass: "off", ctaDisabled: "disabled" },
+      valid:   { value: "98765 43210", hintText: "", ctaClass: "on", ctaDisabled: "" },
+    };
+    return { state, ...copy[state] };
+  }
+}
+</script>
+</body>
+</html>

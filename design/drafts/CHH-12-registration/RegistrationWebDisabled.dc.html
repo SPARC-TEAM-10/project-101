@@ -1,0 +1,140 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --sand:#F6F0E5; --sand-2:#EFE7D9; --cream:#FDFAF4;
+      --line:#E6DAC7; --line-strong:#D6C6AC;
+      --clay:#B06134; --clay-hover:#96502A; --clay-deep:#8A4620; --clay-tint:#F5E4D3;
+      --ink:#392A1D; --ink-2:#6F5C46; --ink-3:#A08A70; --ink-off:#BFAE96;
+      --font:"Plus Jakarta Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+      --r-xs:8px; --r-sm:12px; --r-md:16px; --r-full:999px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0}
+    .screen{width:1440px;height:900px;background:var(--sand);font-family:var(--font);color:var(--ink);
+      display:flex;overflow:hidden}
+    .left{width:420px;flex:none;background:var(--clay-deep);color:#fff;padding:56px 48px;
+      display:flex;flex-direction:column;position:relative;overflow:hidden}
+    .left::after{content:"";position:absolute;right:-70px;bottom:-70px;width:220px;height:220px;
+      border-radius:999px;background:rgba(255,255,255,.05)}
+    .mark{width:40px;height:40px;border-radius:var(--r-full);background:rgba(255,255,255,.18);
+      display:flex;align-items:center;justify-content:center;margin-bottom:32px}
+    .left h2{font-size:28px;font-weight:800;letter-spacing:-.028em;line-height:1.22;margin:0 0 14px;max-width:13ch;position:relative}
+    .left p{font-size:14px;opacity:.82;line-height:1.6;margin:0;max-width:28ch;position:relative}
+    .right{flex:1;overflow-y:auto;display:flex;justify-content:center;padding:56px 40px}
+    .form{width:640px}
+    h1{font-size:26px;font-weight:800;letter-spacing:-.026em;margin:0 0 6px}
+    .sub{font-size:14.5px;color:var(--ink-2);margin:0 0 28px}
+    h3{font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3);
+      margin:28px 0 14px}
+    h3:first-child{margin-top:0}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .field{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+    .field label{font-size:13px;font-weight:600;color:var(--ink-2)}
+    .inp-wrap{position:relative}
+    .inp-wrap svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--ink-3)}
+    input,select{height:50px;width:100%;padding:0 14px;border-radius:var(--r-sm);border:1.5px solid var(--line-strong);
+      background:var(--cream);font-family:var(--font);font-size:15px;color:var(--ink)}
+    .inp-wrap input{padding-left:44px}
+    select{appearance:none;padding-right:36px;
+      background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'><path d='M4 6.5l4 4 4-4' stroke='%236F5C46' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+      background-repeat:no-repeat;background-position:right 12px center}
+    .seg{display:flex;background:var(--sand-2);border-radius:var(--r-sm);padding:4px;gap:4px}
+    .seg button{flex:1;height:40px;border:none;border-radius:8px;background:transparent;cursor:pointer;
+      font-family:var(--font);font-size:13px;font-weight:600;color:var(--ink-2)}
+    .seg button.on{background:var(--cream);color:var(--ink)}
+    .choicegrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .choice{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;background:var(--cream);
+      border:1.5px solid var(--line);border-radius:var(--r-sm)}
+    .choice input{width:19px;height:19px;margin:2px 0 0;accent-color:var(--clay);flex:none}
+    .choice span{font-size:13.5px;line-height:1.45;color:var(--ink)}
+    .alert{display:flex;gap:10px;border-radius:var(--r-sm);padding:12px 14px;background:var(--clay-tint);
+      color:var(--ink);margin-top:16px}
+    .alert b{display:block;font-size:13px;font-weight:700;margin-bottom:2px}
+    .alert p{margin:0;font-size:12px;line-height:1.5;opacity:.85}
+    button.cta{height:52px;width:220px;border-radius:var(--r-md);border:none;font-family:var(--font);
+      font-size:15px;font-weight:600;cursor:pointer;margin-top:28px}
+    button.cta.on{background:var(--clay);color:#fff}
+    button.cta.off{background:var(--sand-2);color:var(--ink-off);cursor:not-allowed}
+  </style>
+</helmet>
+
+<div class="screen">
+  <div class="left">
+    <div class="mark"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.2c3.4 4 6 6.9 6 10a6 6 0 0 1-12 0c0-3.1 2.6-6 6-10Z"/></svg></div>
+    <h2>Almost there.</h2>
+    <p>Your health screening decides your eligibility — donate, request, or both. You can update it any time from your profile.</p>
+  </div>
+  <div class="right">
+    <div class="form">
+      <h1>Create your account</h1>
+      <p class="sub">Tell us a little about yourself.</p>
+
+      <h3>Personal details</h3>
+      <div class="grid2">
+        <div class="field"><label>Full name</label><input placeholder="As per your ID"></div>
+        <div class="field"><label>Email</label><input type="email" placeholder="you@example.com"></div>
+        <div class="field"><label>Blood group</label>
+          <select><option>Select blood group</option><option>A+</option><option>A−</option><option>B+</option><option>B−</option><option>O+</option><option>O−</option><option>AB+</option><option>AB−</option></select>
+        </div>
+        <div class="field"><label>Date of birth</label><input type="date"></div>
+        <div class="field"><label>Gender</label>
+          <div class="seg"><button class="on">Male</button><button>Female</button><button>Other</button></div>
+        </div>
+        <div class="field"><label>Location</label>
+          <div class="inp-wrap">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-5.4 7-11a7 7 0 1 0-14 0c0 5.6 7 11 7 11Z"/><circle cx="12" cy="10" r="2.6"/></svg>
+            <input placeholder="City / Area">
+          </div>
+        </div>
+      </div>
+
+      <h3>Health screening</h3>
+      <div class="choicegrid">
+        <label class="choice"><input type="checkbox"><span>Chronic illness — diabetes, heart, kidney</span></label>
+        <label class="choice"><input type="checkbox"><span>Recent surgery in the last 6 months</span></label>
+        <label class="choice"><input type="checkbox"><span>Infectious disease (HIV, Hepatitis B/C)</span></label>
+        <label class="choice"><input type="checkbox"><span>Currently underweight</span></label>
+      </div>
+
+      <sc-if value="{{receiverOnly}}" hint-placeholder-val="{{false}}">
+        <div class="alert">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.9v.1"/></svg>
+          <div><b>Receiver only</b><p>Based on your screening you can request blood but not donate. You can update this later.</p></div>
+        </div>
+      </sc-if>
+
+      <button class="cta {{ctaClass}}" {{ctaDisabled}}>Create Account</button>
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script data-dc-script data-props='{
+  "cta": {"editor":"enum","default":"disabled","options":["disabled","enabled"],"section":"AC state (CHH-F02)"},
+  "receiverOnly": {"editor":"boolean","default":false,"section":"AC state (CHH-F02)"}
+}'>
+class Component extends DCLogic {
+  renderVals() {
+    const cta = this.props.cta ?? "disabled";
+    const receiverOnly = this.props.receiverOnly ?? false;
+    return {
+      receiverOnly,
+      ctaClass: cta === "enabled" ? "on" : "off",
+      ctaDisabled: cta === "enabled" ? "" : "disabled",
+    };
+  }
+}
+</script>
+</body>
+</html>

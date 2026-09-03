@@ -1,0 +1,77 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --sand:#F6F0E5; --cream:#FDFAF4;
+      --line-strong:#D6C6AC;
+      --clay:#B06134; --clay-hover:#96502A; --clay-tint:#F5E4D3; --clay-line:#E8CDB2; --clay-deep:#8A4620;
+      --blood:#D32F2F; --blood-tint:#FCE9E7; --blood-deep:#9E1B18;
+      --ink:#392A1D; --ink-2:#6F5C46;
+      --font:"Plus Jakarta Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+      --r-md:16px; --r-full:999px;
+      --e1:0 1px 2px rgba(57,42,29,.04),0 2px 6px rgba(57,42,29,.05);
+    }
+    *{box-sizing:border-box}
+    body{margin:0}
+    .screen{width:390px;height:844px;background:var(--sand);font-family:var(--font);color:var(--ink);
+      display:flex;flex-direction:column;overflow:hidden}
+    .top{padding:64px 28px 0;text-align:center}
+    .mark{width:56px;height:56px;border-radius:var(--r-full);background:var(--clay-tint);color:var(--clay-deep);
+      display:flex;align-items:center;justify-content:center;margin:0 auto 20px}
+    h1{font-size:26px;font-weight:800;letter-spacing:-.026em;margin:0 0 8px}
+    .sub{font-size:14.5px;color:var(--ink-2);line-height:1.5;margin:0 0 40px}
+    .cards{padding:0 28px;display:flex;flex-direction:column;gap:16px}
+    .card{border-radius:var(--r-md);padding:24px;display:flex;flex-direction:column;gap:6px;
+      cursor:pointer;text-align:left;border:1.5px solid transparent}
+    .card.primary{background:var(--clay);color:#fff;box-shadow:var(--e1)}
+    .card.secondary{background:transparent;border-color:var(--line-strong);color:var(--ink)}
+    .card b{font-size:17px;font-weight:800;letter-spacing:-.01em}
+    .card span{font-size:13px;opacity:.85}
+    .card .row{display:flex;align-items:center;gap:12px}
+    .card .icn{width:38px;height:38px;border-radius:var(--r-full);display:flex;align-items:center;justify-content:center;flex:none}
+    .card.primary .icn{background:rgba(255,255,255,.18)}
+    .card.secondary .icn{background:var(--blood-tint);color:var(--blood-deep)}
+  </style>
+</helmet>
+
+<div class="screen">
+  <div class="top">
+    <div class="mark">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8.5" r="3.2"/><path d="M3.2 19.5a5.8 5.8 0 0 1 11.6 0"/><path d="M16 5.6a3.2 3.2 0 0 1 0 5.9M17.5 14.4a5.8 5.8 0 0 1 3.3 5.1"/></svg>
+    </div>
+    <h1>Welcome</h1>
+    <p class="sub">We don't recognize this number yet. How would you like to continue?</p>
+  </div>
+
+  <div class="cards">
+    <button class="card primary">
+      <div class="row">
+        <div class="icn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.5" r="3.6"/><path d="M4.8 20a7.2 7.2 0 0 1 14.4 0"/></svg></div>
+        <b>Create Account</b>
+      </div>
+      <span>Full access to donate, request and track responses.</span>
+    </button>
+
+    <button class="card secondary">
+      <div class="row">
+        <div class="icn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.2c3.4 4 6 6.9 6 10a6 6 0 0 1-12 0c0-3.1 2.6-6 6-10Z"/></svg></div>
+        <b>Emergency Guest Access</b>
+      </div>
+      <span>Search &amp; request only, no account needed.</span>
+    </button>
+  </div>
+</div>
+
+</x-dc>
+</body>
+</html>

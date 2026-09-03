@@ -1,0 +1,125 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --sand:#F6F0E5; --sand-2:#EFE7D9; --cream:#FDFAF4;
+      --line:#E6DAC7; --line-strong:#D6C6AC;
+      --clay:#B06134; --clay-hover:#96502A;
+      --ink:#392A1D; --ink-2:#6F5C46; --ink-3:#A08A70; --ink-off:#BFAE96;
+      --error:#A33325;
+      --font:"Plus Jakarta Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+      --r-sm:12px; --r-md:16px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0}
+    .screen{width:390px;height:844px;background:var(--sand);font-family:var(--font);color:var(--ink);
+      display:flex;flex-direction:column;overflow:hidden}
+    a{color:var(--clay)} a:hover{color:var(--clay-hover)}
+    .appbar{height:58px;display:flex;align-items:center;gap:12px;padding:0 16px;background:var(--cream);
+      border-bottom:1px solid var(--line);flex:none}
+    .appbar button{width:36px;height:36px;border-radius:999px;border:none;background:transparent;
+      display:flex;align-items:center;justify-content:center;color:var(--ink-2);cursor:pointer}
+    .appbar b{flex:1;text-align:center;font-size:15px;font-weight:700;margin-right:36px}
+    .mid{flex:1;display:flex;flex-direction:column;align-items:center;padding:44px 28px 0}
+    h1{font-size:22px;font-weight:800;letter-spacing:-.022em;margin:0 0 8px;text-align:center}
+    .sub{font-size:14px;color:var(--ink-2);text-align:center;line-height:1.5;margin:0 0 28px}
+    .sub b{color:var(--ink);font-variant-numeric:tabular-nums}
+    .otp{display:flex;gap:9px;margin-bottom:16px}
+    .otp input{width:48px;height:56px;text-align:center;font-family:var(--font);font-size:21px;font-weight:700;
+      border-radius:var(--r-sm);background:var(--cream);font-variant-numeric:tabular-nums}
+    .otp.entering input{border:1.5px solid var(--line-strong)}
+    .otp.entering input.filled{border-color:var(--clay)}
+    .otp.ready input{border:1.5px solid var(--clay)}
+    .otp.error input{border:1.5px solid var(--error)}
+    .msg{font-size:13px;display:flex;align-items:center;gap:6px;min-height:18px;margin-bottom:16px}
+    .msg.error{color:var(--error)}
+    button.verify{height:54px;width:100%;border-radius:var(--r-md);border:none;font-family:var(--font);
+      font-size:16px;font-weight:600;cursor:pointer;transition:background .13s;margin-bottom:22px}
+    button.verify.on{background:var(--clay);color:#fff}
+    button.verify.on:hover{background:var(--clay-hover)}
+    button.verify.off{background:var(--sand-2);color:var(--ink-off);cursor:not-allowed}
+    .timer{font-size:14px;color:var(--ink-2);margin-bottom:16px}
+    .timer b{font-variant-numeric:tabular-nums;color:var(--ink)}
+    .resend-btn{background:none;border:none;color:var(--clay);font-family:var(--font);font-size:14px;
+      font-weight:600;cursor:pointer;padding:0;margin-bottom:16px}
+    .change{font-size:13.5px;color:var(--ink-2);text-decoration:none}
+  </style>
+</helmet>
+
+<div class="screen">
+  <div class="appbar">
+    <button aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button>
+    <b>Verify OTP</b>
+  </div>
+
+  <div class="mid">
+    <h1>Enter the code</h1>
+    <p class="sub">Sent to <b>+91 98765 43210</b></p>
+
+    <div class="otp {{state}}">
+      <input maxlength="1" class="{{d0}}" value="{{v0}}">
+      <input maxlength="1" class="{{d1}}" value="{{v1}}">
+      <input maxlength="1" class="{{d2}}" value="{{v2}}">
+      <input maxlength="1" class="{{d3}}" value="{{v3}}">
+      <input maxlength="1" class="{{d4}}" value="{{v4}}">
+      <input maxlength="1" class="{{d5}}" value="{{v5}}">
+    </div>
+
+    <div class="msg error">
+      <sc-if value="{{state === 'error'}}" hint-placeholder-val="{{false}}">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5 21 19.5H3L12 4.5Z"/><path d="M12 10v4M12 16.8v.1"/></svg>
+        Invalid OTP. Please try again.
+      </sc-if>
+    </div>
+
+    <button class="verify {{ctaClass}}" {{ctaDisabled}}>Verify OTP</button>
+
+    <sc-if value="{{resendReady}}" hint-placeholder-val="{{false}}">
+      <button class="resend-btn">Resend OTP</button>
+    </sc-if>
+    <sc-if value="{{!resendReady}}" hint-placeholder-val="{{true}}">
+      <div class="timer">Resend in <b>01:37</b></div>
+    </sc-if>
+
+    <a class="change" href="#">Change Number</a>
+  </div>
+</div>
+
+</x-dc>
+<script data-dc-script data-props='{
+  "state": {"editor":"enum","default":"entering","options":["entering","ready","error"],"section":"AC state (CHH-9)"},
+  "resendReady": {"editor":"boolean","default":false,"section":"AC state (CHH-9)"}
+}'>
+class Component extends DCLogic {
+  renderVals() {
+    const state = this.props.state ?? "entering";
+    const resendReady = this.props.resendReady ?? false;
+    const filled = {
+      entering: ["4","2","7","", "", ""],
+      ready:    ["4","2","7","1","5","9"],
+      error:    ["4","2","7","1","5","9"],
+    }[state];
+    const digitClass = (i) => (state === "entering" && filled[i] ? "filled" : "");
+    const complete = filled.every((d) => d !== "");
+    return {
+      state, resendReady,
+      d0: digitClass(0), d1: digitClass(1), d2: digitClass(2), d3: digitClass(3), d4: digitClass(4), d5: digitClass(5),
+      v0: filled[0], v1: filled[1], v2: filled[2], v3: filled[3], v4: filled[4], v5: filled[5],
+      ctaClass: complete ? "on" : "off",
+      ctaDisabled: complete ? "" : "disabled",
+    };
+  }
+}
+</script>
+</body>
+</html>
