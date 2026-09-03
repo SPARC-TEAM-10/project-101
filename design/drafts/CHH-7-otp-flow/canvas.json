@@ -1,0 +1,14 @@
+{
+  "artboards": [
+    { "file": "Main.dc.html", "x": 0, "y": 0, "w": 390, "h": 844, "title": "Mobile Entry (CHH-8)" },
+    { "file": "OtpVerify.dc.html", "x": 520, "y": 0, "w": 390, "h": 844, "title": "OTP Verify (CHH-9)" },
+    { "file": "GuestDecision.dc.html", "x": 1040, "y": 0, "w": 390, "h": 844, "title": "New User / Guest (CHH-11)" },
+    { "file": "MainWeb.dc.html", "x": 0, "y": 1000, "w": 1440, "h": 900, "title": "Mobile Entry — Web (CHH-8)" },
+    { "file": "OtpVerifyWeb.dc.html", "x": 1560, "y": 1000, "w": 1440, "h": 900, "title": "OTP Verify — Web (CHH-9)" },
+    { "file": "GuestDecisionWeb.dc.html", "x": 3120, "y": 1000, "w": 1440, "h": 900, "title": "New User / Guest — Web (CHH-11)" }
+  ],
+  "annotations": [
+    { "id": "flow-note", "x": 0, "y": -100, "w": 420, "text": "CHH-F01 — Unified OTP Entry\nMobile row above, Web row below — scratch, not yet approved" }
+  ],
+  "launch": { "view": "canvas" }
+}

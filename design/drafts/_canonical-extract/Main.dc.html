@@ -1,0 +1,455 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+:root{
+  --sand:#F6F0E5; --sand-2:#EFE7D9; --cream:#FDFAF4;
+  --line:#E6DAC7; --line-strong:#D6C6AC;
+  --clay:#B06134; --clay-hover:#96502A; --clay-active:#7E4322;
+  --clay-tint:#F5E4D3; --clay-deep:#8A4620;
+  --blood:#D32F2F; --blood-tint:#FCE9E7; --blood-deep:#9E1B18;
+  --leaf:#4E7A46; --leaf-tint:#E8F0E2;
+  --amber:#8F6A12; --amber-tint:#F7EDD4;
+  --ink:#392A1D; --ink-2:#6F5C46; --ink-3:#A08A70;
+  --focus:#B06134;
+  --hi:rgba(255,255,255,.5);
+  --font-display:"Plus Jakarta Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:48px; --s8:64px; --s9:88px;
+  --r-sm:12px; --r-md:16px; --r-lg:20px; --r-xl:28px; --r-full:999px;
+  --e1:0 1px 2px rgba(57,42,29,.05), 0 2px 6px rgba(57,42,29,.06);
+  --e2:0 6px 20px rgba(57,42,29,.08), 0 16px 40px rgba(57,42,29,.10);
+  --e3:0 16px 32px rgba(57,42,29,.12), 0 32px 64px rgba(57,42,29,.14);
+  --t-base:220ms cubic-bezier(.2,0,.2,1);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; background:var(--sand); color:var(--ink);
+  font-family:var(--font-display); font-size:16px; line-height:1.55; -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{ text-wrap:balance; margin:0; }
+p{ margin:0; }
+a{ color:var(--clay); }
+a:hover{ color:var(--clay-hover); }
+@keyframes fadeUp{ from{ opacity:0; transform:translateY(10px); } to{ opacity:1; transform:translateY(0); } }
+
+.wrap{ max-width:1180px; margin:0 auto; padding:0 var(--s5); }
+@media (min-width:900px){ .wrap{ padding:0 var(--s7); } }
+
+header.nav{
+  position:sticky; top:0; z-index:40; background:color-mix(in srgb, var(--cream) 88%, transparent);
+  backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); border-bottom:1px solid var(--line);
+}
+.nav-inner{ max-width:1180px; margin:0 auto; padding:14px var(--s5); display:flex; align-items:center; justify-content:space-between; gap:var(--s4); }
+@media (min-width:900px){ .nav-inner{ padding:16px var(--s7); } }
+.brand{ display:flex; align-items:center; gap:10px; font-weight:800; font-size:16.5px; letter-spacing:-.01em; color:var(--ink); text-decoration:none; }
+.brand .mark-sm{ width:32px; height:32px; border-radius:50%; background:var(--blood); display:flex; align-items:center; justify-content:center; flex:none; }
+.brand .mark-sm svg{ width:16px; height:16px; fill:#fff; }
+.nav-actions{ display:flex; align-items:center; gap:10px; }
+.nav-btn{
+  height:40px; padding:0 18px; border-radius:var(--r-sm); font-size:14px; font-weight:700; text-decoration:none;
+  display:inline-flex; align-items:center; justify-content:center; transition:background var(--t-base), transform var(--t-base);
+}
+.nav-btn.ghost{ background:transparent; color:var(--ink); border:1.5px solid var(--line-strong); }
+.nav-btn.ghost:hover{ background:var(--sand-2); }
+.nav-btn.solid{ background:var(--clay); color:#fff; border:none; }
+.nav-btn.solid:hover{ background:var(--clay-hover); }
+
+.hero{ padding:var(--s6) 0 0; }
+.slideshow{
+  position:relative; width:100%; border-radius:var(--r-xl); overflow:hidden;
+  box-shadow:var(--e3); border:1px solid var(--line);
+  display:flex; flex-direction:column;
+}
+@media (min-width:860px){ .slideshow{ flex-direction:row; min-height:460px; } }
+
+.hero-fixed{
+  position:relative; z-index:5; flex:none; width:100%; background:var(--cream);
+  padding:var(--s7) var(--s6); display:flex; flex-direction:column; align-items:center; text-align:center;
+}
+@media (min-width:860px){ .hero-fixed{ width:400px; border-right:1px solid var(--line); justify-content:center; padding:var(--s7) var(--s6); } }
+
+.mark-wrap{ position:relative; width:80px; height:80px; display:flex; align-items:center; justify-content:center; margin-bottom:var(--s4); }
+.mark-ring{ position:absolute; inset:0; border-radius:50%; border:1.5px solid var(--blood); opacity:0; animation:ring 1.8s ease-out 2; }
+.mark-ring.r2{ animation-delay:.5s; }
+@keyframes ring{ 0%{ transform:scale(.62); opacity:.55;} 100%{ transform:scale(1); opacity:0;} }
+.mark{ width:52px; height:52px; border-radius:50%; background:var(--blood); color:#fff; display:flex; align-items:center; justify-content:center; box-shadow:var(--e1); animation:pulse 2.6s ease-in-out infinite; }
+@keyframes pulse{ 0%,100%{ transform:scale(1);} 50%{ transform:scale(1.05);} }
+.mark svg{ width:24px; height:24px; fill:#fff; }
+
+.loading-caption{ font-size:12px; font-weight:600; color:var(--ink-3); letter-spacing:.02em; animation:showThenHide 1.7s ease forwards; margin-bottom:2px; }
+@keyframes showThenHide{ 0%{opacity:0;} 15%{opacity:1;} 78%{opacity:1;} 100%{opacity:0; height:0; margin:0;} }
+
+.hero-fixed h1{ font-size:clamp(20px,2.4vw,24px); font-weight:800; letter-spacing:-.02em; margin-bottom:var(--s3); }
+.hero-fixed .tagline{ font-size:14.5px; color:var(--ink-2); line-height:1.55; max-width:34ch; }
+
+.stats{ display:flex; align-items:center; justify-content:center; gap:var(--s5); margin-top:var(--s5); width:100%; opacity:0; animation:fadeUp .5s ease .5s forwards; }
+.stat{ display:flex; flex-direction:column; align-items:center; gap:2px; }
+.stat b{ font-size:20px; font-weight:800; letter-spacing:-.03em; color:var(--ink); font-variant-numeric:tabular-nums; }
+.stat span{ font-size:10.5px; color:var(--ink-3); font-weight:600; }
+.stat-div{ width:1px; height:26px; background:var(--line-strong); }
+
+.content{ width:100%; display:flex; flex-direction:column; gap:var(--s3); margin-top:var(--s6); opacity:0; animation:fadeUp .5s ease .75s forwards; }
+
+.btn{
+  height:50px; width:100%; border-radius:var(--r-md); border:1.5px solid transparent;
+  font-family:var(--font-display); font-size:15px; font-weight:700; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; gap:8px; text-decoration:none;
+  transition:background var(--t-base),border-color var(--t-base),box-shadow var(--t-base),transform var(--t-base);
+}
+.btn-primary{ background:var(--clay); color:#fff; box-shadow:var(--e1); }
+.btn-primary:hover{ background:var(--clay-hover); box-shadow:var(--e2); transform:translateY(-1px); }
+.btn-secondary{ background:transparent; color:var(--ink); border-color:var(--line-strong); }
+.btn-secondary:hover{ background:var(--sand-2); transform:translateY(-1px); }
+
+.help{ margin-top:var(--s4); display:inline-flex; align-items:center; gap:7px; font-size:13px; font-weight:600; color:var(--ink-3); text-decoration:none; }
+.help:hover{ color:var(--ink-2); }
+.help svg{ width:15px; height:15px; }
+
+.slide-stage{ position:relative; flex:1; min-height:260px; overflow:hidden; }
+.slide{
+  position:absolute; inset:0; display:flex; align-items:center; gap:var(--s6);
+  padding:var(--s6) var(--s7); opacity:0; transform:translateX(20px) scale(.99);
+  transition:opacity .6s ease, transform .6s ease; pointer-events:none;
+}
+.slide.active{ opacity:1; transform:translateX(0) scale(1); pointer-events:auto; }
+.s-blood{ background:var(--blood-tint); }
+.s-amber{ background:var(--amber-tint); }
+.s-leaf{ background:var(--leaf-tint); }
+.s-clay{ background:var(--clay-tint); }
+
+.slide-visual{ position:relative; width:180px; height:180px; flex:none; }
+.slide-visual svg{ width:100%; height:100%; overflow:visible; }
+.dot{ animation:float 4.5s ease-in-out infinite; transform-origin:center; }
+.dot.d2{ animation-delay:.6s; } .dot.d3{ animation-delay:1.2s; }
+@keyframes float{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-6px);} }
+.pulse-ring{ animation:ripple 2.6s ease-out infinite; transform-origin:center; }
+.pulse-ring.pr2{ animation-delay:.9s; }
+@keyframes ripple{ 0%{ opacity:.5; transform:scale(.9);} 100%{ opacity:0; transform:scale(1.35);} }
+
+.slide-copy{ text-align:left; min-width:0; }
+.slide-tag{ display:inline-block; font-size:11.5px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; margin-bottom:var(--s3); }
+.s-blood .slide-tag{ color:var(--blood-deep); }
+.s-amber .slide-tag{ color:var(--amber); }
+.s-leaf .slide-tag{ color:var(--leaf); }
+.s-clay .slide-tag{ color:var(--clay-deep); }
+.slide-copy h2{ font-size:clamp(19px,2.2vw,24px); font-weight:800; letter-spacing:-.02em; line-height:1.2; color:var(--ink); margin-bottom:var(--s3); }
+.slide-copy p{ font-size:14px; color:var(--ink-2); line-height:1.55; max-width:34ch; }
+
+.slide-dots{ position:absolute; z-index:3; left:0; right:0; bottom:var(--s4); display:flex; gap:7px; justify-content:center; }
+.slide-dots button{ width:20px; height:5px; border-radius:var(--r-full); border:none; padding:0; cursor:pointer; background:rgba(57,42,29,.18); transition:background var(--t-base), width var(--t-base); }
+.slide-dots button.on{ background:var(--ink); width:28px; }
+
+@media (max-width:760px){
+  .slide-stage{ min-height:0; }
+  .slide{ position:relative; flex-direction:column; text-align:center; gap:var(--s4); padding:var(--s6) var(--s5) var(--s7); opacity:0; height:0; overflow:hidden; transform:none; }
+  .slide.active{ opacity:1; height:auto; }
+  .slide-visual{ width:150px; height:150px; }
+  .slide-copy{ text-align:center; max-width:none; }
+  .slide-copy p{ max-width:none; }
+}
+
+.trust{ border-top:1px solid var(--line); border-bottom:1px solid var(--line); background:var(--sand-2); }
+.trust-inner{ max-width:1180px; margin:0 auto; padding:var(--s6) var(--s5); display:grid; grid-template-columns:repeat(2,1fr); gap:var(--s5) var(--s6); text-align:center; }
+@media (min-width:820px){ .trust-inner{ grid-template-columns:repeat(4,1fr); padding:var(--s7); } }
+.trust-inner b{ display:block; font-size:32px; font-weight:800; letter-spacing:-.03em; color:var(--ink); font-variant-numeric:tabular-nums; }
+.trust-inner span{ display:block; font-size:13px; color:var(--ink-2); margin-top:4px; }
+
+.section{ padding:var(--s9) 0; }
+.section-head{ max-width:640px; margin:0 auto var(--s7); text-align:center; }
+.eyebrow{ display:inline-flex; align-items:center; gap:8px; font-size:12px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--clay-deep); background:var(--clay-tint); padding:6px 14px; border-radius:var(--r-full); margin-bottom:var(--s4); }
+.eyebrow::before{ content:""; width:6px; height:6px; border-radius:50%; background:var(--clay); }
+.section-head h2{ font-size:clamp(28px,3.4vw,40px); font-weight:800; letter-spacing:-.03em; }
+.section-head p{ margin-top:var(--s3); font-size:17px; color:var(--ink-2); line-height:1.6; }
+
+.about-grid{ display:grid; gap:var(--s7); grid-template-columns:1fr; align-items:center; }
+@media (min-width:900px){ .about-grid{ grid-template-columns:1.1fr .9fr; } }
+.about-copy .eyebrow{ background:var(--blood-tint); color:var(--blood-deep); }
+.about-copy .eyebrow::before{ background:var(--blood); }
+.about-copy h2{ font-size:clamp(26px,3.2vw,36px); font-weight:800; letter-spacing:-.03em; margin-bottom:var(--s4); }
+.about-copy p{ font-size:16.5px; line-height:1.7; color:var(--ink-2); max-width:52ch; }
+.about-copy p + p{ margin-top:var(--s4); }
+.about-copy blockquote{ margin:var(--s5) 0 0; padding:var(--s4) var(--s5); border-left:4px solid var(--clay); background:var(--cream); border-radius:0 var(--r-md) var(--r-md) 0; font-size:17px; font-style:italic; font-weight:600; color:var(--ink); box-shadow:var(--e1); }
+
+.about-visual{ position:relative; display:flex; align-items:center; justify-content:center; min-height:260px; padding:var(--s6) 0; }
+.about-visual .ring{ position:absolute; border-radius:50%; border:1.5px dashed var(--line-strong); }
+.about-visual .ring.r1{ width:260px; height:260px; }
+.about-visual .ring.r2{ width:200px; height:200px; }
+.about-visual .core{ width:150px; height:150px; border-radius:50%; background:var(--blood); display:flex; align-items:center; justify-content:center; box-shadow:var(--e2); position:relative; z-index:1; }
+.about-visual .core svg{ width:68px; height:68px; fill:#fff; }
+.about-visual .badge{ position:absolute; z-index:2; background:var(--cream); border:1px solid var(--line); border-radius:var(--r-md); box-shadow:var(--e2); padding:var(--s3) var(--s4); display:flex; align-items:center; gap:var(--s2); }
+.about-visual .badge b{ font-size:20px; font-weight:800; letter-spacing:-.02em; font-variant-numeric:tabular-nums; }
+.about-visual .badge span{ font-size:11px; color:var(--ink-3); display:block; }
+.about-visual .badge.b1{ top:6%; left:-4%; }
+.about-visual .badge.b2{ bottom:8%; right:-6%; }
+
+.feature-grid{ display:grid; gap:var(--s5); grid-template-columns:1fr; }
+@media (min-width:760px){ .feature-grid{ grid-template-columns:repeat(3,1fr); } }
+.feature-card{
+  background:var(--cream); border:1px solid var(--line); border-radius:var(--r-lg);
+  padding:var(--s6) var(--s5); box-shadow:var(--e1), inset 0 1px 0 var(--hi);
+  transition:box-shadow var(--t-base), transform var(--t-base);
+}
+.feature-card:hover{ box-shadow:var(--e2); transform:translateY(-3px); }
+.feature-icon{ width:52px; height:52px; border-radius:var(--r-md); display:flex; align-items:center; justify-content:center; margin-bottom:var(--s5); transition:transform var(--t-base); }
+.feature-card:hover .feature-icon{ transform:scale(1.08) rotate(-5deg); }
+.feature-icon svg{ width:24px; height:24px; }
+.fi-blood{ background:var(--blood-tint); color:var(--blood-deep); }
+.fi-clay{ background:var(--clay-tint); color:var(--clay); }
+.fi-leaf{ background:var(--leaf-tint); color:var(--leaf); }
+.feature-card h3{ font-size:19px; font-weight:800; letter-spacing:-.015em; margin-bottom:var(--s2); }
+.feature-card p{ font-size:14.5px; line-height:1.6; color:var(--ink-2); }
+
+footer{ border-top:1px solid var(--line); padding:var(--s6) 0; }
+.footer-inner{ display:flex; flex-wrap:wrap; justify-content:space-between; gap:var(--s3); font-size:13px; color:var(--ink-3); }
+</style>
+</helmet>
+
+<header class="nav">
+  
+<div class="nav-inner">
+    <a class="brand" href="#top">
+      <span class="mark-sm"><svg viewBox="0 0 24 24"><path d="M12 3.2c3.4 4 6 6.9 6 10a6 6 0 0 1-12 0c0-3.1 2.6-6 6-10Z"></path></svg></span>
+      Community Health Hub
+    </a>
+    <div class="nav-actions">
+      <a class="nav-btn ghost" href="#login">Log in</a>
+      <a class="nav-btn solid" href="#guest">Continue as Guest</a>
+    </div>
+  </div></header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap">
+      <div class="slideshow">
+        <div class="hero-fixed">
+          <div class="mark-wrap">
+            <span class="mark-ring"></span>
+            <span class="mark-ring r2"></span>
+            <span class="mark">
+              <svg viewBox="0 0 24 24"><path d="M12 3.2c3.4 4 6 6.9 6 10a6 6 0 0 1-12 0c0-3.1 2.6-6 6-10Z"></path></svg>
+            </span>
+          </div>
+
+          <p class="loading-caption">Getting things ready…</p>
+          <h1>Community Health Hub</h1>
+          <p class="tagline">Blood donation, hospital inventory and wellness — behind one sign-in.</p>
+
+          <div class="stats">
+            <div class="stat"><b class="num" data-count="2300" data-suffix="+">0</b><span>Donors</span></div>
+            <span class="stat-div"></span>
+            <div class="stat"><b class="num" data-count="340" data-suffix="+">0</b><span>Facilities</span></div>
+            <span class="stat-div"></span>
+            <div class="stat"><b class="num-static">&lt;90s</b><span>Median match</span></div>
+          </div>
+
+          <div class="content">
+            <button class="btn btn-primary" type="button" id="guest">Continue as Guest</button>
+            <a class="btn btn-secondary" href="#login">Log in</a>
+          </div>
+          <a class="help" href="#support">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"></circle><path d="M9.5 9.3a2.5 2.5 0 0 1 4.8 1c0 1.6-2.3 1.8-2.3 3.3"></path><path d="M12 17v.1"></path></svg>
+            Need help? Contact support
+          </a>
+        </div>
+
+        <div class="slide-stage" id="slideshow">
+
+        <div class="slide s-blood active">
+          <div class="slide-visual">
+            <svg viewBox="0 0 140 140">
+              <circle class="dot" cx="14" cy="30" r="6" fill="var(--blood)" opacity=".35"></circle>
+              <circle class="dot d2" cx="126" cy="20" r="5" fill="var(--blood)" opacity=".3"></circle>
+              <circle class="dot d3" cx="124" cy="112" r="7" fill="var(--blood)" opacity=".25"></circle>
+              <circle cx="66" cy="62" r="46" fill="var(--blood)"></circle>
+              <path d="M66 34c9 12 17 21 17 31a17 17 0 0 1-34 0c0-10 8-19 17-31Z" fill="#fff"></path>
+              <path d="M40 100c4-9 15-9 19-2 2 4 0 9-6 9-9 0-12-3-13-7Z" fill="var(--blood-deep)"></path>
+            </svg>
+          </div>
+          <div class="slide-copy">
+            <span class="slide-tag">Blood donation</span>
+            <h2>One donation can save up to three lives.</h2>
+            <p>Post or answer a request by blood group and distance — donors are notified in seconds, not phone calls.</p>
+          </div>
+        </div>
+
+        <div class="slide s-amber">
+          <div class="slide-visual">
+            <svg viewBox="0 0 140 140">
+              <circle class="pulse-ring" cx="66" cy="62" r="46" fill="none" stroke="var(--amber)" stroke-width="2"></circle>
+              <circle class="pulse-ring pr2" cx="66" cy="62" r="46" fill="none" stroke="var(--amber)" stroke-width="2"></circle>
+              <circle cx="66" cy="62" r="40" fill="var(--amber)"></circle>
+              <rect x="49" y="45" width="34" height="34" rx="9" fill="#fff" opacity=".92"></rect>
+              <path d="M66 53v18M57 62h18" stroke="var(--amber)" stroke-width="4.5" stroke-linecap="round"></path>
+              <path d="M22 100h14l6-12 8 20 6-14 4 6h16" fill="none" stroke="var(--amber)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity=".8"></path>
+            </svg>
+          </div>
+          <div class="slide-copy">
+            <span class="slide-tag">Emergency response</span>
+            <h2>When minutes matter, help is one tap away.</h2>
+            <p>Emergency requests reach nearby verified donors and hospitals first — no forty phone calls at 2 a.m.</p>
+          </div>
+        </div>
+
+        <div class="slide s-leaf">
+          <div class="slide-visual">
+            <svg viewBox="0 0 140 140">
+              <circle class="dot" cx="116" cy="26" r="6" fill="var(--leaf)" opacity=".3"></circle>
+              <circle class="dot d3" cx="16" cy="98" r="5" fill="var(--leaf)" opacity=".3"></circle>
+              <circle cx="66" cy="62" r="46" fill="var(--leaf)"></circle>
+              <path d="M66 84S46 71 46 55a12 12 0 0 1 20-9 12 12 0 0 1 20 9c0 16-20 29-20 29Z" fill="#fff"></path>
+              <path d="M30 66h10l5-9 7 16 5-11 3 4h10" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" opacity=".55"></path>
+            </svg>
+          </div>
+          <div class="slide-copy">
+            <span class="slide-tag">Everyday wellness</span>
+            <h2>Small daily care adds up to a healthier you.</h2>
+            <p>Medicine and check-up reminders that repeat what you entered — never medical advice, never a changed dose.</p>
+          </div>
+        </div>
+
+        <div class="slide s-clay">
+          <div class="slide-visual">
+            <svg viewBox="0 0 140 140">
+              <line x1="66" y1="62" x2="34" y2="34" stroke="var(--clay)" stroke-width="2" opacity=".5"></line>
+              <line x1="66" y1="62" x2="100" y2="34" stroke="var(--clay)" stroke-width="2" opacity=".5"></line>
+              <line x1="66" y1="62" x2="66" y2="104" stroke="var(--clay)" stroke-width="2" opacity=".5"></line>
+              <circle class="dot" cx="34" cy="34" r="16" fill="var(--clay-tint)" stroke="var(--clay)" stroke-width="2.5"></circle>
+              <circle class="dot d2" cx="100" cy="34" r="16" fill="var(--clay-tint)" stroke="var(--clay)" stroke-width="2.5"></circle>
+              <circle class="dot d3" cx="66" cy="104" r="16" fill="var(--clay-tint)" stroke="var(--clay)" stroke-width="2.5"></circle>
+              <circle cx="66" cy="62" r="24" fill="var(--clay)"></circle>
+              <path d="M58 62 64 68 76 54" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </div>
+          <div class="slide-copy">
+            <span class="slide-tag">Trusted network</span>
+            <h2>2,300+ donors and 340+ facilities, verified.</h2>
+            <p>Hospitals and NGOs publish real inventory, so a request only reaches people and places that can help.</p>
+          </div>
+        </div>
+
+        <div class="slide-dots" id="slideDots">
+          <button class="on" aria-label="Slide 1"></button>
+          <button aria-label="Slide 2"></button>
+          <button aria-label="Slide 3"></button>
+          <button aria-label="Slide 4"></button>
+        </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="trust">
+    <div class="trust-inner">
+      <div><b class="num">12,400+</b><span>OTP logins / month</span></div>
+      <div><b class="num">340</b><span>Partner facilities</span></div>
+      <div><b class="num">2,300+</b><span>Verified donors</span></div>
+      <div><b class="num">&lt;90s</b><span>Median match time</span></div>
+    </div>
+  </div>
+
+  <section class="section" id="about">
+    <div class="wrap">
+      <div class="about-grid">
+        <div class="about-copy">
+          <span class="eyebrow">About us</span>
+          <h2>Finding a donor shouldn't take forty phone calls.</h2>
+          <p>Community Health Hub started with a simple frustration: at 2 a.m., in a hospital corridor, the hardest part of an emergency was often just finding out who to call next. So we built one platform that connects verified donors, hospitals and NGOs — matched by blood group and distance, notified in seconds.</p>
+          <p>Alongside emergencies, the same account carries the everyday: medicine reminders, wellness check-ins, and a dashboard that adapts to whether you're a donor, a facility, or someone who just needs help right now.</p>
+          <blockquote>"Every donor is someone's reason to hope."</blockquote>
+        </div>
+        <div class="about-visual" aria-hidden="true">
+          <span class="ring r1"></span>
+          <span class="ring r2"></span>
+          <div class="core">
+            <svg viewBox="0 0 24 24"><path d="M12 3.2c3.4 4 6 6.9 6 10a6 6 0 0 1-12 0c0-3.1 2.6-6 6-10Z"></path></svg>
+          </div>
+          <div class="badge b1"><b class="num">2,300+</b><span>Donors</span></div>
+          <div class="badge b2"><b class="num">3</b><span>Lives / donation</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0" id="features">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Why Community Health Hub</span>
+        <h2>Three problems, one login.</h2>
+        <p>Blood donation, hospital inventory, and everyday wellness usually live in three different apps. Here they share one account and one verified identity.</p>
+      </div>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-icon fi-blood"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.2c3.4 4 6 6.9 6 10a6 6 0 0 1-12 0c0-3.1 2.6-6 6-10Z"></path></svg></div>
+          <h3>Donors, matched fast</h3>
+          <p>Post or answer a blood request by group and distance — donors are notified in seconds, not phone calls.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon fi-clay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20.5V8.2l8-4.7 8 4.7v12.3"></path><path d="M9.5 20.5v-5h5v5M12 9v4M10 11h4"></path></svg></div>
+          <h3>Real hospital stock</h3>
+          <p>Facilities publish live inventory by blood group, so a request only reaches places that can actually help.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon fi-leaf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-5.4 7-11a7 7 0 1 0-14 0c0 5.6 7 11 7 11Z"></path><circle cx="12" cy="10" r="2.6"></circle></svg></div>
+          <h3>Everyday wellness</h3>
+          <p>Medicine and check-up reminders that repeat what you entered — never medical advice, never a changed dose.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap footer-inner">
+    <span>© 2026 Community Health Hub</span>
+    <span>Emergency? Call your local blood bank directly — this platform does not replace emergency services.</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var slides = document.querySelectorAll('#slideshow .slide');
+  var dots = document.querySelectorAll('#slideDots button');
+  var si = 0;
+  function show(i){
+    slides.forEach(function(s, idx){ s.classList.toggle('active', idx === i); });
+    dots.forEach(function(d, idx){ d.classList.toggle('on', idx === i); });
+    si = i;
+  }
+  dots.forEach(function(d, idx){ d.addEventListener('click', function(){ show(idx); restart(); }); });
+  var timer;
+  function restart(){
+    clearInterval(timer);
+    timer = setInterval(function(){ show((si + 1) % slides.length); }, 4600);
+  }
+  restart();
+
+  var nums = document.querySelectorAll('.num[data-count]');
+  nums.forEach(function(el){
+    var target = parseInt(el.getAttribute('data-count'), 10);
+    var suffix = el.getAttribute('data-suffix') || '';
+    var start = null, duration = 900, delay = 600;
+    function tick(ts){
+      if (start === null) start = ts;
+      var p = Math.min(1, (ts - start) / duration);
+      var eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(target * eased).toLocaleString() + suffix;
+      if (p < 1) requestAnimationFrame(tick);
+    }
+    setTimeout(function(){ requestAnimationFrame(tick); }, delay);
+  });
+})();
+</script>
+</x-dc>
+</body>
+</html>
