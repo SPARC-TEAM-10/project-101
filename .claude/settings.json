@@ -1,4 +1,27 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(mv .claude/commands/design.md .claude/commands/design-story.md)",
+      "mcp__claude_ai_Atlassian_Rovo__getJiraIssue",
+      "mcp__claude_ai_Atlassian_Rovo__searchJiraIssuesUsingJql",
+      "Bash(mkdir -p \"design/drafts/CHH-7-otp-flow\" && ls \"C:/Users/jithin.r/AppData/Local/Temp/claude/bundled-skills/2.1.258/ea34e843909ac8c69c388c94ef70eb7b/design\" 2>/dev/null || echo \"check path via find\" *)",
+      "Read(//c/Users/jithin.r/AppData/Local/Temp/claude/bundled-skills/**)",
+      "Bash(node C:/Users/jithin.r/AppData/Local/Temp/claude/bundled-skills/2.1.258/ea34e843909ac8c69c388c94ef70eb7b/design/seed-canvas.mjs --template C:/Users/jithin.r/AppData/Local/Temp/claude/bundled-skills/2.1.258/ea34e843909ac8c69c388c94ef70eb7b/design/payload.template.html --out chh-7-otp-flow-draft.html --title 'CHH-7 OTP Flow Draft' --artboard Main.dc.html --artboard OtpVerify.dc.html --artboard GuestDecision.dc.html --canvas canvas.json)",
+      "Bash(node \"C:/Users/jithin.r/AppData/Local/Temp/claude/bundled-skills/2.1.258/ea34e843909ac8c69c388c94ef70eb7b/design/seed-canvas.mjs\" --check chh-7-otp-flow-draft.html)",
+      "mcp__claude_ai_Atlassian_Rovo__updateConfluencePage",
+      "Bash(node C:/Users/jithin.r/AppData/Local/Temp/claude/bundled-skills/2.1.258/ea34e843909ac8c69c388c94ef70eb7b/design/seed-canvas.mjs --extract 'C:\\\\Users\\\\jithin.r\\\\.claude\\\\projects\\\\d--Hackathon-project-101\\\\ebdfce2a-9710-4e8a-821a-23c2d65e315d\\\\tool-results\\\\artifact-6b185d14-1788414617-8290.html' --to d:/Hackathon/project-101/design/drafts/_canonical-extract)",
+      "Bash(cp CHH-7-otp-flow/Main.dc.html _canonical-extract/MobileEntry.dc.html)",
+      "Bash(cp CHH-7-otp-flow/OtpVerify.dc.html _canonical-extract/OtpVerify.dc.html)",
+      "Bash(cp CHH-7-otp-flow/GuestDecision.dc.html _canonical-extract/GuestDecision.dc.html)",
+      "Bash(cp CHH-7-otp-flow/MainWeb.dc.html _canonical-extract/MobileEntryWeb.dc.html)",
+      "Bash(cp CHH-7-otp-flow/OtpVerifyWeb.dc.html _canonical-extract/OtpVerifyWeb.dc.html)",
+      "Bash(node C:/Users/jithin.r/AppData/Local/Temp/claude/bundled-skills/2.1.258/ea34e843909ac8c69c388c94ef70eb7b/design/seed-canvas.mjs --template C:/Users/jithin.r/AppData/Local/Temp/claude/bundled-skills/2.1.258/ea34e843909ac8c69c388c94ef70eb7b/design/payload.template.html --out chh-12-registration-draft.html --title 'CHH-12 Registration Draft' --artboard Registration.dc.html --artboard RegistrationWebDisabled.dc.html --artboard RegistrationWebEnabled.dc.html --canvas canvas.json)",
+      "Bash(node \"C:/Users/jithin.r/AppData/Local/Temp/claude/bundled-skills/2.1.258/ea34e843909ac8c69c388c94ef70eb7b/design/seed-canvas.mjs\" --check chh-12-registration-draft.html)"
+    ],
+    "additionalDirectories": [
+      "d:\\Hackathon\\project-101\\.claude\\commands"
+    ]
+  },
   "hooks": {
     "PostToolUse": [
       {

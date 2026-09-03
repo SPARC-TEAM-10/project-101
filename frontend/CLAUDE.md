@@ -102,6 +102,7 @@ Same monorepo layout as `backend/CLAUDE.md` §Agent Structure. This side's agent
 ├── frontend-coding-agent.md
 ├── frontend-code-review-agent.md
 └── frontend-unittest-agent.md
+└── designer.md                      ← shared frontend-design handoff
 ```
 
 There is no `frontend-codebase-analysis-agent.md` — the Knowledge Agent does its own (smaller-scope) codebase exploration inline; a single component-tree scan doesn't warrant a separate delegate the way the backend's shared-repo-plus-microservice scan did.
@@ -177,6 +178,7 @@ Same as backend — see `backend/CLAUDE.md` §Output. Implementation plans, feat
 | Startup Agent | `.claude/agents/startup-agent.md` | Verify stack, module folders, and Jira access once per project (shared) |
 | Knowledge Agent | `.claude/agents/frontend-knowledge-agent.md` | Fetch Jira ticket context; explore existing frontend patterns |
 | Planning Agent | `.claude/agents/frontend-planning-agent.md` | Produce an approved implementation plan; checks design readiness |
+| Designer | `.claude/agents/designer.md` | Design approved frontend stories before their Coding Agent is dispatched |
 | Coding Agent | `.claude/agents/frontend-coding-agent.md` | Implement the approved plan in `frontend/` |
 | Code Review Agent | `.claude/agents/frontend-code-review-agent.md` | Review quality, accessibility, type correctness, plan compliance |
 | Unittest Agent | `.claude/agents/frontend-unittest-agent.md` | Write and verify tests; hand off to PR Agent when suite is green |

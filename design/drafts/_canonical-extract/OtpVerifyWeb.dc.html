@@ -1,0 +1,138 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --sand:#F6F0E5; --sand-2:#EFE7D9; --cream:#FDFAF4;
+      --line-strong:#D6C6AC;
+      --clay:#B06134; --clay-hover:#96502A; --clay-deep:#8A4620;
+      --ink:#392A1D; --ink-2:#6F5C46; --ink-3:#A08A70; --ink-off:#BFAE96;
+      --error:#A33325;
+      --font:"Plus Jakarta Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+      --r-sm:12px; --r-md:16px; --r-full:999px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0}
+    .screen{width:1440px;height:900px;background:var(--sand);font-family:var(--font);color:var(--ink);
+      display:flex;overflow:hidden}
+    .left{width:480px;flex:none;background:var(--clay-deep);color:#fff;padding:64px 56px;
+      display:flex;flex-direction:column;position:relative;overflow:hidden}
+    .left::after{content:"";position:absolute;right:-70px;bottom:-70px;width:240px;height:240px;
+      border-radius:999px;background:rgba(255,255,255,.05)}
+    .mark{width:44px;height:44px;border-radius:var(--r-full);background:rgba(255,255,255,.18);
+      display:flex;align-items:center;justify-content:center;margin-bottom:40px}
+    .left h2{font-size:32px;font-weight:800;letter-spacing:-.03em;line-height:1.2;margin:0 0 16px;max-width:14ch;position:relative}
+    .left p{font-size:15px;opacity:.82;line-height:1.6;margin:0 0 40px;max-width:32ch;position:relative}
+    .left ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:18px;position:relative}
+    .left li{font-size:14px;display:flex;gap:12px;align-items:center;opacity:.94}
+    .right{flex:1;display:flex;align-items:center;justify-content:center}
+    .form{width:380px}
+    h1{font-size:26px;font-weight:800;letter-spacing:-.026em;margin:0 0 8px}
+    .sub{font-size:15px;color:var(--ink-2);line-height:1.5;margin:0 0 32px}
+    .sub b{color:var(--ink);font-variant-numeric:tabular-nums}
+    .otp{display:flex;gap:10px;margin-bottom:16px}
+    .otp input{width:52px;height:58px;text-align:center;font-family:var(--font);font-size:22px;font-weight:700;
+      border-radius:var(--r-sm);background:var(--cream);font-variant-numeric:tabular-nums}
+    .otp.entering input{border:1.5px solid var(--line-strong)}
+    .otp.entering input.filled{border-color:var(--clay)}
+    .otp.ready input{border:1.5px solid var(--clay)}
+    .otp.error input{border:1.5px solid var(--error)}
+    .msg{font-size:13px;display:flex;align-items:center;gap:6px;min-height:18px;margin-bottom:16px}
+    .msg.error{color:var(--error)}
+    button.verify{height:54px;width:100%;border-radius:var(--r-md);border:none;font-family:var(--font);
+      font-size:16px;font-weight:600;cursor:pointer;margin-bottom:22px}
+    button.verify.on{background:var(--clay);color:#fff}
+    button.verify.on:hover{background:var(--clay-hover)}
+    button.verify.off{background:var(--sand-2);color:var(--ink-off);cursor:not-allowed}
+    .timer{font-size:14px;color:var(--ink-2);margin-bottom:16px}
+    .timer b{font-variant-numeric:tabular-nums;color:var(--ink)}
+    .resend-btn{background:none;border:none;color:var(--clay);font-family:var(--font);font-size:14px;
+      font-weight:600;cursor:pointer;padding:0;margin-bottom:16px}
+    a.change{font-size:13.5px;color:var(--ink-2);text-decoration:none}
+    a.change:hover{color:var(--clay)}
+  </style>
+</helmet>
+
+<div class="screen">
+  <div class="left">
+    <div class="mark"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.2c3.4 4 6 6.9 6 10a6 6 0 0 1-12 0c0-3.1 2.6-6 6-10Z"/></svg></div>
+    <h2>Every login gets you closer to a donor.</h2>
+    <p>Sign in with your phone to see donors nearby, track requests, and manage your profile.</p>
+    <ul>
+      <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-5.4 7-11a7 7 0 1 0-14 0c0 5.6 7 11 7 11Z"/><circle cx="12" cy="10" r="2.6"/></svg> See live donor locations</li>
+      <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15.5V10a6 6 0 1 0-12 0v5.5L4.5 18h15L18 15.5Z"/><path d="M10 18a2 2 0 0 0 4 0"/></svg> Get notified for nearby requests</li>
+      <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 1.8"/></svg> Sign in in seconds, no password</li>
+    </ul>
+  </div>
+  <div class="right">
+    <div class="form">
+      <h1>Enter the code</h1>
+      <p class="sub">Sent to <b>+91 98765 43210</b></p>
+
+      <div class="otp {{state}}">
+        <input maxlength="1" class="{{d0}}" value="{{v0}}">
+        <input maxlength="1" class="{{d1}}" value="{{v1}}">
+        <input maxlength="1" class="{{d2}}" value="{{v2}}">
+        <input maxlength="1" class="{{d3}}" value="{{v3}}">
+        <input maxlength="1" class="{{d4}}" value="{{v4}}">
+        <input maxlength="1" class="{{d5}}" value="{{v5}}">
+      </div>
+
+      <div class="msg error">
+        <sc-if value="{{state === 'error'}}" hint-placeholder-val="{{false}}">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5 21 19.5H3L12 4.5Z"/><path d="M12 10v4M12 16.8v.1"/></svg>
+          Invalid OTP. Please try again.
+        </sc-if>
+      </div>
+
+      <button class="verify {{ctaClass}}" {{ctaDisabled}}>Verify OTP</button>
+
+      <sc-if value="{{resendReady}}" hint-placeholder-val="{{false}}">
+        <button class="resend-btn">Resend OTP</button>
+      </sc-if>
+      <sc-if value="{{!resendReady}}" hint-placeholder-val="{{true}}">
+        <div class="timer">Resend in <b>01:37</b></div>
+      </sc-if>
+
+      <a class="change" href="#">Change Number</a>
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script data-dc-script data-props='{
+  "state": {"editor":"enum","default":"entering","options":["entering","ready","error"],"section":"AC state (CHH-9)"},
+  "resendReady": {"editor":"boolean","default":false,"section":"AC state (CHH-9)"}
+}'>
+class Component extends DCLogic {
+  renderVals() {
+    const state = this.props.state ?? "entering";
+    const resendReady = this.props.resendReady ?? false;
+    const filled = {
+      entering: ["4","2","7","", "", ""],
+      ready:    ["4","2","7","1","5","9"],
+      error:    ["4","2","7","1","5","9"],
+    }[state];
+    const digitClass = (i) => (state === "entering" && filled[i] ? "filled" : "");
+    const complete = filled.every((d) => d !== "");
+    return {
+      state, resendReady,
+      d0: digitClass(0), d1: digitClass(1), d2: digitClass(2), d3: digitClass(3), d4: digitClass(4), d5: digitClass(5),
+      v0: filled[0], v1: filled[1], v2: filled[2], v3: filled[3], v4: filled[4], v5: filled[5],
+      ctaClass: complete ? "on" : "off",
+      ctaDisabled: complete ? "" : "disabled",
+    };
+  }
+}
+</script>
+</body>
+</html>
