@@ -14,7 +14,7 @@ type: project
 | Feature Branch Prefix | feature/ |
 | Branch Naming Convention | feature/{jira-ticket-id}-{short-description} (bugfix/ for Bug tickets or `/dev` runs) |
 | Git Base Branch | main |
-| Feature Branch | (empty — written by Git Branch Skill when a branch is created) |
+| Feature Branch | feature/CHH-8-mobile-entry-otp |
 
 ## How to Apply
 
