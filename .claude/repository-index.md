@@ -6,7 +6,7 @@
 | Module | Path | Description |
 |---|---|---|
 | backend | backend/ | ASP.NET Core 8 Web API — see backend/CLAUDE.md. Scaffolded 2026-09-02 (`backend/Chh.sln`, Clean Architecture skeleton: Chh.Api/Application/Domain/Infrastructure + test projects). Build unverified — no .NET 8 SDK in this environment. |
-| frontend | frontend/ | React + TypeScript + Vite web app — see frontend/CLAUDE.md. `[NOT SCAFFOLDED]` — no project files yet, stack described but not created |
+| frontend | frontend/ | React + TypeScript + Vite web app — see frontend/CLAUDE.md. Scaffolded 2026-09-03 (CHH-8): Vite + React 18 + TS, Tailwind, TanStack Query, React Router, Vitest/RTL/MSW. Build verified — `npm run typecheck` and `npm run build` both clean. |
 
 > **Note:** Each row represents a **module folder within this single repo**,
 > not a separate git repository. There is exactly one git repository — this
