@@ -6,9 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Chh.Api.Controllers;
 
-/// <summary>Mobile-number + OTP authentication endpoints (CHH-F01).</summary>
+/// <summary>Mobile-number + OTP authentication endpoints (CHH-F01). The "api/v1" route prefix is applied globally in <c>Program.cs</c>.</summary>
 [ApiController]
-[Route("api/v1/auth")]
 public class AuthController : ControllerBase
 {
     private readonly IOtpService _otpService;

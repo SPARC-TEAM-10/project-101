@@ -12,7 +12,7 @@ public class ChhDbContext : DbContext
     }
 
     /// <summary>Issued OTP requests (CHH-F01).</summary>
-    public DbSet<OtpRequest> OtpRequests => Set<OtpRequest>();
+    public DbSet<OtpRequest> OtpRequests { get; set; } = default!;
 
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder)

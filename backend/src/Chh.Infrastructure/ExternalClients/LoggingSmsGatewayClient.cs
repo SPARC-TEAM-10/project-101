@@ -1,4 +1,5 @@
 using Chh.Application.Contracts;
+using Chh.Domain.Constants;
 using Microsoft.Extensions.Logging;
 
 namespace Chh.Infrastructure.ExternalClients;
@@ -11,12 +12,10 @@ namespace Chh.Infrastructure.ExternalClients;
 /// </summary>
 public class LoggingSmsGatewayClient : ISmsGatewayClient
 {
-    private const int MaskedVisibleDigits = 2;
-    private const char MaskChar = '*';
-
     private readonly ILogger<LoggingSmsGatewayClient> _logger;
 
     /// <summary>Creates the stub client with its logger dependency.</summary>
+    /// <param name="logger">Logger the stub writes the simulated dispatch to.</param>
     public LoggingSmsGatewayClient(ILogger<LoggingSmsGatewayClient> logger)
     {
         _logger = logger;
@@ -28,19 +27,7 @@ public class LoggingSmsGatewayClient : ISmsGatewayClient
         // Never log the OTP code itself (api-standards.md §8).
         _logger.LogInformation(
             "Stub SMS gateway: would dispatch OTP to {MaskedMobileNumber}",
-            MaskMobileNumber(mobileNumber));
+            OtpConstants.MaskMobileNumber(mobileNumber));
         return Task.CompletedTask;
-    }
-
-    private static string MaskMobileNumber(string mobileNumber)
-    {
-        if (mobileNumber.Length <= MaskedVisibleDigits)
-        {
-            return new string(MaskChar, mobileNumber.Length);
-        }
-
-        var visible = mobileNumber[^MaskedVisibleDigits..];
-        var maskedLength = mobileNumber.Length - MaskedVisibleDigits;
-        return new string(MaskChar, maskedLength) + visible;
     }
 }

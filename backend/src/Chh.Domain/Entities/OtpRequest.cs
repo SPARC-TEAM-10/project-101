@@ -15,33 +15,38 @@ public class OtpRequest
     /// <summary>UTC timestamp the OTP was requested.</summary>
     public DateTimeOffset OtpRequestedAtUtc { get; private set; }
 
-    /// <summary>UTC timestamp the OTP expires (requested + 5 minutes).</summary>
+    /// <summary>UTC timestamp the OTP expires.</summary>
     public DateTimeOffset OtpExpiresAtUtc { get; private set; }
 
-    /// <summary>UTC timestamp a resend becomes available (requested + 120 seconds).</summary>
+    /// <summary>UTC timestamp a resend becomes available.</summary>
     public DateTimeOffset ResendAvailableAtUtc { get; private set; }
 
     /// <summary>Whether this OTP has been successfully verified. Set by CHH-9 (verification is out of scope here).</summary>
     public bool IsVerified { get; private set; }
 
-    private static readonly TimeSpan OtpValidity = TimeSpan.FromMinutes(5);
-    private static readonly TimeSpan ResendCooldown = TimeSpan.FromSeconds(120);
-
+    /// <summary>Reserved for EF Core materialization — entities carry no construction logic (see <see cref="Chh.Application.Factories.OtpRequestFactory"/>).</summary>
     private OtpRequest()
     {
     }
 
-    /// <summary>Creates a new OTP request, computing the expiry and resend-cooldown timestamps from <paramref name="requestedAtUtc"/>.</summary>
-    public static OtpRequest Create(string mobileNumber, string otpCodeHash, DateTimeOffset requestedAtUtc)
+    /// <summary>Creates an OTP request record from already-computed timestamps.</summary>
+    /// <param name="mobileNumber">The 10-digit mobile number the OTP was issued for.</param>
+    /// <param name="otpCodeHash">SHA-256 hex hash of the OTP code. The raw code is never persisted.</param>
+    /// <param name="otpRequestedAtUtc">UTC timestamp the OTP was requested.</param>
+    /// <param name="otpExpiresAtUtc">UTC timestamp the OTP expires.</param>
+    /// <param name="resendAvailableAtUtc">UTC timestamp a resend becomes available.</param>
+    public OtpRequest(
+        string mobileNumber,
+        string otpCodeHash,
+        DateTimeOffset otpRequestedAtUtc,
+        DateTimeOffset otpExpiresAtUtc,
+        DateTimeOffset resendAvailableAtUtc)
     {
-        return new OtpRequest
-        {
-            MobileNumber = mobileNumber,
-            OtpCodeHash = otpCodeHash,
-            OtpRequestedAtUtc = requestedAtUtc,
-            OtpExpiresAtUtc = requestedAtUtc.Add(OtpValidity),
-            ResendAvailableAtUtc = requestedAtUtc.Add(ResendCooldown),
-            IsVerified = false
-        };
+        MobileNumber = mobileNumber;
+        OtpCodeHash = otpCodeHash;
+        OtpRequestedAtUtc = otpRequestedAtUtc;
+        OtpExpiresAtUtc = otpExpiresAtUtc;
+        ResendAvailableAtUtc = resendAvailableAtUtc;
+        IsVerified = false;
     }
 }

@@ -10,6 +10,7 @@ public class OtpRequestRepository : IOtpRequestRepository
     private readonly ChhDbContext _context;
 
     /// <summary>Creates the repository with the shared <see cref="ChhDbContext"/>.</summary>
+    /// <param name="context">The shared EF Core database context.</param>
     public OtpRequestRepository(ChhDbContext context)
     {
         _context = context;

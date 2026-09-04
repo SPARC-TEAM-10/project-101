@@ -4,5 +4,8 @@ namespace Chh.Application.Contracts;
 public interface ISmsGatewayClient
 {
     /// <summary>Sends the given OTP code to the given mobile number.</summary>
+    /// <param name="mobileNumber">The mobile number to send the OTP to.</param>
+    /// <param name="otpCode">The plaintext OTP code to send. Never logged.</param>
+    /// <param name="ct">Cancellation token.</param>
     Task SendOtpAsync(string mobileNumber, string otpCode, CancellationToken ct);
 }

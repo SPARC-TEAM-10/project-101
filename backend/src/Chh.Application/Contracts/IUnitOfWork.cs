@@ -8,5 +8,6 @@ namespace Chh.Application.Contracts;
 public interface IUnitOfWork
 {
     /// <summary>Persists all pending changes to the database.</summary>
+    /// <param name="ct">Cancellation token.</param>
     Task SaveChangesAsync(CancellationToken ct);
 }

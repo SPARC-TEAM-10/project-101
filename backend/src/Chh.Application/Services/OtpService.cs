@@ -3,7 +3,8 @@ using System.Text;
 using Chh.Application.Abstractions;
 using Chh.Application.Contracts;
 using Chh.Application.Dtos;
-using Chh.Domain.Entities;
+using Chh.Application.Factories;
+using Chh.Domain.Constants;
 using Microsoft.Extensions.Logging;
 
 namespace Chh.Application.Services;
@@ -11,16 +12,16 @@ namespace Chh.Application.Services;
 /// <summary>Orchestrates OTP generation, persistence, and dispatch (CHH-F01).</summary>
 public class OtpService : IOtpService
 {
-    private const int OtpCodeLength = 6;
-    private const int MaskedVisibleDigits = 2;
-    private const char MaskChar = '*';
-
     private readonly IOtpRequestRepository _otpRequestRepository;
     private readonly ISmsGatewayClient _smsGatewayClient;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<OtpService> _logger;
 
     /// <summary>Creates the service with its repository, SMS gateway, unit-of-work, and logger dependencies.</summary>
+    /// <param name="otpRequestRepository">Data layer for reading and persisting OTP requests.</param>
+    /// <param name="smsGatewayClient">Gateway used to dispatch the generated OTP code.</param>
+    /// <param name="unitOfWork">Persists changes made during the request.</param>
+    /// <param name="logger">Logger for dispatch-failure diagnostics.</param>
     public OtpService(
         IOtpRequestRepository otpRequestRepository,
         ISmsGatewayClient smsGatewayClient,
@@ -49,7 +50,7 @@ public class OtpService : IOtpService
 
         var otpCode = GenerateOtpCode();
         var otpCodeHash = HashOtpCode(otpCode);
-        var otpRequest = OtpRequest.Create(request.MobileNumber, otpCodeHash, requestedAtUtc);
+        var otpRequest = OtpRequestFactory.Create(request.MobileNumber, otpCodeHash, requestedAtUtc);
 
         await _otpRequestRepository.AddAsync(otpRequest, ct).ConfigureAwait(false);
 
@@ -60,13 +61,13 @@ public class OtpService : IOtpService
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "SMS gateway dispatch failed for mobile number {MaskedMobileNumber}",
-                MaskMobileNumber(request.MobileNumber));
+                OtpConstants.MaskMobileNumber(request.MobileNumber));
             throw new OtpDispatchException(ex);
         }
 
         var response = new OtpRequestResponse
         {
-            MaskedMobileNumber = MaskMobileNumber(request.MobileNumber),
+            MaskedMobileNumber = OtpConstants.MaskMobileNumber(request.MobileNumber),
             OtpExpiresAtUtc = otpRequest.OtpExpiresAtUtc,
             ResendAvailableAtUtc = otpRequest.ResendAvailableAtUtc
         };
@@ -78,8 +79,8 @@ public class OtpService : IOtpService
 
     private static string GenerateOtpCode()
     {
-        var code = RandomNumberGenerator.GetInt32(0, (int)Math.Pow(10, OtpCodeLength));
-        return code.ToString(new string('0', OtpCodeLength));
+        var code = RandomNumberGenerator.GetInt32(0, (int)Math.Pow(10, OtpConstants.CodeLength));
+        return code.ToString(new string('0', OtpConstants.CodeLength));
     }
 
     private static string HashOtpCode(string otpCode)
@@ -87,12 +88,5 @@ public class OtpService : IOtpService
         var bytes = Encoding.UTF8.GetBytes(otpCode);
         var hash = SHA256.HashData(bytes);
         return Convert.ToHexString(hash).ToLowerInvariant();
-    }
-
-    private static string MaskMobileNumber(string mobileNumber)
-    {
-        var visible = mobileNumber[^MaskedVisibleDigits..];
-        var maskedLength = mobileNumber.Length - MaskedVisibleDigits;
-        return new string(MaskChar, maskedLength) + visible;
     }
 }

@@ -6,6 +6,9 @@ obj/
 *.user
 *.suo
 
+# Visual Studio local cache
+.vs/
+
 # Test / coverage output
 TestResults/
 coverage*.xml

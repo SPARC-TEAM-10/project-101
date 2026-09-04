@@ -18,10 +18,12 @@ public static class ServiceCollectionExtensions
     /// and FluentValidation validators. This is the only extension referencing <c>Chh.Infrastructure</c>
     /// types from <c>Chh.Api</c>.
     /// </summary>
-    public static IServiceCollection AddChhServices(this IServiceCollection services, IConfiguration configuration)
+    /// <param name="services">The service collection to register into.</param>
+    /// <param name="configuration">App configuration, used to resolve the database connection string.</param>
+    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddDbContext<ChhDbContext>(options =>
-            options.UseNpgsql(configuration.GetConnectionString("ChhDatabase")));
+            options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
 
         services.AddScoped<IOtpRequestRepository, OtpRequestRepository>();
         services.AddScoped<IOtpService, OtpService>();
