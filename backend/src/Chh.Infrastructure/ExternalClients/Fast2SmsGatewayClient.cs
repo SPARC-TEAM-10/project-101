@@ -40,23 +40,36 @@ public class Fast2SmsGatewayClient : ISmsGatewayClient
         var payload = new Fast2SmsOtpRequest(otpCode, "otp", mobileNumber);
 
         using var response = await _httpClient.PostAsJsonAsync(RequestUri, payload, ct).ConfigureAwait(false);
-        response.EnsureSuccessStatusCode();
 
         // Fast2SMS reports business-level failures as HTTP 200 with "return": false, so a 2xx
         // status code alone doesn't mean the OTP was actually dispatched. The response shape
         // otherwise varies (e.g. "message" is a string on some failures, an array on success),
         // so we only pick out the one field our logic depends on and log the raw body for the rest.
         var responseBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
-        using var responseJson = JsonDocument.Parse(responseBody);
-        var dispatched = responseJson.RootElement.TryGetProperty("return", out var returnProperty)
-            && returnProperty.ValueKind == JsonValueKind.True;
+        var dispatched = response.IsSuccessStatusCode && TryGetReturnTrue(responseBody);
 
         if (!dispatched)
         {
             _logger.LogWarning(
-                "Fast2SMS reported dispatch failure for {MaskedMobileNumber}: {ResponseBody}",
-                OtpConstants.MaskMobileNumber(mobileNumber), responseBody);
-            throw new HttpRequestException("Fast2SMS reported a dispatch failure");
+                "Fast2SMS reported dispatch failure ({StatusCode}) for {MaskedMobileNumber}: {ResponseBody}",
+                (int)response.StatusCode, OtpConstants.MaskMobileNumber(mobileNumber), responseBody);
+            throw new HttpRequestException(
+                $"Fast2SMS reported a dispatch failure ({(int)response.StatusCode}): {responseBody}");
+        }
+    }
+
+    private static bool TryGetReturnTrue(string responseBody)
+    {
+        try
+        {
+            using var responseJson = JsonDocument.Parse(responseBody);
+            return responseJson.RootElement.TryGetProperty("return", out var returnProperty)
+                && returnProperty.ValueKind == JsonValueKind.True;
+        }
+        catch (JsonException)
+        {
+            // A non-2xx response isn't guaranteed to be JSON (e.g. an upstream proxy error page).
+            return false;
         }
     }
 
