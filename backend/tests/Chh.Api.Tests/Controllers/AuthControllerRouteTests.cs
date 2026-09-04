@@ -32,4 +32,18 @@ public class AuthControllerRouteTests
         response.StatusCode.Should().NotBe(HttpStatusCode.NotFound,
             "the route convention must still resolve AuthController to contracts/chh-api.v1.yaml's documented path");
     }
+
+    [Fact]
+    public async Task PostOtpVerify_UsesContractPath_IsRouted()
+    {
+        // Arrange
+        var client = _factory.CreateClient();
+
+        // Act
+        var response = await client.PostAsync("/api/v1/auth/otp/verify", content: null);
+
+        // Assert
+        response.StatusCode.Should().NotBe(HttpStatusCode.NotFound,
+            "the route convention must still resolve AuthController to contracts/chh-api.v1.yaml's documented path");
+    }
 }

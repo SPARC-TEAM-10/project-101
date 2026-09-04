@@ -37,4 +37,20 @@ public class AuthController : ControllerBase
         var result = await _otpService.RequestOtpAsync(request, cancellationToken);
         return Ok(result);
     }
+
+    /// <summary>Verifies a submitted OTP code for a mobile number.</summary>
+    /// <param name="request">The mobile number and OTP code to verify.</param>
+    /// <param name="cancellationToken">Cancellation token forwarded through the service and repository layers.</param>
+    [HttpPost("otp/verify")]
+    // One of only 2 endpoints allowed [AllowAnonymous] in this system — see api-standards.md §5
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(OtpVerifyResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+    public async Task<ActionResult<OtpVerifyResponse>> VerifyOtpAsync(
+        [FromBody] OtpVerifyRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await _otpService.VerifyOtpAsync(request, cancellationToken);
+        return Ok(result);
+    }
 }

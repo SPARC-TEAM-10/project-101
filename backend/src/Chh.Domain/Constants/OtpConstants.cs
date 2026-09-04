@@ -20,8 +20,21 @@ public static class OtpConstants
     /// <summary>Regex an OTP-eligible mobile number must match: exactly 10 digits.</summary>
     public const string MobileNumberPattern = "^[0-9]{10}$";
 
+    /// <summary>Regex an OTP code must match: exactly 6 digits.</summary>
+    public const string OtpCodePattern = "^[0-9]{6}$";
+
     /// <summary>User-facing message for an invalid mobile number.</summary>
     public const string InvalidMobileNumberMessage = "Please enter a valid 10-digit mobile number";
+
+    /// <summary>User-facing message for a malformed OTP code (wrong length/non-numeric).</summary>
+    public const string InvalidOtpCodeShapeMessage = "Please enter the 6-digit code";
+
+    /// <summary>
+    /// User-facing message when a submitted OTP code is wrong, expired, or none was ever
+    /// requested for the mobile number. Deliberately the same message for all three cases —
+    /// distinguishing them in the response would let a caller enumerate valid mobile numbers.
+    /// </summary>
+    public const string InvalidOtpMessage = "Invalid OTP. Please try again.";
 
     /// <summary>User-facing message when the SMS gateway fails to dispatch an OTP.</summary>
     public const string DispatchFailureMessage = "Could not send verification code, please try again";

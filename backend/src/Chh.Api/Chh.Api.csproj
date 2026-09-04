@@ -22,7 +22,10 @@
     <PackageReference Include="Serilog.Enrichers.Process" Version="2.0.2" />
     <PackageReference Include="Serilog.Enrichers.Environment" Version="2.3.0" />
     <PackageReference Include="Hellang.Middleware.ProblemDetails" Version="6.5.1" />
-    <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
+    <!-- FluentValidation.AspNetCore is NOT referenced: its auto-validation short-circuits with
+         its own 400 BadRequestObjectResult, bypassing ApiBehaviorOptions entirely, so validation
+         failures never came back as the 422 api-standards.md §7 requires. Chh.Api.Filters.
+         FluentValidationActionFilter validates explicitly instead. -->
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.9.2" />
     <PackageReference Include="Hangfire.AspNetCore" Version="1.8.14" />
     <PackageReference Include="Hangfire.PostgreSql" Version="1.20.9" />

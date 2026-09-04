@@ -49,4 +49,10 @@ public class OtpRequest
         ResendAvailableAtUtc = resendAvailableAtUtc;
         IsVerified = false;
     }
+
+    /// <summary>Marks this OTP request as successfully verified (CHH-9). Idempotent.</summary>
+    public void MarkVerified()
+    {
+        IsVerified = true;
+    }
 }

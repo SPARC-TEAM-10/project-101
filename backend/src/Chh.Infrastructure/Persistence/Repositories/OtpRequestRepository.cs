@@ -26,6 +26,14 @@ public class OtpRequestRepository : IOtpRequestRepository
             .ConfigureAwait(false);
 
     /// <inheritdoc />
+    public async Task<OtpRequest?> GetLatestTrackedByMobileNumberAsync(string mobileNumber, CancellationToken ct) =>
+        await _context.OtpRequests
+            .Where(o => o.MobileNumber == mobileNumber)
+            .OrderByDescending(o => o.OtpRequestedAtUtc)
+            .FirstOrDefaultAsync(ct)
+            .ConfigureAwait(false);
+
+    /// <inheritdoc />
     public async Task AddAsync(OtpRequest otpRequest, CancellationToken ct) =>
         await _context.OtpRequests.AddAsync(otpRequest, ct).ConfigureAwait(false);
 }

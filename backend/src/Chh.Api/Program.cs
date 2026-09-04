@@ -1,4 +1,5 @@
 using Chh.Api.Extensions;
+using Chh.Api.Filters;
 using Chh.Api.Routing;
 using Chh.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
@@ -26,6 +27,10 @@ builder.Services.AddControllers(options =>
 {
     options.Conventions.Add(new RoutePrefixConvention("api/v1/[controller]"));
     options.Conventions.Add(new RouteTokenTransformerConvention(new KebabCaseParameterTransformer()));
+    // Runs FluentValidation and throws ChhValidationException (-> 422) on failure — see
+    // FluentValidationActionFilter for why this replaces FluentValidation.AspNetCore's
+    // auto-validation (it returned 400, not the required 422).
+    options.Filters.Add<FluentValidationActionFilter>();
 });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

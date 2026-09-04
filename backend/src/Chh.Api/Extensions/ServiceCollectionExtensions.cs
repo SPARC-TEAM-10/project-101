@@ -5,7 +5,6 @@ using Chh.Infrastructure.ExternalClients;
 using Chh.Infrastructure.Persistence;
 using Chh.Infrastructure.Persistence.Repositories;
 using FluentValidation;
-using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Chh.Api.Extensions;
@@ -27,11 +26,26 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<IOtpRequestRepository, OtpRequestRepository>();
         services.AddScoped<IOtpService, OtpService>();
-        services.AddScoped<ISmsGatewayClient, LoggingSmsGatewayClient>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+        // SMS gateway: Fast2SMS when an API key is configured (Azure Key Vault / user-secrets —
+        // never appsettings.json, api-standards.md §5), otherwise the logging stub. Keeps local
+        // dev from spending paid SMS credits by default without hardcoding a provider choice.
+        var fast2SmsApiKey = configuration["Fast2Sms:ApiKey"];
+        if (!string.IsNullOrWhiteSpace(fast2SmsApiKey))
+        {
+            services.AddHttpClient<ISmsGatewayClient, Fast2SmsGatewayClient>(client =>
+            {
+                client.BaseAddress = new Uri("https://www.fast2sms.com/");
+                client.DefaultRequestHeaders.Add("authorization", fast2SmsApiKey);
+            });
+        }
+        else
+        {
+            services.AddScoped<ISmsGatewayClient, LoggingSmsGatewayClient>();
+        }
+
         services.AddValidatorsFromAssembly(typeof(OtpRequestRequestValidator).Assembly);
-        services.AddFluentValidationAutoValidation();
 
         return services;
     }
