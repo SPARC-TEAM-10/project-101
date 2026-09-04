@@ -38,14 +38,10 @@ builder.Services.AddHealthChecks();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
 var app = builder.Build();
-
-// Applies pending EF Core migrations on startup. Skipped under the "Testing" environment
-// (see ApiWebApplicationFactory) — WebApplicationFactory-hosted tests have no real database.
-if (!app.Environment.IsEnvironment("Testing"))
+using (var scope = app.Services.CreateScope())
 {
-    using var startupScope = app.Services.CreateScope();
-    var dbContext = startupScope.ServiceProvider.GetRequiredService<ChhDbContext>();
-    await dbContext.Database.MigrateAsync();
+    var dbContext = scope.ServiceProvider.GetRequiredService<ChhDbContext>();
+    await dbContext.Database.MigrateAsync(); // Applies migrations
 }
 
 Hellang.Middleware.ProblemDetails.ProblemDetailsExtensions.UseProblemDetails(app);
