@@ -1,0 +1,195 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --sand:#F6F0E5;--sand-2:#EFE7D9;--cream:#FDFAF4;--line:#E6DAC7;--line-strong:#D6C6AC;
+      --clay:#B06134;--clay-hover:#96502A;--clay-deep:#8A4620;--clay-tint:#F5E4D3;--clay-line:#E8CDB2;
+      --blood:#D32F2F;--blood-deep:#9E1B18;--blood-tint:#FCE9E7;--blood-line:#F5C6C2;
+      --go:#3F6B39;--go-deep:#2F5629;--go-tint:#E4EFDD;--go-line:#C3DAB8;
+      --ink:#392A1D;--ink-2:#6F5C46;--ink-3:#A08A70;--ink-off:#BFAE96;
+      --error:#A33325;--error-tint:#F7E4E0;--amber:#8F6A12;--amber-tint:#F7EDD4;--leaf:#4E7A46;--leaf-tint:#E8F0E2;
+      --overlay:rgba(57,42,29,.5);--font:"Plus Jakarta Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
+      --r-xs:8px;--r-sm:12px;--r-md:16px;--r-lg:20px;
+      --e1:0 1px 2px rgba(57,42,29,.04),0 2px 6px rgba(57,42,29,.05);
+      --e2:0 2px 6px rgba(57,42,29,.05),0 8px 20px rgba(57,42,29,.07);
+      --e3:0 10px 24px rgba(57,42,29,.10),0 24px 56px rgba(57,42,29,.14);
+    }
+    *{box-sizing:border-box}
+    body{margin:0}
+    a{color:var(--clay)} a:hover{color:var(--clay-hover)}
+    .win{width:1440px;height:900px;background:var(--sand);font-family:var(--font);color:var(--ink);display:flex;flex-direction:column;overflow:hidden;position:relative}
+    svg.i{fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;width:18px;height:18px;flex:none}
+    svg.i.s{width:14px;height:14px;stroke-width:2.2}svg.i.m{width:20px;height:20px}
+    svg.i.f{fill:currentColor;stroke:none}
+    .topbar{height:64px;flex:none;display:flex;align-items:center;gap:12px;padding:0 32px;background:var(--cream);border-bottom:1px solid var(--line)}
+    .brand{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:800;letter-spacing:-.02em}
+    .mark{width:28px;height:28px;border-radius:var(--r-xs);background:var(--clay);color:#fff;display:flex;align-items:center;justify-content:center}
+    .spacer{flex:1}
+    .acct{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--ink-2)}
+    .avatar{width:42px;height:42px;border-radius:999px;background:var(--clay-tint);color:var(--clay-deep);display:flex;align-items:center;justify-content:center;font-size:13.5px;font-weight:700;flex:none}
+    .avatar.sm{width:34px;height:34px;font-size:12.5px}.avatar.sq{border-radius:var(--r-sm)}
+    .shell{flex:1;display:flex;min-height:0}
+    .side{width:236px;flex:none;background:var(--sand-2);border-right:1px solid var(--line);padding:20px 14px;display:flex;flex-direction:column;gap:4px}
+    .nav{height:46px;border-radius:var(--r-sm);display:flex;align-items:center;padding:0 14px;font-size:14px;font-weight:600;color:var(--ink-2);border:none;background:transparent;font-family:var(--font);text-align:left}
+    .nav.on{background:var(--cream);color:var(--clay);box-shadow:var(--e1)}
+    .main{flex:1;overflow:hidden;padding:28px 40px 40px;display:flex;flex-direction:column;gap:18px}
+    .pagehead{display:flex;align-items:flex-start;gap:16px}
+    .pagehead h1{margin:0;font-size:28px;line-height:34px;font-weight:800;letter-spacing:-.025em}
+    .pagehead p{margin:6px 0 0;font-size:13.5px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+    .card{background:var(--cream);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--e1);padding:16px;display:flex;flex-direction:column;gap:12px}
+    .card.flat{box-shadow:none}
+    .btn{height:48px;padding:0 20px;border-radius:var(--r-sm);font-family:var(--font);font-size:14.5px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:9px;border:none}
+    .btn.lg{height:54px;padding:0 26px;font-size:16px;border-radius:var(--r-md)}
+    .btn.primary{background:var(--clay);color:#fff}
+    .btn.sec{background:transparent;color:var(--ink);border:1.5px solid var(--line-strong)}
+    .btn.danger{background:transparent;color:var(--blood);border:1.5px solid var(--blood-line)}
+    .fld{display:flex;flex-direction:column;gap:6px}
+    .fld label{font-size:13px;font-weight:600;color:var(--ink-2)}
+    .inp{height:50px;border-radius:var(--r-sm);border:1.5px solid var(--line);background:var(--sand);padding:0 16px;display:flex;align-items:center;gap:10px;font-size:16px}
+    .inp.focus{border-color:var(--clay);background:var(--cream);box-shadow:0 0 0 2px rgba(176,97,52,.28)}
+    .help{font-size:12.5px;line-height:1.5;color:var(--ink-3)}
+    .ta{min-height:96px;border-radius:var(--r-sm);border:1.5px solid var(--line);background:var(--sand);padding:12px 16px;font-size:15px;line-height:1.55;color:var(--ink-2);position:relative}
+    .counter{position:absolute;right:12px;bottom:8px;font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+    .alert{display:flex;gap:11px;padding:14px;border-radius:var(--r-sm);align-items:flex-start}
+    .alert.info{background:var(--clay-tint)}.alert.info svg,.alert.info b{color:var(--clay-deep)}
+    .alert svg{margin-top:2px}
+    .alert b{display:block;font-size:13.5px;font-weight:700;margin-bottom:3px}
+    .alert p{margin:0;font-size:12.5px;line-height:1.55;color:var(--ink-2)}
+    .map{position:relative;border-radius:var(--r-md);overflow:hidden;border:1px solid var(--line);background:repeating-linear-gradient(0deg,#EDE3D2 0 1px,transparent 1px 26px),repeating-linear-gradient(90deg,#EDE3D2 0 1px,transparent 1px 26px),#F2EADC}
+    .map .road{position:absolute;background:#E5D9C4}
+    .map .pin{position:absolute;transform:translate(-50%,-100%);color:var(--clay)}
+    .map .pin.blood{color:var(--blood)}
+    .mapnote{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+    .push{background:var(--cream);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--e2);padding:13px 15px;display:flex;flex-direction:column;gap:8px}
+    .push .h{display:flex;align-items:center;gap:9px;font-size:11.5px;color:var(--ink-3);font-weight:600}
+    .push .ico{width:22px;height:22px;border-radius:6px;background:var(--clay);color:#fff;display:flex;align-items:center;justify-content:center;flex:none}
+    .push b{font-size:14.5px;font-weight:700;line-height:19px}
+    .push p{margin:0;font-size:13px;line-height:1.5;color:var(--ink-2)}
+    .scrim{position:absolute;inset:0;background:var(--overlay);display:flex;align-items:center;justify-content:center;z-index:40}
+    .modal{width:520px;background:var(--cream);border-radius:var(--r-lg);box-shadow:var(--e3);overflow:hidden}
+    .m-head{padding:22px 26px 0}.m-head h4{margin:0;font-size:20px;font-weight:700;letter-spacing:-.02em}
+    .m-body{padding:14px 26px 22px;display:flex;flex-direction:column;gap:14px}
+    .m-body p{margin:0;font-size:13.5px;line-height:1.6;color:var(--ink-2)}
+    .m-foot{display:flex;justify-content:flex-end;gap:12px;padding:16px 26px 22px;border-top:1px solid var(--line)}
+    .grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+  </style>
+</helmet>
+
+<div class="win">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <g id="heart"><path d="M12 20s-7-4.6-7-9.5A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 7 3.5C19 15.4 12 20 12 20Z"/></g>
+    <g id="info"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.9v.1"/></g>
+    <g id="pin"><path d="M12 21s-6.5-5-6.5-10.5a6.5 6.5 0 1 1 13 0C18.5 16 12 21 12 21Z"/><circle cx="12" cy="10.4" r="2.4"/></g>
+    <g id="pinf"><path d="M12 22s-7-5.2-7-11a7 7 0 1 1 14 0c0 5.8-7 11-7 11Z"/><circle cx="12" cy="10.6" r="2.6" fill="#FDFAF4"/></g>
+  </defs></svg>
+
+  <div class="topbar">
+    <div class="brand"><span class="mark"><svg class="i s"><use href="#heart"/></svg></span>Community Health Hub</div>
+    <div class="spacer"></div>
+    <div class="acct">Kochi Metro Hospital<span class="avatar sm sq">KM</span></div>
+  </div>
+  <div class="shell">
+    <nav class="side">
+      <button type="button" class="nav">Home</button>
+      <button type="button" class="nav">Blood requests</button>
+      <button type="button" class="nav">Inventory</button>
+      <button type="button" class="nav on">Events</button>
+      <button type="button" class="nav">Facility profile</button>
+    </nav>
+
+    <sc-if value="{{isEdit}}" hint-placeholder-val="{{true}}">
+      <div class="main" style="flex-direction:row;gap:26px">
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:16px">
+          <div class="pagehead"><div><h1>Edit event</h1>
+            <p>Community blood drive &mdash; Kaloor &middot; published 4 Sep &middot; 43 people have RSVP'd</p></div></div>
+          <div class="alert info"><svg class="i m"><use href="#info"/></svg>
+            <div><b>All 43 RSVP'd attendees will be told what changed</b>
+              <p>Venue, date, time and cancellation changes send a notification. Typo fixes to the
+                description do not.</p></div></div>
+          <div class="card" style="padding:22px;gap:16px">
+            <div class="fld"><label>Event title</label><div class="inp" style="font-size:15px">Community blood drive &mdash; Kaloor</div></div>
+            <div style="display:grid;grid-template-columns:1fr 1.3fr;gap:16px">
+              <div class="fld"><label>Venue name</label><div class="inp focus" style="font-size:15px">Kaloor Parish Hall</div>
+                <div class="help" style="color:var(--clay);font-weight:600">Changed from Kaloor Community Hall</div></div>
+              <div class="fld"><label>Venue address</label><div class="inp focus" style="font-size:15px">Church Road, Kaloor, Kochi 682017</div>
+                <div class="help" style="color:var(--clay);font-weight:600">Changed &mdash; attendees will be notified</div></div>
+            </div>
+            <div class="grid3">
+              <div class="fld"><label>Starts</label><div class="inp" style="font-size:15px">13 Sep, 09:00</div></div>
+              <div class="fld"><label>Ends</label><div class="inp" style="font-size:15px">13 Sep, 14:00</div></div>
+              <div class="fld"><label>Capacity</label><div class="inp" style="font-variant-numeric:tabular-nums">60</div>
+                <div class="help">Cannot go below 43 &mdash; the number already RSVP'd.</div></div>
+            </div>
+          </div>
+          <div style="display:flex;gap:12px">
+            <button type="button" class="btn primary lg">Save and notify attendees</button>
+            <button type="button" class="btn sec lg">Discard changes</button>
+            <div class="spacer"></div>
+            <button type="button" class="btn danger lg">Cancel event</button></div>
+        </div>
+        <aside style="width:360px;flex:none;display:flex;flex-direction:column;gap:14px">
+          <div class="card" style="gap:11px"><b style="font-size:15px">New location</b>
+            <div class="map" style="height:180px">
+              <div class="road" style="left:0;top:90px;right:0;height:10px"></div>
+              <div class="road" style="left:150px;top:0;bottom:0;width:10px"></div>
+              <div class="pin" style="left:120px;top:150px;opacity:.4"><svg class="i f" style="width:26px;height:26px"><use href="#pinf"/></svg></div>
+              <div class="pin blood" style="left:220px;top:96px"><svg class="i f" style="width:30px;height:30px"><use href="#pinf"/></svg></div></div>
+            <div class="mapnote">Faded pin is where it was. 400 m from the old venue.</div></div>
+          <div class="card flat" style="background:var(--sand-2);border:none;gap:8px">
+            <b style="font-size:14.5px">What attendees will receive</b>
+            <div class="push" style="box-shadow:none"><div class="h"><span class="ico"><svg class="i s"><use href="#pin"/></svg></span>Community Health Hub &middot; now</div>
+              <b>Venue changed: blood drive, Sat 13 Sep</b>
+              <p>Now at Kaloor Parish Hall, Church Road. Same time, 09:00&ndash;14:00.</p></div></div>
+        </aside>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{isCancel}}" hint-placeholder-val="{{false}}">
+      <div class="main">
+        <div class="pagehead"><div><h1>Community blood drive &mdash; Kaloor</h1>
+          <p>Sat 13 September &middot; 09:00&ndash;14:00 &middot; 43 RSVPs</p></div></div>
+        <div class="card" style="height:180px;opacity:.5"></div>
+        <div class="card" style="height:220px;opacity:.5"></div>
+      </div>
+    </sc-if>
+  </div>
+
+  <sc-if value="{{isCancel}}" hint-placeholder-val="{{false}}">
+    <div class="scrim"><div class="modal">
+      <div class="m-head"><h4>Cancel this event?</h4></div>
+      <div class="m-body">
+        <p>All 43 RSVP'd attendees are notified immediately, by push and by SMS where the app is
+          not installed. The event is removed from discovery and cannot be reopened &mdash; you would
+          publish a new one instead.</p>
+        <div class="fld"><label>Why is it cancelled? Attendees see this word for word.</label>
+          <div class="ta" style="min-height:84px">The hall is unavailable after storm damage. We are arranging a new date and will post it as a new event.<span class="counter">104 / 300</span></div></div>
+      </div>
+      <div class="m-foot"><button type="button" class="btn sec">Keep the event</button>
+        <button type="button" class="btn danger">Cancel event</button></div>
+    </div></div>
+  </sc-if>
+</div>
+
+</x-dc>
+<script data-dc-script data-props='{
+  "state": {"editor":"enum","default":"edit","options":["edit","cancelConfirm"],"section":"AC state"}
+}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.props.state ?? "edit";
+    return { isEdit: s === "edit", isCancel: s === "cancelConfirm" };
+  }
+}
+</script>
+</body>
+</html>

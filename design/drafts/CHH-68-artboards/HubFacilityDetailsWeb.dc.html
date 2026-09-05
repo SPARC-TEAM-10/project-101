@@ -1,0 +1,194 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --sand:#F6F0E5;--sand-2:#EFE7D9;--cream:#FDFAF4;--line:#E6DAC7;--line-strong:#D6C6AC;
+      --clay:#B06134;--clay-hover:#96502A;--clay-deep:#8A4620;--clay-tint:#F5E4D3;--clay-line:#E8CDB2;
+      --blood:#D32F2F;--blood-deep:#9E1B18;--blood-tint:#FCE9E7;--blood-line:#F5C6C2;
+      --ink:#392A1D;--ink-2:#6F5C46;--ink-3:#A08A70;--ink-off:#BFAE96;
+      --error:#A33325;--amber:#8F6A12;--amber-tint:#F7EDD4;--leaf:#4E7A46;--leaf-tint:#E8F0E2;
+      --overlay:rgba(57,42,29,.5);
+      --font:"Plus Jakarta Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
+      --r-xs:8px;--r-sm:12px;--r-md:16px;--r-lg:20px;
+      --e1:0 1px 2px rgba(57,42,29,.04),0 2px 6px rgba(57,42,29,.05);
+      --e2:0 2px 6px rgba(57,42,29,.05),0 8px 20px rgba(57,42,29,.07);
+      --e3:0 10px 24px rgba(57,42,29,.10),0 24px 56px rgba(57,42,29,.14);
+    }
+    *{box-sizing:border-box}
+    body{margin:0}
+    a{color:var(--clay)} a:hover{color:var(--clay-hover)}
+    .screen{width:1440px;height:900px;background:var(--sand);font-family:var(--font);color:var(--ink);
+      display:flex;flex-direction:column;overflow:hidden;position:relative}
+    svg.i{fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;width:18px;height:18px;flex:none}
+    svg.i.s{width:14px;height:14px;stroke-width:2.2}svg.i.m{width:20px;height:20px}svg.i.l{width:32px;height:32px;stroke-width:1.6}
+
+    /* dimmed page behind the modal */
+    .topbar{height:70px;flex:none;background:var(--cream);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:22px;padding:0 32px}
+    .brand{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:800;letter-spacing:-.01em}
+    .brand .mk{width:32px;height:32px;border-radius:9px;background:var(--blood);color:#fff;display:flex;align-items:center;justify-content:center}
+    .nav{display:flex;gap:4px;margin-left:14px}
+    .nav a{height:40px;padding:0 15px;border-radius:var(--r-sm);display:flex;align-items:center;font-size:14px;font-weight:600;color:var(--ink-2);text-decoration:none}
+    .nav a.on{background:var(--clay-tint);color:var(--clay-deep);font-weight:700}
+    .main{flex:1;display:flex;min-height:0}
+    .panel{width:512px;flex:none;background:var(--cream);border-right:1px solid var(--line);padding:24px 28px;display:flex;flex-direction:column;gap:11px}
+    .panel h1{margin:0 0 6px;font-size:28px;line-height:34px;font-weight:800;letter-spacing:-.025em}
+    .sk{border-radius:var(--r-xs);background:var(--sand-2)}
+    .fac{display:flex;gap:13px;background:var(--cream);border:1px solid var(--line);border-radius:var(--r-md);padding:15px;box-shadow:var(--e1)}
+    .fac.sel{border-color:var(--clay)}
+    .fac .mark{width:44px;height:44px;flex:none;border-radius:var(--r-sm);background:var(--clay-tint);color:var(--clay-deep);display:flex;align-items:center;justify-content:center}
+    .fac .body{flex:1;min-width:0;display:flex;flex-direction:column;gap:7px}
+    .fac h3{margin:0;font-size:17px;font-weight:700}
+    .fac .addr{font-size:12.5px;color:var(--ink-2)}
+    .map{flex:1;position:relative;background:var(--sand-2);overflow:hidden}
+    .map i.g{position:absolute;background:var(--line-strong);opacity:.5}
+    .map .blob{position:absolute;background:var(--line);opacity:.6;border-radius:18px}
+
+    .scrim{position:absolute;inset:0;background:var(--overlay)}
+    .modal{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:560px;background:var(--cream);
+      border-radius:var(--r-lg);box-shadow:var(--e3);overflow:hidden;display:flex;flex-direction:column}
+    .mhead{padding:22px 24px 18px;border-bottom:1px solid var(--line);display:flex;gap:16px;align-items:flex-start}
+    .mhead h2{margin:0 0 9px;font-size:24px;line-height:29px;font-weight:800;letter-spacing:-.02em}
+    .row{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+    .pill{height:25px;padding:0 10px;border-radius:999px;display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;flex:none}
+    .pill.leaf{background:var(--leaf-tint);color:var(--leaf)}
+    .pill.mute{background:var(--sand-2);color:var(--ink-2)}
+    .iconbtn{width:42px;height:42px;border-radius:999px;border:none;background:transparent;color:var(--ink-2);display:flex;align-items:center;justify-content:center;flex:none}
+    .iconbtn:hover{background:var(--sand-2)}
+    .mbody{padding:20px 24px 22px;display:flex;flex-direction:column;gap:16px}
+    .block{display:flex;flex-direction:column;gap:8px}
+    .block h3{margin:0;font-size:13px;font-weight:700;color:var(--ink-2)}
+    .addrbox{display:flex;gap:12px;align-items:flex-start;background:var(--sand);border:1px solid var(--line);border-radius:var(--r-sm);padding:14px;font-size:14.5px;line-height:1.55}
+    .addrbox .act{margin-left:auto;flex:none;font-size:13.5px;font-weight:700;color:var(--clay-deep);display:inline-flex;align-items:center;gap:7px}
+    .clist{border:1px solid var(--line);border-radius:var(--r-sm);overflow:hidden;background:var(--sand)}
+    .contact{display:flex;align-items:center;gap:13px;padding:12px 14px}
+    .contact + .contact{border-top:1px solid var(--line)}
+    .contact .av{width:42px;height:42px;flex:none;border-radius:var(--r-sm);background:var(--clay-tint);color:var(--clay-deep);
+      display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800}
+    .contact .b{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+    .contact .b b{font-size:15px;font-weight:700}
+    .contact .b span{font-size:12.5px;color:var(--ink-2)}
+    .contact .num{font-size:14.5px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--ink);flex:none}
+    .contact .btn{flex:none}
+    .btn{height:44px;padding:0 18px;border-radius:var(--r-sm);font-family:var(--font);font-size:14.5px;font-weight:700;
+      display:inline-flex;align-items:center;justify-content:center;gap:9px;border:none}
+    .btn.lg{height:52px;border-radius:var(--r-md);font-size:15.5px}
+    .btn.blood{background:var(--blood);color:#fff}
+    .btn.primary{background:var(--clay);color:#fff}
+    .btn.secondary{background:transparent;color:var(--ink);border:1.5px solid var(--line-strong)}
+    .btn.callout{background:var(--clay-tint);color:var(--clay-deep);border:1.5px solid var(--clay-line);height:42px;padding:0 15px}
+    .mfoot{padding:16px 24px;border-top:1px solid var(--line);background:var(--sand);display:flex;align-items:center;gap:12px}
+    .mfoot .hint{flex:1;font-size:12.5px;color:var(--ink-2);line-height:1.5}
+  </style>
+</helmet>
+
+<div class="screen">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <g id="search"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></g>
+    <g id="phone"><path d="M6.5 4h3l1.5 4-2 1.5a11 11 0 0 0 5.5 5.5L16 13l4 1.5v3a2 2 0 0 1-2.2 2A15.5 15.5 0 0 1 4.5 6.2 2 2 0 0 1 6.5 4Z"/></g>
+    <g id="loc"><path d="M12 21s6.5-5.4 6.5-10.5a6.5 6.5 0 1 0-13 0C5.5 15.6 12 21 12 21Z"/><circle cx="12" cy="10.5" r="2.4"/></g>
+    <g id="shield"><path d="M12 3.5 19 6v6c0 4-3 6.7-7 8.5C8 18.7 5 16 5 12V6Z"/><path d="m9 12 2 2 4-4"/></g>
+    <g id="cross"><path d="M12 6v12M6 12h12"/></g>
+    <g id="ext"><path d="M14 5h5v5"/><path d="M19 5 11 13"/><path d="M18.5 14v4.5a1 1 0 0 1-1 1h-12a1 1 0 0 1-1-1v-12a1 1 0 0 1 1-1H10"/></g>
+  </defs></svg>
+
+  <div class="topbar">
+    <span class="brand"><span class="mk"><svg class="i m"><use href="#shield"/></svg></span>Community Health Hub</span>
+    <nav class="nav"><a class="on">Emergency services</a><a>Blood requests</a><a>Events</a></nav>
+  </div>
+
+  <div class="main">
+    <div class="panel">
+      <h1>Emergency services near you</h1>
+      <div class="sk" style="height:50px;border-radius:12px"></div>
+      <div class="sk" style="height:50px;border-radius:12px"></div>
+      <div class="fac sel">
+        <div class="mark"><svg class="i m"><use href="#shield"/></svg></div>
+        <div class="body"><h3>Kochi Metro Hospital</h3><div class="addr">Kaloor Junction, Ernakulam &mdash; 682017</div></div>
+      </div>
+      <div class="fac">
+        <div class="mark"><svg class="i m"><use href="#shield"/></svg></div>
+        <div class="body"><h3>St. Martha's Multispecialty</h3><div class="addr">Palarivattom Bypass, Ernakulam &mdash; 682025</div></div>
+      </div>
+      <div class="fac">
+        <div class="mark"><svg class="i m"><use href="#shield"/></svg></div>
+        <div class="body"><h3>City Hospital, Edappally</h3><div class="addr">NH 66, Edappally, Ernakulam &mdash; 682024</div></div>
+      </div>
+    </div>
+    <div class="map">
+      <i class="g" style="left:0;right:0;top:220px;height:1px"></i>
+      <i class="g" style="left:0;right:0;top:520px;height:1px"></i>
+      <i class="g" style="top:0;bottom:0;left:230px;width:1px"></i>
+      <i class="g" style="top:0;bottom:0;left:600px;width:1px"></i>
+      <span class="blob" style="left:80px;top:80px;width:160px;height:70px"></span>
+      <span class="blob" style="left:520px;top:600px;width:210px;height:90px"></span>
+    </div>
+  </div>
+
+  <div class="scrim"></div>
+
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="fac-name">
+    <div class="mhead">
+      <div style="flex:1;min-width:0">
+        <h2 id="fac-name">Kochi Metro Hospital</h2>
+        <div class="row">
+          <span class="pill leaf"><svg class="i s"><use href="#shield"/></svg>Verified</span>
+          <span class="pill mute">Hospital</span>
+          <span class="pill mute">2.4 km away</span>
+        </div>
+      </div>
+      <button type="button" class="iconbtn" aria-label="Close"><svg class="i m" style="transform:rotate(45deg)"><use href="#cross"/></svg></button>
+    </div>
+
+    <div class="mbody">
+      <div class="block">
+        <h3>Address</h3>
+        <div class="addrbox">
+          <svg class="i" style="color:var(--ink-3);margin-top:2px"><use href="#loc"/></svg>
+          <div>Kochi Metro Hospital, Kaloor Junction,<br>Ernakulam, Kerala 682017</div>
+          <button type="button" class="btn callout act"><svg class="i s"><use href="#ext"/></svg>View on map</button>
+        </div>
+      </div>
+
+      <div class="block">
+        <h3>Contact persons</h3>
+        <div class="clist">
+          <div class="contact">
+            <span class="av">RM</span>
+            <div class="b"><b>Rekha Menon</b><span>Blood bank desk &middot; 24 hours</span></div>
+            <span class="num">+91 90000 10021</span>
+            <button type="button" class="btn callout"><svg class="i s"><use href="#phone"/></svg>Call</button>
+          </div>
+          <div class="contact">
+            <span class="av">AV</span>
+            <div class="b"><b>Arun Varghese</b><span>Emergency admissions</span></div>
+            <span class="num">+91 90000 10022</span>
+            <button type="button" class="btn callout"><svg class="i s"><use href="#phone"/></svg>Call</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mfoot">
+      <span class="hint">Calling from a computer opens your device's dialler or calling app.</span>
+      <button type="button" class="btn secondary">Close</button>
+      <button type="button" class="btn blood lg"><svg class="i m"><use href="#phone"/></svg>Call blood bank desk</button>
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script data-dc-script>
+class Component extends DCLogic {}
+</script>
+</body>
+</html>

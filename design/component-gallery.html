@@ -15,6 +15,8 @@
   --clay-deep:#8A4620; --clay-tint:#F5E4D3; --clay-line:#E8CDB2;
   --blood:#D32F2F; --blood-hover:#B92626; --blood-active:#9E1B18;
   --blood-deep:#9E1B18; --blood-tint:#FCE9E7; --blood-line:#F5C6C2;
+  --go:#3F6B39; --go-hover:#345A2F; --go-active:#2A4A26;
+  --go-deep:#2F5629; --go-tint:#E4EFDD; --go-line:#C3DAB8;
   --ink:#392A1D; --ink-2:#6F5C46; --ink-3:#A08A70; --ink-off:#BFAE96;
   --leaf:#4E7A46; --leaf-tint:#E8F0E2;
   --amber:#8F6A12; --amber-tint:#F7EDD4;
@@ -35,6 +37,8 @@
   --clay-deep:#A0521F; --clay-tint:#2E2118; --clay-line:#4A3524;
   --blood:#E5493F; --blood-hover:#EE5A50; --blood-active:#D32F2F;
   --blood-deep:#C0332C; --blood-tint:#2E1715; --blood-line:#4E2320;
+  --go:#6FA463; --go-hover:#7FB472; --go-active:#5A8F50;
+  --go-deep:#8FC183; --go-tint:#1C2A19; --go-line:#33452D;
   --ink:#F3E9DA; --ink-2:#BFAE96; --ink-3:#8D7C66; --ink-off:#6A5B48;
   --leaf:#7FAE74; --leaf-tint:#1E2A1B;
   --amber:#D2A845; --amber-tint:#2B2313;
@@ -113,6 +117,9 @@ h3{font-size:14px;font-weight:700;margin:var(--s5) 0 var(--s3);color:var(--ink-2
 .b-blood{background:var(--blood);color:#fff}
 .b-blood:hover{background:var(--blood-hover)}
 .b-blood:active{background:var(--blood-active)}
+.b-accept{background:var(--go);color:#fff}
+.b-accept:hover{background:var(--go-hover)}
+.b-accept:active{background:var(--go-active)}
 .b-danger{background:transparent;color:var(--blood);border-color:var(--blood-line)}
 .b-danger:hover{background:var(--blood-tint)}
 .b-onclay{background:var(--cream);color:var(--blood-deep)}
@@ -213,6 +220,8 @@ select.inp{appearance:none;padding-right:42px;cursor:pointer;
 .p-verified{background:var(--leaf-tint);color:var(--leaf)}
 .p-receiver{background:var(--sand-2);color:var(--ink-2)}
 .p-guest{background:var(--clay-tint);color:var(--clay-deep)}
+.p-accepted{background:var(--go-tint);color:var(--go-deep)}
+.p-waiting{background:var(--sand-2);color:var(--ink-2)}
 .urg{display:inline-flex;align-items:center;gap:5px;padding:5px var(--s3);border-radius:var(--r-full);font-size:12.5px;font-weight:700}
 .u-std{background:var(--sand-2);color:var(--ink-2)}
 .u-urg{background:var(--amber-tint);color:var(--amber)}
@@ -223,6 +232,7 @@ select.inp{appearance:none;padding-right:42px;cursor:pointer;
 .avatar{width:44px;height:44px;border-radius:var(--r-full);background:var(--clay-tint);color:var(--clay-deep);
   display:inline-flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex:none}
 .avatar.org{border-radius:var(--r-sm)}
+.avatar.lock{background:var(--sand-2);color:var(--ink-3)}
 
 /* elapsed ring */
 .ring{position:relative;width:38px;height:38px;flex:none}
@@ -287,6 +297,12 @@ select.inp{appearance:none;padding-right:42px;cursor:pointer;
 .a-ok{background:var(--leaf-tint);color:var(--leaf)}
 .disclaimer{background:var(--sand-2);border-radius:var(--r-sm);padding:var(--s4);
   font-size:12.5px;line-height:1.6;color:var(--ink-2);display:flex;gap:var(--s3);align-items:flex-start}
+
+/* off-app delivery previews */
+.sms{max-width:330px;background:var(--sand-2);border-radius:var(--r-lg) var(--r-lg) var(--r-lg) var(--r-xs);
+  padding:var(--s4);font-size:14px;line-height:1.55;color:var(--ink);white-space:pre-line}
+.sms + .smsmeta{display:flex;gap:var(--s3);margin-top:6px;font-size:11.5px;color:var(--ink-3);
+  font-variant-numeric:tabular-nums}
 
 /* toast host */
 #toasts{position:fixed;left:50%;transform:translateX(-50%);bottom:var(--s5);z-index:60;
@@ -385,6 +401,8 @@ tbody tr:hover{background:var(--sand)}
 <symbol id="ic-phone" viewBox="0 0 24 24"><path d="M8 4.5H5.8A1.8 1.8 0 0 0 4 6.5c0 7.7 5.8 13.5 13.5 13.5a1.8 1.8 0 0 0 2-1.8V16l-4-1.5-2 2a13 13 0 0 1-5-5l2-2L8 4.5Z"/></symbol>
 <symbol id="ic-shield" viewBox="0 0 24 24"><path d="M12 3.5 5 6.2v5.3c0 4.4 3 7.6 7 9 4-1.4 7-4.6 7-9V6.2L12 3.5Z"/><path d="M9.3 12.2 11.4 14.3 15 10.4"/></symbol>
 <symbol id="ic-users" viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3.2"/><path d="M3.2 19.5a5.8 5.8 0 0 1 11.6 0"/><path d="M16 5.6a3.2 3.2 0 0 1 0 5.9M17.5 14.4a5.8 5.8 0 0 1 3.3 5.1"/></symbol>
+<symbol id="ic-lock" viewBox="0 0 24 24"><rect x="4.5" y="10.5" width="15" height="9.5" rx="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></symbol>
+<symbol id="ic-msg" viewBox="0 0 24 24"><path d="M20 15.5a2 2 0 0 1-2 2H8l-4 3.5v-14a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2Z"/></symbol>
 </svg>
 
 <header class="masthead">
@@ -424,6 +442,8 @@ tbody tr:hover{background:var(--sand)}
       <div class="ic-cell"><svg class="i l"><use href="#ic-phone"/></svg><span>phone</span></div>
       <div class="ic-cell"><svg class="i l"><use href="#ic-heart"/></svg><span>heart</span></div>
       <div class="ic-cell"><svg class="i l"><use href="#ic-home"/></svg><span>home</span></div>
+      <div class="ic-cell"><svg class="i l"><use href="#ic-lock"/></svg><span>lock</span></div>
+      <div class="ic-cell"><svg class="i l"><use href="#ic-msg"/></svg><span>message</span></div>
     </div>
   </div>
 </section>
@@ -431,7 +451,7 @@ tbody tr:hover{background:var(--sand)}
 <!-- COLOUR -->
 <section>
   <h2>Colour</h2>
-  <p class="sub">Two families with one job each. <b>Clay</b> is the brand — primary actions, navigation, the hero panel, everything routine. <b>Blood red</b> is reserved: blood groups, emergency, donate actions, and destructive controls. Because red appears rarely, it reads as a signal rather than decoration — a screen where everything is red tells you nothing. Warm sand carries both. Measured contrast is shown where it matters.</p>
+  <p class="sub">Three families with one job each. <b>Clay</b> is the brand — primary actions, navigation, the hero panel, everything routine. <b>Blood red</b> is reserved: blood groups, emergency, donate actions, and destructive controls. <b>Go green</b> is narrower still — it is the control by which a person commits to help, and nothing else. Because red appears rarely it reads as a signal rather than decoration, and because green appears rarer still, a green button on this product means "I am coming." Warm sand carries all three. Measured contrast is shown where it matters.</p>
   <div class="swatches">
     <div class="sw"><i style="background:var(--sand)"></i><div><b>sand</b><span>#F6F0E5</span></div></div>
     <div class="sw"><i style="background:var(--sand-2)"></i><div><b>sand-2</b><span>#EFE7D9</span></div></div>
@@ -443,11 +463,33 @@ tbody tr:hover{background:var(--sand)}
     <div class="sw"><i style="background:var(--clay)"></i><div><b>clay</b><span>#B06134<span class="ratio">4.7:1</span></span></div></div>
     <div class="sw"><i style="background:var(--clay-deep)"></i><div><b>clay-deep</b><span>#8A4620<span class="ratio">7.2:1</span></span></div></div>
     <div class="sw"><i style="background:var(--clay-tint)"></i><div><b>clay-tint</b><span>#F5E4D3</span></div></div>
+    <div class="sw"><i style="background:var(--go)"></i><div><b>go</b><span>#3F6B39<span class="ratio">6.2:1</span></span></div></div>
+    <div class="sw"><i style="background:var(--go-deep)"></i><div><b>go-deep</b><span>#2F5629<span class="ratio">8.5:1</span></span></div></div>
+    <div class="sw"><i style="background:var(--go-tint)"></i><div><b>go-tint</b><span>#E4EFDD</span></div></div>
     <div class="sw"><i style="background:var(--ink)"></i><div><b>ink</b><span>#392A1D<span class="ratio">11.9:1</span></span></div></div>
     <div class="sw"><i style="background:var(--ink-2)"></i><div><b>ink-2</b><span>#6F5C46<span class="ratio">5.6:1</span></span></div></div>
     <div class="sw"><i style="background:var(--leaf)"></i><div><b>leaf</b><span>#4E7A46<span class="ratio">4.6:1</span></span></div></div>
     <div class="sw"><i style="background:var(--amber)"></i><div><b>amber</b><span>#8F6A12<span class="ratio">4.6:1</span></span></div></div>
-
+  </div>
+  <div class="demo" style="margin-top:var(--s4)">
+    <div class="row" style="gap:var(--s5)">
+      <div style="flex:1;min-width:210px">
+        <div style="font-size:13px;font-weight:700;margin-bottom:6px">go vs. leaf — not interchangeable</div>
+        <p class="sub" style="margin:0">
+          <b>--go</b> is the <em>act</em> of accepting: the button a donor presses to commit.
+          <b>--leaf</b> is the <em>state</em> that follows, and every other confirmed status —
+          verified facility, eligible donor, success toast. A green button that means "this worked"
+          and a green button that means "I am coming" cannot be the same green.
+        </p>
+      </div>
+      <div class="stack" style="flex:none">
+        <button class="btn b-accept" data-toast="ok|Accepted. The requester now has your number."><svg class="i s"><use href="#ic-check"/></svg> Accept and donate</button>
+        <div class="row" style="gap:var(--s2)">
+          <span class="pill p-accepted"><svg class="i s"><use href="#ic-check"/></svg> Accepted</span>
+          <span class="pill p-verified"><svg class="i s"><use href="#ic-shield"/></svg> Verified</span>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -517,7 +559,8 @@ tbody tr:hover{background:var(--sand)}
 <!-- URGENCY AS STRUCTURE -->
 <section>
   <h2>Urgency</h2>
-  <p class="sub">A three-step scale — neutral, amber, red — with three signals working together so no single one carries it: a left rail on the card, a labelled pill, and an elapsed-time ring that fills as the request ages. Red is the top of the scale only. If every card were red the scale would mean nothing.</p>
+  <p class="sub">A three-step scale — neutral, amber, red — with three signals working together so no single one carries it: a left rail on the card, a labelled pill, and an elapsed-time ring that fills as the request ages over its 6-hour life. Red is the top of the scale only. If every card were red the scale would mean nothing.</p>
+  <p class="sub"><b>The three labels are Emergency, Urgent and Standard.</b> Not High, not Normal, not Critical — these exact words in every surface, including push notifications and SMS. A donor who reads "Urgent" in a text message and "High" in the app has to work out whether those are the same thing, at the one moment we need them not thinking about the interface.</p>
   <div class="grid g3">
     <div class="card tap rail emg">
       <div class="row" style="justify-content:space-between;align-items:flex-start;margin-bottom:var(--s3)">
@@ -542,7 +585,7 @@ tbody tr:hover{background:var(--sand)}
         </div>
         <div class="ring">
           <svg width="38" height="38"><circle class="bgc" cx="19" cy="19" r="16"/><circle class="fg" cx="19" cy="19" r="16" stroke-dasharray="100.5" stroke-dashoffset="58"/></svg>
-          <b>4h</b>
+          <b>2h</b>
         </div>
       </div>
       <button class="btn b-secondary block">Respond</button>
@@ -556,10 +599,21 @@ tbody tr:hover{background:var(--sand)}
         </div>
         <div class="ring">
           <svg width="38" height="38"><circle class="bgc" cx="19" cy="19" r="16"/><circle class="fg" cx="19" cy="19" r="16" stroke-dasharray="100.5" stroke-dashoffset="88"/></svg>
-          <b>2d</b>
+          <b>4h</b>
         </div>
       </div>
       <button class="btn b-secondary block">Respond</button>
+    </div>
+  </div>
+
+  <h3>Request lifetime — 6 hours</h3>
+  <p class="sub">A request expires 6 hours after it is posted and stops accepting responses. The countdown is always labelled, always in tabular figures, and the label changes with the meaning — a bare number is never left sitting on a screen.</p>
+  <div class="demo">
+    <div class="row" style="gap:var(--s6)">
+      <div class="stat" style="background:transparent;padding:0"><em>Expires in</em><b class="num">5:42</b><span>Live, counting down from 6:00</span></div>
+      <div class="stat" style="background:transparent;padding:0"><em>Closed at</em><b class="num">12:40</b><span>After expiry the label changes with it</span></div>
+      <div class="alert a-err" style="flex:1;min-width:280px"><svg class="i"><use href="#ic-clock"/></svg>
+        <div><b>This request expired a moment ago</b><p>Requests close 6 hours after they are posted. Donors can no longer respond, and everyone who accepted has been told.</p></div></div>
     </div>
   </div>
 </section>
@@ -574,7 +628,7 @@ tbody tr:hover{background:var(--sand)}
       <div class="demo" style="padding:var(--s5)">
         <div style="font-size:28px;font-weight:800;letter-spacing:-.028em;margin-bottom:var(--s2)">O− needed now</div>
         <p style="margin:0 0 var(--s5);font-size:17px;color:var(--ink-2)">4 units. Medical College, 5.4 km away.</p>
-        <button class="btn b-blood lg block">I can donate</button>
+        <button class="btn b-accept lg block">I can donate</button>
       </div>
     </div>
     <div class="dcol">
@@ -629,15 +683,22 @@ tbody tr:hover{background:var(--sand)}
 <!-- BUTTONS -->
 <section>
   <h2>Buttons</h2>
-  <p class="sub">One primary per screen. Clay for routine actions, red for blood and emergency, outlined red for destructive — an outline signals consequence without shouting. Emergency paths use the 54px size, and loading holds the button's width so nothing below it moves. Click any of these; the toasts are live.</p>
+  <p class="sub">One primary per screen. Clay for routine actions, red for blood and emergency, green for accepting, outlined red for destructive — an outline signals consequence without shouting. Emergency paths use the 54px size, and loading holds the button's width so nothing below it moves. Click any of these; the toasts are live.</p>
   <div class="demo stack">
     <div class="row">
       <button class="btn b-blood lg" data-toast="ok|Request published. 34 donors notified."><svg class="i s"><use href="#ic-drop"/></svg> Broadcast request</button>
+      <button class="btn b-accept lg" data-toast="ok|Accepted. The requester now has your name and number."><svg class="i s"><use href="#ic-check"/></svg> Accept and donate</button>
       <button class="btn b-primary" data-toast="ok|Changes saved.">Save changes</button>
       <button class="btn b-secondary">Cancel</button>
       <button class="btn b-ghost">Resend code</button>
-      <button class="btn b-blood" data-toast="ok|Request broadcast to 34 donors.">Donate blood</button>
       <button class="btn b-danger" data-toast="err|Consent withdrawn. You are no longer listed as a donor.">Withdraw consent</button>
+    </div>
+    <div class="row">
+      <button class="btn b-accept sm">Accept</button>
+      <button class="btn b-accept">Confirm I'm coming</button>
+      <button class="btn b-accept lg">Accept and donate</button>
+      <button class="btn b-accept" disabled>Accepted</button>
+      <span style="font-size:12.5px;color:var(--ink-3)">Green is only ever the commitment — never a generic success</span>
     </div>
     <div class="row">
       <button class="btn b-primary sm">Respond</button>
@@ -656,6 +717,39 @@ tbody tr:hover{background:var(--sand)}
       <svg class="i l"><use href="#ic-alert"/></svg>
       <span class="txt">3 urgent requests near you need O− and A+ donors right now.</span>
       <button class="btn b-onclay sm">View requests</button>
+    </div>
+  </div>
+
+  <h3>Accept and Decline are not a symmetric pair</h3>
+  <p class="sub">Accept is the point of the screen: green, full width, 54px. Decline sits below it as a secondary at 50px — neutral, never red. Declining is a legitimate answer, not an error and not a destructive act, and two equally weighted filled buttons force a decision the donor has not been given enough information to make.</p>
+  <div class="demo" style="max-width:420px">
+    <div class="stack" style="gap:var(--s2)">
+      <button class="btn b-accept lg block" data-toast="ok|Accepted. The requester now has your name and number."><svg class="i s"><use href="#ic-check"/></svg> Accept and donate</button>
+      <button class="btn b-secondary block" style="height:50px" data-toast="info|Declined. You won't be reminded about this request.">Decline</button>
+      <span style="font-size:11.5px;color:var(--ink-3);text-align:center">Accepting shares your name and number with the requester.</span>
+    </div>
+  </div>
+</section>
+
+<!-- OFF-APP DELIVERY -->
+<section>
+  <h2>Off-app delivery — push and SMS</h2>
+  <p class="sub">The same alert reaches donors three ways: in the Notification Center, as a push notification, and — for donors without the app or with push disabled — as an SMS. All three carry the same four facts in the same order: blood group and units, urgency, approximate distance, area. None of them ever carries the patient's name, the requester's identity, an exact address or a reason for the transfusion. These land on lock screens anyone can read.</p>
+  <div class="grid g2">
+    <div class="demo stack">
+      <div style="font-size:13px;font-weight:700">SMS — the reply-keyword pattern</div>
+      <div class="sms">CHH: O− blood needed, 2 units. Emergency. About 5 km from you, Ernakulam.
+Reply YES to accept, NO to decline.</div>
+      <div class="smsmeta"><span>146 characters · 1 segment</span><span>No link, no emoji, no branding line</span></div>
+      <p class="sub" style="margin:0">Under 160 characters so it sends as one segment and cannot arrive out of order. Two keywords at most, uppercase in the copy and case-insensitive in handling. A YES is answered with the requester's name and number — the same reveal-on-acceptance rule as the app. A NO is acknowledged once and ends the thread.</p>
+    </div>
+    <div class="demo stack">
+      <div style="font-size:13px;font-weight:700">What an alert may and may not say</div>
+      <div class="alert a-ok"><svg class="i"><use href="#ic-checkc"/></svg>
+        <div><b>Always</b><p>Blood group · units needed · urgency in one of the three words · approximate distance · area</p></div></div>
+      <div class="alert a-err"><svg class="i"><use href="#ic-lock"/></svg>
+        <div><b>Never</b><p>Patient name · requester name or number · exact address or map pin · diagnosis or reason · a distance precise enough to locate someone</p></div></div>
+      <p class="sub" style="margin:0">Distance is always phrased as approximate — "about 5 km away". A distance to one decimal place is a location disclosure dressed up as a convenience.</p>
     </div>
   </div>
 </section>
@@ -686,6 +780,23 @@ tbody tr:hover{background:var(--sand)}
     <div class="li"><span class="bgroup sm">A+</span><div class="body"><b>CityCare Trust</b><span>2.8 km · 3 units · Urgent</span></div><button class="btn b-primary sm" data-toast="ok|Response sent.">Respond</button></div>
     <div class="li"><span class="bgroup sm">B−</span><div class="body"><b>Sunrise Medical Centre</b><span>6.1 km · 2 units · Standard</span></div><button class="btn b-secondary sm">Respond</button></div>
   </div>
+
+  <h3>Matched donors — who sees which donors</h3>
+  <p class="sub">The most privacy-sensitive list in the product, and it differs by who is looking. A <b>guest requester</b> sees only donors who have reached Accepted — no pending rows, no locked placeholders, no per-donor trace. A <b>registered requester</b> sees every matched donor as Donor 1, Donor 2, Donor 3… in stable match order, each unaccepted row carrying the same flat <b>Pending</b> label — never Sent, Viewed or Declined, because delivery telemetry about a named individual invites exactly the pressure this product must not create. In both cases, accepting is what reveals a name and a number, and nothing before it does.</p>
+  <div class="grid g2">
+    <div class="demo">
+      <div style="font-size:12.5px;font-weight:700;color:var(--ink-3);margin-bottom:var(--s3)">Guest requester · accepted only</div>
+      <div class="li"><span class="avatar">RS</span><div class="body"><b>Rahul Suresh</b><span class="num">+91 90000 45871 · O− · 4 km</span></div><span class="pill p-accepted">Accepted</span></div>
+      <div class="li"><span class="avatar">NM</span><div class="body"><b>Nithya Menon</b><span class="num">+91 90000 77213 · O− · 9 km</span></div><span class="pill p-accepted">Accepted</span></div>
+      <p class="sub" style="margin:var(--s3) 0 0">38 donors were notified. You'll see each one here as they accept.</p>
+    </div>
+    <div class="demo">
+      <div style="font-size:12.5px;font-weight:700;color:var(--ink-3);margin-bottom:var(--s3)">Registered requester · every donor, one flat status</div>
+      <div class="li"><span class="avatar">RS</span><div class="body"><b>Rahul Suresh</b><span class="num">+91 90000 45871 · O− · 4 km</span></div><span class="pill p-accepted">Accepted</span></div>
+      <div class="li"><span class="avatar lock"><svg class="i s"><use href="#ic-lock"/></svg></span><div class="body"><b style="color:var(--ink-3);font-weight:600">Donor 2</b><span class="num">O− · 6 km</span></div><span class="pill p-waiting">Pending</span></div>
+      <div class="li"><span class="avatar lock"><svg class="i s"><use href="#ic-lock"/></svg></span><div class="body"><b style="color:var(--ink-3);font-weight:600">Donor 3</b><span class="num">O+ · 11 km</span></div><span class="pill p-waiting">Pending</span></div>
+    </div>
+  </div>
 </section>
 
 <!-- FORM -->
@@ -702,6 +813,9 @@ tbody tr:hover{background:var(--sand)}
           <select class="inp" id="f3"><option>A+</option><option>A−</option><option>B+</option><option selected>O−</option><option>AB+</option></select></div>
         <div class="field" style="flex:1;min-width:120px"><label for="f4">Units needed</label><input class="inp num" id="f4" value="2" inputmode="numeric"></div>
       </div>
+      <div class="field"><label>Urgency</label>
+        <div class="seg"><button aria-pressed="true">Emergency</button><button aria-pressed="false">Urgent</button><button aria-pressed="false">Standard</button></div>
+        <span class="hint">Three levels, these three words, everywhere — including the SMS.</span></div>
       <div class="field"><label for="f5">Hospital or location</label>
         <div class="inp-icon"><svg class="i"><use href="#ic-pin"/></svg><input class="inp" id="f5" value="St. Xavier Hospital, Koramangala"></div></div>
       <div class="field"><label for="f6">Additional notes</label><textarea class="inp" id="f6" placeholder="Anything that helps a donor decide."></textarea><span class="hint">0 / 280</span></div>
@@ -770,10 +884,13 @@ tbody tr:hover{background:var(--sand)}
     <div class="row">
       <span class="pill p-pending"><svg class="i s"><use href="#ic-clock"/></svg> Pending</span>
       <span class="pill p-verified"><svg class="i s"><use href="#ic-shield"/></svg> Verified</span>
+      <span class="pill p-accepted"><svg class="i s"><use href="#ic-check"/></svg> Accepted</span>
+      <span class="pill p-waiting">Pending</span>
       <span class="pill p-receiver">Receiver only</span>
       <span class="pill p-guest">Guest · 11 days left</span>
     </div>
-    <div class="row"><span class="avatar">AM</span><span class="avatar org">SX</span><span class="tag on">Within 25 km</span><span class="tag">O− <svg class="i s"><use href="#ic-x"/></svg></span></div>
+    <div class="row"><span class="avatar">AM</span><span class="avatar org">SX</span><span class="avatar lock"><svg class="i s"><use href="#ic-lock"/></svg></span><span class="tag on">Within 25 km</span><span class="tag">O− <svg class="i s"><use href="#ic-x"/></svg></span></div>
+    <p class="sub" style="margin:0">An anonymised donor gets a lock avatar, never invented initials. Making up "D3" for someone whose name is deliberately hidden is a small lie the interface does not need to tell.</p>
   </div>
 </section>
 
@@ -889,13 +1006,16 @@ tbody tr:hover{background:var(--sand)}
   <div class="demo stack" style="gap:0">
     <label class="plain"><input type="checkbox"><span>Every interactive element has a visible keyboard focus state</span></label>
     <label class="plain"><input type="checkbox"><span>Every status, urgency level and blood group reads as text, not colour alone</span></label>
+    <label class="plain"><input type="checkbox"><span>Urgency reads Emergency, Urgent or Standard — never High or Normal</span></label>
     <label class="plain"><input type="checkbox"><span>Every input has a visible label, not just a placeholder</span></label>
     <label class="plain"><input type="checkbox"><span>Touch targets are 48px, or 54px on emergency paths</span></label>
     <label class="plain"><input type="checkbox"><span>Loading and error states hold their container's size — nothing reflows</span></label>
     <label class="plain"><input type="checkbox"><span>Body text clears 4.5:1; large text and UI boundaries clear 3:1</span></label>
     <label class="plain"><input type="checkbox"><span>Works at 360px wide with no horizontal scroll</span></label>
+    <label class="plain"><input type="checkbox"><span>The screen has a web layout as well as a mobile one</span></label>
     <label class="plain"><input type="checkbox"><span>Renders correctly in both light and dark theme</span></label>
     <label class="plain"><input type="checkbox"><span>Icons come from the one set — no mixed stroke weights</span></label>
+    <label class="plain"><input type="checkbox"><span>No donor identity is shown before that donor accepted</span></label>
     <label class="plain"><input type="checkbox"><span>All data on screen is synthetic — no real person's details</span></label>
     <label class="plain"><input type="checkbox"><span>No dosage, symptom or diagnostic content anywhere</span></label>
   </div>

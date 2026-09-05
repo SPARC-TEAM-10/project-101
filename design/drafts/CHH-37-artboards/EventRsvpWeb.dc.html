@@ -1,0 +1,149 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --sand:#F6F0E5;--sand-2:#EFE7D9;--cream:#FDFAF4;--line:#E6DAC7;--line-strong:#D6C6AC;
+      --clay:#B06134;--clay-hover:#96502A;--clay-deep:#8A4620;--clay-tint:#F5E4D3;--clay-line:#E8CDB2;
+      --blood:#D32F2F;--blood-deep:#9E1B18;--blood-tint:#FCE9E7;--blood-line:#F5C6C2;
+      --go:#3F6B39;--go-deep:#2F5629;--go-tint:#E4EFDD;--go-line:#C3DAB8;
+      --ink:#392A1D;--ink-2:#6F5C46;--ink-3:#A08A70;--ink-off:#BFAE96;
+      --error:#A33325;--error-tint:#F7E4E0;--amber:#8F6A12;--amber-tint:#F7EDD4;--leaf:#4E7A46;--leaf-tint:#E8F0E2;
+      --font:"Plus Jakarta Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
+      --r-xs:8px;--r-sm:12px;--r-md:16px;--r-lg:20px;
+      --e1:0 1px 2px rgba(57,42,29,.04),0 2px 6px rgba(57,42,29,.05);
+      --e2:0 2px 6px rgba(57,42,29,.05),0 8px 20px rgba(57,42,29,.07);
+    }
+    *{box-sizing:border-box}
+    body{margin:0}
+    a{color:var(--clay)} a:hover{color:var(--clay-hover)}
+    .win{width:1440px;height:900px;background:var(--sand);font-family:var(--font);color:var(--ink);display:flex;flex-direction:column;overflow:hidden;position:relative}
+    svg.i{fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;width:18px;height:18px;flex:none}
+    svg.i.s{width:14px;height:14px;stroke-width:2.2}svg.i.m{width:20px;height:20px}
+    .topbar{height:64px;flex:none;display:flex;align-items:center;gap:12px;padding:0 32px;background:var(--cream);border-bottom:1px solid var(--line)}
+    .brand{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:800;letter-spacing:-.02em}
+    .mark{width:28px;height:28px;border-radius:var(--r-xs);background:var(--clay);color:#fff;display:flex;align-items:center;justify-content:center}
+    .spacer{flex:1}
+    .acct{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--ink-2)}
+    .avatar{width:42px;height:42px;border-radius:999px;background:var(--clay-tint);color:var(--clay-deep);display:flex;align-items:center;justify-content:center;font-size:13.5px;font-weight:700;flex:none}
+    .avatar.sm{width:34px;height:34px;font-size:12.5px}
+    .shell{flex:1;display:flex;min-height:0}
+    .side{width:236px;flex:none;background:var(--sand-2);border-right:1px solid var(--line);padding:20px 14px;display:flex;flex-direction:column;gap:4px}
+    .nav{height:46px;border-radius:var(--r-sm);display:flex;align-items:center;padding:0 14px;font-size:14px;font-weight:600;color:var(--ink-2);border:none;background:transparent;font-family:var(--font);text-align:left}
+    .nav.on{background:var(--cream);color:var(--clay);box-shadow:var(--e1)}
+    .main{flex:1;overflow:hidden;padding:28px 40px 40px;display:flex;flex-direction:column;gap:18px}
+    .card{background:var(--cream);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--e1);padding:16px;display:flex;flex-direction:column;gap:12px}
+    .pill{height:26px;padding:0 11px;border-radius:999px;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;flex:none}
+    .pill.blood{background:var(--blood-tint);color:var(--blood-deep)}.pill.mute{background:var(--sand-2);color:var(--ink-2)}
+    .pill.amber{background:var(--amber-tint);color:var(--amber)}
+    .btn{height:48px;padding:0 20px;border-radius:var(--r-sm);font-family:var(--font);font-size:14.5px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:9px;border:none}
+    .btn.lg{height:54px;padding:0 26px;font-size:16px;border-radius:var(--r-md)}
+    .btn.full{width:100%}
+    .btn.sec{background:transparent;color:var(--ink);border:1.5px solid var(--line-strong)}
+    .btn.dis{background:var(--sand-2);color:var(--ink-off);box-shadow:none}
+    .help{font-size:12.5px;line-height:1.5;color:var(--ink-3)}
+    .alert{display:flex;gap:11px;padding:14px;border-radius:var(--r-sm);align-items:flex-start}
+    .alert.warn{background:var(--amber-tint)}.alert.warn svg,.alert.warn b{color:var(--amber)}
+    .alert svg{margin-top:2px}
+    .alert b{display:block;font-size:13.5px;font-weight:700;margin-bottom:3px}
+    .alert p{margin:0;font-size:12.5px;line-height:1.55;color:var(--ink-2)}
+    .meter{display:flex;flex-direction:column;gap:7px}
+    .meter .bar{height:8px;border-radius:999px;background:var(--sand-2);overflow:hidden}
+    .meter .bar i{display:block;height:100%;border-radius:999px;background:var(--clay)}
+    .meter .bar i.full{background:var(--line-strong)}
+    .meter .row{display:flex;align-items:baseline;gap:8px;font-size:12.5px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+    .meter .row b{font-size:14px;color:var(--ink);font-weight:700}
+    .ev{display:flex;gap:13px;background:var(--cream);border:1px solid var(--line);border-radius:var(--r-md);padding:14px;box-shadow:var(--e1)}
+    .ev .when{width:56px;flex:none;border-radius:var(--r-sm);background:var(--sand-2);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 0;color:var(--ink-2)}
+    .ev .when b{font-size:22px;font-weight:800;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums}
+    .ev .when span{font-size:11.5px;font-weight:600}
+    .ev .body{flex:1;min-width:0;display:flex;flex-direction:column;gap:7px}
+    .ev .body h3{margin:0;font-size:16px;line-height:21px;font-weight:700}
+    .ev .body .sub{font-size:12.5px;color:var(--ink-2);font-variant-numeric:tabular-nums;line-height:1.5}
+    .ev .top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .eyebrow{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+  </style>
+</helmet>
+
+<div class="win">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <g id="heart"><path d="M12 20s-7-4.6-7-9.5A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 7 3.5C19 15.4 12 20 12 20Z"/></g>
+    <g id="tick"><path d="M5 12.5 10 17l9-10"/></g>
+    <g id="warn"><path d="M12 3.5 21 19H3l9-15.5Z"/><path d="M12 10v4M12 16.6v.1"/></g>
+  </defs></svg>
+
+  <div class="topbar">
+    <div class="brand"><span class="mark"><svg class="i s"><use href="#heart"/></svg></span>Community Health Hub</div>
+    <div class="spacer"></div>
+    <div class="acct">Anjali R.<span class="avatar sm">AR</span></div>
+  </div>
+  <div class="shell">
+    <nav class="side">
+      <button type="button" class="nav">Home</button>
+      <button type="button" class="nav">Blood requests</button>
+      <button type="button" class="nav">Notifications</button>
+      <button type="button" class="nav on">Events</button>
+      <button type="button" class="nav">Profile</button>
+    </nav>
+    <div class="main" style="flex-direction:row;gap:26px">
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;gap:8px"><span class="pill blood">Blood Donation Camp</span>
+            <span class="pill amber">Event Full</span><span class="pill mute">about 14 km away</span></div>
+          <h1 style="margin:0;font-size:34px;line-height:40px;font-weight:800;letter-spacing:-.03em">Blood drive &mdash; Edappally campus</h1>
+          <div style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--ink-2)">Kochi Metro Hospital
+            <span style="display:inline-flex;align-items:center;gap:4px;color:var(--leaf);font-weight:700"><svg class="i s"><use href="#tick"/></svg>Verified facility</span></div>
+        </div>
+        <div class="alert warn"><svg class="i m"><use href="#warn"/></svg>
+          <div><b>All 60 spots have been taken</b>
+            <p>RSVPs for this camp are closed. There is no waiting list &mdash; other blood donation
+              camps inside 15 km still have spots.</p></div></div>
+        <div class="card" style="flex-direction:row;gap:0;padding:0;overflow:hidden">
+          <div style="flex:1;padding:16px 20px;display:flex;flex-direction:column;gap:3px">
+            <span class="eyebrow">When</span>
+            <b style="font-size:16px">Sat 20 September</b><span style="font-size:13px;color:var(--ink-2)">08:30 &ndash; 13:00</span></div>
+          <div style="flex:1.4;padding:16px 20px;border-left:1px solid var(--line);display:flex;flex-direction:column;gap:3px">
+            <span class="eyebrow">Where</span>
+            <b style="font-size:16px">Edappally campus hall</b><span style="font-size:13px;color:var(--ink-2)">Edappally, Kochi</span></div>
+          <div style="flex:1;padding:16px 20px;border-left:1px solid var(--line);display:flex;flex-direction:column;gap:3px">
+            <span class="eyebrow">Spots remaining</span>
+            <b style="font-size:16px">0</b><span style="font-size:13px;color:var(--ink-2)">of 60</span></div>
+        </div>
+        <div class="card" style="gap:12px;max-width:660px">
+          <b style="font-size:15px">Other blood donation camps inside 15 km</b>
+          <div class="ev" style="box-shadow:none"><div class="when"><span>Sat</span><b>27</b><span>Sep</span></div>
+            <div class="body"><div class="top"><span class="pill blood">Blood Donation Camp</span><span class="pill mute">about 11 km away</span></div>
+              <h3>Blood drive &mdash; Vyttila town hall</h3>
+              <div class="sub">Kochi Metro Hospital &middot; 09:30&ndash;14:00 &middot; 24 spots remaining of 50</div></div>
+            <div style="display:flex;align-items:center"><button type="button" class="btn sec">View event</button></div></div>
+        </div>
+      </div>
+      <aside style="width:360px;flex:none;display:flex;flex-direction:column;gap:14px">
+        <div class="card" style="gap:12px">
+          <div class="meter"><div class="row" style="justify-content:space-between"><b>60 of 60 taken</b><span>0 spots remaining</span></div>
+            <div class="bar"><i class="full" style="width:100%"></i></div></div>
+          <button type="button" class="btn dis lg full" aria-disabled="true">Event Full</button>
+          <div class="help">Disabled because capacity is reached. It re-enables on its own if
+            someone cancels their RSVP.</div></div>
+        <div class="card" style="gap:10px"><b style="font-size:14.5px">Coordinator</b>
+          <div style="font-size:13px;color:var(--ink-2);line-height:1.6">Dr Anitha Varghese<br>+91 90000 10023</div></div>
+      </aside>
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script data-dc-script>
+class Component extends DCLogic {}
+</script>
+</body>
+</html>

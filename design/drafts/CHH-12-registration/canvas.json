@@ -1,11 +1,16 @@
 {
+  "pages": [
+    { "id": "page-flow", "name": "Flow" },
+    { "id": "page-components", "name": "Components" }
+  ],
   "artboards": [
-    { "file": "Registration.dc.html", "x": 0, "y": 0, "w": 390, "h": 844, "title": "Registration (mobile)" },
-    { "file": "RegistrationWebDisabled.dc.html", "x": 520, "y": 0, "w": 1440, "h": 900, "title": "Registration — Web (disabled)" },
-    { "file": "RegistrationWebEnabled.dc.html", "x": 2080, "y": 0, "w": 1440, "h": 900, "title": "Registration — Web (enabled)" }
+    { "file": "Registration.dc.html", "x": 0, "y": 0, "w": 390, "h": 844, "title": "Registration (mobile)", "page": "page-flow" },
+    { "file": "RegistrationWebDisabled.dc.html", "x": 520, "y": 0, "w": 1440, "h": 900, "title": "Registration — Web (disabled)", "page": "page-flow" },
+    { "file": "RegistrationWebEnabled.dc.html", "x": 2080, "y": 0, "w": 1440, "h": 900, "title": "Registration — Web (enabled)", "page": "page-flow" },
+    { "file": "FeedbackComponents.dc.html", "x": 0, "y": 0, "w": 640, "h": 760, "title": "Feedback Components", "page": "page-components" }
   ],
   "annotations": [
-    { "id": "reg-note", "x": 0, "y": -110, "w": 460, "text": "CHH-F02 — Individual Registration (CHH-12)\nNo child Jira stories yet — built from PRD-CHH-v2.2 §8 Data Dictionary. Scratch, not yet approved." }
+    { "id": "reg-note", "x": 0, "y": -110, "w": 460, "text": "CHH-F02 — Individual Registration (CHH-12)\nNo child Jira stories yet — built from PRD-CHH-v2.2 §8 Data Dictionary. Scratch, not yet approved.", "page": "page-flow" }
   ],
-  "launch": { "view": "canvas" }
+  "launch": { "view": "canvas", "page": "page-components" }
 }

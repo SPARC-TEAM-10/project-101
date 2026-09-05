@@ -1,0 +1,121 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --sand:#F6F0E5;--sand-2:#EFE7D9;--cream:#FDFAF4;--line:#E6DAC7;--line-strong:#D6C6AC;
+      --clay:#B06134;--clay-hover:#96502A;--clay-deep:#8A4620;--clay-tint:#F5E4D3;--clay-line:#E8CDB2;
+      --blood:#D32F2F;--blood-deep:#9E1B18;--blood-tint:#FCE9E7;--blood-line:#F5C6C2;
+      --go:#3F6B39;--go-deep:#2F5629;--go-tint:#E4EFDD;--go-line:#C3DAB8;
+      --ink:#392A1D;--ink-2:#6F5C46;--ink-3:#A08A70;--ink-off:#BFAE96;
+      --error:#A33325;--error-tint:#F7E4E0;--amber:#8F6A12;--amber-tint:#F7EDD4;--leaf:#4E7A46;--leaf-tint:#E8F0E2;
+      --font:"Plus Jakarta Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
+      --r-xs:8px;--r-sm:12px;--r-md:16px;--r-lg:20px;
+      --e1:0 1px 2px rgba(57,42,29,.04),0 2px 6px rgba(57,42,29,.05);
+    }
+    *{box-sizing:border-box}
+    body{margin:0}
+    a{color:var(--clay)} a:hover{color:var(--clay-hover)}
+    .win{width:1440px;height:900px;background:var(--sand);font-family:var(--font);color:var(--ink);display:flex;flex-direction:column;overflow:hidden;position:relative}
+    svg.i{fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;width:18px;height:18px;flex:none}
+    svg.i.s{width:14px;height:14px;stroke-width:2.2}svg.i.m{width:20px;height:20px}
+    .topbar{height:64px;flex:none;display:flex;align-items:center;gap:12px;padding:0 32px;background:var(--cream);border-bottom:1px solid var(--line)}
+    .brand{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:800;letter-spacing:-.02em}
+    .mark{width:28px;height:28px;border-radius:var(--r-xs);background:var(--clay);color:#fff;display:flex;align-items:center;justify-content:center}
+    .spacer{flex:1}
+    .acct{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--ink-2)}
+    .avatar{width:42px;height:42px;border-radius:999px;background:var(--clay-tint);color:var(--clay-deep);display:flex;align-items:center;justify-content:center;font-size:13.5px;font-weight:700;flex:none}
+    .avatar.sm{width:34px;height:34px;font-size:12.5px}.avatar.sq{border-radius:var(--r-sm)}
+    .avatar.lock{background:var(--sand-2);color:var(--ink-3)}
+    .shell{flex:1;display:flex;min-height:0}
+    .side{width:236px;flex:none;background:var(--sand-2);border-right:1px solid var(--line);padding:20px 14px;display:flex;flex-direction:column;gap:4px}
+    .nav{height:46px;border-radius:var(--r-sm);display:flex;align-items:center;padding:0 14px;font-size:14px;font-weight:600;color:var(--ink-2);border:none;background:transparent;font-family:var(--font);text-align:left}
+    .nav.on{background:var(--cream);color:var(--clay);box-shadow:var(--e1)}
+    .main{flex:1;overflow:hidden;padding:28px 40px 40px;display:flex;flex-direction:column;gap:16px}
+    .pagehead{display:flex;align-items:flex-start;gap:16px}
+    .pagehead h1{margin:0;font-size:28px;line-height:34px;font-weight:800;letter-spacing:-.025em}
+    .pagehead p{margin:6px 0 0;font-size:13.5px;color:var(--ink-2)}
+    .card{background:var(--cream);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--e1);padding:16px;display:flex;flex-direction:column;gap:12px}
+    .card.flat{box-shadow:none}
+    .btn{height:48px;padding:0 20px;border-radius:var(--r-sm);font-family:var(--font);font-size:14.5px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:9px;border:none}
+    .btn.sm{height:38px;padding:0 14px;font-size:13px}
+    .btn.sec{background:transparent;color:var(--ink);border:1.5px solid var(--line-strong)}
+    .btn.dis{background:var(--sand-2);color:var(--ink-off);box-shadow:none}
+    .inp{height:50px;border-radius:var(--r-sm);border:1.5px solid var(--line);background:var(--sand);padding:0 16px;display:flex;align-items:center;gap:10px;font-size:16px}
+    .inp .ph{color:var(--ink-3)}
+    .alert{display:flex;gap:11px;padding:14px;border-radius:var(--r-sm);align-items:flex-start}
+    .alert.err{background:var(--error-tint)}.alert.err svg,.alert.err b{color:var(--error)}
+    .alert svg{margin-top:2px}
+    .alert b{display:block;font-size:13.5px;font-weight:700;margin-bottom:3px}
+    .alert p{margin:0;font-size:12.5px;line-height:1.55;color:var(--ink-2)}
+    .prow{display:flex;align-items:center;gap:12px;padding:12px;border-radius:var(--r-sm);background:var(--cream);border:1px solid var(--line)}
+    .prow .id{flex:1;min-width:0}
+    .prow .id b{font-size:15px;font-weight:700;display:block}
+    .prow .id span{font-size:12px;color:var(--ink-2)}
+  </style>
+</helmet>
+
+<div class="win">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <g id="heart"><path d="M12 20s-7-4.6-7-9.5A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 7 3.5C19 15.4 12 20 12 20Z"/></g>
+    <g id="ban"><circle cx="12" cy="12" r="8.5"/><path d="M6 6l12 12"/></g>
+    <g id="search"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></g>
+    <g id="user"><path d="M12 13.5a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9Z"/><path d="M4.5 20.5a7.5 7.5 0 0 1 15 0"/></g>
+  </defs></svg>
+
+  <div class="topbar">
+    <div class="brand"><span class="mark"><svg class="i s"><use href="#heart"/></svg></span>Community Health Hub</div>
+    <div class="spacer"></div>
+    <div class="acct">Ernakulam NGO Collective<span class="avatar sm sq">EN</span></div>
+  </div>
+  <div class="shell">
+    <nav class="side">
+      <button type="button" class="nav">Home</button>
+      <button type="button" class="nav">Blood requests</button>
+      <button type="button" class="nav on">Events</button>
+      <button type="button" class="nav">Facility profile</button>
+    </nav>
+    <div class="main">
+      <div class="pagehead"><div><h1>Mark attendance</h1>
+        <p>Community blood drive &mdash; Kaloor &middot; organised by Kochi Metro Hospital</p></div></div>
+      <div class="alert err"><svg class="i m"><use href="#ban"/></svg>
+        <div><b>You cannot mark attendance for this event</b>
+          <p>Only admins of the organising facility &mdash; Kochi Metro Hospital &mdash; can mark people
+            attended. You are signed in as Ernakulam NGO Collective. Ask them to add you as an event
+            coordinator, or open one of your own events.</p></div>
+        <button type="button" class="btn sec" style="flex:none">See my facility's events</button></div>
+      <div class="card" style="padding:20px;gap:14px;opacity:.55">
+        <div class="inp" style="border-radius:999px;max-width:520px"><svg class="i" style="color:var(--ink-3)"><use href="#search"/></svg>
+          <span class="ph">Search RSVP'd participants by name or mobile number</span></div>
+        <div class="prow"><span class="avatar lock"><svg class="i"><use href="#user"/></svg></span>
+          <div class="id"><b>Participant list hidden</b><span>Visible to the organising facility only</span></div>
+          <button type="button" class="btn dis sm" aria-disabled="true">Mark attended</button></div>
+        <div class="prow"><span class="avatar lock"><svg class="i"><use href="#user"/></svg></span>
+          <div class="id"><b>Participant list hidden</b><span>Visible to the organising facility only</span></div>
+          <button type="button" class="btn dis sm" aria-disabled="true">Mark attended</button></div>
+      </div>
+      <div class="card flat" style="background:var(--sand-2);border:none;gap:7px;max-width:760px">
+        <b style="font-size:14px">What the organising facility sees here instead</b>
+        <p style="margin:0;font-size:13px;line-height:1.6;color:var(--ink-2)">A searchable
+          participant list with a Mark attended action per row, the live attended count, and who
+          marked each record and when &mdash; all on the attendance dashboard artboard.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script data-dc-script>
+class Component extends DCLogic {}
+</script>
+</body>
+</html>

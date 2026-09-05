@@ -1,0 +1,467 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --sand:#F6F0E5; --sand-2:#EFE7D9; --cream:#FDFAF4;
+      --line:#E6DAC7; --line-strong:#D6C6AC;
+      --clay:#B06134; --clay-hover:#96502A; --clay-deep:#8A4620; --clay-tint:#F5E4D3; --clay-line:#E8CDB2;
+      --blood:#D32F2F; --blood-hover:#B92626; --blood-deep:#9E1B18; --blood-tint:#FCE9E7; --blood-line:#F5C6C2;
+      --go:#3F6B39; --go-hover:#345A2F; --go-active:#2A4A26; --go-deep:#2F5629; --go-tint:#E4EFDD; --go-line:#C3DAB8;
+      --ink:#392A1D; --ink-2:#6F5C46; --ink-3:#A08A70; --ink-off:#BFAE96;
+      --error:#A33325; --error-tint:#F7E4E0;
+      --amber:#8F6A12; --amber-tint:#F7EDD4; --leaf:#4E7A46; --leaf-tint:#E8F0E2;
+      --overlay:rgba(57,42,29,.5);
+      --font:"Plus Jakarta Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+      --r-xs:8px; --r-sm:12px; --r-md:16px; --r-lg:20px;
+      --e1:0 1px 2px rgba(57,42,29,.04),0 2px 6px rgba(57,42,29,.05);
+      --e2:0 2px 6px rgba(57,42,29,.05),0 8px 20px rgba(57,42,29,.07);
+      --e3:0 10px 24px rgba(57,42,29,.10),0 24px 56px rgba(57,42,29,.14);
+    }
+    *{box-sizing:border-box}
+    body{margin:0}
+    a{color:var(--clay)} a:hover{color:var(--clay-hover)}
+    .win{width:1440px;height:900px;background:var(--sand);font-family:var(--font);color:var(--ink);
+      display:flex;flex-direction:column;overflow:hidden;position:relative}
+    .topbar{height:64px;flex:none;display:flex;align-items:center;gap:12px;padding:0 32px;background:var(--cream);
+      border-bottom:1px solid var(--line)}
+    .brand{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:800;letter-spacing:-.02em}
+    .mark{width:28px;height:28px;border-radius:var(--r-xs);background:var(--clay);color:#fff;display:flex;
+      align-items:center;justify-content:center}
+    .spacer{flex:1}
+    .acct{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--ink-2)}
+    .avatar{width:34px;height:34px;border-radius:999px;background:var(--clay-tint);color:var(--clay-deep);
+      display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700;flex:none}
+    .shell{flex:1;display:flex;min-height:0}
+    .side{width:236px;flex:none;background:var(--sand-2);border-right:1px solid var(--line);padding:20px 14px;
+      display:flex;flex-direction:column;gap:4px}
+    .nav{height:46px;border-radius:var(--r-sm);display:flex;align-items:center;gap:11px;padding:0 14px;
+      font-size:14px;font-weight:600;color:var(--ink-2);cursor:pointer;border:none;background:transparent;
+      font-family:var(--font);text-align:left}
+    .nav:hover{background:rgba(253,250,244,.6)}
+    .nav.on{background:var(--cream);color:var(--clay);box-shadow:var(--e1)}
+    .main{flex:1;overflow-y:auto;padding:30px 40px 44px;display:flex;flex-direction:column;gap:22px}
+
+    .pagehead{display:flex;align-items:flex-start;gap:16px}
+    .pagehead h1{margin:0;font-size:28px;line-height:34px;font-weight:800;letter-spacing:-.025em}
+    .pagehead p{margin:6px 0 0;font-size:13.5px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+    .pill{height:28px;padding:0 12px;border-radius:999px;display:inline-flex;align-items:center;gap:7px;
+      font-size:12.5px;font-weight:700;flex:none}
+    .pill.live{background:var(--go-tint);color:var(--go-deep)}
+    .pill.gone{background:var(--sand-2);color:var(--ink-2)}
+    .pill.guest{background:var(--clay-tint);color:var(--clay-deep)}
+    .btn{height:48px;padding:0 20px;border-radius:var(--r-sm);font-family:var(--font);font-size:14.5px;
+      font-weight:700;cursor:pointer;display:flex;align-items:center;gap:9px;border:none}
+    .btn.danger{background:transparent;color:var(--blood);border:1.5px solid var(--blood-line)}
+    .btn.danger:hover{background:var(--blood-tint)}
+    .btn.primary{background:var(--clay);color:#fff}
+    .btn.primary:hover{background:var(--clay-hover)}
+    .btn.sec{background:transparent;color:var(--ink);border:1.5px solid var(--line-strong)}
+    .btn.lg{height:54px;padding:0 26px;font-size:16px;border-radius:var(--r-md)}
+    .btn.sm{height:38px;padding:0 14px;font-size:13px;border-radius:var(--r-sm)}
+
+    .alert{display:flex;gap:12px;padding:16px 18px;border-radius:var(--r-md);background:var(--error-tint);
+      align-items:flex-start}
+    .alert svg{color:var(--error);flex:none;margin-top:2px}
+    .alert b{display:block;font-size:14px;font-weight:700;color:var(--error);margin-bottom:4px}
+    .alert p{margin:0;font-size:13px;line-height:1.55;color:var(--ink-2);max-width:74ch}
+    .alert .act{margin-left:auto;flex:none}
+
+    .guestbar{display:flex;gap:12px;padding:15px 18px;border-radius:var(--r-md);background:var(--clay-tint);
+      align-items:center}
+    .guestbar svg{color:var(--clay-deep);flex:none}
+    .guestbar b{font-size:13.5px;font-weight:700;color:var(--clay-deep)}
+    .guestbar p{margin:3px 0 0;font-size:13px;line-height:1.5;color:var(--ink-2);max-width:76ch}
+
+    .strip{background:var(--cream);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--e1);
+      padding:18px 22px;display:flex;align-items:center;gap:20px}
+    .badge{height:50px;min-width:62px;padding:0 14px;border-radius:999px;background:var(--blood-tint);
+      color:var(--blood-deep);font-weight:800;font-size:21px;font-variant-numeric:tabular-nums;display:flex;
+      align-items:center;justify-content:center;flex:none}
+    .badge.mute{background:var(--sand-2);color:var(--ink-2)}
+    .stripfacts{display:flex;gap:34px;flex:1}
+    .sf{display:flex;flex-direction:column;gap:3px}
+    .sf dt{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+    .sf dd{margin:0;font-size:15px;font-weight:700;font-variant-numeric:tabular-nums}
+    .sf.clock dd{font-size:19px;letter-spacing:-.02em}
+    .sf.clock dd.hot{color:var(--blood-deep)}
+    .sf small{font-size:11px;font-weight:500;color:var(--ink-3)}
+    .lifewrap{width:200px;flex:none}
+    .lifebar{height:6px;border-radius:999px;background:var(--sand-2);overflow:hidden}
+    .lifebar i{display:block;height:100%;border-radius:999px;background:var(--blood)}
+    .lifebar i.done{background:var(--line-strong)}
+    .lifewrap small{display:block;margin-top:7px;font-size:11px;color:var(--ink-3);line-height:1.45}
+
+    .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) 360px;gap:18px;align-items:stretch}
+    .stat{background:var(--cream);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--e1);
+      padding:20px;display:flex;flex-direction:column;gap:8px}
+    .stat dt{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+    .stat b{font-size:34px;line-height:40px;font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+    .stat span{font-size:12.5px;color:var(--ink-2);line-height:1.45}
+    .stat.accent{background:var(--go-tint);border-color:var(--go-line)}
+    .stat.accent b{color:var(--go-deep)}
+    .donutcard{background:var(--cream);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--e1);
+      padding:20px;display:flex;align-items:center;gap:18px}
+    .donut{position:relative;width:120px;height:120px;flex:none}
+    .donut .mid{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
+      justify-content:center}
+    .donut .mid b{font-size:28px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums;color:var(--go-deep)}
+    .donut .mid span{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+      color:var(--ink-3);margin-top:3px}
+    .legend{display:flex;flex-direction:column;gap:10px;flex:1;min-width:0}
+    .leg{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--ink-2)}
+    .swatch{width:11px;height:11px;border-radius:3px;flex:none}
+    .leg .lv{margin-left:auto;font-size:15px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+
+    .tablecard{background:var(--cream);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--e1);
+      overflow:hidden}
+    .tablecard .th{display:flex;align-items:baseline;gap:10px;padding:16px 22px}
+    .tablecard .th h2{margin:0;font-size:17px;font-weight:700}
+    .tablecard .th span{font-size:12.5px;color:var(--ink-3)}
+    table{width:100%;border-collapse:collapse;font-size:13.5px}
+    thead th{background:var(--sand-2);text-align:left;font-size:11px;font-weight:700;letter-spacing:.06em;
+      text-transform:uppercase;color:var(--ink-2);height:44px;padding:0 22px}
+    thead th.num{text-align:right}
+    tbody td{border-top:1px solid var(--line);height:62px;padding:0 22px;vertical-align:middle}
+    tbody tr:hover{background:var(--sand)}
+    td.num{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+    .who{display:flex;align-items:center;gap:11px}
+    .who b{font-size:14.5px;font-weight:700}
+    .who .masked{font-size:13.5px;color:var(--ink-3);font-weight:600}
+    .avatar.lock{background:var(--sand-2);color:var(--ink-3)}
+    .tagpill{height:26px;padding:0 11px;border-radius:999px;font-size:12px;font-weight:700;
+      display:inline-flex;align-items:center}
+    .tagpill.acc{background:var(--go-tint);color:var(--go-deep)}
+    .tagpill.pend{background:var(--sand-2);color:var(--ink-2)}
+    .phone-n{font-variant-numeric:tabular-nums;font-weight:600}
+    .phone-hidden{color:var(--ink-3);font-size:12.5px}
+    .tablefoot{padding:14px 22px;border-top:1px solid var(--line);font-size:12.5px;color:var(--ink-3);
+      line-height:1.55;max-width:96ch}
+
+    .empty{background:var(--cream);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--e1);
+      padding:64px 24px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px}
+    .empty .ic{width:68px;height:68px;border-radius:999px;background:var(--sand-2);color:var(--ink-3);
+      display:flex;align-items:center;justify-content:center}
+    .empty b{font-size:22px;line-height:28px;font-weight:700;letter-spacing:-.02em}
+    .empty p{margin:0;font-size:14px;line-height:1.6;color:var(--ink-2);max-width:52ch}
+    .empty small{font-size:12.5px;color:var(--ink-3);max-width:52ch;line-height:1.5}
+
+    .scrim{position:absolute;inset:0;background:var(--overlay);display:flex;align-items:center;
+      justify-content:center;z-index:40}
+    .modal{width:520px;background:var(--cream);border-radius:var(--r-lg);box-shadow:var(--e3);overflow:hidden}
+    .m-head{padding:22px 26px 0}
+    .m-head h4{margin:0;font-size:20px;font-weight:700;letter-spacing:-.02em}
+    .m-body{padding:14px 26px 22px;display:flex;flex-direction:column;gap:16px}
+    .m-body p{margin:0;font-size:13.5px;line-height:1.6;color:var(--ink-2)}
+    .radiusrow{display:flex;align-items:flex-end;gap:16px}
+    .sliderwrap{flex:1;min-width:0;padding-top:14px}
+    .track{position:relative;height:6px;border-radius:999px;background:var(--sand-2)}
+    .fill{position:absolute;left:0;top:0;height:6px;border-radius:999px;background:var(--clay)}
+    .was{position:absolute;top:-6px;width:2px;height:18px;background:var(--line-strong)}
+    .thumb{position:absolute;top:50%;width:26px;height:26px;border-radius:999px;background:var(--cream);
+      border:3px solid var(--clay);box-shadow:var(--e1);transform:translate(-50%,-50%)}
+    .ticks{display:flex;justify-content:space-between;margin-top:9px;font-size:11px;color:var(--ink-3);
+      font-variant-numeric:tabular-nums}
+    .kmbox{width:104px;flex:none;height:50px;border-radius:var(--r-sm);border:1.5px solid var(--line);
+      background:var(--sand);display:flex;align-items:center;justify-content:center;gap:4px;font-size:16px;
+      font-weight:700;font-variant-numeric:tabular-nums}
+    .kmbox span{font-size:13px;font-weight:600;color:var(--ink-3)}
+    .m-foot{display:flex;justify-content:flex-end;gap:12px;padding:16px 26px 22px;border-top:1px solid var(--line)}
+  </style>
+</helmet>
+
+<div class="win">
+  <div class="topbar">
+    <div class="brand">
+      <span class="mark"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.6-7-9.5A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 7 3.5C19 15.4 12 20 12 20Z"/></svg></span>
+      Community Health Hub
+    </div>
+    <div class="spacer"></div>
+    <div class="acct">{{acctName}}<span class="avatar">{{acctInitials}}</span></div>
+  </div>
+
+  <div class="shell">
+    <nav class="side">
+      <button type="button" class="nav"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5 12 5l8 6.5V20a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1Z"/></svg>Home</button>
+      <button type="button" class="nav on"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.6-7-9.5A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 7 3.5C19 15.4 12 20 12 20Z"/></svg>Blood requests</button>
+      <button type="button" class="nav"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 16.5H6s1.8-1.6 1.8-6.2a4.2 4.2 0 0 1 8.4 0c0 4.6 1.8 6.2 1.8 6.2Z"/><path d="M10 19.5a2.4 2.4 0 0 0 4 0"/></svg>Notifications</button>
+      <button type="button" class="nav"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3.5v3M16 3.5v3"/></svg>Events</button>
+      <button type="button" class="nav"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 13.5a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9Z"/><path d="M4.5 20.5a7.5 7.5 0 0 1 15 0"/></svg>Profile</button>
+    </nav>
+
+    <div class="main">
+      <div class="pagehead">
+        <div>
+          <h1>Your blood request</h1>
+          <p>Posted 18 min ago &middot; Kochi Metro Hospital, Marine Drive &middot; 10 km radius</p>
+        </div>
+        <div class="spacer"></div>
+        <sc-if value="{{isGuest}}" hint-placeholder-val="{{false}}">
+          <span class="pill guest">Guest session</span>
+        </sc-if>
+        <span class="pill {{statusClass}}">{{statusLabel}}</span>
+        <button type="button" class="btn danger">Withdraw request</button>
+      </div>
+
+      <sc-if value="{{isExpired}}" hint-placeholder-val="{{false}}">
+        <div class="alert">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>
+          <div>
+            <b>This request expired while you were on this page</b>
+            <p>Requests close 6 hours after they are posted. Donors can no longer respond. The two donors who accepted have been told, and their contact details stay available to you below.</p>
+          </div>
+          <button type="button" class="btn primary act">Post it again</button>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{isGuest}}" hint-placeholder-val="{{false}}">
+        <div class="guestbar">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.9v.1"/></svg>
+          <div>
+            <b>You are tracking this request as a guest</b>
+            <p>Guests see a donor the moment they accept, and no earlier. Register to follow the full matched list, keep this request in your history, and reuse your details next time.</p>
+          </div>
+          <div class="spacer"></div>
+          <button type="button" class="btn primary">Register in a minute</button>
+        </div>
+      </sc-if>
+
+      <section class="strip">
+        <span class="badge {{badgeClass}}">O&#8722;</span>
+        <div class="stripfacts">
+          <div class="sf"><dt>Units required</dt><dd>2</dd></div>
+          <div class="sf"><dt>Urgency</dt><dd>Emergency</dd></div>
+          <div class="sf"><dt>Search radius</dt><dd>10 km</dd></div>
+          <div class="sf clock"><dt>{{clockLabel}}</dt><dd class="{{clockTone}}">{{clockValue}}</dd></div>
+        </div>
+        <div class="lifewrap">
+          <div class="lifebar"><i class="{{lifeClass}}" style="width:{{lifePct}}"></i></div>
+          <small>A request stays open for 6 hours from the moment it is posted, then closes on its own.</small>
+        </div>
+      </section>
+
+      <sc-if value="{{showStats}}" hint-placeholder-val="{{true}}">
+        <div class="grid">
+          <div class="stat">
+            <dt>Donors notified</dt>
+            <b>40</b>
+            <span>Eligible donors matched inside 10 km</span>
+          </div>
+          <div class="stat">
+            <dt>Yet to respond</dt>
+            <b>38</b>
+            <span>Still inside the 6-hour window</span>
+          </div>
+          <div class="stat accent">
+            <dt>Accepted</dt>
+            <b>2</b>
+            <span>Coming to donate &middot; 1 unit still needed</span>
+          </div>
+          <div class="donutcard">
+            <span class="donut">
+              <svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="2 of 40 notified donors have accepted">
+                <circle cx="60" cy="60" r="50" fill="none" stroke="#EFE7D9" stroke-width="15"/>
+                <circle cx="60" cy="60" r="50" fill="none" stroke="#3F6B39" stroke-width="15" stroke-linecap="round"
+                  stroke-dasharray="{{acceptedArc}}" transform="rotate(-90 60 60)"/>
+              </svg>
+              <span class="mid"><b>2</b><span>Accepted</span></span>
+            </span>
+            <span class="legend">
+              <span class="leg"><span class="swatch" style="background:#3F6B39"></span>Accepted<span class="lv">2</span></span>
+              <span class="leg"><span class="swatch" style="background:#EFE7D9"></span>Yet to respond<span class="lv">38</span></span>
+              <span class="leg"><span class="swatch" style="background:transparent"></span>Donors notified<span class="lv">40</span></span>
+            </span>
+          </div>
+        </div>
+
+        <div class="tablecard">
+          <div class="th">
+            <h2>{{listTitle}}</h2>
+            <span>{{listNote}}</span>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Donor</th>
+                <th>Blood group</th>
+                <th class="num">Approx. distance</th>
+                <th>Status</th>
+                <th>Contact number</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="who"><span class="avatar">RS</span><b>Rahul Suresh</b></span></td>
+                <td>O&#8722;</td>
+                <td class="num">4 km</td>
+                <td><span class="tagpill acc">Accepted</span></td>
+                <td class="phone-n">+91 90000 45871</td>
+                <td><button type="button" class="btn sec sm">Call</button></td>
+              </tr>
+              <tr>
+                <td><span class="who"><span class="avatar">NM</span><b>Nithya Menon</b></span></td>
+                <td>O&#8722;</td>
+                <td class="num">9 km</td>
+                <td><span class="tagpill acc">Accepted</span></td>
+                <td class="phone-n">+91 90000 77213</td>
+                <td><button type="button" class="btn sec sm">Call</button></td>
+              </tr>
+              <sc-if value="{{showPending}}" hint-placeholder-val="{{true}}">
+                <tr>
+                  <td>
+                    <span class="who">
+                      <span class="avatar lock"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="9.5" rx="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></svg></span>
+                      <span class="masked">Donor 3</span>
+                    </span>
+                  </td>
+                  <td>O&#8722;</td>
+                  <td class="num">6 km</td>
+                  <td><span class="tagpill pend">Pending</span></td>
+                  <td class="phone-hidden">Shown once they accept</td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td>
+                    <span class="who">
+                      <span class="avatar lock"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="9.5" rx="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></svg></span>
+                      <span class="masked">Donor 4</span>
+                    </span>
+                  </td>
+                  <td>O+</td>
+                  <td class="num">11 km</td>
+                  <td><span class="tagpill pend">Pending</span></td>
+                  <td class="phone-hidden">Shown once they accept</td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td>
+                    <span class="who">
+                      <span class="avatar lock"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="9.5" rx="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></svg></span>
+                      <span class="masked">Donor 5</span>
+                    </span>
+                  </td>
+                  <td>O&#8722;</td>
+                  <td class="num">7 km</td>
+                  <td><span class="tagpill pend">Pending</span></td>
+                  <td class="phone-hidden">Shown once they accept</td>
+                  <td></td>
+                </tr>
+              </sc-if>
+            </tbody>
+          </table>
+          <p class="tablefoot">{{privacyNote}}</p>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{isZero}}" hint-placeholder-val="{{false}}">
+        <div class="empty">
+          <span class="ic">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/><path d="M8.6 11h4.8"/></svg>
+          </span>
+          <b>No eligible donors found within 10 km</b>
+          <p>Nobody with a compatible blood group is registered, active and available inside that radius right now.</p>
+          <button type="button" class="btn primary lg">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8.5" stroke-dasharray="3 3"/></svg>
+            Increase radius
+          </button>
+          <small>We never widen the search on your behalf. You choose how far to look, up to 100 km.</small>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+
+  <sc-if value="{{showModal}}" hint-placeholder-val="{{false}}">
+    <div class="scrim">
+      <div class="modal">
+        <div class="m-head"><h4>Search further out</h4></div>
+        <div class="m-body">
+          <p>Widening to 25 km adds about 60 more donors. Everyone already notified keeps their alert, and nobody is notified twice for this request. Widening does not extend the 6-hour window.</p>
+          <div class="radiusrow">
+            <div class="sliderwrap">
+              <div class="track">
+                <div class="fill" style="width:21%"></div>
+                <div class="was" style="left:5.3%"></div>
+                <div class="thumb" style="left:21%"></div>
+              </div>
+              <div class="ticks"><span>5</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+            </div>
+            <div class="kmbox">25<span>km</span></div>
+          </div>
+        </div>
+        <div class="m-foot">
+          <button type="button" class="btn sec">Keep it at 10 km</button>
+          <button type="button" class="btn primary">Search again within 25 km</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+
+</x-dc>
+<script data-dc-script data-props='{
+  "state": {"editor":"enum","default":"responses","options":["responses","zero-match","increase-radius","expired"],"section":"AC state"},
+  "viewer": {"editor":"enum","default":"registered","options":["registered","guest"],"section":"Donor-list rule"}
+}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.props.state ?? "responses";
+    const v = this.props.viewer ?? "registered";
+    const guest = v === "guest";
+
+    const zero = s === "zero-match" || s === "increase-radius";
+    const expired = s === "expired";
+
+    // Business rule: a request lives 6 hours (360 min) from creation.
+    const totalMin = 360, elapsedMin = expired ? 360 : 18;
+
+    const sent = 40, accepted = 2;
+    const circumference = 2 * Math.PI * 50;
+    const acceptedArc = (accepted / sent) * circumference;
+
+    return {
+      isZero: zero,
+      isExpired: expired,
+      isGuest: guest,
+      showStats: !zero,
+      // Guest: accepted donors only. Registered: every matched donor as
+      // Donor 1..n with one flat Pending label — no per-donor delivery status.
+      showPending: !zero && !guest,
+      showModal: s === "increase-radius",
+      statusClass: (expired || zero) ? "gone" : "live",
+      statusLabel: expired ? "Expired" : (zero ? "No matches" : "Live · 2 accepted"),
+      badgeClass: expired ? "mute" : "",
+
+      acctName: guest ? "Guest requester" : "Anitha Varghese",
+      acctInitials: guest ? "G" : "AV",
+
+      clockLabel: expired ? "Closed at" : "Expires in",
+      clockValue: expired ? "12:40 today" : "5 hr 42 min",
+      clockTone: expired ? "" : "hot",
+      lifePct: Math.round((elapsedMin / totalMin) * 100) + "%",
+      lifeClass: expired ? "done" : "",
+
+      acceptedArc: acceptedArc.toFixed(1) + " " + (circumference - acceptedArc).toFixed(1),
+
+      listTitle: guest ? "Donors who accepted" : "Matched donors",
+      listNote: expired
+        ? "Final result"
+        : (guest ? "Each donor appears here the moment they accept" : "Updates live as donors respond"),
+      privacyNote: guest
+        ? "38 more donors were notified and have not answered yet. As a guest you see a donor only once they accept — no names, numbers or delivery status before that."
+        : "Every matched donor is listed, anonymised and in a stable order: Donor 3 is the same person each time you look. Their name and number appear the moment they accept. We do not show you whether an alert was delivered or opened — that is the donor's business, not a queue to chase."
+    };
+  }
+}
+</script>
+</body>
+</html>

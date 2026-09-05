@@ -1,0 +1,268 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --sand:#F6F0E5;--sand-2:#EFE7D9;--cream:#FDFAF4;--line:#E6DAC7;--line-strong:#D6C6AC;
+      --clay:#B06134;--clay-hover:#96502A;--clay-deep:#8A4620;--clay-tint:#F5E4D3;--clay-line:#E8CDB2;
+      --blood:#D32F2F;--blood-deep:#9E1B18;--blood-tint:#FCE9E7;--blood-line:#F5C6C2;
+      --ink:#392A1D;--ink-2:#6F5C46;--ink-3:#A08A70;--ink-off:#BFAE96;
+      --error:#A33325;--error-tint:#F7E4E0;--amber:#8F6A12;--amber-tint:#F7EDD4;--leaf:#4E7A46;--leaf-tint:#E8F0E2;
+      --overlay:rgba(57,42,29,.5);
+      --font:"Plus Jakarta Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
+      --r-xs:8px;--r-sm:12px;--r-md:16px;--r-lg:20px;
+      --e1:0 1px 2px rgba(57,42,29,.04),0 2px 6px rgba(57,42,29,.05);
+      --e2:0 2px 6px rgba(57,42,29,.05),0 8px 20px rgba(57,42,29,.07);
+      --e3:0 10px 24px rgba(57,42,29,.10),0 24px 56px rgba(57,42,29,.14);
+    }
+    *{box-sizing:border-box}
+    body{margin:0}
+    a{color:var(--clay)} a:hover{color:var(--clay-hover)}
+    .screen{width:1440px;height:900px;background:var(--sand);font-family:var(--font);color:var(--ink);display:flex;flex-direction:column;overflow:hidden;position:relative}
+    svg.i{fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;width:18px;height:18px;flex:none}
+    svg.i.s{width:14px;height:14px;stroke-width:2.2}svg.i.m{width:20px;height:20px}svg.i.l{width:30px;height:30px;stroke-width:1.7}
+    .num{font-variant-numeric:tabular-nums}
+    .spin{width:20px;height:20px;border-radius:999px;border:2.5px solid rgba(255,255,255,.35);border-top-color:#fff;display:inline-block}
+
+    /* dimmed review screen behind the dialog — context, not a second design */
+    .bg{position:absolute;inset:0;display:flex;flex-direction:column;filter:saturate(.9)}
+    .topbar{height:78px;flex:none;background:var(--cream);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:0 28px}
+    .topbar h1{margin:0;font-size:26px;font-weight:800;letter-spacing:-.025em}
+    .status{font-size:12.5px;font-weight:700;padding:5px 12px;border-radius:999px;background:var(--amber-tint);color:var(--amber)}
+    .cols{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,460px) minmax(0,1fr);gap:24px;padding:24px 28px}
+    .panel{background:var(--cream);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--e1);display:flex;flex-direction:column;overflow:hidden}
+    .phead{flex:none;height:52px;display:flex;align-items:center;gap:10px;padding:0 18px;border-bottom:1px solid var(--line);font-size:14px;font-weight:700}
+    .pbody{flex:1;padding:18px;display:flex;flex-direction:column;gap:12px}
+    .ph{height:11px;background:var(--sand-2);border-radius:4px}
+    .viewer{flex:1;background:var(--sand-2);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;padding:20px}
+    .page{width:400px;height:100%;background:#fff;border:1px solid var(--line-strong);padding:28px;display:flex;flex-direction:column;gap:11px}
+    .actions{flex:none;height:88px;background:var(--cream);border-top:1px solid var(--line);display:flex;align-items:center;padding:0 28px;gap:12px}
+
+    .btn{height:48px;padding:0 22px;border-radius:var(--r-sm);font-family:var(--font);font-size:15px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:9px;border:none;white-space:nowrap}
+    .btn.primary{background:var(--clay);color:#fff}
+    .btn.secondary{background:transparent;color:var(--ink);border:1.5px solid var(--line-strong)}
+    .btn.danger{background:transparent;color:var(--blood);border:1.5px solid var(--blood-line)}
+    .btn.dis{background:var(--sand-2);color:var(--ink-off);border:none;cursor:not-allowed}
+
+    .scrim{position:absolute;inset:0;background:var(--overlay);display:flex;align-items:center;justify-content:center}
+    .modal{width:520px;background:var(--cream);border-radius:var(--r-lg);box-shadow:var(--e3);display:flex;flex-direction:column;overflow:hidden}
+    .modal.wide{width:560px}
+    .mhead{flex:none;display:flex;align-items:flex-start;gap:13px;padding:22px 22px 0}
+    .mhead .ic{width:46px;height:46px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;flex:none}
+    .mhead .ic.clay{background:var(--clay-tint);color:var(--clay-deep)}
+    .mhead .ic.blood{background:var(--blood-tint);color:var(--blood-deep)}
+    .mhead h2{margin:0;font-size:22px;line-height:28px;font-weight:800;letter-spacing:-.02em}
+    .mbody{padding:14px 22px 4px;display:flex;flex-direction:column;gap:14px}
+    .mbody p{margin:0;font-size:14.5px;line-height:1.62;color:var(--ink-2)}
+    .mbody p strong{color:var(--ink);font-weight:700}
+    .mfoot{display:flex;justify-content:flex-end;gap:12px;padding:20px 22px 22px}
+
+    .recap{background:var(--sand);border:1px solid var(--line);border-radius:var(--r-sm);padding:13px 15px;display:flex;flex-direction:column;gap:9px}
+    .recap div{display:flex;gap:12px;font-size:13.5px}
+    .recap dt{width:120px;flex:none;color:var(--ink-2);font-weight:600;margin:0}
+    .recap dd{margin:0;font-weight:700}
+
+    .field{display:flex;flex-direction:column;gap:7px}
+    .field label{font-size:13px;font-weight:600;color:var(--ink-2)}
+    .field label i{font-style:normal;color:var(--error)}
+    .ta{min-height:104px;border-radius:var(--r-sm);border:1.5px solid var(--line);background:var(--sand);padding:12px 15px;font-size:16px;line-height:1.55;color:var(--ink)}
+    .ta.focus{border-color:var(--clay);background:var(--cream)}
+    .ta.err{border-color:var(--error);background:var(--cream)}
+    .ta.empty{color:var(--ink-3)}
+    .meta{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-2);line-height:1.5}
+    .meta .count{margin-left:auto;font-weight:700}
+    .meta .count.bad{color:var(--error)}
+    .meta.err{color:var(--error);font-weight:600}
+
+    .chips{display:flex;gap:8px;flex-wrap:wrap}
+    .chip{height:34px;padding:0 13px;border-radius:999px;background:var(--sand-2);border:1px solid var(--line);display:inline-flex;align-items:center;font-size:12.5px;font-weight:700;color:var(--ink-2)}
+    .chip.on{background:var(--clay-tint);border-color:var(--clay-line);color:var(--clay-deep)}
+    .sendline{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--ink-2);font-weight:600;background:var(--sand-2);border-radius:var(--r-sm);padding:11px 14px;line-height:1.5}
+  </style>
+</helmet>
+
+<div class="screen">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <g id="shield"><path d="M12 3.5 19 6v6c0 4-3 6.7-7 8.5C8 18.7 5 16 5 12V6Z"/><path d="m9 12 2 2 4-4"/></g>
+    <g id="check"><path d="M5 12.5 10 17.5 19.5 7"/></g>
+    <g id="ban"><circle cx="12" cy="12" r="8.5"/><path d="M6 18 18 6"/></g>
+    <g id="warn"><path d="M12 4.2 21 19.5H3Z"/><path d="M12 10v4M12 16.8v.1"/></g>
+    <g id="bell"><path d="M18 10a6 6 0 1 0-12 0c0 5-2 6.5-2 6.5h16S18 15 18 10Z"/><path d="M13.7 20a2 2 0 0 1-3.4 0"/></g>
+    <g id="file"><path d="M13.5 3.5H7a1.5 1.5 0 0 0-1.5 1.5v14A1.5 1.5 0 0 0 7 20.5h10a1.5 1.5 0 0 0 1.5-1.5V8.5Z"/><path d="M13.5 3.5v5h5"/></g>
+  </defs></svg>
+
+  <div class="bg">
+    <div class="topbar">
+      <h1>Sreedhara Multispeciality</h1>
+      <span class="status">Pending</span>
+    </div>
+    <div class="cols">
+      <div class="panel">
+        <div class="phead"><svg class="i s"><use href="#shield"/></svg>Registration details</div>
+        <div class="pbody">
+          <div class="ph" style="width:64%;height:20px"></div>
+          <div class="ph" style="width:88%"></div>
+          <div class="ph" style="width:74%"></div>
+          <div class="ph" style="width:82%"></div>
+          <div class="ph" style="width:56%"></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="phead"><svg class="i s"><use href="#file"/></svg>Licence document</div>
+        <div class="viewer">
+          <div class="page">
+            <div class="ph" style="width:90%;height:14px"></div>
+            <div class="ph" style="width:70%"></div>
+            <div class="ph" style="width:96%"></div>
+            <div class="ph" style="width:84%"></div>
+            <div class="ph" style="width:60%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="actions">
+      <div style="margin-left:auto;display:flex;gap:12px">
+        <span class="btn danger">Reject registration</span>
+        <span class="btn primary">Approve facility</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="scrim">
+
+    <sc-if value="{{isApprove}}" hint-placeholder-val="{{true}}">
+      <div class="modal">
+        <div class="mhead">
+          <span class="ic clay"><svg class="i l"><use href="#check"/></svg></span>
+          <h2>Approve Sreedhara Multispeciality?</h2>
+        </div>
+        <div class="mbody">
+          <p>They get the facility dashboard <strong>immediately</strong> — they can publish events, post blood requests and update inventory. Their status changes to Verified across the app.</p>
+          <div class="recap">
+            <div><dt>Licence</dt><dd class="num">KL-HOS-2019-44871</dd></div>
+            <div><dt>Document</dt><dd>Reviewed — 2 pages</dd></div>
+            <div><dt>Approving as</dt><dd>Anitha Kurian</dd></div>
+          </div>
+          <div class="sendline">
+            <svg class="i s"><use href="#bell"/></svg>
+            We'll tell them they're verified, by push and SMS.
+          </div>
+        </div>
+        <div class="mfoot">
+          <button type="button" class="btn secondary">Cancel</button>
+          <button type="button" class="btn primary">Approve facility</button>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{isReject}}" hint-placeholder-val="{{false}}">
+      <div class="modal wide">
+        <div class="mhead">
+          <span class="ic blood"><svg class="i l"><use href="#ban"/></svg></span>
+          <h2>Reject Sreedhara Multispeciality?</h2>
+        </div>
+        <div class="mbody">
+          <p>They stay locked out of facility features and can register again once the problem is fixed. <strong>They will read the reason you write</strong>, so say what was wrong and what to do next.</p>
+
+          <div class="chips">
+            <span class="chip on">Licence unreadable</span>
+            <span class="chip">Licence expired</span>
+            <span class="chip">Details don't match</span>
+            <span class="chip">Wrong document</span>
+          </div>
+
+          <div class="field">
+            <label for="reason">Reason for rejection <i>*</i></label>
+
+            <sc-if value="{{reasonFilled}}" hint-placeholder-val="{{true}}">
+              <div class="ta focus" id="reason">The uploaded licence is too blurred to read the registration number and expiry date. Please upload a clear scan of both pages.</div>
+              <div class="meta">
+                <span>Required. Minimum 10 characters. Kept on the audit record.</span>
+                <span class="count num">163</span>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{reasonShort}}" hint-placeholder-val="{{false}}">
+              <div class="ta err" id="reason">Blurred</div>
+              <div class="meta err">
+                <svg class="i s"><use href="#warn"/></svg>
+                <span>Please provide a reason for rejection. Use at least 10 characters.</span>
+                <span class="count bad num">7</span>
+              </div>
+            </sc-if>
+          </div>
+
+          <div class="sendline">
+            <svg class="i s"><use href="#bell"/></svg>
+            The reason is sent to the facility and stored against your account.
+          </div>
+        </div>
+        <div class="mfoot">
+          <button type="button" class="btn secondary">Cancel</button>
+          <sc-if value="{{reasonFilled}}" hint-placeholder-val="{{true}}">
+            <button type="button" class="btn danger">Reject registration</button>
+          </sc-if>
+          <sc-if value="{{reasonShort}}" hint-placeholder-val="{{false}}">
+            <button type="button" class="btn dis" aria-disabled="true">Reject registration</button>
+          </sc-if>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{isSubmitting}}" hint-placeholder-val="{{false}}">
+      <div class="modal">
+        <div class="mhead">
+          <span class="ic clay"><svg class="i l"><use href="#check"/></svg></span>
+          <h2>Approve Sreedhara Multispeciality?</h2>
+        </div>
+        <div class="mbody">
+          <p>They get the facility dashboard <strong>immediately</strong> — they can publish events, post blood requests and update inventory. Their status changes to Verified across the app.</p>
+          <div class="recap">
+            <div><dt>Licence</dt><dd class="num">KL-HOS-2019-44871</dd></div>
+            <div><dt>Document</dt><dd>Reviewed — 2 pages</dd></div>
+            <div><dt>Approving as</dt><dd>Anitha Kurian</dd></div>
+          </div>
+          <div class="sendline">
+            <svg class="i s"><use href="#bell"/></svg>
+            We'll tell them they're verified, by push and SMS.
+          </div>
+        </div>
+        <div class="mfoot">
+          <button type="button" class="btn secondary" aria-disabled="true" style="color:var(--ink-off);border-color:var(--line)">Cancel</button>
+          <button type="button" class="btn primary" style="width:186px" aria-disabled="true"><span class="spin"></span></button>
+        </div>
+      </div>
+    </sc-if>
+
+  </div>
+</div>
+
+</x-dc>
+<script data-dc-script data-props='{
+  "state": {"editor":"enum","default":"confirmApprove","options":["confirmApprove","rejectWithReason","reasonTooShort","approving"],"section":"AC state"}
+}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.props.state ?? "confirmApprove";
+    return {
+      isApprove: s === "confirmApprove",
+      isReject: s === "rejectWithReason" || s === "reasonTooShort",
+      isSubmitting: s === "approving",
+      reasonFilled: s === "rejectWithReason",
+      // Data Dictionary: rejection_reason is mandatory, minimum 10 characters.
+      reasonShort: s === "reasonTooShort"
+    };
+  }
+}
+</script>
+</body>
+</html>

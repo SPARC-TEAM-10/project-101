@@ -1,0 +1,189 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --sand:#F6F0E5;--sand-2:#EFE7D9;--cream:#FDFAF4;--line:#E6DAC7;--line-strong:#D6C6AC;
+      --clay:#B06134;--clay-hover:#96502A;--clay-deep:#8A4620;--clay-tint:#F5E4D3;--clay-line:#E8CDB2;
+      --blood:#D32F2F;--blood-deep:#9E1B18;--blood-tint:#FCE9E7;--blood-line:#F5C6C2;
+      --go:#3F6B39;--go-hover:#345A2F;--go-deep:#2F5629;--go-tint:#E4EFDD;--go-line:#C3DAB8;
+      --ink:#392A1D;--ink-2:#6F5C46;--ink-3:#A08A70;--ink-off:#BFAE96;
+      --error:#A33325;--error-tint:#F7E4E0;--amber:#8F6A12;--amber-tint:#F7EDD4;--leaf:#4E7A46;--leaf-tint:#E8F0E2;
+      --font:"Plus Jakarta Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
+      --r-xs:8px;--r-sm:12px;--r-md:16px;--r-lg:20px;
+      --e1:0 1px 2px rgba(57,42,29,.04),0 2px 6px rgba(57,42,29,.05);
+      --e2:0 2px 6px rgba(57,42,29,.05),0 8px 20px rgba(57,42,29,.07);
+    }
+    *{box-sizing:border-box}
+    body{margin:0}
+    a{color:var(--clay)} a:hover{color:var(--clay-hover)}
+    .screen{width:390px;height:844px;background:var(--sand);font-family:var(--font);color:var(--ink);
+      display:flex;flex-direction:column;overflow:hidden;position:relative}
+    svg.i{fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;width:18px;height:18px;flex:none}
+    svg.i.s{width:14px;height:14px;stroke-width:2.2}svg.i.m{width:20px;height:20px}svg.i.l{width:32px;height:32px;stroke-width:1.6}
+    .appbar{height:58px;flex:none;display:flex;align-items:center;gap:8px;padding:0 12px;background:var(--cream);border-bottom:1px solid var(--line)}
+    .appbar h1{flex:1;margin:0;font-size:16px;font-weight:700;text-align:left;padding-left:6px}
+    .iconbtn{width:42px;height:42px;border-radius:999px;border:none;background:transparent;color:var(--ink);display:flex;align-items:center;justify-content:center;flex:none}
+    .iconbtn:hover{background:var(--sand-2)}
+    .scroll{flex:1;overflow:hidden;padding:16px 16px 20px;display:flex;flex-direction:column;gap:12px}
+    .bottomnav{height:66px;flex:none;background:var(--cream);border-top:1px solid var(--line);display:flex;align-items:center;padding:0 6px}
+    .bottomnav a{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:600;color:var(--ink-3);text-decoration:none}
+    .bottomnav a.on{color:var(--clay);font-weight:700}
+    .seg{display:flex;background:var(--sand-2);border-radius:var(--r-sm);padding:4px;gap:4px}
+    .seg span{flex:1;height:42px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13.5px;font-weight:600;color:var(--ink-2)}
+    .seg span.on{background:var(--cream);color:var(--ink);box-shadow:var(--e1);font-weight:700}
+    .chips{display:flex;gap:8px;flex-wrap:wrap}
+    .chip{height:34px;padding:0 13px;border-radius:999px;background:var(--sand-2);border:1px solid var(--line);display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:var(--ink-2)}
+    .chip.on{background:var(--clay-tint);border-color:var(--clay-line);color:var(--clay-deep);font-weight:700}
+    .pill{height:26px;padding:0 11px;border-radius:999px;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;flex:none}
+    .pill.blood{background:var(--blood-tint);color:var(--blood-deep)}.pill.mute{background:var(--sand-2);color:var(--ink-2)}
+    .pill.leaf{background:var(--leaf-tint);color:var(--leaf)}.pill.amber{background:var(--amber-tint);color:var(--amber)}
+    .ev{display:flex;gap:13px;background:var(--cream);border:1px solid var(--line);border-radius:var(--r-md);padding:14px;box-shadow:var(--e1)}
+    .ev .when{width:56px;flex:none;border-radius:var(--r-sm);background:var(--sand-2);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 0;color:var(--ink-2)}
+    .ev .when b{font-size:22px;font-weight:800;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums}
+    .ev .when span{font-size:11.5px;font-weight:600}
+    .ev .body{flex:1;min-width:0;display:flex;flex-direction:column;gap:7px}
+    .ev .body h3{margin:0;font-size:16px;line-height:21px;font-weight:700}
+    .ev .body .sub{font-size:12.5px;color:var(--ink-2);font-variant-numeric:tabular-nums;line-height:1.5}
+    .ev .top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .meter{display:flex;flex-direction:column;gap:7px}
+    .meter .bar{height:8px;border-radius:999px;background:var(--sand-2);overflow:hidden}
+    .meter .bar i{display:block;height:100%;border-radius:999px;background:var(--clay)}
+    .meter .bar i.warm{background:var(--amber)}
+    .meter .row{display:flex;align-items:baseline;gap:8px;font-size:12.5px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+    .meter .row b{font-size:14px;color:var(--ink);font-weight:700}
+    .sk{border-radius:var(--r-xs);background:var(--sand-2)}
+    .track{position:relative;height:6px;border-radius:999px;background:var(--sand-2)}
+    .track .fill{position:absolute;left:0;top:0;height:6px;border-radius:999px;background:var(--clay)}
+    .track .thumb{position:absolute;top:50%;width:26px;height:26px;border-radius:999px;background:var(--cream);border:3px solid var(--clay);box-shadow:var(--e1);transform:translate(-50%,-50%)}
+    .ticks{display:flex;justify-content:space-between;margin-top:9px;font-size:11px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+    .empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;padding:40px 20px}
+    .empty .ic{width:68px;height:68px;border-radius:999px;background:var(--sand-2);color:var(--ink-3);display:flex;align-items:center;justify-content:center}
+    .empty b{font-size:17px;line-height:24px;font-weight:700}
+    .empty p{margin:0;font-size:13.5px;line-height:1.6;color:var(--ink-2);max-width:34ch}
+    .empty small{font-size:12px;color:var(--ink-3);max-width:38ch;line-height:1.5}
+    .btn{height:48px;padding:0 20px;border-radius:var(--r-sm);font-family:var(--font);font-size:14.5px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:9px;border:none}
+    .btn.lg{height:54px;padding:0 26px;font-size:16px;border-radius:var(--r-md)}
+    .btn.primary{background:var(--clay);color:#fff}
+    .btn.ghost{background:transparent;color:var(--clay);padding:0 8px}
+  </style>
+</helmet>
+
+<div class="screen">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <g id="search"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></g>
+    <g id="target"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8.5" stroke-dasharray="3 3"/></g>
+    <g id="cal"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3.5v3M16 3.5v3"/></g>
+    <g id="home"><path d="M4 11.5 12 5l8 6.5V20a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1Z"/></g>
+    <g id="heart"><path d="M12 20s-7-4.6-7-9.5A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 7 3.5C19 15.4 12 20 12 20Z"/></g>
+    <g id="user"><path d="M12 13.5a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9Z"/><path d="M4.5 20.5a7.5 7.5 0 0 1 15 0"/></g>
+  </defs></svg>
+
+  <div class="appbar">
+    <h1>Events near you</h1>
+    <sc-if value="{{isList}}" hint-placeholder-val="{{true}}">
+      <button type="button" class="iconbtn" aria-label="Search"><svg class="i"><use href="#search"/></svg></button>
+    </sc-if>
+  </div>
+
+  <sc-if value="{{isList}}" hint-placeholder-val="{{true}}">
+    <div class="scroll">
+      <div class="seg"><span class="on">List</span><span>Map</span></div>
+      <div class="chips"><span class="chip on"><svg class="i s"><use href="#target"/></svg>Kochi &middot; 15 km</span>
+        <span class="chip">Blood Donation Camp</span><span class="chip">Health Camp</span></div>
+      <div class="ev"><div class="when"><span>Sat</span><b>13</b><span>Sep</span></div>
+        <div class="body"><div class="top"><span class="pill blood">Blood Donation Camp</span><span class="pill mute">about 4 km</span></div>
+          <h3>Community blood drive &mdash; Kaloor</h3>
+          <div class="sub">Kochi Metro Hospital &middot; 09:00&ndash;14:00</div>
+          <div class="meter"><div class="bar"><i style="width:70%"></i></div>
+            <div class="row"><b>18 spots remaining</b><span>of 60</span></div></div></div></div>
+      <div class="ev"><div class="when"><span>Sun</span><b>14</b><span>Sep</span></div>
+        <div class="body"><div class="top"><span class="pill mute">Health Camp</span><span class="pill mute">about 9 km</span><span class="pill leaf">You're going</span></div>
+          <h3>Free health screening camp</h3>
+          <div class="sub">Ernakulam NGO Collective &middot; 10:00&ndash;16:00</div>
+          <div class="meter"><div class="bar"><i style="width:45%"></i></div>
+            <div class="row"><b>22 spots remaining</b><span>of 40</span></div></div></div></div>
+      <div class="ev"><div class="when"><span>Thu</span><b>18</b><span>Sep</span></div>
+        <div class="body"><div class="top"><span class="pill mute">Awareness Session</span><span class="pill mute">about 12 km</span></div>
+          <h3>Why one donation matters &mdash; evening talk</h3>
+          <div class="sub">Ernakulam NGO Collective &middot; 18:00&ndash;19:30</div>
+          <div class="meter"><div class="bar"><i class="warm" style="width:93%"></i></div>
+            <div class="row"><b>2 spots remaining</b><span>of 30</span></div></div></div></div>
+      <div class="ev"><div class="when"><span>Sat</span><b>20</b><span>Sep</span></div>
+        <div class="body"><div class="top"><span class="pill blood">Blood Donation Camp</span><span class="pill mute">about 14 km</span><span class="pill amber">Event Full</span></div>
+          <h3>Blood drive &mdash; Edappally campus</h3>
+          <div class="sub">Kochi Metro Hospital &middot; 08:30&ndash;13:00</div></div></div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{isLoading}}" hint-placeholder-val="{{false}}">
+    <div class="scroll">
+      <div class="chips"><span class="chip on">Kochi &middot; 15 km</span></div>
+      <div class="ev" style="box-shadow:none"><div class="when sk"></div>
+        <div class="body" style="gap:9px"><div class="sk" style="height:16px;width:38%"></div>
+          <div class="sk" style="height:19px;width:88%"></div><div class="sk" style="height:13px;width:62%"></div>
+          <div class="sk" style="height:8px;width:100%;border-radius:999px"></div></div></div>
+      <div class="ev" style="box-shadow:none"><div class="when sk"></div>
+        <div class="body" style="gap:9px"><div class="sk" style="height:16px;width:44%"></div>
+          <div class="sk" style="height:19px;width:76%"></div><div class="sk" style="height:13px;width:58%"></div>
+          <div class="sk" style="height:8px;width:100%;border-radius:999px"></div></div></div>
+      <div class="ev" style="box-shadow:none"><div class="when sk"></div>
+        <div class="body" style="gap:9px"><div class="sk" style="height:16px;width:33%"></div>
+          <div class="sk" style="height:19px;width:84%"></div><div class="sk" style="height:13px;width:66%"></div></div></div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{isEmpty}}" hint-placeholder-val="{{false}}">
+    <div class="scroll" style="gap:13px">
+      <div class="chips"><span class="chip on">Kochi &middot; 15 km</span></div>
+      <div style="padding-top:12px"><div class="track"><div class="fill" style="width:11%"></div><div class="thumb" style="left:11%"></div></div>
+        <div class="ticks"><span>5</span><span>25</span><span>50</span><span>75</span><span>100</span></div></div>
+      <div class="empty" style="margin-top:20px">
+        <span class="ic"><svg class="i l"><use href="#cal"/></svg></span>
+        <b>No events found in your area. Try increasing your search radius.</b>
+        <p>Hospitals and NGOs add events as they plan them. You can also be told when one appears.</p>
+        <button type="button" class="btn primary lg" style="margin-top:4px">Search within 50 km</button>
+        <button type="button" class="btn ghost">Tell me when one is added</button>
+        <small>The radius never widens on its own &mdash; you choose how far to look, up to 100 km.</small>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{showNav}}" hint-placeholder-val="{{true}}">
+    <div class="bottomnav">
+      <a><svg class="i m"><use href="#home"/></svg>Home</a>
+      <a><svg class="i m"><use href="#heart"/></svg>Requests</a>
+      <a class="on"><svg class="i m"><use href="#cal"/></svg>Events</a>
+      <a><svg class="i m"><use href="#user"/></svg>Profile</a>
+    </div>
+  </sc-if>
+</div>
+
+</x-dc>
+<script data-dc-script data-props='{
+  "state": {"editor":"enum","default":"list","options":["list","loading","empty"],"section":"AC state"}
+}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.props.state ?? "list";
+    return {
+      isList: s === "list",
+      isLoading: s === "loading",
+      isEmpty: s === "empty",
+      // Loading holds the frame without bottom nav, matching the approved draft.
+      showNav: s !== "loading"
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,15 +1,329 @@
 {
   "artboards": [
-    { "file": "Main.dc.html", "x": 0, "y": 0, "w": 800, "h": 600, "title": "Landing Page" },
-    { "file": "MobileEntry.dc.html", "x": 0, "y": 760, "w": 390, "h": 844, "title": "Mobile Entry (CHH-8)" },
-    { "file": "OtpVerify.dc.html", "x": 520, "y": 760, "w": 390, "h": 844, "title": "OTP Verify (CHH-9)" },
-    { "file": "GuestDecision.dc.html", "x": 1040, "y": 760, "w": 390, "h": 844, "title": "New User / Guest (CHH-11)" },
-    { "file": "MobileEntryWeb.dc.html", "x": 0, "y": 1760, "w": 1440, "h": 900, "title": "Mobile Entry — Web (CHH-8)" },
-    { "file": "OtpVerifyWeb.dc.html", "x": 1560, "y": 1760, "w": 1440, "h": 900, "title": "OTP Verify — Web (CHH-9)" },
-    { "file": "GuestDecisionWeb.dc.html", "x": 3120, "y": 1760, "w": 1440, "h": 900, "title": "New User / Guest — Web (CHH-11)" }
+    {
+      "file": "Main.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 800,
+      "h": 600,
+      "title": "Landing Page",
+      "page": "page-app"
+    },
+    {
+      "file": "MobileEntry.dc.html",
+      "x": 0,
+      "y": 760,
+      "w": 390,
+      "h": 844,
+      "title": "Mobile Entry (CHH-8)",
+      "page": "page-app"
+    },
+    {
+      "file": "OtpVerify.dc.html",
+      "x": 520,
+      "y": 760,
+      "w": 390,
+      "h": 844,
+      "title": "OTP Verify (CHH-9)",
+      "page": "page-app"
+    },
+    {
+      "file": "GuestDecision.dc.html",
+      "x": 1040,
+      "y": 760,
+      "w": 390,
+      "h": 844,
+      "title": "New User / Guest (CHH-11)",
+      "page": "page-app"
+    },
+    {
+      "file": "MobileEntryWeb.dc.html",
+      "x": 0,
+      "y": 1760,
+      "w": 1440,
+      "h": 900,
+      "title": "Mobile Entry — Web (CHH-8)",
+      "page": "page-app"
+    },
+    {
+      "file": "OtpVerifyWeb.dc.html",
+      "x": 1560,
+      "y": 1760,
+      "w": 1440,
+      "h": 900,
+      "title": "OTP Verify — Web (CHH-9)",
+      "page": "page-app"
+    },
+    {
+      "file": "GuestDecisionWeb.dc.html",
+      "x": 3120,
+      "y": 1760,
+      "w": 1440,
+      "h": 900,
+      "title": "New User / Guest — Web (CHH-11)",
+      "page": "page-app"
+    },
+    {
+      "file": "Registration.dc.html",
+      "x": 0,
+      "y": 2760,
+      "w": 390,
+      "h": 844,
+      "title": "Registration (mobile) — CHH-F02",
+      "page": "page-app"
+    },
+    {
+      "file": "RegistrationWebDisabled.dc.html",
+      "x": 520,
+      "y": 2760,
+      "w": 1440,
+      "h": 900,
+      "title": "Registration — Web (disabled) — CHH-F02",
+      "page": "page-app"
+    },
+    {
+      "file": "RegistrationWebEnabled.dc.html",
+      "x": 2080,
+      "y": 2760,
+      "w": 1440,
+      "h": 900,
+      "title": "Registration — Web (enabled) — CHH-F02",
+      "page": "page-app"
+    },
+    {
+      "file": "FacilityDetails.dc.html",
+      "x": 0,
+      "y": 3800,
+      "w": 1440,
+      "h": 900,
+      "title": "Facility Registration — Step 1 Details (web) — CHH-F03",
+      "page": "page-app"
+    },
+    {
+      "file": "FacilityContacts.dc.html",
+      "x": 1560,
+      "y": 3800,
+      "w": 1440,
+      "h": 900,
+      "title": "Facility Registration — Step 2 Contacts (web) — CHH-F03",
+      "page": "page-app"
+    },
+    {
+      "file": "FacilityUpload.dc.html",
+      "x": 3120,
+      "y": 3800,
+      "w": 1440,
+      "h": 900,
+      "title": "Facility Registration — Step 3 Licence Upload (web) — CHH-F03",
+      "page": "page-app"
+    },
+    {
+      "file": "FacilityStatus.dc.html",
+      "x": 4680,
+      "y": 3800,
+      "w": 1440,
+      "h": 900,
+      "title": "Verification Status — Facility Dashboard (web) — CHH-F03",
+      "page": "page-app"
+    },
+    {
+      "file": "FacilityWizardMobile.dc.html",
+      "x": 0,
+      "y": 4820,
+      "w": 390,
+      "h": 844,
+      "title": "Facility Registration (mobile) — CHH-F03",
+      "page": "page-app"
+    },
+    {
+      "file": "FacilityStatusMobile.dc.html",
+      "x": 520,
+      "y": 4820,
+      "w": 390,
+      "h": 844,
+      "title": "Verification Status (mobile) — CHH-F03",
+      "page": "page-app"
+    },
+    {
+      "file": "BloodRequestForm.dc.html",
+      "x": 0,
+      "y": 5800,
+      "w": 390,
+      "h": 844,
+      "title": "Blood Request Form (mobile) — US-CHH-004-01",
+      "page": "page-app"
+    },
+    {
+      "file": "DonorNotifications.dc.html",
+      "x": 520,
+      "y": 5800,
+      "w": 390,
+      "h": 844,
+      "title": "Donor Notification Center (mobile) — US-CHH-004-03",
+      "page": "page-app"
+    },
+    {
+      "file": "RequestDetails.dc.html",
+      "x": 1040,
+      "y": 5800,
+      "w": 390,
+      "h": 844,
+      "title": "Request Details / Accept — Decline (mobile) — US-CHH-004-04",
+      "page": "page-app"
+    },
+    {
+      "file": "RequesterDashboard.dc.html",
+      "x": 1560,
+      "y": 5800,
+      "w": 390,
+      "h": 844,
+      "title": "Requester Dashboard (mobile) — US-CHH-004-05",
+      "page": "page-app"
+    },
+    {
+      "file": "BloodRequestFormWeb.dc.html",
+      "x": 0,
+      "y": 6820,
+      "w": 1440,
+      "h": 900,
+      "title": "Blood Request Form — Web — US-CHH-004-01",
+      "page": "page-app"
+    },
+    {
+      "file": "DonorNotificationsWeb.dc.html",
+      "x": 1560,
+      "y": 6820,
+      "w": 1440,
+      "h": 900,
+      "title": "Donor Notification Center — Web — US-CHH-004-03",
+      "page": "page-app"
+    },
+    {
+      "file": "RequestDetailsWeb.dc.html",
+      "x": 3120,
+      "y": 6820,
+      "w": 1440,
+      "h": 900,
+      "title": "Request Details / Accept — Decline — Web — US-CHH-004-04",
+      "page": "page-app"
+    },
+    {
+      "file": "RequesterDashboardWeb.dc.html",
+      "x": 4680,
+      "y": 6820,
+      "w": 1440,
+      "h": 900,
+      "title": "Requester Dashboard — Web — US-CHH-004-05",
+      "page": "page-app"
+    },
+    {
+      "file": "FeedbackComponents.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 640,
+      "h": 760,
+      "title": "Feedback Components",
+      "page": "page-components"
+    },
+    {
+      "file": "FacilityUploadProgress.dc.html",
+      "x": 760,
+      "y": 0,
+      "w": 640,
+      "h": 900,
+      "title": "Facility Upload & Submit — Loader States — CHH-F03",
+      "page": "page-components"
+    },
+    {
+      "file": "FacilityToasts.dc.html",
+      "x": 1520,
+      "y": 0,
+      "w": 640,
+      "h": 1180,
+      "title": "Facility Verification Toasts — CHH-F03",
+      "page": "page-components"
+    },
+    {
+      "file": "PushNotificationPreviews.dc.html",
+      "x": 2280,
+      "y": 0,
+      "w": 640,
+      "h": 1620,
+      "title": "Proximity Alerts — Push, In-app Fallback, Toasts — CHH-F04",
+      "page": "page-components"
+    },
+    {
+      "file": "SmsPreview.dc.html",
+      "x": 3060,
+      "y": 0,
+      "w": 700,
+      "h": 1620,
+      "title": "Proximity Alerts — SMS Fallback and Reply Keywords — CHH-F04",
+      "page": "page-components"
+    }
   ],
   "annotations": [
-    { "id": "otp-flow-note", "x": 0, "y": 660, "w": 420, "text": "CHH-F01 — Unified OTP Entry (CHH-8, CHH-9, CHH-11)\nMobile row above web row" }
+    {
+      "id": "otp-flow-note",
+      "x": 0,
+      "y": 660,
+      "w": 420,
+      "text": "CHH-F01 — Unified OTP Entry (CHH-8, CHH-9, CHH-11)\nMobile row above web row",
+      "page": "page-app"
+    },
+    {
+      "id": "reg-note",
+      "x": 0,
+      "y": 2660,
+      "w": 460,
+      "text": "CHH-F02 — Individual Registration (US-CHH-002-01/02/03)\nBuilt from PRD-CHH-v2.2 + CHH-F02 Confluence page §6",
+      "page": "page-app"
+    },
+    {
+      "id": "facility-verification-note",
+      "x": 0,
+      "y": 3700,
+      "w": 760,
+      "text": "CHH-F03 — Facility Verification (US-CHH-003-01/02/03)\nStep 1 Details -> Step 2 Contacts -> Step 3 Licence Upload -> post-submit Verification Status.\nApproved status shows only a verified tick beside the facility name (no status card); Pending/Rejected keep the badge + status card + reason.\nLoader and toast states are drawn as their own artboards on the Components page (FacilityUploadProgress, FacilityToasts), matching Feedback Components' anatomy.\nOpen question: story + Data Dictionary cap the licence file at 5MB; design/ui-standard.md says 10MB — needs reconciling.",
+      "page": "page-app"
+    },
+    {
+      "id": "f04-note",
+      "x": 0,
+      "y": 5600,
+      "w": 1000,
+      "text": "CHH-F04 — Proximity Notifications (US-CHH-004-01/03/04/05)\nFlow: Blood Request Form -> matching -> Donor Notification Center -> Request Details (accept or decline) -> Requester Dashboard.\nUS-CHH-004-02 is the backend matching engine and has no UI.\nEvery screen ships mobile AND web. Every artboard carries an AC-state tweak; the two dashboards also carry a viewer tweak (registered / guest).\n\nDecisions settled in this revision:\n1. ACCEPT IS GREEN. New token family --go (#3F6B39, 6.2:1 on white) added to design/component-gallery.html and documented in design/ui-standard.md as the standard positive/accept action, with the b-accept button variant. Distinct from --blood (emergency/destructive) and --leaf (status green). Decline stays neutral secondary, never red.\n2. URGENCY IS Emergency / Urgent / Standard everywhere.\n3. REQUEST LIFETIME IS 6 HOURS from creation to auto-expiry — shown as a countdown + life bar on both dashboards and both request-details screens, and 'Closes in ...' on notification cards.",
+      "page": "page-app"
+    },
+    {
+      "id": "f04-donor-visibility",
+      "x": 3120,
+      "y": 6600,
+      "w": 1440,
+      "text": "BUSINESS RULE — donor-list visibility (applies to RequesterDashboard and RequesterDashboardWeb; use the 'viewer' tweak to compare).\n\nGuest requester (unregistered session): the list shows ONLY donors who have reached Accepted. Pending/sent/viewed donors are not listed at all.\n\nRegistered requester: the list shows every matched donor, anonymised as Donor 1, Donor 2, Donor 3... in stable match order, each unaccepted row carrying one flat 'Pending' label — no Sent/Viewed/Opened/Declined breakdown per donor. Aggregate stats read Notified / Yet to respond / Accepted.\n\nBoth: accepting is what reveals a real name and number, and nothing before it does.\n\nFor Confluence: add 1) request lifetime = 6 hours, 2) this visibility rule, to the relevant stories' Business Rules field.",
+      "page": "page-app"
+    },
+    {
+      "id": "f04-offapp-note",
+      "x": 2280,
+      "y": -260,
+      "w": 1480,
+      "text": "OFF-APP DELIVERY — push and SMS carry the same four facts in the same order: blood group and units, urgency, approximate distance, area. Never the patient name, requester identity, exact address, or reason.\n\nSMS is the fallback for donors with push disabled, and the only channel for a donor with no app. No buttons — reply 'YES' to accept, 'NO' to decline. Under 160 characters. A YES is answered with the requester's name, number, and the closing time; a NO is acknowledged once and ends the thread.\n\nWhere the OS allows notification actions, push carries Accept (green) and Decline side by side.",
+      "page": "page-components"
+    }
   ],
-  "launch": { "view": "canvas" }
+  "launch": {
+    "view": "canvas",
+    "page": "page-app"
+  },
+  "pages": [
+    {
+      "id": "page-app",
+      "name": "App"
+    },
+    {
+      "id": "page-components",
+      "name": "Components"
+    }
+  ]
 }

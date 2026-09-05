@@ -1,0 +1,90 @@
+{
+  "_comment": "FRAGMENT — CHH-68 / CHH-F06 Emergency Services Hub (US-CHH-001-01/02/03). Merge these entries into design/drafts/_canonical-extract/canvas.json: append the artboards to its artboards array and the annotations to its annotations array. Coordinates sit below the CHH-F05 rows (which end at y=9920 on page-app). Do not copy this _comment key, nor the pages/launch keys, into the canonical file — its own pages array already defines page-app and page-components. Nothing on page-components for this story: the hub has no push or SMS surface.",
+  "pages": [
+    { "id": "page-app", "name": "App" },
+    { "id": "page-components", "name": "Components" }
+  ],
+  "artboards": [
+    {
+      "file": "HubSearch.dc.html",
+      "x": 0,
+      "y": 10200,
+      "w": 390,
+      "h": 844,
+      "title": "Emergency services hub — search (mobile) — US-CHH-001-01",
+      "page": "page-app"
+    },
+    {
+      "file": "HubFacilityDetails.dc.html",
+      "x": 520,
+      "y": 10200,
+      "w": 390,
+      "h": 844,
+      "title": "Facility details / call / map (mobile) — US-CHH-001-02",
+      "page": "page-app"
+    },
+    {
+      "file": "HubEmptyStates.dc.html",
+      "x": 1040,
+      "y": 10200,
+      "w": 390,
+      "h": 844,
+      "title": "No results · location denied · load failed (mobile) — US-CHH-001-03",
+      "page": "page-app"
+    },
+    {
+      "file": "HubSearchWeb.dc.html",
+      "x": 0,
+      "y": 11220,
+      "w": 1440,
+      "h": 900,
+      "title": "Emergency services hub — search — Web — US-CHH-001-01",
+      "page": "page-app"
+    },
+    {
+      "file": "HubFacilityDetailsWeb.dc.html",
+      "x": 1560,
+      "y": 11220,
+      "w": 1440,
+      "h": 900,
+      "title": "Facility details — modal — Web — US-CHH-001-02",
+      "page": "page-app"
+    },
+    {
+      "file": "HubEmptyStatesWeb.dc.html",
+      "x": 3120,
+      "y": 11220,
+      "w": 1440,
+      "h": 900,
+      "title": "No results · load failed — Web — US-CHH-001-03",
+      "page": "page-app"
+    }
+  ],
+  "annotations": [
+    {
+      "id": "f06-note",
+      "x": 0,
+      "y": 9990,
+      "w": 1100,
+      "text": "CHH-F06 — Emergency Services Hub (CHH-68; US-CHH-001-01/02/03)\nMobile row above, web row below. Every screen ships both, per design/ui-standard.md Breakpoints.\nBuilt from the CHH-F06 Confluence spec: §1 Feature Overview, §2 Data Dictionary, §3 the three user stories.\n\nDecisions carried from the draft:\n1. CATEGORY IS A SEGMENTED CONTROL, NOT A DROPDOWN. The Data Dictionary calls service_cat a dropdown; ui-standard.md §Select says 2–4 mutually exclusive options take a segmented control. Three options — All · Hospitals · Ambulances — with All as the spec's default.\n2. Only Verified facilities appear (§4 Question 1, answered). Every card carries a Verified pill so the rule is visible rather than implied, and both empty states say so in words.\n3. The hub is the EMERGENCY register (ui-standard.md §Design direction): the call action is 54px, one per screen, and it is the only red thing on the detail screen. List cards carry no call button — the card opens the detail, so red stays a signal.\n4. Facility distance is EXACT (2.4 km), unlike a donor alert's \"about 5 km\". The off-app approximation rule protects an individual's location; a hospital is a public organisation with a published address.\n5. Web is a two-pane layout — filters and results on the left, map with numbered pins on the right — not the phone stretched wide. Facility details is a MODAL over that (spec UI Note: \"modal or a separate screen\"); mobile gets the separate screen.\n6. Guest state is shown, not assumed away: a guest chip in the web top bar and one inline alert on mobile saying search and call are open to everyone but requesting blood needs a verified number (§1).",
+      "page": "page-app"
+    },
+    {
+      "id": "f06-states-note",
+      "x": 1300,
+      "y": 9990,
+      "w": 1100,
+      "text": "HOW STATES ARE DRAWN (same convention as CHH-F03/F04/F05)\nEach artboard carries one AC-state tweak chip rather than a separate file per state.\n\nHubSearch — hospitals (AC1) | ambulances (AC1, other category) | nameSearch (AC2) | loading (skeletons, ui-standard.md §Loaders: never a bare full-screen spinner)\nHubSearchWeb — results (AC3 proximity) | nameSearch (AC2) | gpsDenied (edge case: alphabetical fallback, no distance claimed, banner explains why)\nHubFacilityDetails — contacts (AC1/AC2) | noContacts (edge case: primary facility number shown, and the sticky action renames itself to say who it dials)\nHubEmptyStates — noResults (001-03 AC1) | gpsDenied (001-03 AC2, manual city entry with suggestions) | error (load failure with retry)\nHubEmptyStatesWeb — noResults | error\n\nStatic artboard: HubFacilityDetailsWeb (the modal, contacts present). Renamed with a Hub- prefix to avoid a filename collision with the existing CHH-F03 FacilityDetails.dc.html (Facility Registration Step 1) already on the canonical canvas.\n\nAC3 proximity sorting is drawn twice on purpose: the mobile board states it in the sort line, the web board shows it as ordered numbered pins so the ordering is legible rather than asserted.",
+      "page": "page-app"
+    },
+    {
+      "id": "f06-open-questions",
+      "x": 2600,
+      "y": 9990,
+      "w": 1100,
+      "text": "STILL OPEN — the spec does not decide these, so they are flagged, not invented.\n\n• §4 Question 2 (search radius limit) is Open. The frames show a \"Within\" control defaulting to 15 km with the empty state offering a widen action; if the answer is a fixed radius, the control goes and the copy changes.\n• \"Max 100 chars / Search term too long\" (Data Dictionary) has no artboard — a 100-character query does not fit a phone search field visibly, so it needs a decision: hard input cap, or an error under the field. Not drawn either way.\n• Map view: the spec's AC3 says \"integrated map view or external map app\". The web board draws an in-page map; mobile draws a static preview whose button hands off to the OS map app. If the integrated map is required on mobile too, that is another artboard.\n• Facility opening hours are shown as a pill on ambulance cards (\"Open 24 hours\") but are NOT in the Data Dictionary. Either add the field to the spec or the pill comes out.\n• Whether the hub appears in the guest bottom navigation at all, and what the other guest tabs are, is a role-matrix question for the PRD; the nav drawn here is a placeholder with Emergency active.\n\nNOT DRAWN: the map-pin-to-card interaction on web beyond selection, saved/recent searches, and any per-facility inventory (that is CHH-F07 territory, not this story).",
+      "page": "page-app"
+    }
+  ],
+  "launch": { "view": "canvas", "page": "page-app" }
+}

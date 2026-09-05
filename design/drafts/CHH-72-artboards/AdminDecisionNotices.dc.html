@@ -1,0 +1,204 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --sand:#F6F0E5;--sand-2:#EFE7D9;--cream:#FDFAF4;--line:#E6DAC7;--line-strong:#D6C6AC;
+      --clay:#B06134;--clay-deep:#8A4620;--clay-tint:#F5E4D3;--clay-line:#E8CDB2;
+      --blood:#D32F2F;--blood-deep:#9E1B18;--blood-tint:#FCE9E7;--blood-line:#F5C6C2;
+      --ink:#392A1D;--ink-2:#6F5C46;--ink-3:#A08A70;--ink-off:#BFAE96;
+      --error:#A33325;--error-tint:#F7E4E0;--amber:#8F6A12;--amber-tint:#F7EDD4;--leaf:#4E7A46;--leaf-tint:#E8F0E2;
+      --font:"Plus Jakarta Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
+      --r-xs:8px;--r-sm:12px;--r-md:16px;--r-lg:20px;
+      --e1:0 1px 2px rgba(57,42,29,.04),0 2px 6px rgba(57,42,29,.05);
+      --e2:0 2px 6px rgba(57,42,29,.05),0 8px 20px rgba(57,42,29,.07);
+      --e3:0 10px 24px rgba(57,42,29,.10),0 24px 56px rgba(57,42,29,.14);
+    }
+    *{box-sizing:border-box}
+    body{margin:0}
+    a{color:var(--clay)} a:hover{color:var(--clay-deep)}
+    .board{width:940px;height:720px;background:var(--sand);font-family:var(--font);color:var(--ink);padding:26px 28px;display:flex;flex-direction:column;gap:18px;overflow:hidden}
+    svg.i{fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;width:18px;height:18px;flex:none}
+    svg.i.s{width:14px;height:14px;stroke-width:2.2}svg.i.m{width:20px;height:20px}
+    .num{font-variant-numeric:tabular-nums}
+
+    .boardhead h2{margin:0;font-size:22px;line-height:28px;font-weight:800;letter-spacing:-.02em}
+    .boardhead p{margin:6px 0 0;font-size:13.5px;line-height:1.6;color:var(--ink-2);max-width:78ch}
+
+    .cols{flex:1;min-height:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}
+    .col{display:flex;flex-direction:column;gap:12px;min-height:0}
+    .colhead{font-size:13px;font-weight:700;color:var(--ink-2);display:flex;align-items:center;gap:8px}
+    .colhead .rule{flex:1;height:1px;background:var(--line-strong)}
+
+    /* admin-side toast */
+    .toast{background:var(--cream);border-radius:var(--r-sm);box-shadow:var(--e3);display:flex;gap:12px;padding:13px 15px;max-width:420px;border-left:4px solid var(--leaf)}
+    .toast.err{border-left-color:var(--error)}
+    .toast .tic{color:var(--leaf);margin-top:1px}
+    .toast.err .tic{color:var(--error)}
+    .toast b{font-size:14.5px;font-weight:700;display:block;line-height:20px}
+    .toast small{font-size:12.5px;color:var(--ink-2);line-height:1.5;display:block;margin-top:2px}
+    .toast .x{margin-left:auto;color:var(--ink-3);flex:none}
+
+    /* facility-side push preview */
+    .push{background:rgba(57,42,29,.86);border-radius:var(--r-md);padding:13px 15px;color:#F6F0E5;display:flex;gap:12px;box-shadow:var(--e2)}
+    .push .app{width:34px;height:34px;border-radius:9px;background:var(--clay);display:flex;align-items:center;justify-content:center;flex:none;color:#fff}
+    .push .app.bad{background:var(--blood)}
+    .push .line1{display:flex;align-items:baseline;gap:8px}
+    .push b{font-size:14px;font-weight:700}
+    .push .when{margin-left:auto;font-size:11.5px;color:rgba(246,240,229,.6)}
+    .push p{margin:3px 0 0;font-size:13px;line-height:1.5;color:rgba(246,240,229,.86)}
+
+    /* SMS */
+    .sms{background:var(--cream);border:1px solid var(--line);border-radius:var(--r-md);padding:14px;display:flex;flex-direction:column;gap:9px}
+    .sms .from{font-size:11.5px;font-weight:700;color:var(--ink-2)}
+    .bubble{background:var(--sand-2);border-radius:14px 14px 14px 4px;padding:12px 14px;font-size:13.5px;line-height:1.55;max-width:340px}
+    .sms .cnt{font-size:11.5px;color:var(--ink-3);font-weight:600}
+
+    /* in-app inline alert on the facility dashboard */
+    .alert{border-radius:var(--r-sm);padding:13px 15px;display:flex;gap:11px;font-size:13px;line-height:1.55}
+    .alert.ok{background:var(--leaf-tint);color:var(--leaf)}
+    .alert.err{background:var(--error-tint);color:var(--error)}
+    .alert b{display:block;font-size:13.5px;font-weight:700;margin-bottom:2px}
+    .alert .btn{margin-top:9px}
+    .btn{height:36px;padding:0 15px;border-radius:10px;font-family:var(--font);font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:8px;border:none;background:var(--cream);color:var(--clay-deep)}
+
+    .caption{font-size:12px;color:var(--ink-3);line-height:1.55;max-width:52ch}
+  </style>
+</helmet>
+
+<div class="board">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <g id="check"><path d="M5 12.5 10 17.5 19.5 7"/></g>
+    <g id="ban"><circle cx="12" cy="12" r="8.5"/><path d="M6 18 18 6"/></g>
+    <g id="cross"><path d="M6 6l12 12M18 6 6 18"/></g>
+    <g id="drop"><path d="M12 3.5s6 6.6 6 10.6a6 6 0 0 1-12 0C6 10.1 12 3.5 12 3.5Z"/></g>
+    <g id="warn"><path d="M12 4.2 21 19.5H3Z"/><path d="M12 10v4M12 16.8v.1"/></g>
+  </defs></svg>
+
+  <div class="boardhead">
+    <h2>What a verification decision sends</h2>
+    <p>US-CHH-001-03 says an approved or rejected facility “should receive a notification”, and a rejection carries the reason. Left is what the admin sees; right is what lands on the facility's phone. Toast copy keeps the verb of the action, per the UI standard.</p>
+  </div>
+
+  <div class="cols">
+    <div class="col">
+      <div class="colhead">Admin sees<span class="rule"></span></div>
+
+      <sc-if value="{{isApproved}}" hint-placeholder-val="{{true}}">
+        <div class="toast">
+          <span class="tic"><svg class="i m"><use href="#check"/></svg></span>
+          <span>
+            <b>Approved</b>
+            <small>Sreedhara Multispeciality is verified and has been told.</small>
+          </span>
+          <span class="x"><svg class="i s"><use href="#cross"/></svg></span>
+        </div>
+        <p class="caption">Success toast — <code>--leaf</code>, dismisses after 4 seconds. The queue count drops by one behind it.</p>
+      </sc-if>
+
+      <sc-if value="{{isRejected}}" hint-placeholder-val="{{false}}">
+        <div class="toast err">
+          <span class="tic"><svg class="i m"><use href="#ban"/></svg></span>
+          <span>
+            <b>Rejected</b>
+            <small>Sreedhara Multispeciality was told why, in your words.</small>
+          </span>
+          <span class="x"><svg class="i s"><use href="#cross"/></svg></span>
+        </div>
+        <p class="caption">A rejection is a decision, not an error — but it stays until dismissed, because the admin should register that it went out.</p>
+      </sc-if>
+
+      <sc-if value="{{isSuspended}}" hint-placeholder-val="{{false}}">
+        <div class="toast err">
+          <span class="tic"><svg class="i m"><use href="#ban"/></svg></span>
+          <span>
+            <b>Suspended</b>
+            <small>Sanju Prakash is signed out everywhere and can't sign in.</small>
+          </span>
+          <span class="x"><svg class="i s"><use href="#cross"/></svg></span>
+        </div>
+        <p class="caption">US-CHH-001-04. The row in the list flips to Suspended at the same moment — the toast is never the only place it shows.</p>
+      </sc-if>
+    </div>
+
+    <div class="col">
+      <div class="colhead">Facility receives<span class="rule"></span></div>
+
+      <sc-if value="{{isApproved}}" hint-placeholder-val="{{true}}">
+        <div class="push">
+          <span class="app"><svg class="i m"><use href="#drop"/></svg></span>
+          <span>
+            <span class="line1"><b>You're verified</b><span class="when">now</span></span>
+            <p>Sreedhara Multispeciality can now post blood requests, publish events and update inventory.</p>
+          </span>
+        </div>
+        <div class="sms">
+          <span class="from">SMS · CHHHUB</span>
+          <div class="bubble">Community Health Hub: Sreedhara Multispeciality is verified. You can now post blood requests and publish events. Sign in at communityhealthhub.in</div>
+          <span class="cnt num">148 characters · 1 segment</span>
+        </div>
+        <div class="alert ok">
+          <svg class="i" style="margin-top:1px"><use href="#check"/></svg>
+          <span>
+            <b>Verified on 3 September 2026</b>
+            Your facility tools are open. Inventory, events and blood requests are all available now.
+          </span>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{isRejected}}" hint-placeholder-val="{{false}}">
+        <div class="push">
+          <span class="app bad"><svg class="i m"><use href="#drop"/></svg></span>
+          <span>
+            <span class="line1"><b>Registration not approved</b><span class="when">now</span></span>
+            <p>The licence scan couldn't be read. Open the app to see what to send instead.</p>
+          </span>
+        </div>
+        <div class="sms">
+          <span class="from">SMS · CHHHUB</span>
+          <div class="bubble">Community Health Hub: your facility registration was not approved. Reason: the licence scan is unreadable. Upload a clear copy at communityhealthhub.in</div>
+          <span class="cnt num">152 characters · 1 segment</span>
+        </div>
+        <div class="alert err">
+          <svg class="i" style="margin-top:1px"><use href="#warn"/></svg>
+          <span>
+            <b>Registration not approved</b>
+            “The uploaded licence is too blurred to read the registration number and expiry date. Please upload a clear scan of both pages.”
+            <button type="button" class="btn">Upload a new licence</button>
+          </span>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{isSuspended}}" hint-placeholder-val="{{false}}">
+        <p class="caption" style="max-width:44ch">No push or SMS is drawn for a suspension. A suspended account is signed out, so a push has nowhere to land — the person meets the block at sign-in instead (see the “Suspended sign-in” artboards). Whether an SMS should be sent as well is an open question for the PO.</p>
+      </sc-if>
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script data-dc-script data-props='{
+  "decision": {"editor":"enum","default":"approved","options":["approved","rejected","suspended"],"section":"Decision"}
+}'>
+class Component extends DCLogic {
+  renderVals() {
+    const d = this.props.decision ?? "approved";
+    return {
+      isApproved: d === "approved",
+      isRejected: d === "rejected",
+      isSuspended: d === "suspended"
+    };
+  }
+}
+</script>
+</body>
+</html>

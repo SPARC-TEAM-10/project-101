@@ -1,0 +1,216 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --sand:#F6F0E5; --sand-2:#EFE7D9; --cream:#FDFAF4;
+      --line:#E6DAC7; --line-strong:#D6C6AC;
+      --clay:#B06134; --clay-hover:#96502A; --clay-deep:#8A4620; --clay-tint:#F5E4D3;
+      --ink:#392A1D; --ink-2:#6F5C46; --ink-3:#A08A70; --ink-off:#BFAE96;
+      --error:#A33325; --error-tint:#F7E4E0; --leaf:#4E7A46; --leaf-tint:#E8F0E2;
+      --blood:#D32F2F; --blood-deep:#8A1F1B; --overlay:rgba(57,42,29,.5);
+      --font:"Plus Jakarta Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+      --r-xs:8px; --r-sm:12px; --r-md:16px; --r-lg:20px;
+      --e1:0 1px 2px rgba(57,42,29,.04),0 2px 6px rgba(57,42,29,.05);
+      --e3:0 10px 24px rgba(57,42,29,.10),0 24px 56px rgba(57,42,29,.14);
+    }
+    *{box-sizing:border-box}
+    body{margin:0}
+    a{color:var(--clay)} a:hover{color:var(--clay-hover)}
+    .screen{width:640px;height:900px;background:var(--sand);font-family:var(--font);color:var(--ink);
+      position:relative;overflow:hidden;padding:36px 40px 40px}
+    h1{font-size:22px;font-weight:800;letter-spacing:-.022em;margin:0 0 4px}
+    .sub{font-size:13px;color:var(--ink-2);margin:0 0 28px;line-height:1.5}
+    h2{font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3);
+      margin:0 0 12px}
+    section{margin-bottom:26px}
+    .card{background:var(--cream);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px;
+      box-shadow:var(--e1)}
+
+    /* ---- blood drip loader (shared with Feedback Components) ---- */
+    .drip-loader{position:relative;flex:none}
+    .drip-loader svg{position:absolute;left:50%;transform:translateX(-50%);fill:var(--blood)}
+    .drip-loader svg.duct{top:0}
+    .drip-loader svg.duct .shine{fill:rgba(255,255,255,.4)}
+    .drip-loader svg.drop{transform-origin:50% 0%;animation:drip-fall 1.8s cubic-bezier(.5,0,.4,1) infinite}
+    .drip-loader .ripple{position:absolute;left:50%;bottom:0;border:1.5px solid var(--blood);border-radius:50%;
+      opacity:0;animation:drip-ripple 1.8s cubic-bezier(.5,0,.4,1) infinite}
+    @keyframes drip-fall{
+      0%{opacity:0;transform:translate(-50%,-2px) scaleY(.3)}
+      8%{opacity:1;transform:translate(-50%,0) scaleY(.55)}
+      30%{opacity:1;transform:translate(-50%,0) scaleY(1)}
+      55%{opacity:1;transform:translate(-50%,var(--fall)) scaleY(1.2)}
+      68%{opacity:1;transform:translate(-50%,var(--fall)) scaleY(.5)}
+      76%{opacity:.35;transform:translate(-50%,calc(var(--fall) + 2px)) scaleY(.4)}
+      100%{opacity:0;transform:translate(-50%,calc(var(--fall) + 2px)) scaleY(.4)}
+    }
+    @keyframes drip-ripple{
+      0%,64%{opacity:0;transform:translateX(-50%) scaleX(.15)}
+      72%{opacity:.55;transform:translateX(-50%) scaleX(1)}
+      92%{opacity:0;transform:translateX(-50%) scaleX(1.8)}
+      100%{opacity:0}
+    }
+    .drip-loader.sm{width:22px;height:42px}
+    .drip-loader.sm svg.duct{width:16px;height:16px}
+    .drip-loader.sm svg.drop{width:8px;height:8px;top:11px;--fall:13px}
+    .drip-loader.sm .ripple{bottom:2px;width:13px;height:3px}
+    .drip-loader.md{width:32px;height:60px}
+    .drip-loader.md svg.duct{width:23px;height:23px}
+    .drip-loader.md svg.drop{width:12px;height:12px;top:16px;--fall:19px}
+    .drip-loader.md .ripple{bottom:3px;width:19px;height:4px}
+
+    /* ---- inline file row (same anatomy as the Step 3 upload screen) ---- */
+    .filerow{display:flex;gap:14px;align-items:flex-start;border:1px solid var(--line);border-radius:var(--r-md);
+      background:var(--sand);padding:16px 18px}
+    .filerow.bad{border-color:var(--error);background:var(--error-tint)}
+    .filerow.ok{border-color:var(--leaf);background:var(--leaf-tint)}
+    .fico{width:40px;height:48px;border-radius:var(--r-xs);background:var(--cream);border:1px solid var(--line);
+      display:flex;align-items:center;justify-content:center;color:var(--ink-3);flex:none}
+    .filerow.bad .fico{color:var(--error);border-color:var(--error)}
+    .filerow.ok .fico{color:var(--leaf);border-color:var(--leaf)}
+    .fmain{flex:1;display:flex;flex-direction:column;gap:7px;min-width:0}
+    .fname{display:flex;align-items:baseline;gap:10px}
+    .fname b{font-size:14.5px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .fname .sz{font-size:12.5px;color:var(--ink-3);font-variant-numeric:tabular-nums;flex:none}
+    .bar{height:6px;border-radius:999px;background:var(--sand-2);overflow:hidden}
+    .bar i{display:block;height:100%;background:var(--clay);border-radius:999px}
+    .bar.stalled i{background:var(--error)}
+    .fnote{font-size:12.5px;color:var(--ink-2);display:flex;align-items:center;gap:6px;
+      font-variant-numeric:tabular-nums}
+    .fnote.errtxt{color:var(--error)}
+    .fnote.oktxt{color:var(--leaf);font-weight:600}
+    .fnote svg{flex:none}
+    .stack{display:flex;flex-direction:column;gap:12px}
+
+    /* ---- busy CTA ---- */
+    .btnrow{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+    button.cta{height:48px;padding:0 22px;border-radius:var(--r-sm);border:none;font-family:var(--font);
+      font-size:14.5px;font-weight:600;color:#fff;background:var(--clay);display:flex;align-items:center;
+      gap:8px;cursor:default}
+    button.cta.busy{background:var(--clay-hover)}
+    button.cta:disabled{background:var(--sand-2);color:var(--ink-off)}
+
+    /* ---- full-screen overlay ---- */
+    .overlay{border-radius:var(--r-md);background:var(--overlay);height:210px;display:flex;
+      align-items:center;justify-content:center;overflow:hidden}
+    .ocard{background:var(--cream);border-radius:var(--r-md);box-shadow:var(--e3);padding:26px 34px;
+      display:flex;flex-direction:column;align-items:center;gap:8px;max-width:340px;text-align:center}
+    .ocard b{font-size:15.5px;font-weight:700}
+    .ocard p{margin:0;font-size:12.5px;line-height:1.5;color:var(--ink-2)}
+    .caption{font-size:11.5px;color:var(--ink-3);margin:8px 0 0}
+  </style>
+</helmet>
+
+<div class="screen">
+  <h1>Upload &amp; submit — loader states</h1>
+  <p class="sub">Every waiting state in the CHH-F03 licence flow, drawn explicitly. The blood-drip mark is the product loader; the determinate bar carries the actual percentage, because a licence upload is long enough that a spinner alone would read as a hang.</p>
+
+  <section>
+    <h2>1 · Inline upload progress — determinate</h2>
+    <div class="card stack">
+      <div class="filerow">
+        <span class="fico">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a1.5 1.5 0 0 0-1.5 1.5v15A1.5 1.5 0 0 0 7 21h10a1.5 1.5 0 0 0 1.5-1.5V7.5Z"/><path d="M14 3v4.5h4.5"/></svg>
+        </span>
+        <div class="fmain">
+          <div class="fname"><b>kochi-metro-licence-2026.pdf</b><span class="sz">3.4 MB</span></div>
+          <div class="bar"><i style="width: {{pctWidth}}"></i></div>
+          <span class="fnote">{{uploadNote}}</span>
+        </div>
+        <div class="drip-loader sm">
+          <svg class="duct" viewBox="0 0 24 24"><path d="M12 2C12 2 4.5 11.5 4.5 16A7.5 7.5 0 0 0 19.5 16C19.5 11.5 12 2 12 2Z"/><ellipse class="shine" cx="9.3" cy="12" rx="1.5" ry="2.4"/></svg>
+          <svg class="drop" viewBox="0 0 24 24"><path d="M12 2C12 2 4.5 11.5 4.5 16A7.5 7.5 0 0 0 19.5 16C19.5 11.5 12 2 12 2Z"/></svg>
+          <div class="ripple"></div>
+        </div>
+      </div>
+
+      <div class="filerow bad">
+        <span class="fico">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a1.5 1.5 0 0 0-1.5 1.5v15A1.5 1.5 0 0 0 7 21h10a1.5 1.5 0 0 0 1.5-1.5V7.5Z"/><path d="M14 3v4.5h4.5"/></svg>
+        </span>
+        <div class="fmain">
+          <div class="fname"><b>kochi-metro-licence-2026.pdf</b><span class="sz">3.4 MB</span></div>
+          <div class="bar stalled"><i style="width: {{pctWidth}}"></i></div>
+          <span class="fnote errtxt">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5 21 19.5H3L12 4.5Z"/><path d="M12 10v4M12 16.8v.1"/></svg>
+            {{stalledNote}}
+          </span>
+        </div>
+      </div>
+
+      <div class="filerow ok">
+        <span class="fico">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a1.5 1.5 0 0 0-1.5 1.5v15A1.5 1.5 0 0 0 7 21h10a1.5 1.5 0 0 0 1.5-1.5V7.5Z"/><path d="M14 3v4.5h4.5"/></svg>
+        </span>
+        <div class="fmain">
+          <div class="fname"><b>kochi-metro-licence-2026.pdf</b><span class="sz">3.4 MB</span></div>
+          <span class="fnote oktxt">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.8 9.8 17.5 19 7.5"/></svg>
+            Uploaded
+          </span>
+        </div>
+      </div>
+    </div>
+    <p class="caption">Progress · network failure mid-upload (US-CHH-003-02 edge case) · uploaded.</p>
+  </section>
+
+  <section>
+    <h2>2 · Submit button — busy</h2>
+    <div class="card">
+      <div class="btnrow">
+        <button type="button" class="cta busy">
+          <div class="drip-loader sm" style="width:16px;height:26px">
+            <svg class="duct" viewBox="0 0 24 24" style="width:11px;height:11px"><path d="M12 2C12 2 4.5 11.5 4.5 16A7.5 7.5 0 0 0 19.5 16C19.5 11.5 12 2 12 2Z"/></svg>
+            <svg class="drop" viewBox="0 0 24 24" style="width:6px;height:6px;top:7px;--fall:8px"><path d="M12 2C12 2 4.5 11.5 4.5 16A7.5 7.5 0 0 0 19.5 16C19.5 11.5 12 2 12 2Z"/></svg>
+          </div>
+          Submitting for verification…
+        </button>
+        <button type="button" class="cta" disabled>Submit for verification</button>
+      </div>
+      <p class="caption">Busy state keeps the button's width and label position stable so the row does not jump; the disabled state is what an admin sees until the upload finishes.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>3 · Full-screen overlay — submitting</h2>
+    <div class="overlay">
+      <div class="ocard">
+        <div class="drip-loader md">
+          <svg class="duct" viewBox="0 0 24 24"><path d="M12 2C12 2 4.5 11.5 4.5 16A7.5 7.5 0 0 0 19.5 16C19.5 11.5 12 2 12 2Z"/><ellipse class="shine" cx="9.3" cy="12" rx="1.5" ry="2.4"/></svg>
+          <svg class="drop" viewBox="0 0 24 24"><path d="M12 2C12 2 4.5 11.5 4.5 16A7.5 7.5 0 0 0 19.5 16C19.5 11.5 12 2 12 2Z"/></svg>
+          <div class="ripple"></div>
+        </div>
+        <b>Submitting for verification</b>
+        <p>Sending your facility details, contacts and licence. Do not close this window.</p>
+      </div>
+    </div>
+    <p class="caption">Used only for the final submit — never for the file upload itself, which stays inline so the admin can cancel or retry.</p>
+  </section>
+</div>
+
+</x-dc>
+<script data-dc-script data-props='{
+  "percent": {"editor":"range","default":62,"min":0,"max":100,"step":1,"unit":"%","section":"Loader"}
+}'>
+class Component extends DCLogic {
+  renderVals() {
+    const pct = this.props.percent ?? 62;
+    return {
+      pctWidth: pct + "%",
+      uploadNote: "Uploading — " + pct + "% of 3.4 MB",
+      stalledNote: "Upload stopped at " + pct + "%. Check your connection, then retry — we kept what was sent."
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,266 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --sand:#F6F0E5; --sand-2:#EFE7D9; --cream:#FDFAF4;
+      --line:#E6DAC7; --line-strong:#D6C6AC;
+      --clay:#B06134; --clay-hover:#96502A; --clay-deep:#8A4620; --clay-tint:#F5E4D3; --clay-line:#E8CDB2;
+      --ink:#392A1D; --ink-2:#6F5C46; --ink-3:#A08A70; --ink-off:#BFAE96;
+      --error:#A33325; --error-tint:#F7E4E0;
+      --amber:#8F6A12; --amber-tint:#F7EDD4; --leaf:#4E7A46; --leaf-tint:#E8F0E2;
+      --blood:#D32F2F; --blood-line:#F5C6C2;
+      --font:"Plus Jakarta Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+      --r-xs:8px; --r-sm:12px; --r-md:16px; --r-lg:20px;
+      --e1:0 1px 2px rgba(57,42,29,.04),0 2px 6px rgba(57,42,29,.05);
+    }
+    *{box-sizing:border-box}
+    body{margin:0}
+    a{color:var(--clay)} a:hover{color:var(--clay-hover)}
+    .win{width:1440px;height:900px;background:var(--sand);font-family:var(--font);color:var(--ink);
+      display:flex;flex-direction:column;overflow:hidden}
+    .topbar{height:64px;flex:none;display:flex;align-items:center;gap:12px;padding:0 32px;
+      background:var(--cream);border-bottom:1px solid var(--line)}
+    .brand{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:800;letter-spacing:-.02em}
+    .mark{width:28px;height:28px;border-radius:var(--r-xs);background:var(--clay);color:#fff;
+      display:flex;align-items:center;justify-content:center}
+    .spacer{flex:1}
+    .acct{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--ink-2)}
+    .avatar-sq{width:34px;height:34px;border-radius:var(--r-sm);background:var(--clay-tint);color:var(--clay-deep);
+      display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700}
+    .body{flex:1;overflow-y:auto;padding:40px 32px 56px;display:flex;justify-content:center}
+    .col{width:764px;display:flex;flex-direction:column;gap:28px}
+    .head h1{font-size:28px;line-height:34px;font-weight:800;letter-spacing:-.025em;margin:0}
+    .head p{font-size:14px;line-height:1.55;color:var(--ink-2);margin:8px 0 0;max-width:60ch}
+    .steps{display:flex;align-items:center;gap:12px}
+    .step{display:flex;align-items:center;gap:9px}
+    .dot{width:26px;height:26px;border-radius:999px;display:flex;align-items:center;justify-content:center;
+      font-size:12px;font-weight:700;flex:none}
+    .step.done .dot{background:var(--leaf);color:#fff}
+    .step.now .dot{background:var(--clay);color:#fff}
+    .step.todo .dot{border:1.5px solid var(--line-strong);color:var(--ink-3)}
+    .step .lbl{font-size:13px;font-weight:600;color:var(--ink-3)}
+    .step.now .lbl{color:var(--ink)}
+    .step.done .lbl{color:var(--ink-2)}
+    .rule{height:1.5px;background:var(--line-strong);flex:1;min-width:28px}
+    .rule.done{background:var(--leaf)}
+    .card{background:var(--cream);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--e1);
+      padding:28px 32px 32px;display:flex;flex-direction:column;gap:20px}
+    .card-h{display:flex;align-items:baseline;gap:12px;border-bottom:1px solid var(--line);padding-bottom:16px}
+    .card-h h2{font-size:22px;line-height:28px;font-weight:700;letter-spacing:-.02em;margin:0}
+    .card-h span{font-size:12.5px;color:var(--ink-3);margin-left:auto}
+    .contacts{display:flex;flex-direction:column;gap:16px}
+    .contact{border:1px solid var(--line);border-radius:var(--r-md);background:var(--sand);
+      padding:18px 20px 20px;display:flex;flex-direction:column;gap:14px}
+    .contact.flag{border-color:var(--error)}
+    .c-head{display:flex;align-items:center;gap:10px}
+    .chip{height:24px;padding:0 10px;border-radius:999px;background:var(--clay-tint);color:var(--clay-deep);
+      font-size:12px;font-weight:700;display:flex;align-items:center;font-variant-numeric:tabular-nums}
+    .c-head b{font-size:14px;font-weight:700}
+    .c-head .role{font-size:12.5px;color:var(--ink-3)}
+    .iconbtn{width:34px;height:34px;border-radius:999px;border:none;background:transparent;color:var(--ink-3);
+      cursor:pointer;display:flex;align-items:center;justify-content:center;margin-left:auto}
+    .iconbtn:hover{background:var(--sand-2);color:var(--error)}
+    .c-grid{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:14px}
+    .field{display:flex;flex-direction:column;gap:7px}
+    .field label{font-size:13px;font-weight:600;color:var(--ink-2)}
+    .field label i{color:var(--error);font-style:normal}
+    .hint{font-size:12.5px;color:var(--ink-3);line-height:1.4}
+    .err{font-size:12.5px;color:var(--error);display:flex;align-items:flex-start;gap:6px;line-height:1.4}
+    .err svg{flex:none;margin-top:2px}
+    input{width:100%;height:50px;padding:0 14px;border-radius:var(--r-sm);border:1.5px solid var(--line);
+      background:var(--cream);font-family:var(--font);font-size:16px;color:var(--ink)}
+    input:hover{border-color:var(--line-strong)}
+    input:focus{outline:2px solid var(--clay);outline-offset:2px;border-color:var(--clay)}
+    input.bad{border-color:var(--error)}
+    .mono{font-variant-numeric:tabular-nums;letter-spacing:.02em}
+    .prefix{display:flex;align-items:center;gap:0}
+    .prefix .cc{height:50px;display:flex;align-items:center;padding:0 12px;border:1.5px solid var(--line);
+      border-right:none;border-radius:var(--r-sm) 0 0 var(--r-sm);background:var(--sand-2);color:var(--ink-2);
+      font-size:15px;font-variant-numeric:tabular-nums}
+    .prefix input{border-radius:0 var(--r-sm) var(--r-sm) 0}
+    .prefix.bad .cc{border-color:var(--error)}
+    .addrow{display:flex;align-items:center;gap:14px}
+    .btn{height:48px;padding:0 22px;border-radius:var(--r-sm);font-family:var(--font);font-size:15px;
+      font-weight:600;cursor:pointer;display:flex;align-items:center;gap:9px}
+    .btn.primary{background:var(--clay);color:#fff;border:none}
+    .btn.primary:hover{background:var(--clay-hover)}
+    .btn.secondary{background:transparent;color:var(--ink);border:1.5px solid var(--line-strong)}
+    .btn.secondary:hover{border-color:var(--ink-3)}
+    .btn.dashed{background:transparent;color:var(--clay);border:1.5px dashed var(--clay-line);width:100%;
+      justify-content:center}
+    .btn.dashed:hover{background:var(--clay-tint)}
+    .btn.dashed:disabled{color:var(--ink-off);border-color:var(--line-strong);cursor:not-allowed;background:transparent}
+    .alert{display:flex;gap:10px;border-radius:var(--r-sm);padding:13px 16px}
+    .alert.err{background:var(--error-tint)}
+    .alert.err svg{color:var(--error);flex:none;margin-top:1px}
+    .alert.err b{display:block;font-size:13px;font-weight:700;margin-bottom:2px;color:var(--error)}
+    .alert.info{background:var(--sand-2)}
+    .alert.info svg{color:var(--ink-2);flex:none;margin-top:1px}
+    .alert.info b{display:block;font-size:13px;font-weight:700;margin-bottom:2px}
+    .alert p{margin:0;font-size:12.5px;line-height:1.5;color:var(--ink-2)}
+    .actions{display:flex;align-items:center;gap:12px;padding-top:4px}
+    .saved{font-size:12.5px;color:var(--ink-3);display:flex;align-items:center;gap:6px}
+    .saved svg{color:var(--leaf)}
+  </style>
+</helmet>
+
+<div class="win">
+  <div class="topbar">
+    <div class="brand">
+      <span class="mark"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.6-7-9.5A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 7 3.5C19 15.4 12 20 12 20Z"/></svg></span>
+      Community Health Hub
+    </div>
+    <div class="spacer"></div>
+    <div class="acct">Kochi Metro Hospital<span class="avatar-sq">KM</span></div>
+  </div>
+
+  <div class="body">
+    <div class="col">
+      <div class="head">
+        <h1>Who should we reach?</h1>
+        <p>Add up to three people. The first is the primary contact — a donor responding to a request from this facility sees that person's name and number.</p>
+      </div>
+
+      <div class="steps">
+        <div class="step done"><span class="dot"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.8 9.8 17.5 19 7.5"/></svg></span><span class="lbl">Facility details</span></div>
+        <div class="rule done"></div>
+        <div class="step now"><span class="dot">2</span><span class="lbl">Contacts</span></div>
+        <div class="rule"></div>
+        <div class="step todo"><span class="dot">3</span><span class="lbl">Licence document</span></div>
+      </div>
+
+      <section class="card">
+        <div class="card-h"><h2>Contacts</h2><span>{{countLabel}} · Step 2 of 3</span></div>
+
+        <sc-if value="{{dupBanner}}" hint-placeholder-val="{{false}}">
+          <div class="alert err">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5 21 19.5H3L12 4.5Z"/><path d="M12 10v4M12 16.8v.1"/></svg>
+            <div><b>Two contacts share a number</b><p>Each contact needs a different mobile number so we know who answered.</p></div>
+          </div>
+        </sc-if>
+
+        <div class="contacts">
+          <sc-for list="{{contacts}}" as="c" hint-placeholder-count="2">
+            <div class="contact {{c.flagClass}}">
+              <div class="c-head">
+                <span class="chip">{{c.n}}</span>
+                <b>{{c.title}}</b>
+                <span class="role">{{c.role}}</span>
+                <sc-if value="{{c.removable}}" hint-placeholder-val="{{true}}">
+                  <button type="button" class="iconbtn" aria-label="Remove this contact">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9.5 7V5h5v2M6.5 7l1 12.5h9L17.5 7"/></svg>
+                  </button>
+                </sc-if>
+              </div>
+              <div class="c-grid">
+                <div class="field">
+                  <label>Name <i>*</i></label>
+                  <input value="{{c.name}}" placeholder="Full name">
+                </div>
+                <div class="field">
+                  <label>Designation <i>*</i></label>
+                  <input value="{{c.desig}}" placeholder="e.g. Blood bank officer">
+                </div>
+                <div class="field">
+                  <label>Mobile <i>*</i></label>
+                  <div class="prefix {{c.flagClass}}">
+                    <span class="cc">+91</span>
+                    <input class="mono {{c.badClass}}" value="{{c.mobile}}" placeholder="10 digits">
+                  </div>
+                  <sc-if value="{{c.dup}}" hint-placeholder-val="{{false}}">
+                    <span class="err"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5 21 19.5H3L12 4.5Z"/><path d="M12 10v4M12 16.8v.1"/></svg>Contact 1 already uses this number. Enter a different one.</span>
+                  </sc-if>
+                  <sc-if value="{{c.short}}" hint-placeholder-val="{{false}}">
+                    <span class="err"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5 21 19.5H3L12 4.5Z"/><path d="M12 10v4M12 16.8v.1"/></svg>Enter all 10 digits of the mobile number.</span>
+                  </sc-if>
+                  <sc-if value="{{c.clean}}" hint-placeholder-val="{{true}}">
+                    <span class="hint">10 digits, no spaces.</span>
+                  </sc-if>
+                </div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+
+        <button type="button" class="btn dashed" {{addDisabled}} onClick="{{add}}">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+          Add another contact
+        </button>
+
+        <sc-if value="{{atMax}}" hint-placeholder-val="{{false}}">
+          <div class="alert info">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.9v.1"/></svg>
+            <div><b>Three contacts is the maximum</b><p>Remove one to add someone else.</p></div>
+          </div>
+        </sc-if>
+
+        <div class="actions">
+          <span class="saved">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.8 9.8 17.5 19 7.5"/></svg>
+            Draft saved
+          </span>
+          <div class="spacer"></div>
+          <button type="button" class="btn secondary">Back</button>
+          <button type="button" class="btn primary">Continue to licence</button>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script data-dc-script data-props='{
+  "count": {"editor":"int","default":2,"min":1,"max":3,"section":"AC state"},
+  "issue": {"editor":"enum","default":"none","options":["none","duplicateMobile","incompleteMobile"],"section":"AC state"}
+}'>
+const SEED = [
+  { title: "Anitha Varghese", role: "Primary contact", desig: "Blood bank officer", mobile: "9876500112" },
+  { title: "Rahul Nair", role: "Contact 2", desig: "Duty manager", mobile: "9876500240" },
+  { title: "Fathima Basheer", role: "Contact 3", desig: "Night shift lead", mobile: "9876500318" }
+];
+class Component extends DCLogic {
+  renderVals() {
+    const propCount = this.props.count ?? 2;
+    const count = Math.min(3, Math.max(1, this.state.count ?? propCount));
+    const issue = this.props.issue ?? "none";
+    const contacts = SEED.slice(0, count).map((c, i) => {
+      const isDup = issue === "duplicateMobile" && i === 1;
+      const isShort = issue === "incompleteMobile" && i === count - 1 && i > 0;
+      return {
+        n: String(i + 1),
+        title: c.title,
+        role: c.role,
+        desig: c.desig,
+        name: c.title,
+        mobile: isDup ? SEED[0].mobile : (isShort ? "98765" : c.mobile),
+        dup: isDup,
+        short: isShort,
+        clean: !isDup && !isShort,
+        flagClass: isDup || isShort ? "flag" : "",
+        badClass: isDup || isShort ? "bad" : "",
+        removable: i > 0
+      };
+    });
+    return {
+      contacts,
+      countLabel: count + " of 3 added",
+      atMax: count >= 3,
+      addDisabled: count >= 3 ? "disabled" : "",
+      dupBanner: issue === "duplicateMobile",
+      add: () => this.setState({ count: Math.min(3, count + 1) })
+    };
+  }
+}
+</script>
+</body>
+</html>

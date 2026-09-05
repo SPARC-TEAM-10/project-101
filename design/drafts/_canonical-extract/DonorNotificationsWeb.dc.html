@@ -1,0 +1,365 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --sand:#F6F0E5; --sand-2:#EFE7D9; --cream:#FDFAF4;
+      --line:#E6DAC7; --line-strong:#D6C6AC;
+      --clay:#B06134; --clay-hover:#96502A; --clay-deep:#8A4620; --clay-tint:#F5E4D3; --clay-line:#E8CDB2;
+      --blood:#D32F2F; --blood-hover:#B92626; --blood-deep:#9E1B18; --blood-tint:#FCE9E7; --blood-line:#F5C6C2;
+      --go:#3F6B39; --go-hover:#345A2F; --go-active:#2A4A26; --go-deep:#2F5629; --go-tint:#E4EFDD; --go-line:#C3DAB8;
+      --ink:#392A1D; --ink-2:#6F5C46; --ink-3:#A08A70; --ink-off:#BFAE96;
+      --error:#A33325; --error-tint:#F7E4E0;
+      --amber:#8F6A12; --amber-tint:#F7EDD4; --leaf:#4E7A46; --leaf-tint:#E8F0E2;
+      --font:"Plus Jakarta Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+      --r-xs:8px; --r-sm:12px; --r-md:16px; --r-lg:20px;
+      --e1:0 1px 2px rgba(57,42,29,.04),0 2px 6px rgba(57,42,29,.05);
+      --e2:0 2px 6px rgba(57,42,29,.05),0 8px 20px rgba(57,42,29,.07);
+    }
+    *{box-sizing:border-box}
+    body{margin:0}
+    a{color:var(--clay)} a:hover{color:var(--clay-hover)}
+    .win{width:1440px;height:900px;background:var(--sand);font-family:var(--font);color:var(--ink);
+      display:flex;flex-direction:column;overflow:hidden}
+    .topbar{height:64px;flex:none;display:flex;align-items:center;gap:12px;padding:0 32px;background:var(--cream);
+      border-bottom:1px solid var(--line)}
+    .brand{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:800;letter-spacing:-.02em}
+    .mark{width:28px;height:28px;border-radius:var(--r-xs);background:var(--clay);color:#fff;display:flex;
+      align-items:center;justify-content:center}
+    .spacer{flex:1}
+    .acct{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--ink-2)}
+    .avatar{width:34px;height:34px;border-radius:999px;background:var(--clay-tint);color:var(--clay-deep);
+      display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700;flex:none}
+    .shell{flex:1;display:flex;min-height:0}
+    .side{width:236px;flex:none;background:var(--sand-2);border-right:1px solid var(--line);padding:20px 14px;
+      display:flex;flex-direction:column;gap:4px}
+    .nav{height:46px;border-radius:var(--r-sm);display:flex;align-items:center;gap:11px;padding:0 14px;
+      font-size:14px;font-weight:600;color:var(--ink-2);cursor:pointer;border:none;background:transparent;
+      font-family:var(--font);text-align:left}
+    .nav:hover{background:rgba(253,250,244,.6)}
+    .nav.on{background:var(--cream);color:var(--clay);box-shadow:var(--e1)}
+    .nav .badge{margin-left:auto;height:20px;min-width:20px;padding:0 6px;border-radius:999px;background:var(--blood);
+      color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;
+      font-variant-numeric:tabular-nums}
+    .main{flex:1;overflow-y:auto;padding:30px 40px 44px;display:flex;flex-direction:column;gap:20px}
+
+    .head{display:flex;align-items:flex-end;gap:16px}
+    .head h1{margin:0;font-size:28px;line-height:34px;font-weight:800;letter-spacing:-.025em}
+    .head p{margin:6px 0 0;font-size:13.5px;color:var(--ink-2)}
+    .btn{height:44px;padding:0 18px;border-radius:var(--r-sm);font-family:var(--font);font-size:14px;
+      font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;border:none}
+    .btn.sec{background:transparent;color:var(--ink);border:1.5px solid var(--line-strong)}
+    .btn.sec:hover{background:var(--sand-2)}
+    .btn.primary{background:var(--clay);color:#fff}
+    .btn.primary:hover{background:var(--clay-hover)}
+    .btn.accept{background:var(--go);color:#fff;height:48px;padding:0 22px;font-size:15px}
+    .btn.accept:hover{background:var(--go-hover)}
+    .btn.accept:active{background:var(--go-active)}
+
+    .chips{display:flex;gap:9px}
+    .chip{height:36px;padding:0 15px;border-radius:999px;border:1px solid var(--line);background:var(--sand-2);
+      font-family:var(--font);font-size:13px;font-weight:600;color:var(--ink-2);cursor:pointer;display:flex;
+      align-items:center;gap:7px}
+    .chip.on{background:var(--clay-tint);border-color:var(--clay-line);color:var(--clay-deep);font-weight:700}
+    .chip .n{font-variant-numeric:tabular-nums}
+
+    .cols{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:26px;align-items:start}
+    .list{display:flex;flex-direction:column;gap:12px}
+    h2.sec{margin:4px 0 0;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+      color:var(--ink-3)}
+
+    .card{display:flex;background:var(--cream);border:1px solid var(--line);border-radius:var(--r-md);
+      box-shadow:var(--e1);overflow:hidden}
+    .card:hover{box-shadow:var(--e2)}
+    .card .rail{width:5px;flex:none;background:var(--line-strong)}
+    .card.emergency{border-color:var(--blood-line)}
+    .card.emergency .rail{background:var(--blood)}
+    .card.urgent .rail{background:var(--amber)}
+    .card.read{box-shadow:none;background:var(--sand)}
+    .card .body{flex:1;min-width:0;padding:18px 20px;display:flex;align-items:center;gap:18px}
+    .bg{height:48px;min-width:60px;padding:0 14px;border-radius:999px;background:var(--blood-tint);
+      color:var(--blood-deep);font-weight:800;font-size:19px;font-variant-numeric:tabular-nums;
+      display:flex;align-items:center;justify-content:center;flex:none}
+    .bg.mute{background:var(--sand-2);color:var(--ink-2)}
+    .info{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
+    .info .l1{display:flex;align-items:center;gap:10px}
+    .info b{font-size:17px;font-weight:700;letter-spacing:-.015em}
+    .info .where{font-size:13px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+    .info .l3{display:flex;align-items:center;gap:14px;font-size:12px;color:var(--ink-3);
+      font-variant-numeric:tabular-nums}
+    .info .l3 span{display:flex;align-items:center;gap:5px}
+    .pill{height:26px;padding:0 11px;border-radius:999px;display:inline-flex;align-items:center;gap:6px;
+      font-size:12px;font-weight:700;flex:none}
+    .pill.emg{background:var(--blood);color:#fff}
+    .pill.urg{background:var(--amber-tint);color:var(--amber)}
+    .pill.std{background:var(--sand-2);color:var(--ink-2)}
+    .unread{width:9px;height:9px;border-radius:999px;background:var(--blood);flex:none}
+    .acts{display:flex;flex-direction:column;gap:8px;flex:none;width:190px}
+    .settled{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-2);flex:none;
+      max-width:250px;line-height:1.45}
+    .settled svg{color:var(--ink-3);flex:none}
+
+    .rail-col{display:flex;flex-direction:column;gap:16px}
+    .panel{background:var(--cream);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--e1);
+      padding:20px}
+    .panel h3{margin:0 0 4px;font-size:15px;font-weight:700}
+    .panel p{margin:0;font-size:12.5px;line-height:1.55;color:var(--ink-2)}
+    .chan{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}
+    .chan:last-of-type{border-bottom:none}
+    .chan svg{color:var(--ink-3);flex:none}
+    .chan .cn{flex:1;min-width:0}
+    .chan .cn b{display:block;font-size:13.5px;font-weight:700}
+    .chan .cn span{font-size:12px;color:var(--ink-2)}
+    .state{height:24px;padding:0 10px;border-radius:999px;font-size:11.5px;font-weight:700;flex:none;
+      display:flex;align-items:center}
+    .state.on{background:var(--go-tint);color:var(--go-deep)}
+    .state.off{background:var(--amber-tint);color:var(--amber)}
+
+    .alertbar{display:flex;gap:12px;padding:15px 18px;border-radius:var(--r-md);align-items:flex-start}
+    .alertbar.warn{background:var(--amber-tint)}
+    .alertbar.warn svg{color:var(--amber)}
+    .alertbar.warn b{color:var(--amber)}
+    .alertbar.info{background:var(--clay-tint)}
+    .alertbar.info svg{color:var(--clay-deep)}
+    .alertbar.info b{color:var(--clay-deep)}
+    .alertbar svg{flex:none;margin-top:2px}
+    .alertbar b{display:block;font-size:13.5px;font-weight:700;margin-bottom:3px}
+    .alertbar p{margin:0;font-size:13px;line-height:1.5;color:var(--ink-2);max-width:78ch}
+    .alertbar .act{margin-left:auto;flex:none}
+  </style>
+</helmet>
+
+<div class="win">
+  <div class="topbar">
+    <div class="brand">
+      <span class="mark"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.6-7-9.5A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 7 3.5C19 15.4 12 20 12 20Z"/></svg></span>
+      Community Health Hub
+    </div>
+    <div class="spacer"></div>
+    <div class="acct">Rahul Suresh<span class="avatar">RS</span></div>
+  </div>
+
+  <div class="shell">
+    <nav class="side">
+      <button type="button" class="nav"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5 12 5l8 6.5V20a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1Z"/></svg>Home</button>
+      <button type="button" class="nav"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.6-7-9.5A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 7 3.5C19 15.4 12 20 12 20Z"/></svg>Blood requests</button>
+      <button type="button" class="nav on"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 16.5H6s1.8-1.6 1.8-6.2a4.2 4.2 0 0 1 8.4 0c0 4.6 1.8 6.2 1.8 6.2Z"/><path d="M10 19.5a2.4 2.4 0 0 0 4 0"/></svg>Notifications<span class="badge">3</span></button>
+      <button type="button" class="nav"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3.5v3M16 3.5v3"/></svg>Events</button>
+      <button type="button" class="nav"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 13.5a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9Z"/><path d="M4.5 20.5a7.5 7.5 0 0 1 15 0"/></svg>Profile</button>
+    </nav>
+
+    <div class="main">
+      <div class="head">
+        <div>
+          <h1>Alerts</h1>
+          <p>Requests matching your blood group inside your notification radius. Nothing here names a patient.</p>
+        </div>
+        <div class="spacer"></div>
+        <button type="button" class="btn sec">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 4.2v2.1M12 17.7v2.1M4.2 12h2.1M17.7 12h2.1M6.5 6.5l1.5 1.5M16 16l1.5 1.5M17.5 6.5 16 8M8 16l-1.5 1.5"/></svg>
+          Alert settings
+        </button>
+        <button type="button" class="btn sec">Mark all as read</button>
+      </div>
+
+      <sc-if value="{{pushOff}}" hint-placeholder-val="{{false}}">
+        <div class="alertbar warn">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 17.5H4.5s1.9-1.6 1.9-6.1a5.6 5.6 0 0 1 3.2-5.1"/><path d="M9.6 20.5a2.6 2.6 0 0 0 4.8 0"/><path d="M4 4l16 16"/></svg>
+          <div>
+            <b>Browser notifications are blocked &middot; alerts are going to you by SMS</b>
+            <p>Requests still appear on this page and as a text message to your registered number, but nothing will reach you while this tab is closed.</p>
+          </div>
+          <button type="button" class="btn primary act">Allow notifications</button>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{offline}}" hint-placeholder-val="{{false}}">
+        <div class="alertbar info">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5a9 9 0 0 1 4.2-2.2M14.8 10.3A9 9 0 0 1 19 12.5"/><path d="M8.5 16a5 5 0 0 1 7 0"/><path d="M12 19.6v.1"/><path d="M4 4l16 16"/></svg>
+          <div>
+            <b>You are offline</b>
+            <p>This list last updated 2 minutes ago. New alerts may be delayed, and any response you send now will queue until you reconnect.</p>
+          </div>
+          <button type="button" class="btn primary act">Retry now</button>
+        </div>
+      </sc-if>
+
+      <div class="chips">
+        <button type="button" class="chip on">All <span class="n">12</span></button>
+        <button type="button" class="chip">Unread <span class="n">3</span></button>
+        <button type="button" class="chip">Emergency <span class="n">1</span></button>
+        <button type="button" class="chip">Within 10 km <span class="n">5</span></button>
+      </div>
+
+      <div class="cols">
+        <div class="list">
+          <h2 class="sec">Unread</h2>
+
+          <div class="card emergency">
+            <span class="rail"></span>
+            <div class="body">
+              <span class="bg">O&#8722;</span>
+              <div class="info">
+                <div class="l1">
+                  <span class="unread" aria-label="Unread"></span>
+                  <b>2 units needed</b>
+                  <span class="pill emg">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5 21 19.5H3L12 4.5Z"/><path d="M12 10v4M12 16.8v.1"/></svg>
+                    Emergency
+                  </span>
+                </div>
+                <span class="where">About 5 km away &middot; Kochi Metro Hospital, Ernakulam</span>
+                <div class="l3">
+                  <span>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 6.8v5.4l3.6 2.1"/></svg>
+                    Posted just now
+                  </span>
+                  <span>Closes in 5 hr 42 min</span>
+                </div>
+              </div>
+              <div class="acts">
+                <button type="button" class="btn accept">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.8 9.8 17.5 19 7.5"/></svg>
+                  Accept and donate
+                </button>
+                <button type="button" class="btn sec">View request</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card urgent">
+            <span class="rail"></span>
+            <div class="body">
+              <span class="bg">B+</span>
+              <div class="info">
+                <div class="l1">
+                  <span class="unread" aria-label="Unread"></span>
+                  <b>1 unit needed</b>
+                  <span class="pill urg">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>
+                    Urgent
+                  </span>
+                </div>
+                <span class="where">About 12 km away &middot; Kalamassery</span>
+                <div class="l3">
+                  <span>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 6.8v5.4l3.6 2.1"/></svg>
+                    Posted 8 min ago
+                  </span>
+                  <span>Closes in 5 hr 52 min</span>
+                </div>
+              </div>
+              <div class="acts">
+                <button type="button" class="btn sec">View request</button>
+              </div>
+            </div>
+          </div>
+
+          <h2 class="sec">Earlier</h2>
+
+          <div class="card read">
+            <span class="rail"></span>
+            <div class="body">
+              <span class="bg mute">A+</span>
+              <div class="info">
+                <div class="l1">
+                  <b>3 units needed</b>
+                  <span class="pill std">Standard</span>
+                </div>
+                <span class="where">About 22 km away &middot; Aluva</span>
+                <div class="l3">
+                  <span>Posted 1 hr ago</span>
+                  <span>Closes in 5 hr</span>
+                </div>
+              </div>
+              <div class="acts">
+                <button type="button" class="btn sec">View request</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card read">
+            <span class="rail"></span>
+            <div class="body">
+              <span class="bg mute">O+</span>
+              <div class="info">
+                <div class="l1">
+                  <b>2 units needed</b>
+                </div>
+                <span class="where">About 7 km away &middot; Kakkanad</span>
+              </div>
+              <span class="settled">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M8.5 12h7"/></svg>
+                You declined this. No more reminders will be sent.
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <aside class="rail-col">
+          <div class="panel">
+            <h3>How alerts reach you</h3>
+            <p>Every request that matches your group and radius goes out on all the channels you have switched on.</p>
+            <div style="margin-top:10px">
+              <div class="chan">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 16.5H6s1.8-1.6 1.8-6.2a4.2 4.2 0 0 1 8.4 0c0 4.6 1.8 6.2 1.8 6.2Z"/><path d="M10 19.5a2.4 2.4 0 0 0 4 0"/></svg>
+                <span class="cn"><b>Push notification</b><span>Phone and browser</span></span>
+                <span class="state {{pushStateClass}}">{{pushStateLabel}}</span>
+              </div>
+              <div class="chan">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 15.5a2 2 0 0 1-2 2H8l-4 3.5v-14a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2Z"/></svg>
+                <span class="cn"><b>SMS</b><span>+91 90000 45871 &middot; reply YES or NO</span></span>
+                <span class="state on">On</span>
+              </div>
+              <div class="chan">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="6" width="17" height="13" rx="2.2"/><path d="M4 7.5 12 13l8-5.5"/></svg>
+                <span class="cn"><b>Email</b><span>Daily summary only</span></span>
+                <span class="state on">On</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h3>Your alert radius</h3>
+            <p style="margin-bottom:12px">You are notified about requests within <b>15 km</b> of your registered location. About 6 requests a week reach you at this setting.</p>
+            <button type="button" class="btn sec" style="width:100%;justify-content:center">Change radius</button>
+          </div>
+
+          <div class="panel">
+            <h3>What donors are told</h3>
+            <p>Blood group, units, urgency, roughly how far away and the area &mdash; on every channel. Never the patient's name. You see the requester's name and number only after you accept, and they see yours at the same moment.</p>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script data-dc-script data-props='{
+  "state": {"editor":"enum","default":"push-on","options":["push-on","push-off","offline"],"section":"AC state"}
+}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.props.state ?? "push-on";
+    const off = s === "push-off";
+    return {
+      pushOff: off,
+      offline: s === "offline",
+      pushStateClass: off ? "off" : "on",
+      pushStateLabel: off ? "Blocked" : "On"
+    };
+  }
+}
+</script>
+</body>
+</html>

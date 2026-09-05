@@ -1,0 +1,349 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --sand:#F6F0E5;--sand-2:#EFE7D9;--cream:#FDFAF4;--line:#E6DAC7;--line-strong:#D6C6AC;
+      --clay:#B06134;--clay-hover:#96502A;--clay-deep:#8A4620;--clay-tint:#F5E4D3;--clay-line:#E8CDB2;
+      --blood:#D32F2F;--blood-deep:#9E1B18;--blood-tint:#FCE9E7;--blood-line:#F5C6C2;
+      --ink:#392A1D;--ink-2:#6F5C46;--ink-3:#A08A70;--ink-off:#BFAE96;
+      --error:#A33325;--error-tint:#F7E4E0;--amber:#8F6A12;--amber-tint:#F7EDD4;--leaf:#4E7A46;--leaf-tint:#E8F0E2;
+      --font:"Plus Jakarta Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
+      --r-xs:8px;--r-sm:12px;--r-md:16px;--r-lg:20px;
+      --e1:0 1px 2px rgba(57,42,29,.04),0 2px 6px rgba(57,42,29,.05);
+      --e2:0 2px 6px rgba(57,42,29,.05),0 8px 20px rgba(57,42,29,.07);
+    }
+    *{box-sizing:border-box}
+    body{margin:0}
+    a{color:var(--clay)} a:hover{color:var(--clay-hover)}
+    .screen{width:1440px;height:900px;background:var(--sand);font-family:var(--font);color:var(--ink);display:flex;overflow:hidden;position:relative}
+    svg.i{fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;width:18px;height:18px;flex:none}
+    svg.i.s{width:14px;height:14px;stroke-width:2.2}svg.i.m{width:20px;height:20px}svg.i.l{width:32px;height:32px;stroke-width:1.6}svg.i.xl{width:40px;height:40px;stroke-width:1.5}
+    .num{font-variant-numeric:tabular-nums}
+
+    .side{width:248px;flex:none;background:var(--sand-2);border-right:1px solid var(--line);padding:18px 14px;display:flex;flex-direction:column;gap:5px}
+    .brand{display:flex;align-items:center;gap:11px;padding:8px 8px 20px}
+    .brand .mark{width:34px;height:34px;border-radius:10px;background:var(--clay);color:#fff;display:flex;align-items:center;justify-content:center;flex:none}
+    .brand b{font-size:15px;font-weight:800;letter-spacing:-.02em;line-height:1.25}
+    .brand span{display:block;font-size:12px;font-weight:600;color:var(--ink-2)}
+    .navi{height:44px;border-radius:var(--r-sm);display:flex;align-items:center;gap:11px;padding:0 12px;font-size:14px;font-weight:600;color:var(--ink-2)}
+    .navi.on{background:var(--cream);color:var(--clay);box-shadow:var(--e1);font-weight:700}
+    .navi .cnt{margin-left:auto;font-size:12px;font-weight:700;background:var(--clay-tint);color:var(--clay-deep);border-radius:999px;padding:2px 8px}
+    .side .sep{height:1px;background:var(--line-strong);margin:12px 8px}
+    .side .grp{font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;color:var(--ink-3);padding:0 12px 6px}
+    .side .who{margin-top:auto;border-top:1px solid var(--line-strong);padding-top:14px;display:flex;align-items:center;gap:10px}
+    .side .who .av{width:36px;height:36px;border-radius:999px;background:var(--clay-tint);color:var(--clay-deep);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex:none}
+    .side .who small{display:block;font-size:11.5px;color:var(--ink-2);font-weight:600}
+    .side .who b{font-size:13px;font-weight:700}
+
+    .main{flex:1;min-width:0;display:flex;flex-direction:column}
+    .topbar{height:78px;flex:none;background:var(--cream);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:0 28px}
+    .topbar h1{margin:0;font-size:28px;line-height:34px;font-weight:800;letter-spacing:-.025em}
+    .topbar .right{margin-left:auto;display:flex;gap:10px}
+
+    .body{flex:1;min-height:0;padding:20px 28px 22px;display:flex;gap:22px;overflow:hidden}
+    .col{flex:1;min-width:0;display:flex;flex-direction:column;gap:14px}
+    .aside{width:344px;flex:none;display:flex;flex-direction:column;gap:14px}
+
+    .panel{background:var(--cream);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--e1);padding:20px 22px;display:flex;flex-direction:column;gap:15px}
+    .panel.flat{box-shadow:none;background:var(--sand-2)}
+    .panel.grow{flex:1;min-height:0;overflow:hidden;padding:0}
+    .panel h2{margin:0;font-size:17px;font-weight:700}
+    .panel .lead{margin:0;font-size:13.5px;line-height:1.6;color:var(--ink-2)}
+
+    .alert{display:flex;gap:11px;border-radius:var(--r-sm);padding:13px 15px;align-items:flex-start}
+    .alert b{display:block;font-size:13.5px;font-weight:700;line-height:19px}
+    .alert p{margin:3px 0 0;font-size:13px;line-height:1.55}
+    .alert.info{background:var(--clay-tint);color:var(--clay-deep)}
+    .alert.warn{background:var(--amber-tint);color:var(--amber)}
+    .alert.ok{background:var(--leaf-tint);color:var(--leaf)}
+
+    .drop{border:2px dashed var(--line-strong);border-radius:var(--r-md);background:var(--sand);padding:44px 32px;display:flex;flex-direction:column;align-items:center;gap:11px;text-align:center}
+    .drop .ic{width:68px;height:68px;border-radius:999px;background:var(--sand-2);color:var(--ink-3);display:flex;align-items:center;justify-content:center}
+    .drop b{font-size:17px;font-weight:700}
+    .drop p{margin:0;font-size:13.5px;line-height:1.6;color:var(--ink-2);max-width:46ch}
+
+    .filerow{display:flex;align-items:center;gap:13px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--sand);padding:13px 15px}
+    .filerow.bad{border-color:var(--blood-line);background:var(--blood-tint)}
+    .filerow .fic{width:40px;height:40px;border-radius:10px;background:var(--sand-2);color:var(--ink-2);display:flex;align-items:center;justify-content:center;flex:none}
+    .filerow.bad .fic{background:#fff;color:var(--blood)}
+    .filerow .meta{flex:1;min-width:0;display:flex;flex-direction:column;gap:7px}
+    .filerow .nm{display:flex;align-items:baseline;gap:9px}
+    .filerow .nm b{font-size:14.5px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .filerow .nm .sz{font-size:12.5px;color:var(--ink-2);flex:none}
+    .filerow .nm .sz.r{margin-left:auto;font-weight:700}
+    .filerow .rowerr{font-size:12.5px;font-weight:600;color:var(--error);display:flex;align-items:center;gap:6px}
+    .bar{height:6px;border-radius:999px;background:var(--sand-2);overflow:hidden}
+    .bar i{display:block;height:100%;background:var(--clay);border-radius:999px}
+    .upnote{font-size:12.5px;color:var(--ink-2);font-weight:600}
+    .iconbtn{width:36px;height:36px;border-radius:999px;border:none;background:transparent;color:var(--ink-2);display:flex;align-items:center;justify-content:center;flex:none}
+
+    .stats{display:flex;gap:12px}
+    .stat{flex:1;background:var(--sand-2);border-radius:var(--r-sm);padding:13px 15px}
+    .stat small{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;color:var(--ink-2)}
+    .stat b{font-size:26px;line-height:32px;font-weight:800;letter-spacing:-.02em;display:block;margin-top:2px}
+    .stat.ok{background:var(--leaf-tint)} .stat.ok b{color:var(--leaf)}
+    .stat.bad{background:var(--error-tint)} .stat.bad b{color:var(--error)}
+
+    .tblwrap{flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column}
+    .tblhead{padding:16px 22px 12px;display:flex;align-items:center;gap:12px}
+    .tblhead h2{margin:0;font-size:16px;font-weight:700}
+    .tblhead .r{margin-left:auto}
+    table{border-collapse:collapse;width:100%}
+    th{height:44px;background:var(--sand-2);font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;color:var(--ink-2);text-align:left;padding:0 22px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+    td{height:62px;padding:0 22px;border-bottom:1px solid var(--line);font-size:14px;vertical-align:middle}
+    tr:last-child td{border-bottom:none}
+    td b{font-weight:700}
+    td .why{display:flex;align-items:center;gap:8px;color:var(--error);font-weight:600;font-size:13.5px}
+    td .col{display:inline-flex;font-size:12px;font-weight:700;border-radius:var(--r-xs);padding:3px 8px;background:var(--sand-2);color:var(--ink-2);font-family:var(--font)}
+
+    .btn{height:48px;padding:0 22px;border-radius:var(--r-sm);font-family:var(--font);font-size:15px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:9px;border:none;white-space:nowrap}
+    .btn.lg{height:54px;border-radius:var(--r-md);font-size:16px}
+    .btn.sm{height:36px;padding:0 15px;font-size:13px;border-radius:10px}
+    .btn.primary{background:var(--clay);color:#fff}
+    .btn.secondary{background:transparent;color:var(--ink);border:1.5px solid var(--line-strong)}
+    .btn.ghost{background:transparent;color:var(--clay);padding:0 6px;height:auto}
+    .btn.dis{background:var(--sand-2);color:var(--ink-off);border:none;cursor:not-allowed}
+    .foot{display:flex;align-items:center;gap:12px}
+    .foot .note{font-size:12.5px;color:var(--ink-2);margin-left:auto;text-align:right;line-height:1.5;max-width:36ch}
+
+    .cols{display:flex;flex-direction:column;gap:8px}
+    .cols .cr{display:flex;align-items:baseline;gap:10px;font-size:12.5px;line-height:1.5;color:var(--ink-2)}
+    .cols .cr code{font-family:var(--font);font-size:12px;font-weight:700;background:var(--cream);border:1px solid var(--line);border-radius:var(--r-xs);padding:2px 7px;color:var(--ink);flex:none}
+    .cols .cr .req{color:var(--error);font-weight:700}
+  </style>
+</helmet>
+
+<div class="screen">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <g id="shield"><path d="M12 3.5 19 6v6c0 4-3 6.7-7 8.5C8 18.7 5 16 5 12V6Z"/><path d="m9 12 2 2 4-4"/></g>
+    <g id="users"><circle cx="9" cy="8.5" r="3.4"/><path d="M3.5 19.5c.6-3.2 2.9-5 5.5-5s4.9 1.8 5.5 5"/><path d="M16 5.6a3.4 3.4 0 0 1 0 5.9M17.5 14.9c2 .6 3.4 2.3 3.9 4.6"/></g>
+    <g id="plus"><path d="M12 5v14M5 12h14"/></g>
+    <g id="sheet"><path d="M6 3h8l4 4v14H6Z"/><path d="M14 3v4h4"/><path d="M9 13h6M9 17h4"/></g>
+    <g id="up"><path d="M12 19V6"/><path d="m6.5 11.5 5.5-5.5 5.5 5.5"/><path d="M4.5 20.5h15"/></g>
+    <g id="down"><path d="M12 5v13"/><path d="m6.5 12.5 5.5 5.5 5.5-5.5"/><path d="M4.5 20.5h15"/></g>
+    <g id="check"><path d="M5 12.5 10 17.5 19.5 7"/></g>
+    <g id="warn"><path d="M12 4.2 21 19.5H3Z"/><path d="M12 10v4M12 16.8v.1"/></g>
+    <g id="info"><circle cx="12" cy="12" r="8.6"/><path d="M12 11v5.4M12 7.9v.1"/></g>
+    <g id="cross"><path d="M6 6l12 12M18 6 6 18"/></g>
+  </defs></svg>
+
+  <div class="side">
+    <div class="brand">
+      <span class="mark"><svg class="i m"><use href="#shield"/></svg></span>
+      <span><b>Community Health Hub</b><span>Admin command center</span></span>
+    </div>
+    <div class="navi"><svg class="i"><use href="#shield"/></svg>Verifications<span class="cnt num">12</span></div>
+    <div class="navi"><svg class="i"><use href="#users"/></svg>Users</div>
+    <div class="sep"></div>
+    <div class="grp">Add directly</div>
+    <div class="navi"><svg class="i"><use href="#plus"/></svg>Add an organisation</div>
+    <div class="navi on"><svg class="i"><use href="#sheet"/></svg>Bulk upload</div>
+    <div class="who">
+      <span class="av">AK</span>
+      <span><b>Anitha Kurian</b><small>System admin</small></span>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <h1>Bulk upload</h1>
+      <div class="right">
+        <sc-if value="{{isResults}}" hint-placeholder-val="{{false}}">
+          <button type="button" class="btn secondary"><svg class="i"><use href="#up"/></svg>Upload another file</button>
+        </sc-if>
+      </div>
+    </div>
+
+    <div class="body">
+      <div class="col">
+
+        <sc-if value="{{isEmpty}}" hint-placeholder-val="{{true}}">
+          <div class="alert info">
+            <svg class="i m"><use href="#info"/></svg>
+            <span>
+              <b>Everything in the file is created as Verified.</b>
+              <p>Bulk upload skips the review queue, exactly like adding one organisation by hand. Only upload a list you have already checked.</p>
+            </span>
+          </div>
+          <div class="panel" style="flex:1;justify-content:center">
+            <div class="drop">
+              <span class="ic"><svg class="i xl"><use href="#sheet"/></svg></span>
+              <b>Drop your CSV here, or browse</b>
+              <p>One organisation per row, up to 500 rows. CSV only, max 2 MB. Nothing is created until you have seen the file read back.</p>
+              <div style="display:flex;gap:12px;margin-top:6px">
+                <button type="button" class="btn primary">Choose a file</button>
+                <button type="button" class="btn secondary"><svg class="i"><use href="#down"/></svg>Download the template</button>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{isUploading}}" hint-placeholder-val="{{false}}">
+          <div class="alert info">
+            <svg class="i m"><use href="#info"/></svg>
+            <span>
+              <b>Reading the file — nothing is created yet.</b>
+              <p>Rows are validated first. You'll see how many can be created, and what's wrong with the rest, before anything goes live.</p>
+            </span>
+          </div>
+          <div class="panel" style="flex:1;justify-content:center">
+            <div class="filerow">
+              <span class="fic"><svg class="i m"><use href="#sheet"/></svg></span>
+              <span class="meta">
+                <span class="nm"><b>kerala-partner-facilities-sep2026.csv</b><span class="sz num">418 KB</span><span class="sz r num">{{pct}}%</span></span>
+                <span class="bar"><i style="width: {{pctWidth}}"></i></span>
+                <span class="upnote num">{{upNote}}</span>
+              </span>
+              <button type="button" class="iconbtn" aria-label="Cancel the upload"><svg class="i"><use href="#cross"/></svg></button>
+            </div>
+            <p class="lead" style="text-align:center">You can leave this page — the upload keeps running and the result waits for you here.</p>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{isFileError}}" hint-placeholder-val="{{false}}">
+          <div class="panel" style="flex:1;justify-content:center">
+            <div class="filerow bad">
+              <span class="fic"><svg class="i m"><use href="#warn"/></svg></span>
+              <span class="meta">
+                <span class="nm"><b>facility-master-list.xlsx</b><span class="sz num">3.1 MB</span></span>
+                <span class="rowerr"><svg class="i s"><use href="#warn"/></svg>This is an Excel file, and it's over the 2 MB limit. Save it as CSV and upload again.</span>
+              </span>
+              <button type="button" class="iconbtn" aria-label="Remove this file"><svg class="i"><use href="#cross"/></svg></button>
+            </div>
+            <div class="drop" style="padding:30px">
+              <span class="ic"><svg class="i l"><use href="#up"/></svg></span>
+              <b>Drop a CSV here, or browse</b>
+              <p>Nothing was created. In Excel, choose File → Save As → CSV UTF-8, then upload that file.</p>
+              <div style="display:flex;gap:12px;margin-top:4px">
+                <button type="button" class="btn primary">Choose a file</button>
+                <button type="button" class="btn secondary"><svg class="i"><use href="#down"/></svg>Download the template</button>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{isResults}}" hint-placeholder-val="{{false}}">
+          <div class="alert ok">
+            <svg class="i m"><use href="#check"/></svg>
+            <span>
+              <b>47 organisations created, verified and live.</b>
+              <p>3 rows were not created. Nothing on those rows was saved — fix them in your file and upload just those rows again.</p>
+            </span>
+          </div>
+
+          <div class="stats">
+            <div class="stat ok"><small>Created</small><b class="num">47</b></div>
+            <div class="stat bad"><small>Not created</small><b class="num">3</b></div>
+            <div class="stat"><small>Rows read</small><b class="num">50</b></div>
+            <div class="stat"><small>Read in</small><b class="num">6s</b></div>
+          </div>
+
+          <div class="panel grow">
+            <div class="tblwrap">
+              <div class="tblhead">
+                <h2>The 3 rows that failed</h2>
+                <span class="r"><button type="button" class="btn sm secondary"><svg class="i s"><use href="#down"/></svg>Download the failed rows</button></span>
+              </div>
+              <table>
+                <thead>
+                  <tr>
+                    <th style="width:9%">Row</th>
+                    <th style="width:30%">Name in the file</th>
+                    <th style="width:17%">Column</th>
+                    <th style="width:44%">What's wrong</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="num">7</td>
+                    <td><b>Ernakulam District Blood Bank</b></td>
+                    <td><span class="col">licence_number</span></td>
+                    <td><span class="why"><svg class="i s"><use href="#warn"/></svg>Already used by a verified facility (KL-HOSP-002210).</span></td>
+                  </tr>
+                  <tr>
+                    <td class="num">19</td>
+                    <td><b>Snehatheeram Charitable Society</b></td>
+                    <td><span class="col">type</span></td>
+                    <td><span class="why"><svg class="i s"><use href="#warn"/></svg>“Trust” isn't a type. Use hospital or ngo.</span></td>
+                  </tr>
+                  <tr>
+                    <td class="num">42</td>
+                    <td><b>Kollam Community Care</b></td>
+                    <td><span class="col">contact_mobile</span></td>
+                    <td><span class="why"><svg class="i s"><use href="#warn"/></svg>Only 9 digits. A mobile number needs all 10.</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="foot">
+            <button type="button" class="btn primary">See the 47 new organisations</button>
+            <button type="button" class="btn secondary"><svg class="i"><use href="#up"/></svg>Upload the corrected rows</button>
+            <span class="note">Uploading a corrected file won't duplicate the 47 — a repeated licence number is skipped.</span>
+          </div>
+        </sc-if>
+      </div>
+
+      <div class="aside">
+        <div class="panel flat">
+          <h2 style="font-size:15px">Start from the template</h2>
+          <p class="lead">The column names have to match exactly. The template has one example row of each type — delete it before you upload.</p>
+          <button type="button" class="btn secondary" style="width:100%"><svg class="i"><use href="#down"/></svg>Download the CSV template</button>
+        </div>
+
+        <div class="panel flat">
+          <h2 style="font-size:15px">Columns</h2>
+          <div class="cols">
+            <div class="cr"><code>type</code><span><span class="req">Required.</span> hospital or ngo.</span></div>
+            <div class="cr"><code>name</code><span><span class="req">Required.</span> As printed on the licence.</span></div>
+            <div class="cr"><code>licence_number</code><span><span class="req">Required.</span> Must be unique.</span></div>
+            <div class="cr"><code>address</code><span><span class="req">Required.</span> One line, with the PIN code.</span></div>
+            <div class="cr"><code>contact_name</code><span><span class="req">Required.</span></span></div>
+            <div class="cr"><code>contact_role</code><span><span class="req">Required.</span> Designation.</span></div>
+            <div class="cr"><code>contact_mobile</code><span><span class="req">Required.</span> 10 digits.</span></div>
+          </div>
+        </div>
+
+        <div class="panel flat">
+          <h2 style="font-size:15px">How failures are handled</h2>
+          <p class="lead">Valid rows are created even if others fail — one bad row doesn't hold up the rest. A row is never half-created, and a licence number that already exists is skipped rather than overwritten.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script data-dc-script data-props='{
+  "state": {"editor":"enum","default":"empty","options":["empty","uploading","results","fileError"],"section":"AC state"},
+  "percent": {"editor":"range","default":62,"min":0,"max":100,"step":1,"unit":"%","section":"AC state"}
+}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.props.state ?? "empty";
+    const pct = Math.round(this.props.percent ?? 62);
+    return {
+      isEmpty: s === "empty",
+      isUploading: s === "uploading",
+      isResults: s === "results",
+      isFileError: s === "fileError",
+      pct: pct,
+      pctWidth: pct + "%",
+      upNote: "Reading — " + pct + "% of 418 KB · 50 rows found"
+    };
+  }
+}
+</script>
+</body>
+</html>
