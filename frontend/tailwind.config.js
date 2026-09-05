@@ -1,0 +1,51 @@
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  theme: {
+    extend: {
+      colors: {
+        sand: "var(--sand)",
+        "sand-2": "var(--sand-2)",
+        cream: "var(--cream)",
+        line: "var(--line)",
+        "line-strong": "var(--line-strong)",
+        clay: "var(--clay)",
+        "clay-hover": "var(--clay-hover)",
+        "clay-active": "var(--clay-active)",
+        "clay-tint": "var(--clay-tint)",
+        "clay-deep": "var(--clay-deep)",
+        blood: "var(--blood)",
+        "blood-hover": "var(--blood-hover)",
+        "blood-tint": "var(--blood-tint)",
+        "blood-deep": "var(--blood-deep)",
+        ink: "var(--ink)",
+        "ink-2": "var(--ink-2)",
+        "ink-3": "var(--ink-3)",
+        "ink-off": "var(--ink-off)",
+        leaf: "var(--leaf)",
+        "leaf-tint": "var(--leaf-tint)",
+        amber: "var(--amber)",
+        "amber-tint": "var(--amber-tint)",
+        error: "var(--error)",
+        "error-tint": "var(--error-tint)",
+      },
+      fontFamily: {
+        sans: [
+          '"Plus Jakarta Sans"',
+          "-apple-system",
+          "BlinkMacSystemFont",
+          '"Segoe UI"',
+          "Roboto",
+          "sans-serif",
+        ],
+      },
+      borderRadius: {
+        sm: "var(--r-sm)",
+        md: "var(--r-md)",
+        lg: "var(--r-lg)",
+        xl: "var(--r-xl)",
+      },
+    },
+  },
+  plugins: [],
+};

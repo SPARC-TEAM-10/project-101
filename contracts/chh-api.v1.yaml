@@ -1,0 +1,104 @@
+openapi: 3.0.3
+info:
+  title: Community Health Hub API
+  description: >
+    API contract for the Community Health Hub (CHH) platform — blood donors,
+    seekers, hospitals, and NGOs. Single source of truth for both the backend
+    and frontend Coding Agents (see `.claude/rules/api-standards.md` §3).
+  version: "1.0"
+servers:
+  - url: /api/v1
+    description: CHH API v1 base path
+tags:
+  - name: Auth
+    description: Mobile-number + OTP authentication (CHH-F01)
+paths:
+  /auth/otp/request:
+    post:
+      tags:
+        - Auth
+      summary: Request a one-time password for a mobile number
+      description: >
+        Accepts a 10-digit mobile number, generates and dispatches a 6-digit
+        OTP via the SMS gateway, and returns confirmation data. Does not
+        create an addressable resource, so a successful call returns
+        `200 OK` rather than `201 Created` (`.claude/rules/api-standards.md` §1).
+        Verifying the code is a separate endpoint (CHH-9), out of scope here.
+      operationId: requestOtp
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OtpRequestRequest"
+      responses:
+        "200":
+          description: OTP generated and dispatched.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OtpRequestResponse"
+        "422":
+          description: Mobile number missing or not a valid 10-digit number.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "429":
+          description: Resend requested before the resend cooldown elapsed.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "502":
+          description: The SMS gateway failed to dispatch the OTP.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+components:
+  schemas:
+    OtpRequestRequest:
+      type: object
+      required:
+        - mobileNumber
+      properties:
+        mobileNumber:
+          type: string
+          description: Exactly 10 digits, numeric only.
+          pattern: "^[0-9]{10}$"
+          example: "9876543210"
+    OtpRequestResponse:
+      type: object
+      required:
+        - maskedMobileNumber
+        - otpExpiresAtUtc
+        - resendAvailableAtUtc
+      properties:
+        maskedMobileNumber:
+          type: string
+          description: All but the last 2 digits masked.
+          example: "********10"
+        otpExpiresAtUtc:
+          type: string
+          format: date-time
+          description: UTC timestamp the OTP code expires (requested + 5 minutes).
+        resendAvailableAtUtc:
+          type: string
+          format: date-time
+          description: UTC timestamp a resend becomes available (requested + 120 seconds).
+    ProblemDetails:
+      type: object
+      description: RFC 7807 problem details.
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        instance:
+          type: string

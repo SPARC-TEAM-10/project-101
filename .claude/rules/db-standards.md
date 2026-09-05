@@ -57,6 +57,13 @@ PostgreSQL types:
 - Nullability always explicit — no implicit nullability
 - Never use unbounded `text` for a column that has a known reasonable max length
 
+### 2c — Connection String Naming
+
+- The primary application database connection string is always named `DefaultConnection`
+  in `ConnectionStrings` (`appsettings.json`) — the standard ASP.NET Core convention, not
+  a service-specific name like `ChhDatabase`. Secondary connection strings (e.g.
+  `HangfireDatabase`) keep a descriptive name.
+
 ---
 
 ## 3. PII and Health Data
