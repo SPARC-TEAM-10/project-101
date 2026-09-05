@@ -57,11 +57,10 @@ var app = builder.Build();
 // Applies pending EF Core migrations on startup. Skipped under the "Testing" environment
 // (see ApiWebApplicationFactory) — WebApplicationFactory-hosted tests have no real database,
 // and user-secrets (where the real local connection string lives) only load in Development.
-if (!app.Environment.IsEnvironment("Testing"))
+using (var scope = app.Services.CreateScope())
 {
-    using var scope = app.Services.CreateScope();
     var dbContext = scope.ServiceProvider.GetRequiredService<ChhDbContext>();
-    await dbContext.Database.MigrateAsync();
+    await dbContext.Database.MigrateAsync(); // Applies migrations
 }
 
 Hellang.Middleware.ProblemDetails.ProblemDetailsExtensions.UseProblemDetails(app);
