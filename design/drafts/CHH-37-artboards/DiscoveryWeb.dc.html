@@ -1,0 +1,204 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --sand:#F6F0E5;--sand-2:#EFE7D9;--cream:#FDFAF4;--line:#E6DAC7;--line-strong:#D6C6AC;
+      --clay:#B06134;--clay-hover:#96502A;--clay-deep:#8A4620;--clay-tint:#F5E4D3;--clay-line:#E8CDB2;
+      --blood:#D32F2F;--blood-deep:#9E1B18;--blood-tint:#FCE9E7;--blood-line:#F5C6C2;
+      --go:#3F6B39;--go-deep:#2F5629;--go-tint:#E4EFDD;--go-line:#C3DAB8;
+      --ink:#392A1D;--ink-2:#6F5C46;--ink-3:#A08A70;--ink-off:#BFAE96;
+      --error:#A33325;--error-tint:#F7E4E0;--amber:#8F6A12;--amber-tint:#F7EDD4;--leaf:#4E7A46;--leaf-tint:#E8F0E2;
+      --font:"Plus Jakarta Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
+      --r-xs:8px;--r-sm:12px;--r-md:16px;--r-lg:20px;
+      --e1:0 1px 2px rgba(57,42,29,.04),0 2px 6px rgba(57,42,29,.05);
+      --e2:0 2px 6px rgba(57,42,29,.05),0 8px 20px rgba(57,42,29,.07);
+    }
+    *{box-sizing:border-box}
+    body{margin:0}
+    a{color:var(--clay)} a:hover{color:var(--clay-hover)}
+    .win{width:1440px;height:900px;background:var(--sand);font-family:var(--font);color:var(--ink);display:flex;flex-direction:column;overflow:hidden;position:relative}
+    svg.i{fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;width:18px;height:18px;flex:none}
+    svg.i.s{width:14px;height:14px;stroke-width:2.2}svg.i.m{width:20px;height:20px}svg.i.l{width:32px;height:32px;stroke-width:1.6}
+    svg.i.f{fill:currentColor;stroke:none}
+    .topbar{height:64px;flex:none;display:flex;align-items:center;gap:12px;padding:0 32px;background:var(--cream);border-bottom:1px solid var(--line)}
+    .brand{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:800;letter-spacing:-.02em}
+    .mark{width:28px;height:28px;border-radius:var(--r-xs);background:var(--clay);color:#fff;display:flex;align-items:center;justify-content:center}
+    .spacer{flex:1}
+    .acct{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--ink-2)}
+    .avatar{width:42px;height:42px;border-radius:999px;background:var(--clay-tint);color:var(--clay-deep);display:flex;align-items:center;justify-content:center;font-size:13.5px;font-weight:700;flex:none}
+    .avatar.sm{width:34px;height:34px;font-size:12.5px}
+    .shell{flex:1;display:flex;min-height:0}
+    .side{width:236px;flex:none;background:var(--sand-2);border-right:1px solid var(--line);padding:20px 14px;display:flex;flex-direction:column;gap:4px}
+    .nav{height:46px;border-radius:var(--r-sm);display:flex;align-items:center;padding:0 14px;font-size:14px;font-weight:600;color:var(--ink-2);border:none;background:transparent;font-family:var(--font);text-align:left}
+    .nav.on{background:var(--cream);color:var(--clay);box-shadow:var(--e1)}
+    .main{flex:1;overflow:hidden;padding:28px 40px 40px;display:flex;flex-direction:column;gap:18px}
+    .pagehead{display:flex;align-items:flex-start;gap:16px}
+    .pagehead h1{margin:0;font-size:28px;line-height:34px;font-weight:800;letter-spacing:-.025em}
+    .pagehead p{margin:6px 0 0;font-size:13.5px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+    .card{background:var(--cream);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--e1);padding:16px;display:flex;flex-direction:column;gap:12px}
+    .card.flat{box-shadow:none}
+    .btn{height:48px;padding:0 20px;border-radius:var(--r-sm);font-family:var(--font);font-size:14.5px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:9px;border:none}
+    .btn.primary{background:var(--clay);color:#fff}
+    .btn.sec{background:transparent;color:var(--ink);border:1.5px solid var(--line-strong)}
+    .btn.ghost{background:transparent;color:var(--clay);padding:0 8px}
+    .fld{display:flex;flex-direction:column;gap:6px}
+    .fld label{font-size:13px;font-weight:600;color:var(--ink-2)}
+    .inp{height:50px;border-radius:var(--r-sm);border:1.5px solid var(--line);background:var(--sand);padding:0 16px;display:flex;align-items:center;gap:10px;font-size:16px}
+    .inp .ph{color:var(--ink-3)}
+    .inp.focus{border-color:var(--clay);background:var(--cream);box-shadow:0 0 0 2px rgba(176,97,52,.28)}
+    .seg{display:flex;background:var(--sand-2);border-radius:var(--r-sm);padding:4px;gap:4px}
+    .seg span{flex:1;height:42px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13.5px;font-weight:600;color:var(--ink-2)}
+    .seg span.on{background:var(--cream);color:var(--ink);box-shadow:var(--e1);font-weight:700}
+    .chips{display:flex;gap:8px;flex-wrap:wrap}
+    .chip{height:34px;padding:0 13px;border-radius:999px;background:var(--sand-2);border:1px solid var(--line);display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:var(--ink-2)}
+    .chip.on{background:var(--clay-tint);border-color:var(--clay-line);color:var(--clay-deep);font-weight:700}
+    .pill{height:26px;padding:0 11px;border-radius:999px;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;flex:none}
+    .pill.blood{background:var(--blood-tint);color:var(--blood-deep)}.pill.mute{background:var(--sand-2);color:var(--ink-2)}
+    .pill.leaf{background:var(--leaf-tint);color:var(--leaf)}.pill.amber{background:var(--amber-tint);color:var(--amber)}
+    .ev{display:flex;gap:13px;background:var(--cream);border:1px solid var(--line);border-radius:var(--r-md);padding:14px;box-shadow:var(--e1)}
+    .ev .when{width:56px;flex:none;border-radius:var(--r-sm);background:var(--sand-2);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 0;color:var(--ink-2)}
+    .ev .when b{font-size:22px;font-weight:800;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums}
+    .ev .when span{font-size:11.5px;font-weight:600}
+    .ev .body{flex:1;min-width:0;display:flex;flex-direction:column;gap:7px}
+    .ev .body h3{margin:0;font-size:16px;line-height:21px;font-weight:700}
+    .ev .body .sub{font-size:12.5px;color:var(--ink-2);font-variant-numeric:tabular-nums;line-height:1.5}
+    .ev .top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .meter{display:flex;flex-direction:column;gap:7px}
+    .meter .bar{height:8px;border-radius:999px;background:var(--sand-2);overflow:hidden}
+    .meter .bar i{display:block;height:100%;border-radius:999px;background:var(--clay)}
+    .meter .row{display:flex;align-items:baseline;gap:8px;font-size:12.5px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+    .meter .row b{font-size:14px;color:var(--ink);font-weight:700}
+    .track{position:relative;height:6px;border-radius:999px;background:var(--sand-2)}
+    .track .fill{position:absolute;left:0;top:0;height:6px;border-radius:999px;background:var(--clay)}
+    .track .thumb{position:absolute;top:50%;width:26px;height:26px;border-radius:999px;background:var(--cream);border:3px solid var(--clay);box-shadow:var(--e1);transform:translate(-50%,-50%)}
+    .ticks{display:flex;justify-content:space-between;margin-top:9px;font-size:11px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+    .kmbox{width:92px;flex:none;height:50px;border-radius:var(--r-sm);border:1.5px solid var(--line);background:var(--sand);display:flex;align-items:center;justify-content:center;gap:3px;font-size:16px;font-weight:700;font-variant-numeric:tabular-nums}
+    .kmbox i{font-style:normal;font-size:13px;font-weight:600;color:var(--ink-3)}
+    .map{position:relative;border-radius:var(--r-md);overflow:hidden;border:1px solid var(--line);background:repeating-linear-gradient(0deg,#EDE3D2 0 1px,transparent 1px 26px),repeating-linear-gradient(90deg,#EDE3D2 0 1px,transparent 1px 26px),#F2EADC}
+    .map .road{position:absolute;background:#E5D9C4}
+    .map .pin{position:absolute;transform:translate(-50%,-100%);color:var(--clay)}
+    .map .pin.blood{color:var(--blood)}
+    .map .me{position:absolute;width:16px;height:16px;border-radius:999px;background:#3B6EA5;border:3px solid var(--cream);transform:translate(-50%,-50%);box-shadow:0 0 0 6px rgba(59,110,165,.16)}
+    .map .halo{position:absolute;border-radius:999px;border:1.5px dashed var(--clay-line);background:rgba(176,97,52,.07);transform:translate(-50%,-50%)}
+  </style>
+</helmet>
+
+<div class="win">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <g id="heart"><path d="M12 20s-7-4.6-7-9.5A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 7 3.5C19 15.4 12 20 12 20Z"/></g>
+    <g id="pinf"><path d="M12 22s-7-5.2-7-11a7 7 0 1 1 14 0c0 5.8-7 11-7 11Z"/><circle cx="12" cy="10.6" r="2.6" fill="#FDFAF4"/></g>
+    <g id="nogps"><path d="M12 21s-6.5-5-6.5-10.5a6.5 6.5 0 0 1 11-4.7"/><path d="M4 4l16 16"/></g>
+  </defs></svg>
+
+  <div class="topbar">
+    <div class="brand"><span class="mark"><svg class="i s"><use href="#heart"/></svg></span>Community Health Hub</div>
+    <div class="spacer"></div>
+    <div class="acct">Anjali R.<span class="avatar sm">AR</span></div>
+  </div>
+  <div class="shell">
+    <nav class="side">
+      <button type="button" class="nav">Home</button>
+      <button type="button" class="nav">Blood requests</button>
+      <button type="button" class="nav">Notifications</button>
+      <button type="button" class="nav on">Events</button>
+      <button type="button" class="nav">Profile</button>
+    </nav>
+
+    <sc-if value="{{isList}}" hint-placeholder-val="{{true}}">
+      <div class="main">
+        <div class="pagehead"><div><h1>Events near you</h1>
+          <p>4 events inside 15 km of Kochi &middot; updated a moment ago</p></div></div>
+        <div class="card flat" style="flex-direction:row;align-items:flex-end;gap:24px;padding:16px 20px">
+          <div style="width:300px"><div style="font-size:13px;font-weight:600;color:var(--ink-2);margin-bottom:12px">Within</div>
+            <div class="track"><div class="fill" style="width:11%"></div><div class="thumb" style="left:11%"></div></div>
+            <div class="ticks"><span>5</span><span>25</span><span>50</span><span>75</span><span>100</span></div></div>
+          <div class="kmbox">15<i>km</i></div>
+          <div class="seg" style="width:180px;margin-bottom:2px"><span class="on">List</span><span>Map</span></div>
+          <div class="chips" style="margin-bottom:6px"><span class="chip on">All types</span>
+            <span class="chip">Blood Donation Camp</span><span class="chip">Health Camp</span>
+            <span class="chip">Awareness Session</span><span class="chip">Spots remaining</span></div>
+        </div>
+        <div style="display:flex;gap:20px;flex:1;min-height:0">
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:14px">
+            <div class="ev"><div class="when"><span>Sat</span><b>13</b><span>Sep</span></div>
+              <div class="body"><div class="top"><span class="pill blood">Blood Donation Camp</span><span class="pill mute">about 4 km away</span></div>
+                <h3>Community blood drive &mdash; Kaloor</h3>
+                <div class="sub">Kochi Metro Hospital &middot; Kaloor Community Hall &middot; 09:00&ndash;14:00</div>
+                <div class="meter"><div class="bar"><i style="width:70%"></i></div>
+                  <div class="row"><b>18 spots remaining</b><span>of 60</span></div></div></div>
+              <div style="display:flex;align-items:center"><button type="button" class="btn primary">View event</button></div></div>
+            <div class="ev"><div class="when"><span>Sun</span><b>14</b><span>Sep</span></div>
+              <div class="body"><div class="top"><span class="pill mute">Health Camp</span><span class="pill mute">about 9 km away</span><span class="pill leaf">You're going</span></div>
+                <h3>Free health screening camp</h3>
+                <div class="sub">Ernakulam NGO Collective &middot; Palarivattom &middot; 10:00&ndash;16:00</div>
+                <div class="meter"><div class="bar"><i style="width:45%"></i></div>
+                  <div class="row"><b>22 spots remaining</b><span>of 40</span></div></div></div>
+              <div style="display:flex;align-items:center"><button type="button" class="btn sec">View event</button></div></div>
+            <div class="ev"><div class="when"><span>Sat</span><b>20</b><span>Sep</span></div>
+              <div class="body"><div class="top"><span class="pill blood">Blood Donation Camp</span><span class="pill mute">about 14 km away</span><span class="pill amber">Event Full</span></div>
+                <h3>Blood drive &mdash; Edappally campus</h3>
+                <div class="sub">Kochi Metro Hospital &middot; 08:30&ndash;13:00 &middot; 0 spots remaining of 60</div></div>
+              <div style="display:flex;align-items:center"><button type="button" class="btn sec">View event</button></div></div>
+          </div>
+          <div style="width:430px;flex:none">
+            <div class="map" style="height:400px">
+              <div class="road" style="left:0;top:150px;right:0;height:12px"></div>
+              <div class="road" style="left:0;top:290px;right:0;height:8px"></div>
+              <div class="road" style="left:180px;top:0;bottom:0;width:12px"></div>
+              <div class="halo" style="left:215px;top:200px;width:330px;height:330px"></div>
+              <div class="me" style="left:215px;top:200px"></div>
+              <div class="pin blood" style="left:295px;top:150px"><svg class="i f" style="width:28px;height:28px"><use href="#pinf"/></svg></div>
+              <div class="pin" style="left:130px;top:280px"><svg class="i f" style="width:28px;height:28px"><use href="#pinf"/></svg></div>
+              <div class="pin" style="left:330px;top:320px"><svg class="i f" style="width:28px;height:28px"><use href="#pinf"/></svg></div>
+              <div style="position:absolute;left:14px;bottom:14px;background:var(--cream);border:1px solid var(--line);border-radius:var(--r-sm);padding:9px 12px;font-size:12px;color:var(--ink-2);box-shadow:var(--e1)">
+                Venue pins show the nearest street, not the exact door.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{isDenied}}" hint-placeholder-val="{{false}}">
+      <div class="main">
+        <div class="pagehead"><div><h1>Events near you</h1></div></div>
+        <div class="card" style="align-items:center;text-align:center;padding:48px 24px;gap:14px">
+          <span style="width:68px;height:68px;border-radius:999px;background:var(--sand-2);color:var(--ink-3);display:flex;align-items:center;justify-content:center">
+            <svg class="i l"><use href="#nogps"/></svg></span>
+          <b style="font-size:22px;line-height:28px;font-weight:700;letter-spacing:-.02em">Location is switched off for this site</b>
+          <p style="margin:0;font-size:14px;line-height:1.6;color:var(--ink-2);max-width:56ch">
+            Events are ranked by how far they are from you, so we need either your location or a
+            city to measure from.</p>
+          <div style="display:flex;gap:12px;align-items:flex-end;margin-top:6px">
+            <div class="fld" style="width:320px;text-align:left"><label>Search from a city or area</label>
+              <div class="inp focus"><span class="ph">City, area or PIN code</span></div></div>
+            <button type="button" class="btn primary" style="height:50px">Search here</button></div>
+          <button type="button" class="btn ghost" style="margin-top:2px">How to turn location back on</button>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+</div>
+
+</x-dc>
+<script data-dc-script data-props='{
+  "state": {"editor":"enum","default":"list","options":["list","gpsDenied"],"section":"AC state"}
+}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.props.state ?? "list";
+    return { isList: s === "list", isDenied: s === "gpsDenied" };
+  }
+}
+</script>
+</body>
+</html>

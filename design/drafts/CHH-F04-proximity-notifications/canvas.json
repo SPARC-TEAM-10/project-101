@@ -1,0 +1,134 @@
+{
+  "artboards": [
+    {
+      "file": "Main.dc.html",
+      "x": 0,
+      "y": 5800,
+      "w": 390,
+      "h": 844,
+      "title": "Blood Request Form (mobile) — US-CHH-004-01",
+      "page": "page-app"
+    },
+    {
+      "file": "NotificationCenter.dc.html",
+      "x": 520,
+      "y": 5800,
+      "w": 390,
+      "h": 844,
+      "title": "Donor Notification Center (mobile) — US-CHH-004-03",
+      "page": "page-app"
+    },
+    {
+      "file": "RequestDetails.dc.html",
+      "x": 1040,
+      "y": 5800,
+      "w": 390,
+      "h": 844,
+      "title": "Request Details / Accept — Decline (mobile) — US-CHH-004-04",
+      "page": "page-app"
+    },
+    {
+      "file": "Dashboard.dc.html",
+      "x": 1560,
+      "y": 5800,
+      "w": 390,
+      "h": 844,
+      "title": "Requester Dashboard (mobile) — US-CHH-004-05",
+      "page": "page-app"
+    },
+    {
+      "file": "RequestFormWeb.dc.html",
+      "x": 0,
+      "y": 6820,
+      "w": 1440,
+      "h": 900,
+      "title": "Blood Request Form — Web — US-CHH-004-01",
+      "page": "page-app"
+    },
+    {
+      "file": "NotificationCenterWeb.dc.html",
+      "x": 1560,
+      "y": 6820,
+      "w": 1440,
+      "h": 900,
+      "title": "Donor Notification Center — Web — US-CHH-004-03",
+      "page": "page-app"
+    },
+    {
+      "file": "RequestDetailsWeb.dc.html",
+      "x": 3120,
+      "y": 6820,
+      "w": 1440,
+      "h": 900,
+      "title": "Request Details / Accept — Decline — Web — US-CHH-004-04",
+      "page": "page-app"
+    },
+    {
+      "file": "DashboardWeb.dc.html",
+      "x": 4680,
+      "y": 6820,
+      "w": 1440,
+      "h": 900,
+      "title": "Requester Dashboard — Web — US-CHH-004-05",
+      "page": "page-app"
+    },
+    {
+      "file": "PushNotifications.dc.html",
+      "x": 2280,
+      "y": 0,
+      "w": 640,
+      "h": 1620,
+      "title": "Proximity Alerts — Push, In-app Fallback, Toasts — CHH-F04",
+      "page": "page-components"
+    },
+    {
+      "file": "SmsPreview.dc.html",
+      "x": 3060,
+      "y": 0,
+      "w": 700,
+      "h": 1620,
+      "title": "Proximity Alerts — SMS fallback and reply keywords — CHH-F04",
+      "page": "page-components"
+    }
+  ],
+  "annotations": [
+    {
+      "id": "f04-note",
+      "x": 0,
+      "y": 5600,
+      "w": 1000,
+      "text": "CHH-F04 — Proximity Notifications (US-CHH-004-01/03/04/05)\nFlow: Blood Request Form -> matching -> Donor Notification Center -> Request Details (accept or decline) -> Requester Dashboard.\nUS-CHH-004-02 is the backend matching engine and has no UI.\nEvery screen now ships mobile AND web. Every artboard carries an AC-state tweak; the two dashboards also carry a viewer tweak (registered / guest).\n\nDecisions settled in this revision — all three were open points before:\n1. ACCEPT IS GREEN. New token family --go (#3F6B39, 6.2:1 on white) added to design/component-gallery.html and documented in design/ui-standard.md as the standard positive/accept action, with the b-accept button variant. It is distinct from --blood (emergency and destructive) and from --leaf (status green: verified, eligible, success toast). Decline stays neutral secondary, never red.\n2. URGENCY IS Emergency / Urgent / Standard everywhere — request form, cards, push, SMS, dashboard. The story's High/Normal wording is dropped.\n3. REQUEST LIFETIME IS 6 HOURS from creation to auto-expiry. Shown as a labelled countdown plus a life bar on both dashboards, as 'Request closes in' on both request-details screens, and as 'Closes in ...' on the notification cards. Copy names the rule in words the first time it matters.",
+      "page": "page-app"
+    },
+    {
+      "id": "f04-donor-visibility",
+      "x": 3120,
+      "y": 6600,
+      "w": 1440,
+      "text": "BUSINESS RULE — donor-list visibility (new, applies to Dashboard and DashboardWeb; use the 'viewer' tweak to compare).\n\nGuest requester (unregistered session): the list shows ONLY donors who have reached Accepted. Pending / sent / viewed donors are not listed at all — not even as locked placeholder rows. Aggregate reassurance ('38 more donors were notified') is allowed; a per-donor trace is not.\n\nRegistered requester: the list shows EVERY matched donor, anonymised as Donor 1, Donor 2, Donor 3... in stable match order, each unaccepted row carrying one flat 'Pending' label. No Sent / Viewed / Opened / Declined on any row — delivery telemetry about a named individual invites exactly the pressure this product must not create. The aggregate stats were reduced to Notified / Yet to respond / Accepted to stay consistent with that.\n\nBoth: accepting is what reveals a real name and number, and nothing before it does. The ordinal is stable for the life of the request.\n\nFor Confluence on merge: add 1) request lifetime = 6 hours, 2) this visibility rule, to the story's Business Rules field.",
+      "page": "page-app"
+    },
+    {
+      "id": "f04-offapp-note",
+      "x": 2280,
+      "y": -260,
+      "w": 1480,
+      "text": "OFF-APP DELIVERY — push and SMS carry the same four facts in the same order: blood group and units, urgency (one of the three words), approximate distance, area. Never the patient name, the requester's identity, an exact address or a reason for the transfusion — these land on lock screens anyone standing nearby can read.\n\nSMS is the fallback for donors with push disabled and the only channel for a donor with no app. It has no buttons, so the donor answers with a keyword: 'Reply YES to accept, NO to decline.' Under 160 characters so it sends as one segment; a YES is answered with the requester's name and number (same reveal-on-acceptance rule as the app) plus the closing time, since an SMS donor has no countdown to look at; a NO is acknowledged once and ends the thread.\n\nWhere the OS allows notification actions, push carries Accept (green) and Decline side by side.",
+      "page": "page-components"
+    }
+  ],
+  "launch": {
+    "view": "canvas",
+    "page": "page-app"
+  },
+  "pages": [
+    {
+      "id": "page-app",
+      "name": "App"
+    },
+    {
+      "id": "page-components",
+      "name": "Components"
+    }
+  ]
+}

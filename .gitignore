@@ -1,0 +1,3 @@
+# Claude Design scratch drafts — the seeded bundle files, not the .dc.html source
+design/drafts/**/*.html
+!design/drafts/**/*.dc.html

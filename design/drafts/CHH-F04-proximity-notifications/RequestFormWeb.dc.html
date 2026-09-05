@@ -1,0 +1,394 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --sand:#F6F0E5; --sand-2:#EFE7D9; --cream:#FDFAF4;
+      --line:#E6DAC7; --line-strong:#D6C6AC;
+      --clay:#B06134; --clay-hover:#96502A; --clay-deep:#8A4620; --clay-tint:#F5E4D3; --clay-line:#E8CDB2;
+      --blood:#D32F2F; --blood-hover:#B92626; --blood-deep:#9E1B18; --blood-tint:#FCE9E7; --blood-line:#F5C6C2;
+      --go:#3F6B39; --go-hover:#345A2F; --go-active:#2A4A26; --go-deep:#2F5629; --go-tint:#E4EFDD; --go-line:#C3DAB8;
+      --ink:#392A1D; --ink-2:#6F5C46; --ink-3:#A08A70; --ink-off:#BFAE96;
+      --error:#A33325; --error-tint:#F7E4E0;
+      --amber:#8F6A12; --amber-tint:#F7EDD4; --leaf:#4E7A46; --leaf-tint:#E8F0E2;
+      --font:"Plus Jakarta Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+      --r-xs:8px; --r-sm:12px; --r-md:16px; --r-lg:20px;
+      --e1:0 1px 2px rgba(57,42,29,.04),0 2px 6px rgba(57,42,29,.05);
+      --e2:0 2px 6px rgba(57,42,29,.05),0 8px 20px rgba(57,42,29,.07);
+    }
+    *{box-sizing:border-box}
+    body{margin:0}
+    a{color:var(--clay)} a:hover{color:var(--clay-hover)}
+    .win{width:1440px;height:900px;background:var(--sand);font-family:var(--font);color:var(--ink);
+      display:flex;flex-direction:column;overflow:hidden}
+    .topbar{height:64px;flex:none;display:flex;align-items:center;gap:12px;padding:0 32px;background:var(--cream);
+      border-bottom:1px solid var(--line)}
+    .brand{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:800;letter-spacing:-.02em}
+    .mark{width:28px;height:28px;border-radius:var(--r-xs);background:var(--clay);color:#fff;display:flex;
+      align-items:center;justify-content:center}
+    .spacer{flex:1}
+    .acct{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--ink-2)}
+    .avatar{width:34px;height:34px;border-radius:999px;background:var(--clay-tint);color:var(--clay-deep);
+      display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700}
+    .shell{flex:1;display:flex;min-height:0}
+    .side{width:236px;flex:none;background:var(--sand-2);border-right:1px solid var(--line);padding:20px 14px;
+      display:flex;flex-direction:column;gap:4px}
+    .nav{height:46px;border-radius:var(--r-sm);display:flex;align-items:center;gap:11px;padding:0 14px;
+      font-size:14px;font-weight:600;color:var(--ink-2);cursor:pointer;border:none;background:transparent;
+      font-family:var(--font);text-align:left;white-space:nowrap}
+    .nav svg{flex:none}
+    .nav:hover{background:rgba(253,250,244,.6)}
+    .nav.on{background:var(--cream);color:var(--clay);box-shadow:var(--e1)}
+
+    .main{flex:1;overflow-y:auto;padding:30px 40px 40px;display:flex;flex-direction:column;gap:22px}
+    .head h1{margin:0;font-size:28px;line-height:34px;font-weight:800;letter-spacing:-.025em}
+    .head p{margin:6px 0 0;font-size:13.5px;color:var(--ink-2)}
+    .cols{display:grid;grid-template-columns:minmax(0,1fr) 460px;gap:28px;align-items:start}
+
+    .panel{background:var(--cream);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--e1);
+      padding:26px 28px;display:flex;flex-direction:column;gap:20px}
+    .alert{display:flex;gap:12px;padding:14px 16px;border-radius:var(--r-sm);background:var(--error-tint)}
+    .alert svg{color:var(--error);flex:none;margin-top:1px}
+    .alert b{display:block;font-size:13.5px;font-weight:700;color:var(--error);margin-bottom:3px}
+    .alert p{margin:0;font-size:13px;line-height:1.5;color:var(--ink-2)}
+
+    .field{display:flex;flex-direction:column;gap:7px}
+    .field label{font-size:13px;font-weight:600;color:var(--ink-2)}
+    .req{color:var(--blood);font-weight:700}
+    .ctrl{height:50px;border-radius:var(--r-sm);border:1.5px solid var(--line);background:var(--sand);
+      display:flex;align-items:center;gap:10px;padding:0 14px;font-size:16px}
+    .ctrl.err{border-color:var(--error)}
+    .ctrl svg{color:var(--ink-3);flex:none}
+    .ctrl .val{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .ctrl .ph{color:var(--ink-3)}
+    .help{font-size:12.5px;color:var(--ink-3);line-height:1.45}
+    .help.err{color:var(--error);font-weight:600;display:flex;align-items:flex-start;gap:6px}
+    .help.err svg{flex:none;margin-top:1px}
+    .row2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+    .badge{height:30px;min-width:46px;padding:0 11px;border-radius:999px;background:var(--blood-tint);
+      color:var(--blood-deep);font-weight:700;font-size:14px;font-variant-numeric:tabular-nums;display:flex;
+      align-items:center;justify-content:center;flex:none}
+    .stepper{display:flex;align-items:center;height:50px;border-radius:var(--r-sm);border:1.5px solid var(--line);
+      background:var(--sand);overflow:hidden}
+    .stepper.err{border-color:var(--error)}
+    .stepper button{width:48px;height:48px;flex:none;border:none;background:transparent;color:var(--ink-2);
+      cursor:pointer;display:flex;align-items:center;justify-content:center}
+    .stepper button:hover{background:var(--sand-2)}
+    .stepper .n{flex:1;min-width:0;text-align:center;font-size:17px;font-weight:700;font-variant-numeric:tabular-nums}
+    .stepper .n.zero{color:var(--error)}
+
+    .radiusrow{display:flex;align-items:flex-end;gap:16px}
+    .sliderwrap{flex:1;min-width:0;padding-top:14px}
+    .track{position:relative;height:6px;border-radius:999px;background:var(--sand-2)}
+    .fill{position:absolute;left:0;top:0;height:6px;border-radius:999px;background:var(--clay)}
+    .fill.err{background:var(--error)}
+    .thumb{position:absolute;top:50%;width:26px;height:26px;border-radius:999px;background:var(--cream);
+      border:3px solid var(--clay);box-shadow:var(--e1);transform:translate(-50%,-50%)}
+    .thumb.err{border-color:var(--error)}
+    .ticks{display:flex;justify-content:space-between;margin-top:9px;font-size:11px;color:var(--ink-3);
+      font-variant-numeric:tabular-nums}
+    .kmbox{width:104px;flex:none;height:50px;border-radius:var(--r-sm);border:1.5px solid var(--line);
+      background:var(--sand);display:flex;align-items:center;justify-content:center;gap:4px;font-size:16px;
+      font-weight:700;font-variant-numeric:tabular-nums}
+    .kmbox.err{border-color:var(--error);background:var(--error-tint)}
+    .kmbox span{font-size:13px;font-weight:600;color:var(--ink-3)}
+
+    .seg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;padding:5px;background:var(--sand-2);
+      border-radius:var(--r-md);max-width:420px}
+    .seg button{height:44px;min-width:0;padding:0 8px;border:none;border-radius:var(--r-sm);background:transparent;
+      cursor:pointer;font-family:var(--font);font-size:13.5px;font-weight:700;color:var(--ink-2);display:flex;
+      align-items:center;justify-content:center;gap:6px;white-space:nowrap}
+    .seg button svg{flex:none}
+    .seg button:hover{background:rgba(253,250,244,.7)}
+    .seg button.on{background:var(--blood);color:#fff}
+
+    .actions{display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-top:1px solid var(--line);
+      padding-top:20px}
+    .btn{height:54px;flex:none;padding:0 26px;border-radius:var(--r-md);font-family:var(--font);font-size:16px;
+      font-weight:700;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;
+      gap:9px;border:none;white-space:nowrap}
+    .btn svg{flex:none}
+    .btn.blood{background:var(--blood);color:#fff}
+    .btn.blood:hover{background:var(--blood-hover)}
+    .btn.blood[disabled]{background:var(--sand-2);color:var(--ink-off);cursor:not-allowed}
+    .btn.sec{background:transparent;color:var(--ink);border:1.5px solid var(--line-strong);height:50px;font-size:15px}
+    .actions .note{font-size:12.5px;color:var(--ink-3);margin-left:auto;flex:0 1 auto;max-width:32ch;
+      text-align:right;line-height:1.45}
+
+    .aside{display:flex;flex-direction:column;gap:16px}
+    .mapcard{background:var(--cream);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--e1);
+      overflow:hidden}
+    .mapcard .cap{padding:16px 20px 12px;display:flex;align-items:baseline;gap:10px}
+    .mapcard .cap b{font-size:15px;font-weight:700}
+    .mapcard .cap span{font-size:12.5px;color:var(--ink-3);margin-left:auto;font-variant-numeric:tabular-nums}
+    .map{position:relative;height:340px;background:var(--sand-2);border-top:1px solid var(--line);overflow:hidden}
+    .blk{position:absolute;background:#E7DCC8;border-radius:3px}
+    .road{position:absolute;background:var(--cream)}
+    .ring{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border-radius:999px;
+      background:rgba(211,47,47,.10);border:1.5px dashed var(--blood)}
+    .pin{position:absolute;left:50%;top:50%;transform:translate(-50%,-100%);color:var(--blood)}
+    .dot{position:absolute;width:10px;height:10px;border-radius:999px;background:var(--clay);
+      border:2px solid var(--cream)}
+    .maptag{position:absolute;left:14px;bottom:14px;max-width:calc(100% - 28px);white-space:nowrap;overflow:hidden;
+      text-overflow:ellipsis;background:var(--cream);border:1px solid var(--line);
+      border-radius:999px;padding:7px 13px;font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;
+      box-shadow:var(--e1)}
+    .mapfail{position:absolute;inset:0;background:var(--sand-2);display:flex;flex-direction:column;
+      align-items:center;justify-content:center;gap:10px;color:var(--ink-3);text-align:center;padding:0 60px}
+    .mapfail p{margin:0;font-size:13px;line-height:1.55;color:var(--ink-2)}
+    .mapfail .fix{height:44px;flex:none;padding:0 18px;border-radius:var(--r-sm);border:1.5px solid var(--line-strong);
+      background:var(--cream);color:var(--ink);font-family:var(--font);font-size:13.5px;font-weight:700;
+      line-height:1;white-space:nowrap;cursor:pointer}
+    .privacy{display:flex;gap:11px;background:var(--sand-2);border-radius:var(--r-md);padding:16px 18px}
+    .privacy svg{color:var(--ink-2);flex:none;margin-top:1px}
+    .privacy p{margin:0;font-size:12.5px;line-height:1.55;color:var(--ink-2)}
+    .lifecard{display:flex;gap:12px;background:var(--cream);border:1px solid var(--line);border-radius:var(--r-md);
+      box-shadow:var(--e1);padding:16px 18px;align-items:flex-start}
+    .lifecard svg{color:var(--ink-3);flex:none;margin-top:2px}
+    .lifecard b{display:block;font-size:13.5px;font-weight:700;margin-bottom:4px}
+    .lifecard p{margin:0;font-size:12.5px;line-height:1.55;color:var(--ink-2)}
+  </style>
+</helmet>
+
+<div class="win">
+  <div class="topbar">
+    <div class="brand">
+      <span class="mark"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.6-7-9.5A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 7 3.5C19 15.4 12 20 12 20Z"/></svg></span>
+      Community Health Hub
+    </div>
+    <div class="spacer"></div>
+    <div class="acct">Anitha Varghese<span class="avatar">AV</span></div>
+  </div>
+
+  <div class="shell">
+    <nav class="side">
+      <button type="button" class="nav"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5 12 5l8 6.5V20a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1Z"/></svg>Home</button>
+      <button type="button" class="nav on"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.6-7-9.5A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 7 3.5C19 15.4 12 20 12 20Z"/></svg>Blood requests</button>
+      <button type="button" class="nav"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 16.5H6s1.8-1.6 1.8-6.2a4.2 4.2 0 0 1 8.4 0c0 4.6 1.8 6.2 1.8 6.2Z"/><path d="M10 19.5a2.4 2.4 0 0 0 4 0"/></svg>Notifications</button>
+      <button type="button" class="nav"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3.5v3M16 3.5v3"/></svg>Events</button>
+      <button type="button" class="nav"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 13.5a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9Z"/><path d="M4.5 20.5a7.5 7.5 0 0 1 15 0"/></svg>Profile</button>
+    </nav>
+
+    <div class="main">
+      <div class="head">
+        <h1>Request blood</h1>
+        <p>Donors inside your search radius are alerted straight away. The patient is never named to them.</p>
+      </div>
+
+      <div class="cols">
+        <section class="panel">
+          <sc-if value="{{showFormAlert}}" hint-placeholder-val="{{false}}">
+            <div class="alert">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5 21 19.5H3L12 4.5Z"/><path d="M12 10v4M12 16.8v.1"/></svg>
+              <div>
+                <b>Three fields need attention</b>
+                <p>Blood group, units required and request location must be filled in before donors can be notified.</p>
+              </div>
+            </div>
+          </sc-if>
+
+          <div class="field">
+            <label>Patient name <span class="req">*</span></label>
+            <div class="ctrl"><span class="val">Meera Nair</span></div>
+            <span class="help">Required. Shown to the hospital only, never to donors.</span>
+          </div>
+
+          <div class="row2">
+            <div class="field">
+              <label>Blood group <span class="req">*</span></label>
+              <div class="ctrl {{errClass}}">
+                <sc-if value="{{bgFilled}}" hint-placeholder-val="{{true}}"><span class="badge">O&#8722;</span></sc-if>
+                <sc-if value="{{bgEmpty}}" hint-placeholder-val="{{false}}"><span class="val ph">Select a blood group</span></sc-if>
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:auto"><path d="M6 9.5l6 6 6-6"/></svg>
+              </div>
+              <sc-if value="{{missing}}" hint-placeholder-val="{{false}}">
+                <span class="help err"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 8v4.5M12 15.8v.1"/></svg>Please select a blood group.</span>
+              </sc-if>
+            </div>
+            <div class="field">
+              <label>Units required <span class="req">*</span></label>
+              <div class="stepper {{errClass}}">
+                <button type="button" aria-label="One unit fewer"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 12h12"/></svg></button>
+                <span class="n {{unitsNumClass}}">{{unitsValue}}</span>
+                <button type="button" aria-label="One unit more"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 6v12M6 12h12"/></svg></button>
+              </div>
+              <sc-if value="{{missing}}" hint-placeholder-val="{{false}}">
+                <span class="help err"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 8v4.5M12 15.8v.1"/></svg>Units must be at least 1.</span>
+              </sc-if>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Request location <span class="req">*</span></label>
+            <div class="ctrl {{locClass}}">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
+              <span class="val">{{locValue}}</span>
+            </div>
+            <sc-if value="{{locOk}}" hint-placeholder-val="{{true}}">
+              <span class="help">Defaults to your registered location. Distance is measured from these coordinates, not live GPS.</span>
+            </sc-if>
+            <sc-if value="{{locBad}}" hint-placeholder-val="{{false}}">
+              <span class="help err"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 8v4.5M12 15.8v.1"/></svg>Please select a valid location.</span>
+            </sc-if>
+          </div>
+
+          <div class="field">
+            <label>Search radius <span class="req">*</span></label>
+            <div class="radiusrow">
+              <div class="sliderwrap">
+                <div class="track">
+                  <div class="fill {{sliderErr}}" style="width:{{fillPct}}"></div>
+                  <div class="thumb {{sliderErr}}" style="left:{{fillPct}}"></div>
+                </div>
+                <div class="ticks"><span>5</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+              </div>
+              <div class="kmbox {{sliderErr}}">{{radiusValue}}<span>km</span></div>
+            </div>
+            <sc-if value="{{radiusOk}}" hint-placeholder-val="{{true}}">
+              <span class="help">About 40 registered donors sit inside this radius right now.</span>
+            </sc-if>
+            <sc-if value="{{radiusBad}}" hint-placeholder-val="{{false}}">
+              <span class="help err"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 8v4.5M12 15.8v.1"/></svg>{{radiusError}}</span>
+            </sc-if>
+          </div>
+
+          <div class="field">
+            <label>Urgency <span class="req">*</span></label>
+            <div class="seg" role="radiogroup" aria-label="Urgency">
+              <button type="button" class="on">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5 21 19.5H3L12 4.5Z"/><path d="M12 10v4M12 16.8v.1"/></svg>
+                Emergency
+              </button>
+              <button type="button">Urgent</button>
+              <button type="button">Standard</button>
+            </div>
+            <span class="help">Emergency alerts reach every matching donor at once and cannot be muted. Urgent and Standard step down to amber and neutral in the donor's alert.</span>
+          </div>
+
+          <div class="actions">
+            <button type="button" class="btn blood" disabled="{{submitDisabled}}">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.6-7-9.5A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 7 3.5C19 15.4 12 20 12 20Z"/></svg>
+              {{ctaLabel}}
+            </button>
+            <button type="button" class="btn sec">Cancel</button>
+            <span class="note">{{footNote}}</span>
+          </div>
+        </section>
+
+        <aside class="aside">
+          <div class="mapcard">
+            <div class="cap">
+              <b>Search area</b>
+              <span>{{ringLabel}}</span>
+            </div>
+            <div class="map">
+              <sc-if value="{{mapOk}}" hint-placeholder-val="{{true}}">
+                <div class="road" style="left:0;top:108px;width:100%;height:12px"></div>
+                <div class="road" style="left:0;top:240px;width:100%;height:8px"></div>
+                <div class="road" style="left:140px;top:0;width:11px;height:100%"></div>
+                <div class="road" style="left:326px;top:0;width:8px;height:100%"></div>
+                <div class="blk" style="left:26px;top:24px;width:92px;height:60px"></div>
+                <div class="blk" style="left:176px;top:28px;width:120px;height:54px"></div>
+                <div class="blk" style="left:356px;top:22px;width:78px;height:64px"></div>
+                <div class="blk" style="left:32px;top:142px;width:80px;height:74px"></div>
+                <div class="blk" style="left:180px;top:146px;width:110px;height:70px"></div>
+                <div class="blk" style="left:356px;top:144px;width:82px;height:72px"></div>
+                <div class="blk" style="left:38px;top:268px;width:70px;height:50px"></div>
+                <div class="blk" style="left:196px;top:266px;width:96px;height:52px"></div>
+                <div class="blk" style="left:352px;top:270px;width:86px;height:48px"></div>
+                <div class="ring" style="width:{{ringSize}};height:{{ringSize}}"></div>
+                <span class="dot" style="left:168px;top:90px"></span>
+                <span class="dot" style="left:300px;top:196px"></span>
+                <span class="dot" style="left:126px;top:226px"></span>
+                <span class="dot" style="left:352px;top:110px"></span>
+                <span class="dot" style="left:230px;top:284px"></span>
+                <span class="pin"><svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11Z"/><circle cx="12" cy="11" r="2.6" fill="#FDFAF4"/></svg></span>
+                <span class="maptag">{{donorTag}}</span>
+              </sc-if>
+              <sc-if value="{{mapBad}}" hint-placeholder-val="{{false}}">
+                <div class="mapfail">
+                  <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s6.5-6 6.5-10.5a6.5 6.5 0 0 0-11.3-4.4"/><path d="M5.9 8.2A6.5 6.5 0 0 0 5.5 10.5C5.5 15 12 21 12 21"/><path d="M4 4l16 16"/></svg>
+                  <p>We could not place that address on the map. Pick one of the suggestions, or fall back to your registered location.</p>
+                  <button type="button" class="fix">Use my location</button>
+                </div>
+              </sc-if>
+            </div>
+          </div>
+
+          <div class="lifecard">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 6.8v5.4l3.6 2.1"/></svg>
+            <div>
+              <b>This request stays open for 6 hours</b>
+              <p>Whichever urgency you pick, the request closes on its own 6 hours after you post it and stops accepting responses. You'll see the countdown on the tracking screen, and you can post it again afterwards.</p>
+            </div>
+          </div>
+
+          <div class="privacy">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="9.5" rx="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></svg>
+            <p>Donors see the blood group, units, urgency and roughly how far away they are &mdash; by push notification, or by SMS if they have no app. They never see the patient name, and they see your contact details only after they accept.</p>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script data-dc-script data-props='{
+  "state": {"editor":"enum","default":"default","options":["default","radius-low","radius-high","missing-fields","location-unresolved"],"section":"AC state"}
+}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.props.state ?? "default";
+    const missing = s === "missing-fields";
+    const low = s === "radius-low";
+    const high = s === "radius-high";
+    const badLoc = s === "location-unresolved";
+    const radius = low ? 3 : (high ? 120 : 10);
+    const radiusBad = low || high;
+    const pct = Math.max(0, Math.min(100, ((radius - 5) / 95) * 100));
+    const ring = Math.round(80 + Math.min(radius, 100) * 2.1);
+    const blocked = missing || radiusBad || badLoc;
+    return {
+      showFormAlert: missing,
+      missing: missing,
+      errClass: missing ? "err" : "",
+      bgFilled: !missing,
+      bgEmpty: missing,
+      unitsValue: missing ? "0" : "2",
+      unitsNumClass: missing ? "zero" : "",
+      locClass: (missing || badLoc) ? "err" : "",
+      locValue: missing ? "Search for a hospital or area" : (badLoc ? "Puthiya Road, Aluva" : "Kochi Metro Hospital, Marine Drive"),
+      locOk: !missing && !badLoc,
+      locBad: missing || badLoc,
+      mapOk: !badLoc,
+      mapBad: badLoc,
+      ringSize: ring + "px",
+      ringLabel: (radiusBad ? 10 : radius) + " km radius",
+      donorTag: "About 40 donors inside this circle",
+      fillPct: pct + "%",
+      radiusValue: String(radius),
+      sliderErr: radiusBad ? "err" : "",
+      radiusOk: !radiusBad,
+      radiusBad: radiusBad,
+      radiusError: low ? "Minimum radius is 5km" : "Maximum radius is 100km",
+      submitDisabled: blocked ? true : null,
+      ctaLabel: blocked ? "Fix the fields" : "Notify donors",
+      footNote: blocked
+        ? "Submission is blocked until every field above is valid."
+        : "Matching starts the moment you send this. Track responses on the next screen."
+    };
+  }
+}
+</script>
+</body>
+</html>

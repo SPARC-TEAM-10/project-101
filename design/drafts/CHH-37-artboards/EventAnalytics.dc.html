@@ -1,0 +1,119 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --sand:#F6F0E5;--sand-2:#EFE7D9;--cream:#FDFAF4;--line:#E6DAC7;--line-strong:#D6C6AC;
+      --clay:#B06134;--clay-hover:#96502A;--clay-deep:#8A4620;--clay-tint:#F5E4D3;--clay-line:#E8CDB2;
+      --blood:#D32F2F;--blood-deep:#9E1B18;--blood-tint:#FCE9E7;--blood-line:#F5C6C2;
+      --go:#3F6B39;--go-deep:#2F5629;--go-tint:#E4EFDD;--go-line:#C3DAB8;
+      --ink:#392A1D;--ink-2:#6F5C46;--ink-3:#A08A70;--ink-off:#BFAE96;
+      --error:#A33325;--error-tint:#F7E4E0;--amber:#8F6A12;--amber-tint:#F7EDD4;--leaf:#4E7A46;--leaf-tint:#E8F0E2;
+      --font:"Plus Jakarta Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
+      --r-xs:8px;--r-sm:12px;--r-md:16px;--r-lg:20px;
+      --e1:0 1px 2px rgba(57,42,29,.04),0 2px 6px rgba(57,42,29,.05);
+    }
+    *{box-sizing:border-box}
+    body{margin:0}
+    a{color:var(--clay)} a:hover{color:var(--clay-hover)}
+    .screen{width:390px;height:844px;background:var(--sand);font-family:var(--font);color:var(--ink);
+      display:flex;flex-direction:column;overflow:hidden;position:relative}
+    svg.i{fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;width:18px;height:18px;flex:none}
+    svg.i.m{width:20px;height:20px}
+    svg.i.f{fill:currentColor;stroke:none}
+    .appbar{height:58px;flex:none;display:flex;align-items:center;gap:8px;padding:0 12px;background:var(--cream);border-bottom:1px solid var(--line)}
+    .appbar h1{flex:1;margin:0;font-size:16px;font-weight:700;text-align:center}
+    .iconbtn{width:42px;height:42px;border-radius:999px;border:none;background:transparent;color:var(--ink);display:flex;align-items:center;justify-content:center;flex:none}
+    .scroll{flex:1;overflow:hidden;padding:16px 16px 20px;display:flex;flex-direction:column;gap:12px}
+    .stickybar{flex:none;background:var(--cream);border-top:1px solid var(--line);padding:12px 16px 18px;display:flex;flex-direction:column;gap:9px}
+    .card{background:var(--cream);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--e1);padding:16px;display:flex;flex-direction:column;gap:12px}
+    .card.flat{box-shadow:none}
+    .btn{height:48px;padding:0 20px;border-radius:var(--r-sm);font-family:var(--font);font-size:14.5px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:9px;border:none}
+    .btn.lg{height:54px;padding:0 26px;font-size:16px;border-radius:var(--r-md)}
+    .btn.full{width:100%}
+    .btn.sec{background:transparent;color:var(--ink);border:1.5px solid var(--line-strong)}
+    .help{font-size:12.5px;line-height:1.5;color:var(--ink-3)}
+    .stat{background:var(--cream);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--e1);padding:14px;display:flex;flex-direction:column;gap:5px}
+    .stat dt{margin:0;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+    .stat dd{margin:0;font-size:28px;line-height:32px;font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+    .stat small{font-size:12px;color:var(--ink-2)}
+    .cmp{display:flex;flex-direction:column;gap:13px}
+    .cmp .r{display:flex;flex-direction:column;gap:6px}
+    .cmp .lbl{display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+    .cmp .lbl b{font-size:15px;color:var(--ink);font-weight:700}
+    .cmp .bar{height:14px;border-radius:999px;background:var(--sand-2);overflow:hidden}
+    .cmp .bar i{display:block;height:100%;border-radius:999px}
+    .i-notified{background:var(--line-strong)}.i-rsvp{background:var(--clay)}.i-att{background:var(--leaf)}.i-no{background:var(--amber)}
+    .chips{display:flex;gap:8px;flex-wrap:wrap}
+    .chip{height:34px;padding:0 13px;border-radius:999px;background:var(--sand-2);border:1px solid var(--line);display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:var(--ink-2)}
+    .chip.on{background:var(--clay-tint);border-color:var(--clay-line);color:var(--clay-deep);font-weight:700}
+    .pill{height:26px;padding:0 11px;border-radius:999px;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;flex:none}
+    .pill.leaf{background:var(--leaf-tint);color:var(--leaf)}.pill.amber{background:var(--amber-tint);color:var(--amber)}
+    .avatar{width:42px;height:42px;border-radius:999px;background:var(--clay-tint);color:var(--clay-deep);display:flex;align-items:center;justify-content:center;font-size:13.5px;font-weight:700;flex:none}
+    .prow{display:flex;align-items:center;gap:12px;padding:12px;border-radius:var(--r-sm);background:var(--cream);border:1px solid var(--line)}
+    .prow .id{flex:1;min-width:0}
+    .prow .id b{font-size:15px;font-weight:700;display:block}
+    .prow .id span{font-size:12px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+  </style>
+</helmet>
+
+<div class="screen">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <g id="back"><path d="M15 5l-7 7 7 7"/></g>
+    <g id="dots"><circle cx="12" cy="5.5" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="12" cy="18.5" r="1.7"/></g>
+    <g id="dl"><path d="M12 4v11M8 11.5l4 4 4-4M4.5 19.5h15"/></g>
+  </defs></svg>
+
+  <div class="appbar">
+    <button type="button" class="iconbtn" aria-label="Back"><svg class="i m"><use href="#back"/></svg></button>
+    <h1>Attendance</h1>
+    <button type="button" class="iconbtn" aria-label="Options"><svg class="i f"><use href="#dots"/></svg></button>
+  </div>
+  <div class="scroll">
+    <div class="card flat" style="gap:4px;padding:14px">
+      <b style="font-size:15.5px">Community blood drive &mdash; Kaloor</b>
+      <div style="font-size:12.5px;color:var(--ink-2);font-variant-numeric:tabular-nums">Sat 13 Sep &middot; ended 14:00</div></div>
+    <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px">
+      <div class="stat"><dt>Attended</dt><dd style="color:var(--leaf)">31</dd><small>of 43 RSVP'd</small></div>
+      <div class="stat"><dt>No-show</dt><dd style="color:var(--amber)">12</dd><small>28% of RSVPs</small></div></div>
+    <div class="card" style="gap:12px">
+      <b style="font-size:14.5px">From notified to attended</b>
+      <div class="cmp">
+        <div class="r"><div class="lbl"><span>Notified</span><b>340</b></div><div class="bar"><i class="i-notified" style="width:100%"></i></div></div>
+        <div class="r"><div class="lbl"><span>RSVP'd</span><b>43</b></div><div class="bar"><i class="i-rsvp" style="width:12.6%"></i></div></div>
+        <div class="r"><div class="lbl"><span>Attended</span><b>31</b></div><div class="bar"><i class="i-att" style="width:9.1%"></i></div></div>
+        <div class="r"><div class="lbl"><span>No-show</span><b>12</b></div><div class="bar"><i class="i-no" style="width:3.5%"></i></div></div>
+      </div></div>
+    <div class="chips"><span class="chip on">All 43</span><span class="chip">Attended <b>31</b></span>
+      <span class="chip">No-show <b>12</b></span><span class="chip">Cancelled <b>6</b></span></div>
+    <div class="prow"><span class="avatar">RS</span>
+      <div class="id"><b>Rahul Suresh</b><span>A17 &middot; 09:04 &middot; marked by A. Thomas</span></div>
+      <span class="pill leaf">Attended</span></div>
+    <div class="prow"><span class="avatar">NM</span>
+      <div class="id"><b>Nithya Menon</b><span>A24 &middot; 09:41 &middot; marked by you</span></div>
+      <span class="pill leaf">Attended</span></div>
+    <div class="prow"><span class="avatar">TJ</span>
+      <div class="id"><b>Tom Jacob</b><span>A31 &middot; never marked attended</span></div>
+      <span class="pill amber">No-show</span></div>
+  </div>
+  <div class="stickybar">
+    <button type="button" class="btn sec lg full"><svg class="i m"><use href="#dl"/></svg>Export CSV</button>
+    <div class="help" style="text-align:center">Export is limited to permitted fields and to admins of this facility.</div>
+  </div>
+</div>
+
+</x-dc>
+<script data-dc-script>
+class Component extends DCLogic {}
+</script>
+</body>
+</html>

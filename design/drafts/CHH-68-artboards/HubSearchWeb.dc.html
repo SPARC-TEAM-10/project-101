@@ -1,0 +1,273 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --sand:#F6F0E5;--sand-2:#EFE7D9;--cream:#FDFAF4;--line:#E6DAC7;--line-strong:#D6C6AC;
+      --clay:#B06134;--clay-hover:#96502A;--clay-deep:#8A4620;--clay-tint:#F5E4D3;--clay-line:#E8CDB2;
+      --blood:#D32F2F;--blood-deep:#9E1B18;--blood-tint:#FCE9E7;--blood-line:#F5C6C2;
+      --ink:#392A1D;--ink-2:#6F5C46;--ink-3:#A08A70;--ink-off:#BFAE96;
+      --error:#A33325;--error-tint:#F7E4E0;--amber:#8F6A12;--amber-tint:#F7EDD4;--leaf:#4E7A46;--leaf-tint:#E8F0E2;
+      --font:"Plus Jakarta Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
+      --r-xs:8px;--r-sm:12px;--r-md:16px;--r-lg:20px;
+      --e1:0 1px 2px rgba(57,42,29,.04),0 2px 6px rgba(57,42,29,.05);
+      --e2:0 2px 6px rgba(57,42,29,.05),0 8px 20px rgba(57,42,29,.07);
+    }
+    *{box-sizing:border-box}
+    body{margin:0}
+    a{color:var(--clay)} a:hover{color:var(--clay-hover)}
+    .screen{width:1440px;height:900px;background:var(--sand);font-family:var(--font);color:var(--ink);
+      display:flex;flex-direction:column;overflow:hidden}
+    svg.i{fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;width:18px;height:18px;flex:none}
+    svg.i.s{width:14px;height:14px;stroke-width:2.2}svg.i.m{width:20px;height:20px}svg.i.l{width:32px;height:32px;stroke-width:1.6}
+    .topbar{height:70px;flex:none;background:var(--cream);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:22px;padding:0 32px}
+    .brand{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:800;letter-spacing:-.01em}
+    .brand .mk{width:32px;height:32px;border-radius:9px;background:var(--blood);color:#fff;display:flex;align-items:center;justify-content:center}
+    .nav{display:flex;gap:4px;margin-left:14px}
+    .nav a{height:40px;padding:0 15px;border-radius:var(--r-sm);display:flex;align-items:center;font-size:14px;font-weight:600;color:var(--ink-2);text-decoration:none}
+    .nav a.on{background:var(--clay-tint);color:var(--clay-deep);font-weight:700}
+    .spacer{flex:1}
+    .gueststat{display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 13px;border-radius:999px;background:var(--sand-2);color:var(--ink-2);font-size:12.5px;font-weight:700}
+    .btn{height:44px;padding:0 20px;border-radius:var(--r-sm);font-family:var(--font);font-size:14.5px;font-weight:700;
+      display:inline-flex;align-items:center;justify-content:center;gap:9px;border:none}
+    .btn.lg{height:52px;border-radius:var(--r-md);font-size:15.5px}
+    .btn.primary{background:var(--clay);color:#fff}
+    .btn.blood{background:var(--blood);color:#fff}
+    .btn.secondary{background:transparent;color:var(--ink);border:1.5px solid var(--line-strong)}
+    .btn.ghost{background:transparent;color:var(--clay);padding:0 10px}
+    .main{flex:1;display:flex;min-height:0}
+    .panel{width:512px;flex:none;background:var(--cream);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+    .filters{flex:none;padding:24px 28px 18px;display:flex;flex-direction:column;gap:14px;border-bottom:1px solid var(--line)}
+    .filters h1{margin:0;font-size:28px;line-height:34px;font-weight:800;letter-spacing:-.025em}
+    .search{height:50px;border-radius:var(--r-sm);border:1.5px solid var(--line);background:var(--sand);display:flex;align-items:center;gap:10px;padding:0 14px;color:var(--ink-3)}
+    .search.filled{border-color:var(--clay);background:var(--cream);color:var(--ink)}
+    .search .txt{flex:1;font-size:16px}
+    .fr{display:flex;gap:12px;align-items:flex-end}
+    .field{display:flex;flex-direction:column;gap:6px;flex:1}
+    .field label{font-size:13px;font-weight:600;color:var(--ink-2)}
+    .seg{display:flex;background:var(--sand-2);border-radius:var(--r-sm);padding:4px;gap:4px}
+    .seg span{flex:1;height:42px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13.5px;font-weight:600;color:var(--ink-2)}
+    .seg span.on{background:var(--cream);color:var(--ink);box-shadow:var(--e1);font-weight:700}
+    .select{height:46px;border-radius:var(--r-sm);border:1.5px solid var(--line);background:var(--sand);display:flex;align-items:center;
+      justify-content:space-between;gap:10px;padding:0 14px;font-size:15px;color:var(--ink)}
+    .list{flex:1;overflow:hidden;padding:16px 28px 24px;display:flex;flex-direction:column;gap:10px}
+    .sortline{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-2);font-variant-numeric:tabular-nums;padding-bottom:2px}
+    .fac{display:flex;gap:13px;align-items:flex-start;background:var(--cream);border:1px solid var(--line);border-radius:var(--r-md);padding:15px;box-shadow:var(--e1)}
+    .fac.sel{border-color:var(--clay);box-shadow:var(--e2)}
+    .fac .mark{width:44px;height:44px;flex:none;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;background:var(--clay-tint);color:var(--clay-deep)}
+    .fac .mark.amb{background:var(--blood-tint);color:var(--blood-deep)}
+    .fac .body{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+    .fac h3{margin:0;font-size:17px;line-height:22px;font-weight:700}
+    .fac .addr{font-size:12.5px;line-height:1.5;color:var(--ink-2)}
+    .fac .row{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+    .fac .km{font-size:14px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;flex:none}
+    .fac .idx{font-size:13px;font-weight:800;color:var(--ink-3);font-variant-numeric:tabular-nums;width:18px;flex:none;text-align:right;padding-top:12px}
+    .pill{height:24px;padding:0 10px;border-radius:999px;display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;flex:none}
+    .pill.leaf{background:var(--leaf-tint);color:var(--leaf)}
+    .pill.mute{background:var(--sand-2);color:var(--ink-2)}
+    .pill.blood{background:var(--blood-tint);color:var(--blood-deep)}
+    .map{flex:1;position:relative;background:var(--sand-2);overflow:hidden;min-width:0}
+    .map .grid i{position:absolute;background:var(--line-strong);opacity:.5}
+    .map .blob{position:absolute;background:var(--line);opacity:.6;border-radius:18px}
+    .map .mp{position:absolute;transform:translate(-50%,-100%);color:var(--clay-deep)}
+    .map .mp.on{color:var(--blood)}
+    .map .num{position:absolute;left:50%;top:9px;transform:translateX(-50%);font-size:11px;font-weight:800;color:#fff}
+    .map .me{position:absolute;width:22px;height:22px;border-radius:999px;border:3px solid var(--cream);background:var(--clay);
+      box-shadow:var(--e2);transform:translate(-50%,-50%)}
+    .banner{position:absolute;left:24px;right:24px;top:20px;display:flex;align-items:center;gap:13px;background:var(--cream);
+      border:1px solid var(--clay-line);border-radius:var(--r-md);box-shadow:var(--e2);padding:15px 17px}
+    .banner .b{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+    .banner b{font-size:14px;font-weight:700}
+    .banner p{margin:0;font-size:12.5px;color:var(--ink-2);line-height:1.5}
+    .legend{position:absolute;left:24px;bottom:24px;background:var(--cream);border:1px solid var(--line);border-radius:var(--r-sm);
+      box-shadow:var(--e1);padding:11px 14px;display:flex;flex-direction:column;gap:8px;font-size:12.5px;color:var(--ink-2)}
+    .legend div{display:flex;align-items:center;gap:9px}
+    .legend i{width:11px;height:11px;border-radius:999px;flex:none}
+  </style>
+</helmet>
+
+<div class="screen">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <g id="search"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></g>
+    <g id="target"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8.5" stroke-dasharray="3 3"/></g>
+    <g id="targetoff"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8.5" stroke-dasharray="3 3"/><path d="M4 20 20 4"/></g>
+    <g id="cross"><path d="M12 6v12M6 12h12"/></g>
+    <g id="chevd"><path d="m6.5 9.5 5.5 5.5 5.5-5.5"/></g>
+    <g id="shield"><path d="M12 3.5 19 6v6c0 4-3 6.7-7 8.5C8 18.7 5 16 5 12V6Z"/><path d="m9 12 2 2 4-4"/></g>
+    <g id="user"><path d="M12 13.5a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9Z"/><path d="M4.5 20.5a7.5 7.5 0 0 1 15 0"/></g>
+    <g id="amb"><rect x="2.5" y="7" width="13" height="9" rx="1.5"/><path d="M15.5 10h3l3 3v3h-6zM7 19.5a1.75 1.75 0 1 0 0-3.5 1.75 1.75 0 0 0 0 3.5ZM17.5 19.5a1.75 1.75 0 1 0 0-3.5 1.75 1.75 0 0 0 0 3.5Z"/><path d="M7 11.5h3M8.5 10v3"/></g>
+    <g id="pinf"><path d="M12 22s7.5-6.2 7.5-11.6A7.5 7.5 0 0 0 4.5 10.4C4.5 15.8 12 22 12 22Z" fill="currentColor" stroke="none"/></g>
+  </defs></svg>
+
+  <div class="topbar">
+    <span class="brand"><span class="mk"><svg class="i m"><use href="#shield"/></svg></span>Community Health Hub</span>
+    <nav class="nav">
+      <a class="on">Emergency services</a>
+      <a>Blood requests</a>
+      <a>Events</a>
+    </nav>
+    <span class="spacer"></span>
+    <span class="gueststat"><svg class="i s"><use href="#user"/></svg>Guest &middot; expires in 7 days</span>
+    <button type="button" class="btn primary">Verify my number</button>
+  </div>
+
+  <div class="main">
+    <div class="panel">
+      <div class="filters">
+        <h1>Emergency services near you</h1>
+
+        <sc-if value="{{isNameSearch}}" hint-placeholder-val="{{false}}">
+          <div class="search filled">
+            <svg class="i"><use href="#search"/></svg>
+            <span class="txt">City Hospital</span>
+            <svg class="i s" style="transform:rotate(45deg);color:var(--ink-3)"><use href="#cross"/></svg>
+          </div>
+        </sc-if>
+        <sc-if value="{{noNameSearch}}" hint-placeholder-val="{{true}}">
+          <div class="search"><svg class="i"><use href="#search"/></svg><span class="txt">Search by name or area</span></div>
+        </sc-if>
+
+        <div class="seg">
+          <span class="{{allOn}}">All</span>
+          <span>Hospitals</span>
+          <span>Ambulances</span>
+        </div>
+
+        <div class="fr">
+          <div class="field">
+            <label>Area</label>
+            <div class="select">{{areaLabel}}<svg class="i"><use href="#chevd"/></svg></div>
+          </div>
+          <div class="field">
+            <label>Within</label>
+            <div class="select">15 km<svg class="i"><use href="#chevd"/></svg></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="list">
+        <div class="sortline"><svg class="i s"><use href="{{sortIcon}}"/></svg>{{sortLine}}</div>
+
+        <sc-for list="{{items}}" as="f" hint-placeholder-count="4">
+          <div class="{{f.cls}}">
+            <span class="idx">{{f.n}}</span>
+            <div class="{{f.markCls}}"><svg class="i m"><use href="{{f.icon}}"/></svg></div>
+            <div class="body">
+              <h3>{{f.name}}</h3>
+              <div class="addr">{{f.addr}}</div>
+              <div class="row">
+                <span class="pill leaf">Verified</span>
+                <span class="{{f.catCls}}">{{f.cat}}</span>
+              </div>
+            </div>
+            <span class="km">{{f.km}}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <div class="map">
+      <div class="grid">
+        <i style="left:0;right:0;top:180px;height:1px"></i>
+        <i style="left:0;right:0;top:392px;height:1px"></i>
+        <i style="left:0;right:0;top:604px;height:1px"></i>
+        <i style="top:0;bottom:0;left:170px;width:1px"></i>
+        <i style="top:0;bottom:0;left:420px;width:1px"></i>
+        <i style="top:0;bottom:0;left:660px;width:1px"></i>
+        <i style="left:0;right:0;top:300px;height:7px;opacity:.45"></i>
+        <i style="top:0;bottom:0;left:520px;width:7px;opacity:.45"></i>
+      </div>
+      <span class="blob" style="left:60px;top:60px;width:150px;height:70px"></span>
+      <span class="blob" style="left:540px;top:640px;width:210px;height:90px"></span>
+      <span class="blob" style="left:250px;top:470px;width:120px;height:64px"></span>
+      <span class="blob" style="left:700px;top:150px;width:170px;height:78px"></span>
+
+      <span class="me" style="left:430px;top:392px"></span>
+
+      <span class="mp on" style="left:470px;top:330px"><svg style="width:38px;height:38px" viewBox="0 0 24 24"><use href="#pinf"/></svg><span class="num">1</span></span>
+      <span class="mp" style="left:300px;top:470px"><svg style="width:34px;height:34px" viewBox="0 0 24 24"><use href="#pinf"/></svg><span class="num">2</span></span>
+      <span class="mp" style="left:640px;top:250px"><svg style="width:34px;height:34px" viewBox="0 0 24 24"><use href="#pinf"/></svg><span class="num">3</span></span>
+      <span class="mp" style="left:560px;top:620px"><svg style="width:34px;height:34px" viewBox="0 0 24 24"><use href="#pinf"/></svg><span class="num">4</span></span>
+
+      <sc-if value="{{isGpsDenied}}" hint-placeholder-val="{{false}}">
+        <div class="banner">
+          <svg class="i m" style="color:var(--clay-deep)"><use href="#targetoff"/></svg>
+          <div class="b">
+            <b>Location is off, so these aren't sorted by distance</b>
+            <p>Listed A&ndash;Z for Ernakulam. Choose an area above, or turn location on to sort by how near each service is.</p>
+          </div>
+          <button type="button" class="btn secondary">Turn location on</button>
+        </div>
+      </sc-if>
+
+      <div class="legend">
+        <div><i style="background:var(--clay)"></i>You are here</div>
+        <div><i style="background:var(--blood)"></i>Selected service</div>
+        <div><i style="background:var(--clay-deep)"></i>Verified service</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script data-dc-script data-props='{
+  "state": {"editor":"enum","default":"results","options":["results","nameSearch","gpsDenied"],"section":"AC state"}
+}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.props.state ?? "results";
+    const hosp = { icon: "#shield", markCls: "mark", cat: "Hospital", catCls: "pill mute" };
+    const amb = { icon: "#amb", markCls: "mark amb", cat: "Ambulance", catCls: "pill blood" };
+
+    // AC3 — proximity-sorted result set, the default view.
+    const byDistance = [
+      { ...amb, name: "LifeLine Ambulance Service", addr: "Kaloor, Ernakulam — 682017", km: "1.8 km" },
+      { ...hosp, name: "Kochi Metro Hospital", addr: "Kaloor Junction, Ernakulam — 682017", km: "2.4 km" },
+      { ...amb, name: "Metro 108 Ambulance Desk", addr: "Palarivattom, Ernakulam — 682025", km: "3.6 km" },
+      { ...hosp, name: "St. Martha's Multispecialty", addr: "Palarivattom Bypass, Ernakulam — 682025", km: "4.1 km" }
+    ];
+
+    // AC2 — matched on the name string, still nearest first.
+    const byName = [
+      { ...hosp, name: "City Hospital, Edappally", addr: "NH 66, Edappally, Ernakulam — 682024", km: "6.8 km" },
+      { ...hosp, name: "City Care Hospital, Aluva", addr: "Bank Junction, Aluva, Ernakulam — 683101", km: "18.3 km" }
+    ];
+
+    // Location denied — alphabetical fallback; no distance is claimed at all.
+    const alphabetical = [
+      { ...hosp, name: "City Hospital, Edappally", addr: "NH 66, Edappally, Ernakulam — 682024", km: "—" },
+      { ...hosp, name: "Ernakulam District Hospital", addr: "Kacheripady, Ernakulam — 682018", km: "—" },
+      { ...hosp, name: "Kochi Metro Hospital", addr: "Kaloor Junction, Ernakulam — 682017", km: "—" },
+      { ...amb, name: "LifeLine Ambulance Service", addr: "Kaloor, Ernakulam — 682017", km: "—" }
+    ];
+
+    const set = s === "nameSearch" ? byName : s === "gpsDenied" ? alphabetical : byDistance;
+
+    return {
+      items: set.map((f, i) => ({ ...f, n: String(i + 1), cls: i === 0 ? "fac sel" : "fac" })),
+      isNameSearch: s === "nameSearch",
+      noNameSearch: s !== "nameSearch",
+      isGpsDenied: s === "gpsDenied",
+      allOn: "on",
+      areaLabel: s === "gpsDenied" ? "Ernakulam" : "Near me — Kaloor",
+      sortIcon: s === "gpsDenied" ? "#targetoff" : s === "nameSearch" ? "#search" : "#target",
+      sortLine: s === "gpsDenied"
+        ? "12 verified services in Ernakulam · listed A–Z"
+        : s === "nameSearch"
+          ? "2 results for “City Hospital” · nearest first"
+          : "9 verified services within 15 km · nearest first"
+    };
+  }
+}
+</script>
+</body>
+</html>

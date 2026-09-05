@@ -1,0 +1,194 @@
+{
+  "pages": [
+    { "id": "page-app", "name": "App" },
+    { "id": "page-components", "name": "Components" }
+  ],
+  "artboards": [
+    {
+      "file": "AdminQueueMobile.dc.html",
+      "x": 0,
+      "y": 12700,
+      "w": 390,
+      "h": 844,
+      "title": "Pending verification queue (mobile) — US-CHH-001-01",
+      "page": "page-app"
+    },
+    {
+      "file": "AdminFacilityReviewMobile.dc.html",
+      "x": 520,
+      "y": 12700,
+      "w": 390,
+      "h": 844,
+      "title": "Facility review + licence sheet (mobile) — US-CHH-001-02",
+      "page": "page-app"
+    },
+    {
+      "file": "AdminUsersMobile.dc.html",
+      "x": 1040,
+      "y": 12700,
+      "w": 390,
+      "h": 844,
+      "title": "User management + suspend sheet (mobile) — US-CHH-001-04",
+      "page": "page-app"
+    },
+    {
+      "file": "AdminSuspendedSignIn.dc.html",
+      "x": 1560,
+      "y": 12700,
+      "w": 390,
+      "h": 844,
+      "title": "Suspended account — blocked sign-in (mobile) — US-CHH-001-04 AC2",
+      "page": "page-app"
+    },
+    {
+      "file": "AdminAddOrgMobile.dc.html",
+      "x": 2080,
+      "y": 12700,
+      "w": 390,
+      "h": 844,
+      "title": "Add an organisation directly — no approval (mobile) — added on review",
+      "page": "page-app"
+    },
+    {
+      "file": "AdminBulkUploadMobile.dc.html",
+      "x": 2600,
+      "y": 12700,
+      "w": 390,
+      "h": 844,
+      "title": "Bulk upload organisations (mobile) — added on review",
+      "page": "page-app"
+    },
+    {
+      "file": "AdminQueueWeb.dc.html",
+      "x": 0,
+      "y": 13700,
+      "w": 1440,
+      "h": 900,
+      "title": "Pending verification queue — Web — US-CHH-001-01",
+      "page": "page-app"
+    },
+    {
+      "file": "AdminFacilityReviewWeb.dc.html",
+      "x": 1560,
+      "y": 13700,
+      "w": 1440,
+      "h": 900,
+      "title": "Facility review + document viewer — Web — US-CHH-001-02",
+      "page": "page-app"
+    },
+    {
+      "file": "AdminApprovalActionsWeb.dc.html",
+      "x": 3120,
+      "y": 13700,
+      "w": 1440,
+      "h": 900,
+      "title": "Approve / reject dialogs — Web — US-CHH-001-03",
+      "page": "page-app"
+    },
+    {
+      "file": "AdminUsersWeb.dc.html",
+      "x": 4680,
+      "y": 13700,
+      "w": 1440,
+      "h": 900,
+      "title": "User management — search and list — Web — US-CHH-001-04",
+      "page": "page-app"
+    },
+    {
+      "file": "AdminSuspendUserWeb.dc.html",
+      "x": 6240,
+      "y": 13700,
+      "w": 1440,
+      "h": 900,
+      "title": "Suspend account dialog — Web — US-CHH-001-04 AC1",
+      "page": "page-app"
+    },
+    {
+      "file": "AdminSuspendedSignInWeb.dc.html",
+      "x": 7800,
+      "y": 13700,
+      "w": 1440,
+      "h": 900,
+      "title": "Suspended account — blocked sign-in — Web — US-CHH-001-04 AC2",
+      "page": "page-app"
+    },
+    {
+      "file": "AdminAddOrgWeb.dc.html",
+      "x": 9360,
+      "y": 13700,
+      "w": 1440,
+      "h": 900,
+      "title": "Add an organisation directly — no approval — Web — added on review",
+      "page": "page-app"
+    },
+    {
+      "file": "AdminBulkUploadWeb.dc.html",
+      "x": 10920,
+      "y": 13700,
+      "w": 1440,
+      "h": 900,
+      "title": "Bulk upload organisations — Web — added on review",
+      "page": "page-app"
+    },
+    {
+      "file": "AdminDecisionNotices.dc.html",
+      "x": 0,
+      "y": 7200,
+      "w": 940,
+      "h": 720,
+      "title": "Verification decision — admin toasts, facility push / SMS / in-app — US-CHH-001-03",
+      "page": "page-components"
+    }
+  ],
+  "annotations": [
+    {
+      "id": "f07-note",
+      "x": 0,
+      "y": 12400,
+      "w": 1100,
+      "text": "CHH-F07 — Admin Command Center (CHH-72; US-CHH-001-01/02/03/04)\nMobile row above, web row below. Admin is the one part of this product designed at lg FIRST and degraded down (ui-standard.md §Breakpoints), but it still ships both — a verification that has to wait for someone to reach a desk is a facility waiting a day longer.\nBuilt from the CHH-F07 Confluence spec: §1 Feature Overview, §2 Data Dictionary, §3 the four user stories.\n\nDecisions carried from the draft:\n1. APPROVE IS CLAY, NOT GREEN — a deliberate deviation from the spec's UI Note (\"Approve (Green) and Reject (Red) as per PRD Section 8\"). ui-standard.md v4.1 reserves --go green for a person COMMITTING to help (accept a blood request, confirm attendance) and --leaf for status. Verifying a facility is listed under b-primary/clay in the standard's colour table. Green here would erode the one signal that makes a donor's Accept button mean what it means. Reject follows the standard exactly: b-danger, blood OUTLINED, never filled.\n2. Desktop is a table, mobile is cards (ui-standard.md §Table: \"Mobile: tables become cards\"). Not the same layout twice.\n3. The document opens in a MODAL on web and a BOTTOM SHEET on mobile — the spec allows \"new tab or modal\"; the modal keeps the registration facts one Escape away, which a new tab does not.\n4. Both decisions are confirmed before they commit. Approve's dialog exists because of the spec's own edge case (\"Admin accidentally clicks Approve\"); reject's exists because the reason is mandatory and has nowhere else to live. Both dialog titles state the consequence, not the action (ui-standard.md §Confirmation dialog).\n5. Suspension blocks AFTER the OTP is verified, not at the number step — otherwise anyone could type a stranger's number and learn that their account exists and is suspended.\n6. Mobile numbers are shown in full to the admin (they are the identifier for the search the spec asks for); the masking rule in api-standards.md §8 is about LOG LINES, not this screen.",
+      "page": "page-app"
+    },
+    {
+      "id": "f07-states-note",
+      "x": 1300,
+      "y": 12400,
+      "w": 1100,
+      "text": "HOW STATES ARE DRAWN (same convention as CHH-F03/F04/F05/F06)\nEach artboard carries one AC-state tweak chip rather than a separate file per state.\n\nAdminQueueWeb / AdminQueueMobile — list (001-01 AC1: name, category, date of registration) | empty (001-01 AC2, the spec's exact string \"No pending verifications at this time.\") | loading (skeleton rows matching real row height, ui-standard.md §Loaders: never a bare full-screen spinner) | error (load failure with retry, and a line saying nothing was approved or rejected)\nAdminFacilityReviewWeb — document (001-02 AC1) | fullScreenModal (the viewer opened over the review) | missingDocument (001-02 AC2: Approve DISABLED, not hidden, with \"Document missing\") | renderFailed (spec edge case: the file exists but won't render — download and decide)\nAdminFacilityReviewMobile — document | documentSheet | missingDocument\nAdminApprovalActionsWeb — confirmApprove (001-03 AC1 + the accidental-click edge case) | rejectWithReason (001-03 AC2) | reasonTooShort (Data Dictionary: min 10 characters, exact error string) | approving (button holds its width, nothing reflows)\nAdminUsersWeb — results | noMatch | loading. AdminUsersMobile — results | noMatch | suspendSheet | reasonTooShort\nAdminSuspendUserWeb — confirmSuspend (001-04 AC1) | reasonTooShort | adminRestricted (edge case: an admin may not suspend another System Admin) | suspending\nAdminSuspendedSignIn / …Web — blocked (001-04 AC2, the spec's exact string) | supportSheet\nAdminAddOrgWeb / AdminAddOrgMobile — hospital | ngo | errors | creating | created\nAdminBulkUploadWeb / AdminBulkUploadMobile — empty | uploading | results | fileError, plus a percent slider driving the determinate bar\nAdminDecisionNotices (Components page) — approved | rejected | suspended: the admin's toast beside what actually reaches the facility, since \"they should receive a notification\" is part of AC1 and AC2 and had no surface anywhere else. SMS copy follows ui-standard.md §Off-app delivery: one segment, no emoji, one readable link.\n\nPagination (001-01 edge case, high volume) is drawn on AdminQueueWeb's footer and stated as a range on mobile.",
+      "page": "page-app"
+    },
+    {
+      "id": "f07-open-questions",
+      "x": 2600,
+      "y": 12400,
+      "w": 1100,
+      "text": "STILL OPEN — the spec does not decide these, so they are flagged, not invented.\n\n• §4 Question 1 (which document types are allowed) is Open. The frames show PDF, JPG and PNG, matching the CHH-F03 upload rules already on this canvas. If admin-side is narrower than upload-side, the copy changes.\n• §4 Question 2 (can an admin UNSUSPEND?) is Open, and it shows: a suspended row offers only \"See reason\", with no reinstate action drawn. If the answer is yes, that row needs a second action and a reinstate dialog — one more artboard.\n• §4 Question 3 asks whether the User Management tab has a design. It does now — AdminUsersWeb / AdminUsersMobile — but the FILTERS on it (All / Individuals / Facilities / Suspended) are a designer's proposal, not spec. Confirm or cut them.\n• The spec's UI Note says green Approve; this design uses clay. That deviation needs a yes or a no from the UI/UX owner — it is the one place this design knowingly departs from a written instruction. See the decisions note.\n• The suspended-account block point (after OTP verification, not before) needs confirming with backend: it implies the OTP verify endpoint returns a distinct suspended outcome rather than a generic failure.\n• Suspension SMS: not drawn. A suspended user is signed out, so push has nowhere to land — whether an SMS goes out instead is a PO decision.\n• Support contact details on the suspended screens (\"+91 484 200 5000\", the support address, the 9am–6pm hours) are SYNTHETIC PLACEHOLDERS. Real values are needed before build.\n• STORY-ID COLLISION, worth raising outside this design: CHH-F07's stories are numbered US-CHH-001-01…04 on Confluence, and CHH-F06's are ALSO numbered US-CHH-001-01…03. The Design Reference rows in design-links.md name the epic key as well for that reason.\n\nNOT DRAWN: the Verified and Rejected tabs' own contents (only the Pending tab is in scope for 001-01), the notification log the top bar links to, and any facility inventory view.",
+      "page": "page-app"
+    },
+    {
+      "id": "f07-direct-add-note",
+      "x": 3900,
+      "y": 12400,
+      "w": 1100,
+      "text": "DIRECT ADD + BULK UPLOAD — added after review, NOT in the CHH-F07 spec\nAdminAddOrgMobile / AdminAddOrgWeb and AdminBulkUploadMobile / AdminBulkUploadWeb.\n\nThese two screens have no user story, no acceptance criteria and no Data Dictionary rows on the CHH-F07 Confluence page — they came from the reviewer's request for \"a screen to add ngo and facility, and that screen doesn't need approval, can directly add, and a bulk upload screen\". Everything on them is a proposal until CHH-F07 §3 gains a fifth story. Nothing here changes the four existing stories.\n\nWHY THEY LOOK DIFFERENT FROM THE QUEUE\nThe queue exists because a facility registered ITSELF and an admin has to judge it. These screens are the opposite: the admin has already judged, offline. So there is no Approve control, no Pending state and no confirmation dialog — the risk is not \"did I mean to approve?\" but \"does the admin realise nobody else will check this?\". That question is answered three times, in three registers, rather than once:\n  1. a persistent clay inline alert — \"This one skips the review queue\";\n  2. a Created-as-Verified pill in the app bar / topbar, so it is true at a glance even scrolled;\n  3. the submit button names the outcome — \"Create verified organisation\", never \"Submit\" or \"Save\" (ui-standard.md §Copy rules).\nThe web aside carries a two-row comparison of the two routes (they register / you add them) so the missing review step reads as a decision, not a gap. Everyday register throughout — 48px controls, calmer spacing — this is not an emergency path.\n\nFIELDS ARE CHH-F03's, NOT NEW ONES\nOrganisation name, licence number, address (FacilityDetails.dc.html) and contact name / designation / mobile (FacilityContacts.dc.html), with the same helper copy where it still applies. Two deliberate changes: the licence DOCUMENT is optional here (the admin is the evidence), and organisation type is a two-option segmented control rather than the wizard's Category select, per ui-standard.md §Radio (\"for 2–4 mutually exclusive options prefer a segmented control\").\n\nBULK UPLOAD REUSES CHH-F03's UPLOAD VOCABULARY\nSame drop zone (2px dashed --line-strong, --r-md), same .filerow, same 6px determinate --clay progress bar and percent-in-copy note as FacilityUploadProgress.dc.html — no new spinner. Per-file errors sit ON the row, never in a toast (ui-standard.md §File upload). The results screen is a stat strip plus a table of ONLY the failed rows on web and per-row cards on mobile (§Table: mobile tables become cards); successes are a count, because 47 identical green rows tell the reader nothing.\n\nCOPY THAT IS DOING WORK, not decoration:\n• \"Reading the file — nothing is created yet.\" Validation precedes creation, so a wrong file costs nothing.\n• \"Nothing on those rows was saved.\" A partial import is the state people fear; say which half happened.\n• \"A repeated licence number is skipped, never overwritten.\" Makes re-uploading a corrected file safe to try.\n• \"Undo isn't available. If this was a mistake, suspend the account from Users.\" There is no delete in this product; the honest recovery path is US-CHH-001-04's suspension.",
+      "page": "page-app"
+    },
+    {
+      "id": "f07-direct-add-open",
+      "x": 5200,
+      "y": 12400,
+      "w": 1100,
+      "text": "DIRECT ADD + BULK UPLOAD — WHAT IS UNDECIDED (all of it is proposal)\n\nSPEC AND SCOPE\n• There is no story for either screen. CHH-F07 §3 needs a fifth (and probably sixth) user story with acceptance criteria before either can be built, and §3b needs the tasks. Until then the frontend design-readiness gate has nothing to check these against.\n• No endpoints exist. The §3b breakdown has no create-facility or import endpoint; the API contract (contracts/chh-api.v1.yaml, per .claude/rules/api-standards.md §3) would need POST /api/v1/admin/facilities and something like POST /api/v1/admin/facilities/import. Contract-first is a hard rule there — the shapes have to land in the contract before either screen is coded.\n• Who may use them? PRD §4 gives verification to System Admin. These screens assume the same role and nothing wider. Confirm.\n\nFIELDS AND VALIDATION\n• \"Registration number\" for an NGO is INVENTED. CHH-F03 only ever names a licence number, for hospitals. If NGOs are registered differently the label, the validation and the CSV column all change; if they are not, drop the swap and use \"Licence number\" for both.\n• Is the licence document really optional on a direct add? Drawn as optional, on the reasoning that the admin is the evidence. If audit needs a file on every verified record, it becomes required and the screen grows an upload-blocking state.\n• The organisation type control offers Hospital-or-blood-bank and NGO. CHH-F03's Category select was drawn with two options too, but its real option list was never written down. If Category has more values (blood bank as its own type, clinic, etc.) the segmented control has to become a select at 5+ options.\n• Does creating an organisation here also create its contact's USER account, or only an invitation? The success copy says the contact \"can sign in with this number\", which assumes the account exists. Needs a backend answer.\n\nBULK UPLOAD\n• CSV, 500 rows, 2 MB and the seven column names are all designer's numbers. None of them are in the PRD.\n• Partial-success is the drawn behaviour (valid rows created, invalid rows skipped). The alternative — all-or-nothing — is a legitimate product choice and would change the results screen substantially. Decide before build.\n• Duplicate handling is drawn as \"skip, never overwrite\", keyed on licence number. That makes licence number a de-facto unique key, which is a DB constraint someone has to agree to (.claude/rules/db-standards.md §2a is explicit that natural keys are not PKs — this is a unique index, not a key).\n• No progress persistence is drawn for a browser that closes mid-upload; the copy promises \"the result waits for you here\", which implies a server-side job. If it is a plain request, that sentence has to go.\n• Bulk upload on a PHONE is drawn for parity, but it is a laptop task; the mobile empty state says as much. If the team would rather hide it below lg, say so and the mobile artboard is deleted rather than built.\n• No \"undo the whole import\" is drawn. 47 organisations created by mistake currently means 47 suspensions. If that is unacceptable, an import needs a reversible batch id — a real feature, not a button.\n\nCONSISTENCY DEBT IN THIS SET\n• The two new artboards add \"Add an organisation\" and \"Bulk upload\" to the admin side navigation (and a group heading above them). The other eleven artboards still show the older two-item nav. If these screens are approved, those eleven need the same two rows adding — a one-line edit each, deliberately not done unprompted.\n• Synthetic data only, per ui-standard.md rule 9: every name, licence number, address and mobile on these two screens is invented.",
+      "page": "page-app"
+    },
+    {
+      "id": "f07-components-note",
+      "x": 0,
+      "y": 6960,
+      "w": 940,
+      "text": "CHH-F07 — what a verification decision sends (CHH-72, US-CHH-001-03).\nAC1 and AC2 both end \"…and they should receive a notification\" — the rejection carrying the reason. That notification had no surface on the canvas, so it is drawn here beside the admin's own confirmation toast. Copy follows ui-standard.md: the toast keeps the verb of the action (Approve produces \"Approved\"), success is --leaf rather than --go, and the SMS is one segment with no emoji and one readable link.",
+      "page": "page-components"
+    }
+  ],
+  "launch": { "view": "canvas", "page": "page-app" }
+}

@@ -1,0 +1,194 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --sand:#F6F0E5;--sand-2:#EFE7D9;--cream:#FDFAF4;--line:#E6DAC7;--line-strong:#D6C6AC;
+      --clay:#B06134;--clay-hover:#96502A;--clay-deep:#8A4620;--clay-tint:#F5E4D3;--clay-line:#E8CDB2;
+      --blood:#D32F2F;--blood-deep:#9E1B18;--blood-tint:#FCE9E7;--blood-line:#F5C6C2;
+      --ink:#392A1D;--ink-2:#6F5C46;--ink-3:#A08A70;--ink-off:#BFAE96;
+      --error:#A33325;--amber:#8F6A12;--amber-tint:#F7EDD4;--leaf:#4E7A46;--leaf-tint:#E8F0E2;
+      --font:"Plus Jakarta Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
+      --r-xs:8px;--r-sm:12px;--r-md:16px;--r-lg:20px;
+      --e1:0 1px 2px rgba(57,42,29,.04),0 2px 6px rgba(57,42,29,.05);
+      --e2:0 2px 6px rgba(57,42,29,.05),0 8px 20px rgba(57,42,29,.07);
+    }
+    *{box-sizing:border-box}
+    body{margin:0}
+    a{color:var(--clay)} a:hover{color:var(--clay-hover)}
+    .screen{width:390px;height:844px;background:var(--sand);font-family:var(--font);color:var(--ink);
+      display:flex;flex-direction:column;overflow:hidden;position:relative}
+    svg.i{fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;width:18px;height:18px;flex:none}
+    svg.i.s{width:14px;height:14px;stroke-width:2.2}svg.i.m{width:20px;height:20px}svg.i.l{width:30px;height:30px;stroke-width:1.6}
+    .appbar{height:58px;flex:none;display:flex;align-items:center;gap:6px;padding:0 10px;background:var(--cream);border-bottom:1px solid var(--line)}
+    .appbar h1{flex:1;margin:0;font-size:15px;font-weight:700;text-align:center;padding-right:42px;color:var(--ink-2)}
+    .iconbtn{width:42px;height:42px;border-radius:999px;border:none;background:transparent;color:var(--ink);display:flex;align-items:center;justify-content:center;flex:none}
+    .iconbtn:hover{background:var(--sand-2)}
+    .scroll{flex:1;overflow:hidden;display:flex;flex-direction:column}
+    .hero{background:var(--cream);border-bottom:1px solid var(--line);padding:18px 16px 16px;display:flex;flex-direction:column;gap:10px}
+    .hero h2{margin:0;font-size:26px;line-height:31px;font-weight:800;letter-spacing:-.02em}
+    .row{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+    .pill{height:25px;padding:0 10px;border-radius:999px;display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;flex:none}
+    .pill.leaf{background:var(--leaf-tint);color:var(--leaf)}
+    .pill.mute{background:var(--sand-2);color:var(--ink-2)}
+    .pill.blood{background:var(--blood-tint);color:var(--blood-deep)}
+    .map{height:132px;position:relative;background:var(--sand-2);border-bottom:1px solid var(--line);overflow:hidden}
+    .map .grid{position:absolute;inset:0;opacity:.55}
+    .map .grid i{position:absolute;background:var(--line-strong)}
+    .map .blob{position:absolute;background:var(--line);opacity:.7;border-radius:14px}
+    .map .pin{position:absolute;left:50%;top:52%;transform:translate(-50%,-100%);color:var(--blood)}
+    .map .cta{position:absolute;right:12px;bottom:12px;height:38px;padding:0 15px;border-radius:999px;background:var(--cream);
+      border:1px solid var(--line-strong);box-shadow:var(--e1);display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--ink)}
+    .sect{padding:16px;display:flex;flex-direction:column;gap:11px}
+    .sect h3{margin:0;font-size:13px;font-weight:700;color:var(--ink-2)}
+    .card{background:var(--cream);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--e1)}
+    .addr{padding:14px;display:flex;gap:11px;font-size:14px;line-height:1.55;color:var(--ink)}
+    .addr .k{color:var(--ink-3);flex:none}
+    .contact{display:flex;align-items:center;gap:12px;padding:12px 14px}
+    .contact + .contact{border-top:1px solid var(--line)}
+    .contact .av{width:42px;height:42px;flex:none;border-radius:var(--r-sm);background:var(--clay-tint);color:var(--clay-deep);
+      display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800}
+    .contact .b{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+    .contact .b b{font-size:15px;font-weight:700}
+    .contact .b span{font-size:12.5px;color:var(--ink-2)}
+    .contact .num{font-size:14px;font-weight:700;color:var(--clay-deep);font-variant-numeric:tabular-nums}
+    .contact .call{width:48px;height:48px;flex:none;border-radius:999px;border:1.5px solid var(--clay-line);background:var(--clay-tint);
+      color:var(--clay-deep);display:flex;align-items:center;justify-content:center}
+    .note{display:flex;gap:10px;border-radius:var(--r-sm);padding:12px 13px;background:var(--amber-tint);color:var(--amber)}
+    .note p{margin:0;font-size:12.5px;line-height:1.55}
+    .note b{color:var(--ink);font-size:13px}
+    .bar{flex:none;background:var(--cream);border-top:1px solid var(--line);padding:12px 16px 16px;display:flex;flex-direction:column;gap:9px}
+    .btn{height:48px;border-radius:var(--r-sm);font-family:var(--font);font-size:15px;font-weight:700;
+      display:flex;align-items:center;justify-content:center;gap:9px;border:none;width:100%}
+    .btn.lg{height:54px;border-radius:var(--r-md);font-size:16px}
+    .btn.blood{background:var(--blood);color:#fff}
+    .btn.secondary{background:transparent;color:var(--ink);border:1.5px solid var(--line-strong)}
+  </style>
+</helmet>
+
+<div class="screen">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <g id="back"><path d="M14.5 5.5 8 12l6.5 6.5"/></g>
+    <g id="phone"><path d="M6.5 4h3l1.5 4-2 1.5a11 11 0 0 0 5.5 5.5L16 13l4 1.5v3a2 2 0 0 1-2.2 2A15.5 15.5 0 0 1 4.5 6.2 2 2 0 0 1 6.5 4Z"/></g>
+    <g id="pinm"><path d="M12 21s7-5.8 7-11a7 7 0 1 0-14 0c0 5.2 7 11 7 11Z"/><circle cx="12" cy="10" r="2.6"/></g>
+    <g id="loc"><path d="M12 21s6.5-5.4 6.5-10.5a6.5 6.5 0 1 0-13 0C5.5 15.6 12 21 12 21Z"/><circle cx="12" cy="10.5" r="2.4"/></g>
+    <g id="shield"><path d="M12 3.5 19 6v6c0 4-3 6.7-7 8.5C8 18.7 5 16 5 12V6Z"/><path d="m9 12 2 2 4-4"/></g>
+    <g id="alert"><path d="M12 4.5 21 20H3Z"/><path d="M12 10.5v4M12 17.2v.1"/></g>
+    <g id="share"><circle cx="18" cy="6" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="m8.3 10.8 7.4-3.6M8.3 13.2l7.4 3.6"/></g>
+  </defs></svg>
+
+  <div class="appbar">
+    <button type="button" class="iconbtn" aria-label="Back"><svg class="i m"><use href="#back"/></svg></button>
+    <h1>Emergency services</h1>
+  </div>
+
+  <div class="scroll">
+    <div class="hero">
+      <h2>Kochi Metro Hospital</h2>
+      <div class="row">
+        <span class="pill leaf"><svg class="i s"><use href="#shield"/></svg>Verified</span>
+        <span class="pill mute">Hospital</span>
+        <span class="pill mute">2.4 km away</span>
+      </div>
+    </div>
+
+    <div class="map">
+      <div class="grid">
+        <i style="left:0;right:0;top:44px;height:1px"></i>
+        <i style="left:0;right:0;top:92px;height:1px"></i>
+        <i style="top:0;bottom:0;left:96px;width:1px"></i>
+        <i style="top:0;bottom:0;left:212px;width:1px"></i>
+        <i style="top:0;bottom:0;left:312px;width:1px"></i>
+        <i style="left:0;right:0;top:66px;height:5px;opacity:.6"></i>
+      </div>
+      <span class="blob" style="left:24px;top:12px;width:58px;height:26px"></span>
+      <span class="blob" style="left:236px;top:98px;width:74px;height:22px"></span>
+      <span class="blob" style="left:130px;top:10px;width:46px;height:28px"></span>
+      <span class="pin"><svg class="i" style="width:34px;height:34px;stroke-width:1.7"><use href="#pinm"/></svg></span>
+      <span class="cta"><svg class="i s"><use href="#loc"/></svg>View on map</span>
+    </div>
+
+    <div class="sect">
+      <h3>Address</h3>
+      <div class="card addr">
+        <svg class="i" style="color:var(--ink-3);margin-top:2px"><use href="#loc"/></svg>
+        <div>Kochi Metro Hospital, Kaloor Junction,<br>Ernakulam, Kerala 682017</div>
+      </div>
+
+      <sc-if value="{{hasContacts}}" hint-placeholder-val="{{true}}">
+        <h3 style="margin-top:5px">Contact persons</h3>
+        <div class="card">
+          <div class="contact">
+            <span class="av">RM</span>
+            <div class="b">
+              <b>Rekha Menon</b>
+              <span>Blood bank desk &middot; 24 hours</span>
+            </div>
+            <span class="call"><svg class="i m"><use href="#phone"/></svg></span>
+          </div>
+          <div class="contact">
+            <span class="av">AV</span>
+            <div class="b">
+              <b>Arun Varghese</b>
+              <span>Emergency admissions</span>
+            </div>
+            <span class="call"><svg class="i m"><use href="#phone"/></svg></span>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{noContacts}}" hint-placeholder-val="{{false}}">
+        <h3 style="margin-top:5px">Contact</h3>
+        <div class="card">
+          <div class="contact">
+            <span class="av"><svg class="i m"><use href="#shield"/></svg></span>
+            <div class="b">
+              <b>Hospital reception</b>
+              <span class="num">+91 90000 10021</span>
+            </div>
+            <span class="call"><svg class="i m"><use href="#phone"/></svg></span>
+          </div>
+        </div>
+        <div class="note">
+          <svg class="i" style="margin-top:1px"><use href="#alert"/></svg>
+          <p><b>No named contact listed yet.</b><br>This facility hasn't added contact persons, so the main hospital number is shown instead.</p>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+
+  <div class="bar">
+    <button type="button" class="btn blood lg"><svg class="i m"><use href="#phone"/></svg>{{callLabel}}</button>
+    <button type="button" class="btn secondary"><svg class="i"><use href="#loc"/></svg>View on map</button>
+  </div>
+</div>
+
+</x-dc>
+<script data-dc-script data-props='{
+  "state": {"editor":"enum","default":"contacts","options":["contacts","noContacts"],"section":"AC state"}
+}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.props.state ?? "contacts";
+    const noContacts = s === "noContacts";
+    return {
+      hasContacts: !noContacts,
+      noContacts: noContacts,
+      // Edge case: with no contact person listed, the sticky action names the
+      // number it will dial so the label never lies about who answers.
+      callLabel: noContacts ? "Call hospital reception" : "Call blood bank desk"
+    };
+  }
+}
+</script>
+</body>
+</html>

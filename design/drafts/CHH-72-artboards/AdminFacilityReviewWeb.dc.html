@@ -1,0 +1,296 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --sand:#F6F0E5;--sand-2:#EFE7D9;--cream:#FDFAF4;--line:#E6DAC7;--line-strong:#D6C6AC;
+      --clay:#B06134;--clay-hover:#96502A;--clay-deep:#8A4620;--clay-tint:#F5E4D3;--clay-line:#E8CDB2;
+      --blood:#D32F2F;--blood-deep:#9E1B18;--blood-tint:#FCE9E7;--blood-line:#F5C6C2;
+      --ink:#392A1D;--ink-2:#6F5C46;--ink-3:#A08A70;--ink-off:#BFAE96;
+      --error:#A33325;--error-tint:#F7E4E0;--amber:#8F6A12;--amber-tint:#F7EDD4;--leaf:#4E7A46;--leaf-tint:#E8F0E2;
+      --overlay:rgba(57,42,29,.5);
+      --font:"Plus Jakarta Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
+      --r-xs:8px;--r-sm:12px;--r-md:16px;--r-lg:20px;
+      --e1:0 1px 2px rgba(57,42,29,.04),0 2px 6px rgba(57,42,29,.05);
+      --e2:0 2px 6px rgba(57,42,29,.05),0 8px 20px rgba(57,42,29,.07);
+      --e3:0 10px 24px rgba(57,42,29,.10),0 24px 56px rgba(57,42,29,.14);
+    }
+    *{box-sizing:border-box}
+    body{margin:0}
+    a{color:var(--clay)} a:hover{color:var(--clay-hover)}
+    .screen{width:1440px;height:900px;background:var(--sand);font-family:var(--font);color:var(--ink);display:flex;flex-direction:column;overflow:hidden;position:relative}
+    svg.i{fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;width:18px;height:18px;flex:none}
+    svg.i.s{width:14px;height:14px;stroke-width:2.2}svg.i.m{width:20px;height:20px}svg.i.l{width:32px;height:32px;stroke-width:1.6}
+    .num{font-variant-numeric:tabular-nums}
+
+    .topbar{height:78px;flex:none;background:var(--cream);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:0 28px}
+    .back{height:42px;padding:0 14px 0 10px;border-radius:var(--r-sm);border:1px solid var(--line);background:var(--sand);display:inline-flex;align-items:center;gap:8px;font-size:13.5px;font-weight:700;color:var(--ink-2)}
+    .topbar h1{margin:0;font-size:26px;line-height:32px;font-weight:800;letter-spacing:-.025em}
+    .status{font-size:12.5px;font-weight:700;padding:5px 12px;border-radius:999px;background:var(--amber-tint);color:var(--amber)}
+    .topbar .right{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--ink-2);font-weight:600}
+
+    .cols{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,460px) minmax(0,1fr);gap:24px;padding:24px 28px}
+    .panel{background:var(--cream);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--e1);display:flex;flex-direction:column;min-height:0;overflow:hidden}
+    .phead{flex:none;height:52px;display:flex;align-items:center;gap:10px;padding:0 18px;border-bottom:1px solid var(--line);font-size:14px;font-weight:700}
+    .phead .of{margin-left:auto;font-size:12.5px;font-weight:600;color:var(--ink-2)}
+    .pbody{flex:1;min-height:0;overflow:hidden;padding:18px;display:flex;flex-direction:column;gap:14px}
+
+    .idrow{display:flex;align-items:center;gap:13px}
+    .idrow .sq{width:54px;height:54px;border-radius:var(--r-sm);background:var(--clay-tint);color:var(--clay-deep);display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;flex:none}
+    .idrow b{font-size:20px;line-height:26px;font-weight:800;letter-spacing:-.02em;display:block}
+    .idrow small{font-size:13px;color:var(--ink-2);font-weight:600}
+    .facts{display:flex;flex-direction:column}
+    .fact{display:flex;gap:16px;padding:11px 0;border-bottom:1px solid var(--line);font-size:14px}
+    .fact:last-child{border-bottom:none}
+    .fact dt{flex:none;width:148px;color:var(--ink-2);font-weight:600;margin:0}
+    .fact dd{margin:0;font-weight:600;line-height:20px}
+    .cat{display:inline-flex;font-size:12.5px;font-weight:700;border-radius:999px;padding:4px 11px;background:var(--sand-2);color:var(--ink-2);border:1px solid var(--line)}
+
+    .alert{display:flex;gap:11px;padding:13px 15px;border-radius:var(--r-sm);font-size:13.5px;line-height:1.55}
+    .alert b{display:block;font-size:14px;font-weight:700;margin-bottom:2px}
+    .alert.warn{background:var(--error-tint);color:var(--error)}
+    .alert.info{background:var(--clay-tint);color:var(--clay-deep)}
+
+    .viewer{flex:1;min-height:0;background:var(--sand-2);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;padding:20px;overflow:hidden}
+    .page{width:430px;height:100%;max-height:520px;background:#fff;border:1px solid var(--line-strong);box-shadow:var(--e2);padding:30px 34px;display:flex;flex-direction:column;gap:12px}
+    .page .ph{height:11px;background:var(--sand-2);border-radius:4px}
+    .page .seal{width:74px;height:74px;border-radius:999px;border:2.5px dashed var(--line-strong);color:var(--ink-3);display:flex;align-items:center;justify-content:center;align-self:flex-end;margin-top:auto}
+    .page h4{margin:0;font-size:15px;font-weight:800;letter-spacing:-.01em}
+    .page span.sub{font-size:11.5px;color:var(--ink-2);font-weight:600}
+
+    .vempty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:13px;text-align:center;padding:40px}
+    .vempty .ic{width:68px;height:68px;border-radius:999px;background:var(--sand-2);color:var(--ink-3);display:flex;align-items:center;justify-content:center}
+    .vempty .ic.err{background:var(--error-tint);color:var(--error)}
+    .vempty b{font-size:17px;font-weight:700}
+    .vempty p{margin:0;font-size:14px;line-height:1.6;color:var(--ink-2);max-width:44ch}
+
+    .actions{flex:none;height:88px;background:var(--cream);border-top:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:0 28px}
+    .actions .hint{font-size:13px;color:var(--ink-2);font-weight:600;max-width:52ch;line-height:1.5}
+    .actions .grp{margin-left:auto;display:flex;gap:12px}
+    .btn{height:48px;padding:0 22px;border-radius:var(--r-sm);font-family:var(--font);font-size:15px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:9px;border:none;white-space:nowrap}
+    .btn.sm{height:36px;padding:0 15px;font-size:13px;border-radius:10px}
+    .btn.primary{background:var(--clay);color:#fff}
+    .btn.secondary{background:transparent;color:var(--ink);border:1.5px solid var(--line-strong)}
+    .btn.danger{background:transparent;color:var(--blood);border:1.5px solid var(--blood-line)}
+    .btn.ghost{background:transparent;color:var(--clay)}
+    .btn.dis{background:var(--sand-2);color:var(--ink-off);border:none;cursor:not-allowed}
+    .iconbtn{width:42px;height:42px;border-radius:999px;border:none;background:transparent;color:var(--ink);display:flex;align-items:center;justify-content:center;flex:none}
+
+    .scrim{position:absolute;inset:0;background:var(--overlay);display:flex;align-items:center;justify-content:center}
+    .modal{width:900px;height:720px;background:var(--cream);border-radius:var(--r-lg);box-shadow:var(--e3);display:flex;flex-direction:column;overflow:hidden}
+    .mhead{flex:none;height:62px;display:flex;align-items:center;gap:12px;padding:0 20px;border-bottom:1px solid var(--line)}
+    .mhead b{font-size:17px;font-weight:700}
+    .mhead .meta{font-size:12.5px;color:var(--ink-2);font-weight:600}
+    .mhead .r{margin-left:auto;display:flex;align-items:center;gap:8px}
+    .mbody{flex:1;min-height:0;background:var(--sand-2);display:flex;align-items:center;justify-content:center;padding:22px}
+    .mfoot{flex:none;height:70px;display:flex;align-items:center;gap:12px;padding:0 20px;border-top:1px solid var(--line)}
+    .zoom{display:flex;align-items:center;gap:4px;background:var(--sand-2);border-radius:999px;padding:4px}
+    .zoom span{width:32px;height:32px;border-radius:999px;display:flex;align-items:center;justify-content:center;color:var(--ink-2)}
+    .zoom .lvl{width:auto;padding:0 10px;font-size:12.5px;font-weight:700;color:var(--ink)}
+  </style>
+</helmet>
+
+<div class="screen">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <g id="chevl"><path d="M14 6l-6 6 6 6"/></g>
+    <g id="cross"><path d="M6 6l12 12M18 6 6 18"/></g>
+    <g id="file"><path d="M13.5 3.5H7a1.5 1.5 0 0 0-1.5 1.5v14A1.5 1.5 0 0 0 7 20.5h10a1.5 1.5 0 0 0 1.5-1.5V8.5Z"/><path d="M13.5 3.5v5h5"/></g>
+    <g id="filewarn"><path d="M13.5 3.5H7a1.5 1.5 0 0 0-1.5 1.5v14A1.5 1.5 0 0 0 7 20.5h10a1.5 1.5 0 0 0 1.5-1.5V8.5Z"/><path d="M13.5 3.5v5h5"/><path d="M12 11.5v3.2M12 17.4v.1"/></g>
+    <g id="warn"><path d="M12 4.2 21 19.5H3Z"/><path d="M12 10v4M12 16.8v.1"/></g>
+    <g id="expand"><path d="M9 4.5H4.5V9M15 4.5h4.5V9M9 19.5H4.5V15M15 19.5h4.5V15"/></g>
+    <g id="ext"><path d="M14 4.5h5.5V10"/><path d="M19.5 4.5 11 13"/><path d="M18 14v5.5H4.5V6H10"/></g>
+    <g id="retry"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v4h-4"/></g>
+    <g id="dl"><path d="M12 4v11M7.5 10.5 12 15l4.5-4.5"/><path d="M4.5 19.5h15"/></g>
+    <g id="minus"><path d="M6 12h12"/></g>
+    <g id="plus"><path d="M12 6v12M6 12h12"/></g>
+    <g id="shield"><path d="M12 3.5 19 6v6c0 4-3 6.7-7 8.5C8 18.7 5 16 5 12V6Z"/><path d="m9 12 2 2 4-4"/></g>
+  </defs></svg>
+
+  <div class="topbar">
+    <span class="back"><svg class="i s"><use href="#chevl"/></svg>Queue</span>
+    <h1>Sreedhara Multispeciality</h1>
+    <span class="status">Pending</span>
+    <div class="right"><span class="num">3 of 12 pending</span></div>
+  </div>
+
+  <div class="cols">
+    <div class="panel">
+      <div class="phead"><svg class="i s"><use href="#shield"/></svg>Registration details</div>
+      <div class="pbody">
+        <div class="idrow">
+          <span class="sq">SM</span>
+          <span>
+            <b>Sreedhara Multispeciality</b>
+            <small>Registered 2 Sep 2026, 14:32</small>
+          </span>
+        </div>
+        <dl class="facts" style="margin:0">
+          <div class="fact"><dt>Category</dt><dd><span class="cat">Hospital</span></dd></div>
+          <div class="fact"><dt>Licence number</dt><dd class="num">KL-HOS-2019-44871</dd></div>
+          <div class="fact"><dt>Address</dt><dd>Palarivattom Road, Kaloor,<br>Kochi 682017</dd></div>
+          <div class="fact"><dt>Primary contact</dt><dd>Dr Meera Sivan<br><span class="num" style="color:var(--ink-2);font-weight:600">+91 98470 11234</span></dd></div>
+          <div class="fact"><dt>Beds declared</dt><dd class="num">180</dd></div>
+        </dl>
+
+        <sc-if value="{{docMissing}}" hint-placeholder-val="{{false}}">
+          <div class="alert warn">
+            <svg class="i" style="margin-top:1px"><use href="#warn"/></svg>
+            <span>
+              <b>Document missing</b>
+              This facility has no licence file attached, so it cannot be approved. Reject it with a reason, or ask them to upload the licence and review again.
+            </span>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="phead">
+        <svg class="i s"><use href="#file"/></svg>Licence document
+        <sc-if value="{{docOk}}" hint-placeholder-val="{{true}}">
+          <span class="of num">licence-sreedhara.pdf · 2 pages · 1.4 MB</span>
+        </sc-if>
+        <sc-if value="{{docOk}}" hint-placeholder-val="{{true}}">
+          <button type="button" class="btn sm secondary" style="margin-left:12px"><svg class="i s"><use href="#expand"/></svg>Open full size</button>
+        </sc-if>
+      </div>
+
+      <sc-if value="{{docOk}}" hint-placeholder-val="{{true}}">
+        <div class="viewer">
+          <div class="page">
+            <h4>Government of Kerala — Directorate of Health Services</h4>
+            <span class="sub">Certificate of registration — clinical establishment</span>
+            <div class="ph" style="width:100%;margin-top:6px"></div>
+            <div class="ph" style="width:86%"></div>
+            <div class="ph" style="width:92%"></div>
+            <div class="ph" style="width:64%"></div>
+            <div class="ph" style="width:78%;margin-top:10px"></div>
+            <div class="ph" style="width:88%"></div>
+            <div class="ph" style="width:40%"></div>
+            <span class="seal"><svg class="i l"><use href="#shield"/></svg></span>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{docMissing}}" hint-placeholder-val="{{false}}">
+        <div class="vempty">
+          <span class="ic err"><svg class="i l"><use href="#filewarn"/></svg></span>
+          <b>No licence document was uploaded.</b>
+          <p>The registration was submitted without a file. Approval stays locked until a licence is attached — the facility can add one from their dashboard.</p>
+          <button type="button" class="btn secondary">Ask for the licence</button>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{docBroken}}" hint-placeholder-val="{{false}}">
+        <div class="vempty">
+          <span class="ic err"><svg class="i l"><use href="#filewarn"/></svg></span>
+          <b>This file couldn't be displayed here.</b>
+          <p>The document is stored and intact, but the viewer can't render this format. Download it to check it, then come back and decide.</p>
+          <div style="display:flex;gap:10px">
+            <button type="button" class="btn primary"><svg class="i s"><use href="#dl"/></svg>Download the file</button>
+            <button type="button" class="btn secondary"><svg class="i s"><use href="#retry"/></svg>Try again</button>
+          </div>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+
+  <div class="actions">
+    <sc-if value="{{docOk}}" hint-placeholder-val="{{true}}">
+      <span class="hint">Approving gives this facility their dashboard immediately. Both decisions notify them.</span>
+    </sc-if>
+    <sc-if value="{{docMissing}}" hint-placeholder-val="{{false}}">
+      <span class="hint" style="color:var(--error)">Approve is unavailable until a licence document is attached.</span>
+    </sc-if>
+    <sc-if value="{{docBroken}}" hint-placeholder-val="{{false}}">
+      <span class="hint">The document exists but didn't render. Download and read it before you decide.</span>
+    </sc-if>
+    <div class="grp">
+      <button type="button" class="btn danger">Reject registration</button>
+      <sc-if value="{{approveEnabled}}" hint-placeholder-val="{{true}}">
+        <button type="button" class="btn primary">Approve facility</button>
+      </sc-if>
+      <sc-if value="{{docMissing}}" hint-placeholder-val="{{false}}">
+        <button type="button" class="btn dis" aria-disabled="true">Approve facility</button>
+      </sc-if>
+    </div>
+  </div>
+
+  <sc-if value="{{modalOpen}}" hint-placeholder-val="{{false}}">
+    <div class="scrim">
+      <div class="modal">
+        <div class="mhead">
+          <svg class="i m"><use href="#file"/></svg>
+          <span>
+            <b>licence-sreedhara.pdf</b>
+            <span class="meta num">Sreedhara Multispeciality · uploaded 2 Sep 2026</span>
+          </span>
+          <div class="r">
+            <div class="zoom">
+              <span><svg class="i s"><use href="#minus"/></svg></span>
+              <span class="lvl num">100%</span>
+              <span><svg class="i s"><use href="#plus"/></svg></span>
+            </div>
+            <button type="button" class="btn sm secondary"><svg class="i s"><use href="#ext"/></svg>New tab</button>
+            <button type="button" class="iconbtn" aria-label="Close document"><svg class="i"><use href="#cross"/></svg></button>
+          </div>
+        </div>
+        <div class="mbody">
+          <div class="page" style="width:470px;max-height:100%">
+            <h4>Government of Kerala — Directorate of Health Services</h4>
+            <span class="sub">Certificate of registration — clinical establishment</span>
+            <div class="ph" style="width:100%;margin-top:8px"></div>
+            <div class="ph" style="width:88%"></div>
+            <div class="ph" style="width:94%"></div>
+            <div class="ph" style="width:70%"></div>
+            <div class="ph" style="width:82%;margin-top:12px"></div>
+            <div class="ph" style="width:90%"></div>
+            <div class="ph" style="width:46%"></div>
+            <div class="ph" style="width:76%;margin-top:12px"></div>
+            <span class="seal"><svg class="i l"><use href="#shield"/></svg></span>
+          </div>
+        </div>
+        <div class="mfoot">
+          <span style="font-size:13px;color:var(--ink-2);font-weight:600" class="num">Page 1 of 2</span>
+          <div style="margin-left:auto;display:flex;gap:12px">
+            <button type="button" class="btn secondary">Close</button>
+            <button type="button" class="btn danger">Reject registration</button>
+            <button type="button" class="btn primary">Approve facility</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+
+</x-dc>
+<script data-dc-script data-props='{
+  "state": {"editor":"enum","default":"document","options":["document","fullScreenModal","missingDocument","renderFailed"],"section":"AC state"}
+}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.props.state ?? "document";
+    const missing = s === "missingDocument";
+    const broken = s === "renderFailed";
+    return {
+      docOk: !missing && !broken,
+      docMissing: missing,
+      docBroken: broken,
+      modalOpen: s === "fullScreenModal",
+      // AC2 of US-CHH-001-02: no document means Approve is disabled, not hidden.
+      approveEnabled: !missing
+    };
+  }
+}
+</script>
+</body>
+</html>

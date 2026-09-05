@@ -1,0 +1,253 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --sand:#F6F0E5; --sand-2:#EFE7D9; --cream:#FDFAF4;
+      --line:#E6DAC7; --line-strong:#D6C6AC;
+      --clay:#B06134; --clay-hover:#96502A; --clay-deep:#8A4620; --clay-tint:#F5E4D3; --clay-line:#E8CDB2;
+      --ink:#392A1D; --ink-2:#6F5C46; --ink-3:#A08A70; --ink-off:#BFAE96;
+      --error:#A33325; --error-tint:#F7E4E0;
+      --amber:#8F6A12; --amber-tint:#F7EDD4; --leaf:#4E7A46; --leaf-tint:#E8F0E2;
+      --font:"Plus Jakarta Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+      --r-xs:8px; --r-sm:12px; --r-md:16px; --r-lg:20px;
+      --e1:0 1px 2px rgba(57,42,29,.04),0 2px 6px rgba(57,42,29,.05);
+    }
+    *{box-sizing:border-box}
+    body{margin:0}
+    a{color:var(--clay)} a:hover{color:var(--clay-hover)}
+    .win{width:1440px;height:900px;background:var(--sand);font-family:var(--font);color:var(--ink);
+      display:flex;flex-direction:column;overflow:hidden}
+    .topbar{height:64px;flex:none;display:flex;align-items:center;gap:12px;padding:0 32px;
+      background:var(--cream);border-bottom:1px solid var(--line)}
+    .brand{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:800;letter-spacing:-.02em}
+    .mark{width:28px;height:28px;border-radius:var(--r-xs);background:var(--clay);color:#fff;
+      display:flex;align-items:center;justify-content:center}
+    .spacer{flex:1}
+    .acct{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--ink-2)}
+    .avatar-sq{width:34px;height:34px;border-radius:var(--r-sm);background:var(--clay-tint);color:var(--clay-deep);
+      display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700}
+    .body{flex:1;overflow-y:auto;padding:40px 32px 56px;display:flex;justify-content:center}
+    .col{width:764px;display:flex;flex-direction:column;gap:28px}
+    .head h1{font-size:28px;line-height:34px;font-weight:800;letter-spacing:-.025em;margin:0}
+    .head p{font-size:14px;line-height:1.55;color:var(--ink-2);margin:8px 0 0;max-width:60ch}
+    .steps{display:flex;align-items:center;gap:12px}
+    .step{display:flex;align-items:center;gap:9px}
+    .dot{width:26px;height:26px;border-radius:999px;display:flex;align-items:center;justify-content:center;
+      font-size:12px;font-weight:700;flex:none}
+    .step.done .dot{background:var(--leaf);color:#fff}
+    .step.now .dot{background:var(--clay);color:#fff}
+    .step .lbl{font-size:13px;font-weight:600;color:var(--ink-3)}
+    .step.now .lbl{color:var(--ink)}
+    .step.done .lbl{color:var(--ink-2)}
+    .rule{height:1.5px;background:var(--line-strong);flex:1;min-width:28px}
+    .rule.done{background:var(--leaf)}
+    .card{background:var(--cream);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--e1);
+      padding:28px 32px 32px;display:flex;flex-direction:column;gap:20px}
+    .card-h{display:flex;align-items:baseline;gap:12px;border-bottom:1px solid var(--line);padding-bottom:16px}
+    .card-h h2{font-size:22px;line-height:28px;font-weight:700;letter-spacing:-.02em;margin:0}
+    .card-h span{font-size:12.5px;color:var(--ink-3);margin-left:auto}
+
+    .drop{border:2px dashed var(--line-strong);border-radius:var(--r-md);background:var(--sand);
+      padding:32px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+    .drop.over{border-color:var(--clay);background:var(--clay-tint)}
+    .drop .ico{width:56px;height:56px;border-radius:999px;background:var(--sand-2);color:var(--ink-3);
+      display:flex;align-items:center;justify-content:center}
+    .drop.over .ico{background:var(--cream);color:var(--clay)}
+    .drop b{font-size:17px;font-weight:700}
+    .drop .meta{font-size:12.5px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+    .browse{height:44px;padding:0 20px;border-radius:var(--r-sm);border:1.5px solid var(--line-strong);
+      background:var(--cream);font-family:var(--font);font-size:14.5px;font-weight:600;color:var(--ink);
+      cursor:pointer;margin-top:4px}
+    .browse:hover{border-color:var(--clay);color:var(--clay)}
+
+    .filerow{display:flex;gap:14px;align-items:flex-start;border:1px solid var(--line);border-radius:var(--r-md);
+      background:var(--sand);padding:16px 18px}
+    .filerow.bad{border-color:var(--error);background:var(--error-tint)}
+    .filerow.ok{border-color:var(--leaf);background:var(--leaf-tint)}
+    .fico{width:40px;height:48px;border-radius:var(--r-xs);background:var(--cream);border:1px solid var(--line);
+      display:flex;align-items:center;justify-content:center;color:var(--ink-3);flex:none}
+    .filerow.bad .fico{color:var(--error);border-color:var(--error)}
+    .filerow.ok .fico{color:var(--leaf);border-color:var(--leaf)}
+    .fmain{flex:1;display:flex;flex-direction:column;gap:7px;min-width:0}
+    .fname{display:flex;align-items:baseline;gap:10px}
+    .fname b{font-size:14.5px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .fname .sz{font-size:12.5px;color:var(--ink-3);font-variant-numeric:tabular-nums;flex:none}
+    .bar{height:6px;border-radius:999px;background:var(--sand-2);overflow:hidden}
+    .bar i{display:block;height:100%;background:var(--clay);border-radius:999px}
+    .bar.stalled i{background:var(--error)}
+    .fnote{font-size:12.5px;color:var(--ink-2);display:flex;align-items:center;gap:6px;
+      font-variant-numeric:tabular-nums}
+    .fnote.errtxt{color:var(--error)}
+    .fnote.oktxt{color:var(--leaf);font-weight:600}
+    .fnote svg{flex:none}
+    .fact{display:flex;gap:8px;align-items:center;flex:none}
+    .iconbtn{width:36px;height:36px;border-radius:999px;border:none;background:transparent;color:var(--ink-3);
+      cursor:pointer;display:flex;align-items:center;justify-content:center}
+    .iconbtn:hover{background:var(--sand-2);color:var(--ink)}
+    .btn{height:48px;padding:0 22px;border-radius:var(--r-sm);font-family:var(--font);font-size:15px;
+      font-weight:600;cursor:pointer;display:flex;align-items:center;gap:9px}
+    .btn.sm{height:38px;padding:0 16px;font-size:13.5px}
+    .btn.primary{background:var(--clay);color:#fff;border:none}
+    .btn.primary:hover{background:var(--clay-hover)}
+    .btn.primary:disabled{background:var(--sand-2);color:var(--ink-off);cursor:not-allowed}
+    .btn.secondary{background:transparent;color:var(--ink);border:1.5px solid var(--line-strong)}
+    .btn.secondary:hover{border-color:var(--ink-3)}
+    .rules{display:flex;gap:24px;font-size:12.5px;color:var(--ink-2);border-top:1px solid var(--line);
+      padding-top:16px}
+    .rules div{display:flex;align-items:center;gap:7px}
+    .rules svg{color:var(--ink-3)}
+    .actions{display:flex;align-items:center;gap:12px;padding-top:4px}
+  </style>
+</helmet>
+
+<div class="win">
+  <div class="topbar">
+    <div class="brand">
+      <span class="mark"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.6-7-9.5A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 7 3.5C19 15.4 12 20 12 20Z"/></svg></span>
+      Community Health Hub
+    </div>
+    <div class="spacer"></div>
+    <div class="acct">Kochi Metro Hospital<span class="avatar-sq">KM</span></div>
+  </div>
+
+  <div class="body">
+    <div class="col">
+      <div class="head">
+        <h1>Upload your licence</h1>
+        <p>An admin compares this document against the facility name and licence number you entered. Only admins can open it.</p>
+      </div>
+
+      <div class="steps">
+        <div class="step done"><span class="dot"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.8 9.8 17.5 19 7.5"/></svg></span><span class="lbl">Facility details</span></div>
+        <div class="rule done"></div>
+        <div class="step done"><span class="dot"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.8 9.8 17.5 19 7.5"/></svg></span><span class="lbl">Contacts</span></div>
+        <div class="rule done"></div>
+        <div class="step now"><span class="dot">3</span><span class="lbl">Licence document</span></div>
+      </div>
+
+      <section class="card">
+        <div class="card-h"><h2>Licence document</h2><span>Step 3 of 3</span></div>
+
+        <sc-if value="{{showDrop}}" hint-placeholder-val="{{true}}">
+          <div class="drop {{dropClass}}">
+            <span class="ico">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M12 4 7.5 8.5M12 4l4.5 4.5"/><path d="M4 15v3.5A1.5 1.5 0 0 0 5.5 20h13a1.5 1.5 0 0 0 1.5-1.5V15"/></svg>
+            </span>
+            <b>{{dropTitle}}</b>
+            <span class="meta">PDF, JPG or PNG · up to 5 MB</span>
+            <button type="button" class="browse">Browse files</button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{showRow}}" hint-placeholder-val="{{false}}">
+          <div class="filerow {{rowClass}}">
+            <span class="fico">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a1.5 1.5 0 0 0-1.5 1.5v15A1.5 1.5 0 0 0 7 21h10a1.5 1.5 0 0 0 1.5-1.5V7.5Z"/><path d="M14 3v4.5h4.5"/></svg>
+            </span>
+            <div class="fmain">
+              <div class="fname"><b>{{fileName}}</b><span class="sz">{{fileSize}}</span></div>
+              <sc-if value="{{showBar}}" hint-placeholder-val="{{true}}">
+                <div class="bar {{barClass}}"><i style="width: {{pctWidth}}"></i></div>
+              </sc-if>
+              <span class="fnote {{noteClass}}">
+                <sc-if value="{{noteIsError}}" hint-placeholder-val="{{false}}">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5 21 19.5H3L12 4.5Z"/><path d="M12 10v4M12 16.8v.1"/></svg>
+                </sc-if>
+                <sc-if value="{{noteIsOk}}" hint-placeholder-val="{{false}}">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.8 9.8 17.5 19 7.5"/></svg>
+                </sc-if>
+                {{noteText}}
+              </span>
+            </div>
+            <div class="fact">
+              <sc-if value="{{showRetry}}" hint-placeholder-val="{{false}}">
+                <button type="button" class="btn secondary sm">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 6.3"/><path d="M20 5v6h-6"/></svg>
+                  Retry upload
+                </button>
+              </sc-if>
+              <sc-if value="{{showChoose}}" hint-placeholder-val="{{false}}">
+                <button type="button" class="btn secondary sm">Choose another file</button>
+              </sc-if>
+              <button type="button" class="iconbtn" aria-label="Remove this file">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+              </button>
+            </div>
+          </div>
+        </sc-if>
+
+        <div class="rules">
+          <div><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a1.5 1.5 0 0 0-1.5 1.5v15A1.5 1.5 0 0 0 7 21h10a1.5 1.5 0 0 0 1.5-1.5V7.5Z"/><path d="M14 3v4.5h4.5"/></svg>PDF, JPG or PNG</div>
+          <div><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>Maximum size 5 MB</div>
+          <div><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="9.5" rx="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></svg>Visible to admins only</div>
+        </div>
+
+        <div class="actions">
+          <div class="spacer"></div>
+          <button type="button" class="btn secondary">Back</button>
+          <button type="button" class="btn primary" {{submitDisabled}}>Submit for verification</button>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script data-dc-script data-props='{
+  "state": {"editor":"enum","default":"uploading","options":["empty","dragOver","uploading","uploaded","invalidType","tooLarge","networkFailed"],"section":"AC state"},
+  "percent": {"editor":"range","default":62,"min":0,"max":100,"step":1,"unit":"%","section":"AC state"}
+}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.props.state ?? "uploading";
+    const pct = this.props.percent ?? 62;
+    const map = {
+      empty:        { row:false, name:"", size:"", bar:false, note:"", cls:"", retry:false, choose:false },
+      dragOver:     { row:false, name:"", size:"", bar:false, note:"", cls:"", retry:false, choose:false },
+      uploading:    { row:true, name:"kochi-metro-licence-2026.pdf", size:"3.4 MB", bar:true,
+                      note: "Uploading — " + pct + "% of 3.4 MB", cls:"", retry:false, choose:false },
+      uploaded:     { row:true, name:"kochi-metro-licence-2026.pdf", size:"3.4 MB", bar:false,
+                      note:"Uploaded", cls:"ok", retry:false, choose:false },
+      invalidType:  { row:true, name:"licence-scan.docx", size:"1.1 MB", bar:false,
+                      note:"Invalid file format. Please upload PDF or Image.", cls:"bad", retry:false, choose:true },
+      tooLarge:     { row:true, name:"licence-highres-scan.png", size:"7.8 MB", bar:false,
+                      note:"File too large. Maximum size is 5MB.", cls:"bad", retry:false, choose:true },
+      networkFailed:{ row:true, name:"kochi-metro-licence-2026.pdf", size:"3.4 MB", bar:true,
+                      note:"Upload stopped at " + pct + "%. Check your connection, then retry — we kept what was sent.",
+                      cls:"bad", retry:true, choose:false }
+    };
+    const m = map[s] ?? map.uploading;
+    return {
+      showDrop: !m.row,
+      dropClass: s === "dragOver" ? "over" : "",
+      dropTitle: s === "dragOver" ? "Release to upload" : "Drop your licence here, or browse",
+      showRow: m.row,
+      rowClass: m.cls,
+      fileName: m.name,
+      fileSize: m.size,
+      showBar: m.bar,
+      barClass: s === "networkFailed" ? "stalled" : "",
+      pctWidth: pct + "%",
+      noteText: m.note,
+      noteClass: m.cls === "bad" ? "errtxt" : (m.cls === "ok" ? "oktxt" : ""),
+      noteIsError: m.cls === "bad",
+      noteIsOk: m.cls === "ok",
+      showRetry: m.retry,
+      showChoose: m.choose,
+      submitDisabled: s === "uploaded" ? "" : "disabled"
+    };
+  }
+}
+</script>
+</body>
+</html>

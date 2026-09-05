@@ -1,0 +1,167 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --sand:#F6F0E5;--sand-2:#EFE7D9;--cream:#FDFAF4;--line:#E6DAC7;--line-strong:#D6C6AC;
+      --clay:#B06134;--clay-hover:#96502A;--clay-deep:#8A4620;--clay-tint:#F5E4D3;--clay-line:#E8CDB2;
+      --blood:#D32F2F;--blood-deep:#9E1B18;--blood-tint:#FCE9E7;--blood-line:#F5C6C2;
+      --go:#3F6B39;--go-hover:#345A2F;--go-deep:#2F5629;--go-tint:#E4EFDD;--go-line:#C3DAB8;
+      --ink:#392A1D;--ink-2:#6F5C46;--ink-3:#A08A70;--ink-off:#BFAE96;
+      --error:#A33325;--error-tint:#F7E4E0;--amber:#8F6A12;--amber-tint:#F7EDD4;--leaf:#4E7A46;--leaf-tint:#E8F0E2;
+      --overlay:rgba(57,42,29,.5);--font:"Plus Jakarta Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
+      --r-xs:8px;--r-sm:12px;--r-md:16px;--r-lg:20px;--r-xl:28px;
+      --e1:0 1px 2px rgba(57,42,29,.04),0 2px 6px rgba(57,42,29,.05);
+      --e2:0 2px 6px rgba(57,42,29,.05),0 8px 20px rgba(57,42,29,.07);
+      --e3:0 10px 24px rgba(57,42,29,.10),0 24px 56px rgba(57,42,29,.14);
+    }
+    *{box-sizing:border-box}
+    body{margin:0}
+    a{color:var(--clay)} a:hover{color:var(--clay-hover)}
+    .screen{width:390px;height:844px;background:var(--sand);font-family:var(--font);color:var(--ink);
+      display:flex;flex-direction:column;overflow:hidden;position:relative}
+    svg.i{fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;width:18px;height:18px;flex:none}
+    svg.i.s{width:14px;height:14px;stroke-width:2.2}svg.i.m{width:20px;height:20px}svg.i.l{width:32px;height:32px;stroke-width:1.6}
+    svg.i.f{fill:currentColor;stroke:none}
+    .appbar{height:58px;flex:none;display:flex;align-items:center;gap:8px;padding:0 12px;background:var(--cream);border-bottom:1px solid var(--line)}
+    .appbar h1{flex:1;margin:0;font-size:16px;font-weight:700;text-align:center}
+    .iconbtn{width:42px;height:42px;border-radius:999px;border:none;background:transparent;color:var(--ink);display:flex;align-items:center;justify-content:center;flex:none}
+    .iconbtn:hover{background:var(--sand-2)}
+    .pad{width:42px;flex:none}
+    .scroll{flex:1;overflow:hidden;padding:16px 16px 20px;display:flex;flex-direction:column;gap:13px}
+    .stickybar{flex:none;background:var(--cream);border-top:1px solid var(--line);padding:12px 16px 18px;display:flex;flex-direction:column;gap:9px}
+    .card{background:var(--cream);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--e1);padding:16px;display:flex;flex-direction:column;gap:12px}
+    .card.flat{box-shadow:none}
+    .btn{height:48px;padding:0 20px;border-radius:var(--r-sm);font-family:var(--font);font-size:14.5px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:9px;border:none}
+    .btn.lg{height:54px;padding:0 26px;font-size:16px;border-radius:var(--r-md)}
+    .btn.full{width:100%}
+    .btn.primary{background:var(--clay);color:#fff}
+    .btn.ghost{background:transparent;color:var(--clay);padding:0 8px}
+    .fld{display:flex;flex-direction:column;gap:6px}
+    .fld label{font-size:13px;font-weight:600;color:var(--ink-2)}
+    .fld label i{font-style:normal;color:var(--ink-3);font-weight:500}
+    .inp{height:50px;border-radius:var(--r-sm);border:1.5px solid var(--line);background:var(--sand);padding:0 16px;display:flex;align-items:center;gap:10px;font-size:16px}
+    .inp .tail{margin-left:auto;color:var(--ink-3);display:flex}
+    .help{font-size:12.5px;line-height:1.5;color:var(--ink-3)}
+    .ta{min-height:96px;border-radius:var(--r-sm);border:1.5px solid var(--line);background:var(--sand);padding:12px 16px;font-size:15px;line-height:1.55;color:var(--ink-2);position:relative}
+    .counter{position:absolute;right:12px;bottom:8px;font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+    .map{position:relative;border-radius:var(--r-md);overflow:hidden;border:1px solid var(--line);background:repeating-linear-gradient(0deg,#EDE3D2 0 1px,transparent 1px 26px),repeating-linear-gradient(90deg,#EDE3D2 0 1px,transparent 1px 26px),#F2EADC}
+    .map .road{position:absolute;background:#E5D9C4}
+    .map .pin{position:absolute;transform:translate(-50%,-100%);color:var(--clay)}
+    .map .pin.blood{color:var(--blood)}
+    .mapnote{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+    .toggle{width:46px;height:28px;border-radius:999px;background:var(--clay);flex:none;position:relative;margin-top:2px}
+    .toggle span{position:absolute;right:3px;top:3px;width:22px;height:22px;border-radius:999px;background:#fff}
+  </style>
+</helmet>
+
+<div class="screen">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <g id="back"><path d="M15 5l-7 7 7 7"/></g>
+    <g id="x"><path d="M6 6l12 12M18 6L6 18"/></g>
+    <g id="chev"><path d="M6 9.5l6 6 6-6"/></g>
+    <g id="pinf"><path d="M12 22s-7-5.2-7-11a7 7 0 1 1 14 0c0 5.8-7 11-7 11Z"/><circle cx="12" cy="10.6" r="2.6" fill="#FDFAF4"/></g>
+    <g id="target"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8.5" stroke-dasharray="3 3"/></g>
+  </defs></svg>
+
+  <div class="appbar">
+    <button type="button" class="iconbtn" aria-label="Back"><svg class="i m"><use href="#back"/></svg></button>
+    <h1>New event</h1>
+    <sc-if value="{{isTop}}" hint-placeholder-val="{{true}}">
+      <button type="button" class="iconbtn" aria-label="Close"><svg class="i"><use href="#x"/></svg></button>
+    </sc-if>
+    <sc-if value="{{isDetails}}" hint-placeholder-val="{{false}}">
+      <span class="pad"></span>
+    </sc-if>
+  </div>
+
+  <sc-if value="{{isTop}}" hint-placeholder-val="{{true}}">
+    <div class="scroll">
+      <div class="fld"><label>Event title <i>&middot; required</i></label>
+        <div class="inp" style="font-size:15px">Community blood drive &mdash; Kaloor</div>
+        <div class="help">5&ndash;100 characters.</div></div>
+      <div class="fld"><label>Event type <i>&middot; required</i></label>
+        <div class="inp" style="font-size:15px">Blood Donation Camp<span class="tail"><svg class="i"><use href="#chev"/></svg></span></div></div>
+      <div class="fld"><label>Description <i>&middot; required</i></label>
+        <div class="ta" style="min-height:92px">Walk-in donors welcome. Bring a photo ID. Refreshments provided; the session runs to 14:00 or until all 60 places are used.<span class="counter">128 / 1,000</span></div>
+        <div class="help">At least 20 characters.</div></div>
+      <div class="fld"><label>Venue name <i>&middot; required</i></label>
+        <div class="inp" style="font-size:15px">Kaloor Community Hall</div></div>
+      <div class="fld"><label>Venue address <i>&middot; required</i></label>
+        <div class="ta" style="min-height:66px">Stadium Link Road, Kaloor, Kochi 682017<span class="counter">38 / 250</span></div></div>
+      <div class="card" style="padding:12px;gap:10px">
+        <div class="map" style="height:120px">
+          <div class="road" style="left:0;top:54px;right:0;height:9px"></div>
+          <div class="road" style="left:118px;top:0;bottom:0;width:9px"></div>
+          <div class="pin blood" style="left:170px;top:60px"><svg class="i f m"><use href="#pinf"/></svg></div>
+        </div>
+        <div class="mapnote"><svg class="i s"><use href="#target"/></svg>Resolved from the address &middot; 9.996 N, 76.299 E
+          <span style="margin-left:auto;color:var(--clay);font-weight:700">Move pin</span></div>
+      </div>
+    </div>
+    <div class="stickybar">
+      <button type="button" class="btn primary lg full">Publish event</button>
+      <button type="button" class="btn ghost full" style="height:44px">Save as draft</button>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{isDetails}}" hint-placeholder-val="{{false}}">
+    <div class="scroll">
+      <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px">
+        <div class="fld"><label>Starts <i>&middot; required</i></label><div class="inp" style="font-size:15px">13 Sep, 09:00</div></div>
+        <div class="fld"><label>Ends <i>&middot; required</i></label><div class="inp" style="font-size:15px">13 Sep, 14:00</div></div>
+      </div>
+      <div class="help" style="margin-top:-7px">Must start at least 1 hour from now, and end after it starts.</div>
+      <div class="fld"><label>Capacity <i>&middot; required</i></label>
+        <div class="inp" style="font-variant-numeric:tabular-nums">60</div>
+        <div class="help">Between 1 and 1,000. Cannot go below the number already RSVP'd.</div></div>
+      <div class="fld"><label>Coordinator name <i>&middot; required</i></label>
+        <div class="inp" style="font-size:15px">Dr Anitha Varghese</div></div>
+      <div class="fld"><label>Coordinator contact <i>&middot; required</i></label>
+        <div class="inp" style="font-variant-numeric:tabular-nums;font-size:15px">+91 90000 10023</div>
+        <div class="help">Attendees see this number on the event page.</div></div>
+      <div class="card" style="gap:12px">
+        <div style="display:flex;align-items:flex-start;gap:12px">
+          <div style="flex:1"><b style="font-size:14.5px">Close RSVPs early</b>
+            <div class="help" style="margin-top:3px">Off means RSVPs stay open until the event starts or the last place goes.</div></div>
+          <span class="toggle"><span></span></span>
+        </div>
+        <div class="fld"><label>RSVP cut-off</label><div class="inp" style="font-size:15px">12 Sep, 18:00</div>
+          <div class="help">Must be before the event start time.</div></div>
+      </div>
+      <div class="card flat" style="background:var(--sand-2);border:none;gap:8px">
+        <b style="font-size:14px">Who gets told when you publish</b>
+        <p style="margin:0;font-size:13px;line-height:1.55;color:var(--ink-2)">Everyone registered in
+          the venue's region &mdash; about <b style="color:var(--ink)">340 people</b> around Kaloor &mdash; by
+          push, and by SMS where the app is not installed.</p>
+        <div class="help">The region follows the venue. There is no radius to choose.</div>
+      </div>
+    </div>
+    <div class="stickybar">
+      <button type="button" class="btn primary lg full">Publish event</button>
+    </div>
+  </sc-if>
+</div>
+
+</x-dc>
+<script data-dc-script data-props='{
+  "section": {"editor":"enum","default":"top","options":["top","details"],"section":"AC state"}
+}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.props.section ?? "top";
+    return { isTop: s === "top", isDetails: s === "details" };
+  }
+}
+</script>
+</body>
+</html>

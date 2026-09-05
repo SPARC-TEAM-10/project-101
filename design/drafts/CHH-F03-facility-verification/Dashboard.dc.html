@@ -1,0 +1,372 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --sand:#F6F0E5; --sand-2:#EFE7D9; --cream:#FDFAF4;
+      --line:#E6DAC7; --line-strong:#D6C6AC;
+      --clay:#B06134; --clay-hover:#96502A; --clay-deep:#8A4620; --clay-tint:#F5E4D3; --clay-line:#E8CDB2;
+      --ink:#392A1D; --ink-2:#6F5C46; --ink-3:#A08A70; --ink-off:#BFAE96;
+      --error:#A33325; --error-tint:#F7E4E0;
+      --amber:#8F6A12; --amber-tint:#F7EDD4; --leaf:#4E7A46; --leaf-tint:#E8F0E2;
+      --overlay:rgba(57,42,29,.5);
+      --font:"Plus Jakarta Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+      --r-xs:8px; --r-sm:12px; --r-md:16px; --r-lg:20px;
+      --e1:0 1px 2px rgba(57,42,29,.04),0 2px 6px rgba(57,42,29,.05);
+      --e2:0 2px 6px rgba(57,42,29,.05),0 8px 20px rgba(57,42,29,.07);
+      --e3:0 10px 24px rgba(57,42,29,.10),0 24px 56px rgba(57,42,29,.14);
+    }
+    *{box-sizing:border-box}
+    body{margin:0}
+    a{color:var(--clay)} a:hover{color:var(--clay-hover)}
+    .win{width:1440px;height:900px;background:var(--sand);font-family:var(--font);color:var(--ink);
+      display:flex;flex-direction:column;overflow:hidden;position:relative}
+    .topbar{height:64px;flex:none;display:flex;align-items:center;gap:12px;padding:0 32px;
+      background:var(--cream);border-bottom:1px solid var(--line)}
+    .brand{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:800;letter-spacing:-.02em}
+    .mark{width:28px;height:28px;border-radius:var(--r-xs);background:var(--clay);color:#fff;
+      display:flex;align-items:center;justify-content:center}
+    .spacer{flex:1}
+    .acct{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-2)}
+    .avatar-sq{width:34px;height:34px;border-radius:var(--r-sm);background:var(--clay-tint);color:var(--clay-deep);
+      display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700;margin-left:2px}
+    .shell{flex:1;display:flex;min-height:0}
+    .side{width:252px;flex:none;background:var(--sand-2);border-right:1px solid var(--line);
+      padding:20px 14px;display:flex;flex-direction:column;gap:4px}
+    .nav{height:46px;border-radius:var(--r-sm);display:flex;align-items:center;gap:11px;padding:0 14px;
+      font-size:14px;font-weight:600;color:var(--ink-2);cursor:pointer;border:none;background:transparent;
+      font-family:var(--font);text-align:left}
+    .nav:hover{background:rgba(253,250,244,.6)}
+    .nav.on{background:var(--cream);color:var(--clay);box-shadow:var(--e1)}
+    .nav.locked{color:var(--ink-off);cursor:not-allowed}
+    .nav .lockdot{margin-left:auto;display:flex;align-items:center;gap:4px;font-size:11px;font-weight:700;
+      color:var(--ink-off)}
+    .main{flex:1;overflow-y:auto;padding:32px 40px 48px;display:flex;flex-direction:column;gap:24px}
+    .pagehead{display:flex;align-items:flex-start;gap:16px}
+    .nameline{display:flex;align-items:center;gap:9px}
+    .pagehead h1{font-size:28px;line-height:34px;font-weight:800;letter-spacing:-.025em;margin:0}
+    .pagehead p{margin:6px 0 0;font-size:13.5px;color:var(--ink-2)}
+
+    /* verified tick — the whole approved-state treatment lives here */
+    .tick{width:22px;height:22px;border-radius:999px;background:var(--leaf);color:#fff;flex:none;
+      display:flex;align-items:center;justify-content:center}
+    .tick.sm{width:16px;height:16px}
+
+    .pill{height:28px;padding:0 12px;border-radius:999px;display:inline-flex;align-items:center;gap:7px;
+      font-size:12.5px;font-weight:700}
+    .pill.pending{background:var(--amber-tint);color:var(--amber)}
+    .pill.rejected{background:var(--error-tint);color:var(--error)}
+
+    .status{border-radius:var(--r-lg);border:1px solid var(--line);background:var(--cream);box-shadow:var(--e1);
+      display:flex;overflow:hidden}
+    .status .rail{width:6px;flex:none}
+    .status.pending .rail{background:var(--amber)}
+    .status.rejected .rail{background:var(--error)}
+    .status .inner{flex:1;padding:26px 30px;display:flex;flex-direction:column;gap:18px}
+    .status h2{margin:0;font-size:22px;line-height:28px;font-weight:700;letter-spacing:-.02em}
+    .status .lede{margin:0;font-size:14px;line-height:1.55;color:var(--ink-2);max-width:62ch}
+    .status .top{display:flex;align-items:center;gap:14px}
+    .track{display:flex;align-items:center;gap:10px;padding-top:2px}
+    .tnode{display:flex;align-items:center;gap:8px}
+    .tdot{width:22px;height:22px;border-radius:999px;display:flex;align-items:center;justify-content:center;flex:none}
+    .tnode.done .tdot{background:var(--leaf);color:#fff}
+    .tnode.now .tdot{background:var(--amber);color:#fff}
+    .tnode.now.fail .tdot{background:var(--error);color:#fff}
+    .tnode.todo .tdot{border:1.5px solid var(--line-strong)}
+    .tnode span{font-size:12.5px;font-weight:600;color:var(--ink-3)}
+    .tnode.done span,.tnode.now span{color:var(--ink)}
+    .tline{height:1.5px;width:44px;background:var(--line-strong)}
+    .tline.done{background:var(--leaf)}
+    .reason{background:var(--error-tint);border-radius:var(--r-sm);padding:16px 18px;display:flex;gap:12px}
+    .reason svg{color:var(--error);flex:none;margin-top:1px}
+    .reason b{display:block;font-size:13px;font-weight:700;color:var(--error);margin-bottom:4px}
+    .reason p{margin:0;font-size:13px;line-height:1.55;color:var(--ink-2);max-width:64ch}
+    .reason .when{display:block;margin-top:8px;font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+    .meta{display:flex;gap:28px;border-top:1px solid var(--line);padding-top:16px}
+    .meta div{display:flex;flex-direction:column;gap:3px}
+    .meta dt{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+    .meta dd{margin:0;font-size:14px;font-weight:600;font-variant-numeric:tabular-nums}
+    .row{display:flex;gap:12px;align-items:center}
+    .btn{height:48px;padding:0 22px;border-radius:var(--r-sm);font-family:var(--font);font-size:15px;
+      font-weight:600;cursor:pointer;display:flex;align-items:center;gap:9px}
+    .btn.primary{background:var(--clay);color:#fff;border:none}
+    .btn.primary:hover{background:var(--clay-hover)}
+    .btn.secondary{background:transparent;color:var(--ink);border:1.5px solid var(--line-strong)}
+    .btn.secondary:hover{border-color:var(--ink-3)}
+    .btn.ghost{background:transparent;color:var(--clay);border:none}
+    .btn.ghost:hover{background:var(--clay-tint)}
+
+    h3.sec{font-size:17px;font-weight:700;margin:8px 0 0}
+    .tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+    .tile{border:1px solid var(--line);border-radius:var(--r-md);background:var(--cream);padding:20px;
+      display:flex;flex-direction:column;gap:9px;box-shadow:var(--e1);text-align:left;font-family:var(--font);
+      cursor:pointer}
+    .tile:hover{box-shadow:var(--e2)}
+    .tile .ti{width:40px;height:40px;border-radius:var(--r-sm);background:var(--clay-tint);color:var(--clay-deep);
+      display:flex;align-items:center;justify-content:center}
+    .tile b{font-size:16px;font-weight:700}
+    .tile p{margin:0;font-size:12.5px;line-height:1.5;color:var(--ink-2)}
+    .tile.locked{background:var(--sand-2);border-color:var(--line);box-shadow:none;cursor:not-allowed}
+    .tile.locked .ti{background:var(--cream);color:var(--ink-off)}
+    .tile.locked b,.tile.locked p{color:var(--ink-off)}
+    .tile.locked:hover{box-shadow:none}
+    .lockflag{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;color:var(--ink-2);
+      background:var(--cream);border:1px solid var(--line-strong);border-radius:999px;padding:4px 10px;
+      align-self:flex-start;margin-top:2px}
+
+    .scrim{position:absolute;inset:0;background:var(--overlay);display:flex;align-items:center;
+      justify-content:center;z-index:40}
+    .modal{width:520px;background:var(--cream);border-radius:var(--r-lg);box-shadow:var(--e3);overflow:hidden}
+    .m-head{display:flex;align-items:center;gap:12px;padding:22px 26px 0}
+    .m-head .mi{width:40px;height:40px;border-radius:var(--r-sm);background:var(--amber-tint);color:var(--amber);
+      display:flex;align-items:center;justify-content:center;flex:none}
+    .m-head h4{margin:0;font-size:19px;font-weight:700;letter-spacing:-.02em}
+    .m-body{padding:14px 26px 22px}
+    .m-body p{margin:0 0 12px;font-size:14px;line-height:1.6;color:var(--ink-2)}
+    .m-body p:last-child{margin-bottom:0}
+    .m-foot{display:flex;justify-content:flex-end;gap:12px;padding:16px 26px 22px;border-top:1px solid var(--line)}
+  </style>
+</helmet>
+
+<div class="win">
+  <div class="topbar">
+    <div class="brand">
+      <span class="mark"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.6-7-9.5A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 7 3.5C19 15.4 12 20 12 20Z"/></svg></span>
+      Community Health Hub
+    </div>
+    <div class="spacer"></div>
+    <div class="acct">
+      Kochi Metro Hospital
+      <sc-if value="{{isApproved}}" hint-placeholder-val="{{false}}">
+        <span class="tick sm" title="Verified facility" aria-label="Verified facility">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.8 9.8 17.5 19 7.5"/></svg>
+        </span>
+      </sc-if>
+      <span class="avatar-sq">KM</span>
+    </div>
+  </div>
+
+  <div class="shell">
+    <nav class="side">
+      <button type="button" class="nav on"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg>Overview</button>
+      <button type="button" class="nav {{navLockClass}}">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3.5v3M16 3.5v3"/></svg>Events
+        <sc-if value="{{locked}}" hint-placeholder-val="{{true}}"><span class="lockdot"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="9.5" rx="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></svg>Locked</span></sc-if>
+      </button>
+      <button type="button" class="nav {{navLockClass}}">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.6-7-9.5A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 7 3.5C19 15.4 12 20 12 20Z"/></svg>Blood requests
+        <sc-if value="{{locked}}" hint-placeholder-val="{{true}}"><span class="lockdot"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="9.5" rx="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></svg>Locked</span></sc-if>
+      </button>
+      <button type="button" class="nav {{navLockClass}}">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 8.5 12 4.5l7.5 4v7L12 19.5 4.5 15.5Z"/><path d="M4.5 8.5 12 12.5l7.5-4M12 12.5v7"/></svg>Inventory
+        <sc-if value="{{locked}}" hint-placeholder-val="{{true}}"><span class="lockdot"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="9.5" rx="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></svg>Locked</span></sc-if>
+      </button>
+      <button type="button" class="nav"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 14.5a5 5 0 1 0 0-10 5 5 0 0 0 0 10Z"/><path d="M4.5 20.5a7.5 7.5 0 0 1 15 0"/></svg>Facility profile</button>
+    </nav>
+
+    <div class="main">
+      <div class="pagehead">
+        <div>
+          <div class="nameline">
+            <h1>Kochi Metro Hospital</h1>
+            <sc-if value="{{isApproved}}" hint-placeholder-val="{{false}}">
+              <span class="tick" title="Verified facility" aria-label="Verified facility">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.8 9.8 17.5 19 7.5"/></svg>
+              </span>
+            </sc-if>
+          </div>
+          <p>Hospital · Licence KL-HOSP-448120 · Marine Drive, Ernakulam</p>
+        </div>
+        <div class="spacer"></div>
+        <sc-if value="{{showPill}}" hint-placeholder-val="{{true}}">
+          <span class="pill {{status}}">
+            <sc-if value="{{isPending}}" hint-placeholder-val="{{true}}">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>
+            </sc-if>
+            <sc-if value="{{isRejected}}" hint-placeholder-val="{{false}}">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5 21 19.5H3L12 4.5Z"/><path d="M12 10v4M12 16.8v.1"/></svg>
+            </sc-if>
+            {{pillLabel}}
+          </span>
+        </sc-if>
+      </div>
+
+      <sc-if value="{{showStatusCard}}" hint-placeholder-val="{{true}}">
+        <section class="status {{status}}">
+          <div class="rail"></div>
+          <div class="inner">
+            <div class="top">
+              <h2>{{title}}</h2>
+            </div>
+            <p class="lede">{{lede}}</p>
+
+            <div class="track">
+              <div class="tnode done"><span class="tdot"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.8 9.8 17.5 19 7.5"/></svg></span><span>Submitted</span></div>
+              <div class="tline {{line1}}"></div>
+              <div class="tnode {{node2}}"><span class="tdot">{{node2Mark}}</span><span>Admin review</span></div>
+              <div class="tline {{line2}}"></div>
+              <div class="tnode {{node3}}"><span class="tdot">{{node3Mark}}</span><span>{{node3Label}}</span></div>
+            </div>
+
+            <sc-if value="{{isRejected}}" hint-placeholder-val="{{false}}">
+              <div class="reason">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5 21 19.5H3L12 4.5Z"/><path d="M12 10v4M12 16.8v.1"/></svg>
+                <div>
+                  <b>Reason given by the reviewing admin</b>
+                  <p>The licence document expired on 31 March 2025. Upload a currently valid licence and we will review it again.</p>
+                  <span class="when">Reviewed 3 September 2026, 11:20</span>
+                </div>
+              </div>
+            </sc-if>
+
+            <div class="meta">
+              <div><dt>Submitted</dt><dd>2 Sep 2026</dd></div>
+              <div><dt>{{metaLabel}}</dt><dd>{{metaValue}}</dd></div>
+              <div><dt>Primary contact</dt><dd>Anitha Varghese</dd></div>
+            </div>
+
+            <div class="row">
+              <button type="button" class="btn {{ctaClass}}">{{ctaLabel}}</button>
+              <button type="button" class="btn ghost">View submitted details</button>
+            </div>
+          </div>
+        </section>
+      </sc-if>
+
+      <h3 class="sec">{{sectionLabel}}</h3>
+      <div class="tiles">
+        <button type="button" class="tile {{tileClass}}" onClick="{{tryLocked}}">
+          <span class="ti"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3.5v3M16 3.5v3"/></svg></span>
+          <b>Plan an event</b>
+          <p>Publish a donation camp or screening drive to donors nearby.</p>
+          <sc-if value="{{locked}}" hint-placeholder-val="{{true}}">
+            <span class="lockflag"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="9.5" rx="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></svg>Locked</span>
+          </sc-if>
+        </button>
+        <button type="button" class="tile {{tileClass}}" onClick="{{tryLocked}}">
+          <span class="ti"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.6-7-9.5A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 7 3.5C19 15.4 12 20 12 20Z"/></svg></span>
+          <b>Broadcast a blood request</b>
+          <p>Alert matching donors within your search radius.</p>
+          <sc-if value="{{locked}}" hint-placeholder-val="{{true}}">
+            <span class="lockflag"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="9.5" rx="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></svg>Locked</span>
+          </sc-if>
+        </button>
+        <button type="button" class="tile {{tileClass}}" onClick="{{tryLocked}}">
+          <span class="ti"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 8.5 12 4.5l7.5 4v7L12 19.5 4.5 15.5Z"/><path d="M4.5 8.5 12 12.5l7.5-4M12 12.5v7"/></svg></span>
+          <b>Publish inventory</b>
+          <p>Show current blood units and bed availability to seekers.</p>
+          <sc-if value="{{locked}}" hint-placeholder-val="{{true}}">
+            <span class="lockflag"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="9.5" rx="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></svg>Locked</span>
+          </sc-if>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <sc-if value="{{showModal}}" hint-placeholder-val="{{false}}">
+    <div class="scrim">
+      <div class="modal">
+        <div class="m-head">
+          <span class="mi"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="9.5" rx="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></svg></span>
+          <h4>Feature locked until account verification.</h4>
+        </div>
+        <div class="m-body">
+          <p>{{modalBody}}</p>
+          <p>You can keep editing your facility profile and contacts while you wait.</p>
+        </div>
+        <div class="m-foot">
+          <button type="button" class="btn secondary" onClick="{{closeModal}}">Close</button>
+          <button type="button" class="btn primary" onClick="{{closeModal}}">{{modalCta}}</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+
+</x-dc>
+<script data-dc-script data-props='{
+  "status": {"editor":"enum","default":"pending","options":["pending","approved","rejected"],"section":"AC state"},
+  "lockedDialog": {"editor":"boolean","default":false,"section":"AC state"}
+}'>
+class Component extends DCLogic {
+  renderVals() {
+    const status = this.props.status ?? "pending";
+    const forced = this.props.lockedDialog ?? false;
+    const locked = status !== "approved";
+    const open = forced || (this.state.modal ?? false);
+    const tick = "✓";
+    const cfg = {
+      pending: {
+        pill: "Pending verification",
+        title: "We’re reviewing your licence",
+        lede: "An admin is checking the document against the facility name and licence number you gave. Reviews usually finish within two working days, and we notify your primary contact either way.",
+        metaLabel: "Expected decision", metaValue: "By 4 Sep 2026",
+        cta: "Check for an update", ctaClass: "secondary",
+        section: "Locked until verification",
+        modalBody: "Kochi Metro Hospital is still pending verification, so events, blood requests and inventory stay locked for now."
+      },
+      approved: {
+        pill: "",
+        title: "",
+        lede: "",
+        metaLabel: "", metaValue: "",
+        cta: "", ctaClass: "primary",
+        section: "What you can publish",
+        modalBody: ""
+      },
+      rejected: {
+        pill: "Rejected",
+        title: "Verification was not approved",
+        lede: "Your facility stays hidden and publishing is locked until a new licence passes review.",
+        metaLabel: "Reviewed on", metaValue: "3 Sep 2026",
+        cta: "Upload a new licence", ctaClass: "primary",
+        section: "Locked until verification",
+        modalBody: "Kochi Metro Hospital was rejected on 3 September. Upload a valid licence to have it reviewed again."
+      }
+    }[status];
+    return {
+      status, locked,
+      isPending: status === "pending",
+      isApproved: status === "approved",
+      isRejected: status === "rejected",
+      // Approved carries no badge and no status card — only the verified tick
+      // beside the facility name in the header and profile area.
+      showPill: status !== "approved",
+      showStatusCard: status !== "approved",
+      pillLabel: cfg.pill,
+      title: cfg.title,
+      lede: cfg.lede,
+      metaLabel: cfg.metaLabel,
+      metaValue: cfg.metaValue,
+      ctaLabel: cfg.cta,
+      ctaClass: cfg.ctaClass,
+      sectionLabel: cfg.section,
+      line1: "done",
+      line2: status === "pending" ? "" : "done",
+      node2: status === "pending" ? "now" : "done",
+      node2Mark: status === "pending" ? "" : tick,
+      node3: status === "pending" ? "todo" : (status === "rejected" ? "now fail" : "done"),
+      node3Mark: status === "pending" ? "" : (status === "rejected" ? "!" : tick),
+      node3Label: status === "rejected" ? "Rejected" : "Decision",
+      tileClass: locked ? "locked" : "",
+      navLockClass: locked ? "locked" : "",
+      showModal: open && locked,
+      modalBody: cfg.modalBody,
+      modalCta: status === "rejected" ? "Upload a new licence" : "View verification status",
+      tryLocked: () => { if (locked) this.setState({ modal: true }); },
+      closeModal: () => this.setState({ modal: false })
+    };
+  }
+}
+</script>
+</body>
+</html>

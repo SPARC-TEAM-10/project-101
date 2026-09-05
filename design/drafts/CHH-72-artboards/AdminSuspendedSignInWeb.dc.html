@@ -1,0 +1,132 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --sand:#F6F0E5;--sand-2:#EFE7D9;--cream:#FDFAF4;--line:#E6DAC7;--line-strong:#D6C6AC;
+      --clay:#B06134;--clay-hover:#96502A;--clay-deep:#8A4620;--clay-tint:#F5E4D3;--clay-line:#E8CDB2;
+      --blood:#D32F2F;--blood-deep:#9E1B18;--blood-tint:#FCE9E7;--blood-line:#F5C6C2;
+      --ink:#392A1D;--ink-2:#6F5C46;--ink-3:#A08A70;--ink-off:#BFAE96;
+      --error:#A33325;--error-tint:#F7E4E0;--amber:#8F6A12;--amber-tint:#F7EDD4;--leaf:#4E7A46;--leaf-tint:#E8F0E2;
+      --font:"Plus Jakarta Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
+      --r-xs:8px;--r-sm:12px;--r-md:16px;--r-lg:20px;
+      --e1:0 1px 2px rgba(57,42,29,.04),0 2px 6px rgba(57,42,29,.05);
+      --e2:0 2px 6px rgba(57,42,29,.05),0 8px 20px rgba(57,42,29,.07);
+      --e3:0 10px 24px rgba(57,42,29,.10),0 24px 56px rgba(57,42,29,.14);
+    }
+    *{box-sizing:border-box}
+    body{margin:0}
+    a{color:var(--clay)} a:hover{color:var(--clay-hover)}
+    .screen{width:1440px;height:900px;background:var(--sand);font-family:var(--font);color:var(--ink);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,620px);overflow:hidden}
+    svg.i{fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;width:18px;height:18px;flex:none}
+    svg.i.s{width:14px;height:14px;stroke-width:2.2}svg.i.m{width:20px;height:20px}svg.i.l{width:34px;height:34px;stroke-width:1.6}
+    .num{font-variant-numeric:tabular-nums}
+
+    /* left: the product panel that the whole auth flow already uses */
+    .panelside{background:var(--clay-deep);color:var(--cream);padding:56px 60px;display:flex;flex-direction:column;justify-content:space-between}
+    .panelside .logo{display:flex;align-items:center;gap:12px;font-size:16px;font-weight:800;letter-spacing:-.01em}
+    .panelside .logo .mk{width:38px;height:38px;border-radius:11px;background:rgba(253,250,244,.16);display:flex;align-items:center;justify-content:center}
+    .panelside h2{margin:0;font-size:40px;line-height:48px;font-weight:800;letter-spacing:-.03em;max-width:15ch}
+    .panelside p{margin:14px 0 0;font-size:16px;line-height:1.65;color:rgba(253,250,244,.78);max-width:40ch}
+    .panelside .foot{font-size:13px;color:rgba(253,250,244,.6);line-height:1.6}
+
+    .formside{background:var(--sand);display:flex;align-items:center;justify-content:center;padding:48px}
+    .card{width:100%;max-width:480px;background:var(--cream);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--e2);padding:36px 36px 32px;display:flex;flex-direction:column;gap:20px}
+    .mark{width:64px;height:64px;border-radius:var(--r-md);background:var(--error-tint);color:var(--error);display:flex;align-items:center;justify-content:center;flex:none}
+    h1{margin:0;font-size:28px;line-height:34px;font-weight:800;letter-spacing:-.025em}
+    .lead{margin:0;font-size:15.5px;line-height:1.62;color:var(--ink-2)}
+    .verified{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--ink-2);background:var(--sand-2);border-radius:var(--r-sm);padding:11px 14px;line-height:1.5}
+
+    .whatnow{border:1px solid var(--line);border-radius:var(--r-md);padding:2px 16px;background:var(--sand)}
+    .whatnow div{display:flex;gap:11px;padding:13px 0;border-bottom:1px solid var(--line);font-size:14px;line-height:1.55;color:var(--ink-2)}
+    .whatnow div:last-child{border-bottom:none}
+    .whatnow svg{margin-top:2px;color:var(--ink-3)}
+    .whatnow b{color:var(--ink);font-weight:700}
+
+    .contact{display:flex;gap:12px}
+    .contact .box{flex:1;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--sand);padding:12px 14px;display:flex;align-items:center;gap:10px}
+    .contact .box svg{color:var(--clay)}
+    .contact b{font-size:13.5px;font-weight:700;display:block;line-height:18px}
+    .contact small{font-size:12px;color:var(--ink-2);font-weight:600}
+
+    .btn{height:48px;padding:0 22px;border-radius:var(--r-sm);font-family:var(--font);font-size:15px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:9px;border:none}
+    .btn.lg{height:54px;border-radius:var(--r-md);font-size:16px;width:100%}
+    .btn.primary{background:var(--clay);color:#fff}
+    .btn.ghost{background:transparent;color:var(--clay);width:100%;height:44px}
+  </style>
+</helmet>
+
+<div class="screen">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <g id="ban"><circle cx="12" cy="12" r="8.5"/><path d="M6 18 18 6"/></g>
+    <g id="check"><path d="M5 12.5 10 17.5 19.5 7"/></g>
+    <g id="drop"><path d="M12 3.5s6 6.6 6 10.6a6 6 0 0 1-12 0C6 10.1 12 3.5 12 3.5Z"/></g>
+    <g id="phone"><path d="M6.4 3.8h3l1.6 4-2 1.4a11 11 0 0 0 5.8 5.8l1.4-2 4 1.6v3a1.8 1.8 0 0 1-2 1.8C10.4 18.7 5.3 13.6 4.6 5.8a1.8 1.8 0 0 1 1.8-2Z"/></g>
+    <g id="mail"><rect x="3.5" y="5.5" width="17" height="13" rx="2.2"/><path d="m4.5 7 7.5 5.6L19.5 7"/></g>
+    <g id="clock"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5.3l3.3 2"/></g>
+    <g id="logout"><path d="M14 7.5V5.5a1.5 1.5 0 0 0-1.5-1.5h-6A1.5 1.5 0 0 0 5 5.5v13A1.5 1.5 0 0 0 6.5 20h6a1.5 1.5 0 0 0 1.5-1.5v-2"/><path d="M10 12h10M17 8.5 20.5 12 17 15.5"/></g>
+    <g id="book"><path d="M5 5.2A1.7 1.7 0 0 1 6.7 3.5H19v14.2H6.7A1.7 1.7 0 0 0 5 19.4Z"/><path d="M5 19.4a1.7 1.7 0 0 0 1.7 1.6H19"/></g>
+  </defs></svg>
+
+  <div class="panelside">
+    <div class="logo">
+      <span class="mk"><svg class="i m"><use href="#drop"/></svg></span>
+      Community Health Hub
+    </div>
+    <div>
+      <h2>Donors, hospitals and NGOs in one place.</h2>
+      <p>Every account here can reach people in an emergency. That's why accounts that misuse it are closed.</p>
+    </div>
+    <div class="foot">Suspensions are reviewed by a person, not automatically.</div>
+  </div>
+
+  <div class="formside">
+    <div class="card">
+      <span class="mark"><svg class="i l"><use href="#ban"/></svg></span>
+      <div>
+        <h1>Your account has been suspended.</h1>
+        <p class="lead" style="margin-top:10px">We couldn't sign you in. Support can tell you why and what happens next.</p>
+      </div>
+
+      <span class="verified"><svg class="i s"><use href="#check"/></svg>Your number was verified — the block is on the account, not the code you entered.</span>
+
+      <div class="whatnow">
+        <div><svg class="i s"><use href="#logout"/></svg><span>You're signed out on every device.</span></div>
+        <div><svg class="i s"><use href="#clock"/></svg><span>Suspended on <b class="num">28 August 2026</b>.</span></div>
+        <div><svg class="i s"><use href="#book"/></svg><span>Support can explain the reason and review the decision.</span></div>
+      </div>
+
+      <div class="contact">
+        <div class="box">
+          <svg class="i m"><use href="#phone"/></svg>
+          <span><b class="num">+91 484 200 5000</b><small>9am–6pm, Mon–Sat</small></span>
+        </div>
+        <div class="box">
+          <svg class="i m"><use href="#mail"/></svg>
+          <span><b>support@communityhealthhub.in</b><small>Replies within a day</small></span>
+        </div>
+      </div>
+
+      <div>
+        <button type="button" class="btn primary lg">Contact support</button>
+        <button type="button" class="btn ghost" style="margin-top:8px">Sign in with a different number</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script data-dc-script>
+class Component extends DCLogic {}
+</script>
+</body>
+</html>
