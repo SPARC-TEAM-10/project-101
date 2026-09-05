@@ -20,8 +20,6 @@ namespace Chh.Infrastructure.ExternalClients;
 /// </summary>
 public class Fast2SmsGatewayClient : ISmsGatewayClient
 {
-    private const string RequestUri = "dev/bulkV2";
-
     private readonly HttpClient _httpClient;
     private readonly ILogger<Fast2SmsGatewayClient> _logger;
 
@@ -37,9 +35,9 @@ public class Fast2SmsGatewayClient : ISmsGatewayClient
     /// <inheritdoc />
     public async Task SendOtpAsync(string mobileNumber, string otpCode, CancellationToken ct)
     {
-        var payload = new Fast2SmsOtpRequest(otpCode, "otp", mobileNumber);
+        var payload = new Fast2SmsOtpRequest(otpCode, Fast2SmsConstants.OtpRoute, mobileNumber);
 
-        using var response = await _httpClient.PostAsJsonAsync(RequestUri, payload, ct).ConfigureAwait(false);
+        using var response = await _httpClient.PostAsJsonAsync(Fast2SmsConstants.RequestUri, payload, ct).ConfigureAwait(false);
 
         // Fast2SMS reports business-level failures as HTTP 200 with "return": false, so a 2xx
         // status code alone doesn't mean the OTP was actually dispatched. The response shape

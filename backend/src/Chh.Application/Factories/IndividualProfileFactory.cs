@@ -7,7 +7,8 @@ namespace Chh.Application.Factories;
 /// Trims free-text fields, derives <see cref="IndividualProfile.IsReceiverOnly"/> from the
 /// health-screening flags (PRD §7 CHH-F02 AC2), and constructs <see cref="IndividualProfile"/>
 /// instances. Kept out of the entity per code-review guidance established on CHH-9 — entities
-/// hold data, not construction logic.
+/// hold data, not construction logic. Sets the entity's `internal` setters via object
+/// initializer (Chh.Domain.csproj grants Chh.Application <c>InternalsVisibleTo</c>).
 /// </summary>
 public static class IndividualProfileFactory
 {
@@ -22,21 +23,23 @@ public static class IndividualProfileFactory
             || request.IsUnderweight
             || request.IsOtherIllness;
 
-        return new IndividualProfile(
-            request.MobileNumber,
-            request.FullName.Trim(),
-            request.Email.Trim(),
-            request.BloodGroup,
-            request.DateOfBirth,
-            request.Gender,
-            request.LocationCityArea.Trim(),
-            request.IsChronicIllness,
-            request.HasRecentSurgery,
-            request.IsInfectiousDisease,
-            request.IsUnderweight,
-            request.IsOtherIllness,
-            request.IsOtherIllness ? request.OtherIllnessDetails?.Trim() : null,
-            isReceiverOnly,
-            createdAtUtc);
+        return new IndividualProfile
+        {
+            MobileNumber = request.MobileNumber,
+            FullName = request.FullName.Trim(),
+            Email = request.Email.Trim(),
+            BloodGroup = request.BloodGroup,
+            DateOfBirth = request.DateOfBirth,
+            Gender = request.Gender,
+            LocationCityArea = request.LocationCityArea.Trim(),
+            IsChronicIllness = request.IsChronicIllness,
+            HasRecentSurgery = request.HasRecentSurgery,
+            IsInfectiousDisease = request.IsInfectiousDisease,
+            IsUnderweight = request.IsUnderweight,
+            IsOtherIllness = request.IsOtherIllness,
+            OtherIllnessDetails = request.IsOtherIllness ? request.OtherIllnessDetails?.Trim() : null,
+            IsReceiverOnly = isReceiverOnly,
+            CreatedAtUtc = createdAtUtc
+        };
     }
 }

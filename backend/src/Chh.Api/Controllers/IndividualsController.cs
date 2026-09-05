@@ -10,6 +10,8 @@ namespace Chh.Api.Controllers;
 [ApiController]
 public class IndividualsController : ControllerBase
 {
+    private const string RouteName = "RegisterIndividual";
+
     private readonly IIndividualProfileService _individualProfileService;
 
     /// <summary>Creates the controller with its service dependency.</summary>
@@ -28,7 +30,7 @@ public class IndividualsController : ControllerBase
     // have supplied one. AuthController's actions never hit this because they carry their own
     // literal templates ("otp/request", "otp/verify"); anything relying purely on the controller
     // prefix needs the same explicit (if empty) template.
-    [HttpPost("")]
+    [HttpPost("", Name = RouteName)]
     // Anonymous: no session token exists yet (CHH-9 is verify-only) — the mobile-number-verified
     // guard inside the service is the actual gate, not [Authorize].
     [AllowAnonymous]
@@ -40,6 +42,11 @@ public class IndividualsController : ControllerBase
         CancellationToken cancellationToken)
     {
         var result = await _individualProfileService.RegisterAsync(request, cancellationToken);
-        return Created($"/api/v1/individuals/{result.Id}", result);
+        // CreatedAtRoute, not a hand-built "/api/v1/individuals/{id}" string — the URL is
+        // generated from the route itself, so it can't silently drift if RoutePrefixConvention's
+        // prefix or the kebab-case transform ever changes. There's no GET /individuals/{id} yet
+        // (out of scope for this ticket, see the doc's Open Questions), so this points back at
+        // this same POST route; revisit once that GET exists.
+        return CreatedAtRoute(RouteName, new { id = result.Id }, result);
     }
 }

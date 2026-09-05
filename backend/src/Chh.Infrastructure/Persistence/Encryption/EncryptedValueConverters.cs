@@ -19,8 +19,6 @@ public class EncryptedBoolConverter : ValueConverter<bool, string>
 /// <summary>EF Core value converter encrypting a <see cref="DateOnly"/> column at rest via <see cref="IFieldEncryptor"/>.</summary>
 public class EncryptedDateOnlyConverter : ValueConverter<DateOnly, string>
 {
-    private const string DateFormat = "yyyy-MM-dd";
-
     /// <summary>Creates the converter backed by the given encryptor.</summary>
     /// <param name="fieldEncryptor">Encryptor used to protect the column value.</param>
     public EncryptedDateOnlyConverter(IFieldEncryptor fieldEncryptor)
@@ -33,9 +31,9 @@ public class EncryptedDateOnlyConverter : ValueConverter<DateOnly, string>
     // DateOnly.ToString/ParseExact declare optional parameters, which C# expression trees
     // (required by ValueConverter's constructor) cannot call directly even when every argument
     // is supplied explicitly — routing through plain static methods sidesteps that restriction.
-    private static string ToDateString(DateOnly date) => date.ToString(DateFormat, CultureInfo.InvariantCulture);
+    private static string ToDateString(DateOnly date) => date.ToString(EncryptionConstants.EncryptedDateFormat, CultureInfo.InvariantCulture);
 
-    private static DateOnly ParseDateString(string date) => DateOnly.ParseExact(date, DateFormat, CultureInfo.InvariantCulture);
+    private static DateOnly ParseDateString(string date) => DateOnly.ParseExact(date, EncryptionConstants.EncryptedDateFormat, CultureInfo.InvariantCulture);
 }
 
 /// <summary>EF Core value converter encrypting a nullable <see cref="string"/> column at rest via <see cref="IFieldEncryptor"/>.</summary>

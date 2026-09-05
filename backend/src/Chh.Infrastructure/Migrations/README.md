@@ -12,3 +12,8 @@ never write a `Migration`-derived class by hand. `dotnet ef` also emits the pair
 the migration with `ChhDbContext`) and updates `ChhDbContextModelSnapshot.cs`. A
 migration missing its `.Designer.cs` is invisible to `Database.MigrateAsync()` —
 EF reports "already up to date" and silently never creates the table.
+
+`dotnet ef`'s generated template puts `/// <inheritdoc />` on the migration class
+and its `Up()`/`Down()` — there's nothing to inherit from (`Migration` doesn't
+declare virtual members with doc comments), so replace those with real one-line
+summaries after generating.

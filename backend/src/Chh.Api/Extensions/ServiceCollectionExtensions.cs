@@ -43,8 +43,8 @@ public static class ServiceCollectionExtensions
         {
             services.AddHttpClient<ISmsGatewayClient, Fast2SmsGatewayClient>(client =>
             {
-                client.BaseAddress = new Uri("https://www.fast2sms.com/");
-                client.DefaultRequestHeaders.Add("authorization", fast2SmsApiKey);
+                client.BaseAddress = new Uri(configuration["Fast2Sms:BaseUrl"]!);
+                client.DefaultRequestHeaders.Add(Fast2SmsConstants.AuthorizationHeaderName, fast2SmsApiKey);
             });
         }
         else

@@ -5,10 +5,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Chh.Infrastructure.Migrations
 {
-    /// <inheritdoc />
+    /// <summary>Creates the <c>IndividualProfile</c> table (CHH-F02).</summary>
     public partial class AddIndividualProfileTable : Migration
     {
-        /// <inheritdoc />
+        /// <summary>Creates the <c>IndividualProfile</c> table and its unique <c>MobileNumber</c> index.</summary>
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
@@ -44,7 +44,7 @@ namespace Chh.Infrastructure.Migrations
                 unique: true);
         }
 
-        /// <inheritdoc />
+        /// <summary>Drops the <c>IndividualProfile</c> table.</summary>
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(

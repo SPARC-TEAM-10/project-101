@@ -1,6 +1,7 @@
 using Chh.Application.Abstractions;
 using Chh.Application.Contracts;
 using Chh.Application.Dtos;
+using Chh.Application.Factories;
 using Chh.Application.Services;
 using Chh.Domain.Entities;
 using Chh.Domain.Enums;
@@ -38,9 +39,8 @@ public class IndividualProfileServiceTests
         LocationCityArea = "Kochi"
     };
 
-    private static OtpRequest VerifiedOtpRequest() => new(
-        MobileNumber, "hash", DateTimeOffset.UtcNow.AddMinutes(-1),
-        DateTimeOffset.UtcNow.AddMinutes(4), DateTimeOffset.UtcNow.AddSeconds(90));
+    private static OtpRequest VerifiedOtpRequest() =>
+        OtpRequestFactory.Create(MobileNumber, "hash", DateTimeOffset.UtcNow.AddMinutes(-1));
 
     [Fact]
     public async Task RegisterAsync_WhenMobileNumberIsVerifiedAndUnregistered_PersistsAndReturnsDto()
@@ -112,12 +112,19 @@ public class IndividualProfileServiceTests
         _otpRequestRepository
             .Setup(r => r.GetLatestByMobileNumberAsync(MobileNumber, It.IsAny<CancellationToken>()))
             .ReturnsAsync(verifiedOtp);
+        var existingProfileRequest = new CreateIndividualProfileRequest
+        {
+            MobileNumber = MobileNumber,
+            FullName = "Existing User",
+            Email = "existing@example.com",
+            BloodGroup = BloodGroup.APositive,
+            DateOfBirth = DateOnly.FromDateTime(DateTime.UtcNow.AddYears(-30)),
+            Gender = Gender.Male,
+            LocationCityArea = "Kochi"
+        };
         _individualProfileRepository
             .Setup(r => r.GetByMobileNumberAsync(MobileNumber, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new IndividualProfile(
-                MobileNumber, "Existing User", "existing@example.com", BloodGroup.APositive,
-                DateOnly.FromDateTime(DateTime.UtcNow.AddYears(-30)), Gender.Male, "Kochi",
-                false, false, false, false, false, null, false, DateTimeOffset.UtcNow));
+            .ReturnsAsync(IndividualProfileFactory.Create(existingProfileRequest, DateTimeOffset.UtcNow));
 
         var act = () => _sut.RegisterAsync(ValidRequest(), CancellationToken.None);
 

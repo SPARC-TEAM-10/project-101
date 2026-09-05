@@ -3,6 +3,7 @@ using System.Text;
 using Chh.Application.Abstractions;
 using Chh.Application.Contracts;
 using Chh.Application.Dtos;
+using Chh.Application.Factories;
 using Chh.Application.Services;
 using Chh.Domain.Entities;
 using FluentAssertions;
@@ -51,8 +52,7 @@ public class OtpServiceTests
     [Fact]
     public async Task RequestOtpAsync_WhenResendCooldownStillActive_ThrowsWithoutDispatchingOrPersisting()
     {
-        var latest = new OtpRequest(MobileNumber, HashOtpCode("111111"), DateTimeOffset.UtcNow,
-            DateTimeOffset.UtcNow.AddMinutes(5), DateTimeOffset.UtcNow.AddSeconds(90));
+        var latest = OtpRequestFactory.Create(MobileNumber, HashOtpCode("111111"), DateTimeOffset.UtcNow);
         _otpRequestRepository
             .Setup(r => r.GetLatestByMobileNumberAsync(MobileNumber, It.IsAny<CancellationToken>()))
             .ReturnsAsync(latest);
@@ -83,8 +83,7 @@ public class OtpServiceTests
     [Fact]
     public async Task VerifyOtpAsync_WhenCodeMatchesAndUnexpired_MarksVerifiedAndReturnsResponse()
     {
-        var otpRequest = new OtpRequest(MobileNumber, HashOtpCode("123456"), DateTimeOffset.UtcNow,
-            DateTimeOffset.UtcNow.AddMinutes(5), DateTimeOffset.UtcNow.AddSeconds(90));
+        var otpRequest = OtpRequestFactory.Create(MobileNumber, HashOtpCode("123456"), DateTimeOffset.UtcNow);
         _otpRequestRepository
             .Setup(r => r.GetLatestTrackedByMobileNumberAsync(MobileNumber, It.IsAny<CancellationToken>()))
             .ReturnsAsync(otpRequest);
@@ -113,8 +112,7 @@ public class OtpServiceTests
     [Fact]
     public async Task VerifyOtpAsync_WhenCodeIsExpired_ThrowsInvalidOtpException()
     {
-        var otpRequest = new OtpRequest(MobileNumber, HashOtpCode("123456"), DateTimeOffset.UtcNow.AddMinutes(-10),
-            DateTimeOffset.UtcNow.AddMinutes(-5), DateTimeOffset.UtcNow.AddMinutes(-8));
+        var otpRequest = OtpRequestFactory.Create(MobileNumber, HashOtpCode("123456"), DateTimeOffset.UtcNow.AddMinutes(-10));
         _otpRequestRepository
             .Setup(r => r.GetLatestTrackedByMobileNumberAsync(MobileNumber, It.IsAny<CancellationToken>()))
             .ReturnsAsync(otpRequest);
@@ -129,8 +127,7 @@ public class OtpServiceTests
     [Fact]
     public async Task VerifyOtpAsync_WhenCodeDoesNotMatch_ThrowsInvalidOtpExceptionAndDoesNotPersist()
     {
-        var otpRequest = new OtpRequest(MobileNumber, HashOtpCode("123456"), DateTimeOffset.UtcNow,
-            DateTimeOffset.UtcNow.AddMinutes(5), DateTimeOffset.UtcNow.AddSeconds(90));
+        var otpRequest = OtpRequestFactory.Create(MobileNumber, HashOtpCode("123456"), DateTimeOffset.UtcNow);
         _otpRequestRepository
             .Setup(r => r.GetLatestTrackedByMobileNumberAsync(MobileNumber, It.IsAny<CancellationToken>()))
             .ReturnsAsync(otpRequest);

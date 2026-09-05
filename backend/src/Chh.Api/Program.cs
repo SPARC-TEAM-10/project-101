@@ -10,11 +10,6 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Local-only secrets (gitignored — backend/.gitignore), e.g. the AES key for encrypted PII
-// columns. Optional so its absence doesn't break Production, which resolves the same keys from
-// Azure Key Vault instead (api-standards.md §5).
-builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
-
 // Serilog, configured entirely from the "Serilog" block in appsettings.json
 // (api-standards.md §8). Never log OTP codes, JWTs, full mobile numbers, or
 // health-screening data.
@@ -58,10 +53,15 @@ builder.Services.AddHealthChecks();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
 var app = builder.Build();
-using (var scope = app.Services.CreateScope())
+
+// Applies pending EF Core migrations on startup. Skipped under the "Testing" environment
+// (see ApiWebApplicationFactory) — WebApplicationFactory-hosted tests have no real database,
+// and user-secrets (where the real local connection string lives) only load in Development.
+if (!app.Environment.IsEnvironment("Testing"))
 {
+    using var scope = app.Services.CreateScope();
     var dbContext = scope.ServiceProvider.GetRequiredService<ChhDbContext>();
-    await dbContext.Database.MigrateAsync(); // Applies migrations
+    await dbContext.Database.MigrateAsync();
 }
 
 Hellang.Middleware.ProblemDetails.ProblemDetailsExtensions.UseProblemDetails(app);

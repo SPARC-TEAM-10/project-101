@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace Chh.Infrastructure.Persistence.Encryption;
 
@@ -15,15 +16,26 @@ public class AesFieldEncryptor : IFieldEncryptor
     private const int KeySizeBytes = 32; // AES-256
     private readonly byte[] _key;
 
-    /// <summary>Creates the encryptor, reading the base64-encoded 256-bit key from configuration.</summary>
+    /// <summary>
+    /// Creates the encryptor, reading the base64-encoded 256-bit key from configuration. If
+    /// unconfigured (e.g. local dev with no secret set up yet), generates a random per-process key
+    /// instead of failing to start — logged loudly, since data encrypted under it becomes
+    /// unreadable the moment the process restarts. Never falls back like this in a real
+    /// deployment: Production always resolves the real key from Azure Key Vault.
+    /// </summary>
     /// <param name="configuration">App configuration, used to resolve <c>Encryption:HealthDataKeyBase64</c>.</param>
-    public AesFieldEncryptor(IConfiguration configuration)
+    /// <param name="logger">Logs a warning when falling back to an ephemeral key.</param>
+    public AesFieldEncryptor(IConfiguration configuration, ILogger<AesFieldEncryptor> logger)
     {
         var keyBase64 = configuration["Encryption:HealthDataKeyBase64"];
         if (string.IsNullOrWhiteSpace(keyBase64))
         {
-            throw new InvalidOperationException(
-                "Encryption:HealthDataKeyBase64 is not configured — required to read/write IndividualProfile PII and health-screening columns.");
+            logger.LogWarning(
+                "Encryption:HealthDataKeyBase64 is not configured — generating a random ephemeral key for this " +
+                "process. Data encrypted now will NOT be decryptable after a restart. Configure a real key " +
+                "(Azure Key Vault / user-secrets) before storing data you need to keep.");
+            _key = RandomNumberGenerator.GetBytes(KeySizeBytes);
+            return;
         }
 
         _key = Convert.FromBase64String(keyBase64);
