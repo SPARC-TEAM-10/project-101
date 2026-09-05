@@ -3,6 +3,7 @@ using Chh.Api.Filters;
 using Chh.Api.Json;
 using Chh.Api.Routing;
 using Chh.Infrastructure.Persistence;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -57,10 +58,11 @@ var app = builder.Build();
 // Applies pending EF Core migrations on startup. Skipped under the "Testing" environment
 // (see ApiWebApplicationFactory) — WebApplicationFactory-hosted tests have no real database,
 // and user-secrets (where the real local connection string lives) only load in Development.
-using (var scope = app.Services.CreateScope())
+if (!app.Environment.IsEnvironment("Testing"))
 {
+    using var scope = app.Services.CreateScope();
     var dbContext = scope.ServiceProvider.GetRequiredService<ChhDbContext>();
-    await dbContext.Database.MigrateAsync(); // Applies migrations
+    await dbContext.Database.MigrateAsync();
 }
 
 Hellang.Middleware.ProblemDetails.ProblemDetailsExtensions.UseProblemDetails(app);
@@ -76,9 +78,17 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// Liveness probe. Anonymous by design — it is infrastructure, not an API resource,
-// so it is not part of contracts/chh-api.v1.yaml and carries no /api/v1 prefix.
-app.MapHealthChecks("/health");
+// Liveness probe. Anonymous by design — it is infrastructure, not an API resource, so it is not
+// part of contracts/chh-api.v1.yaml and carries no /api/v1 prefix. Excludes "external"-tagged
+// checks (e.g. Fast2SmsWalletHealthCheck) — an orchestrator restarting this container over an
+// external provider being down would fix nothing.
+app.MapHealthChecks("/health", new HealthCheckOptions
+{
+    Predicate = check => !check.Tags.Contains("external")
+});
+
+// Readiness probe — includes external-dependency checks.
+app.MapHealthChecks("/health/ready");
 
 app.MapControllers();
 

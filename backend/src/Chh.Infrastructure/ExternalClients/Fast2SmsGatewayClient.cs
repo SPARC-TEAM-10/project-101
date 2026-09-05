@@ -1,5 +1,4 @@
 using System.Net.Http.Json;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 using Chh.Application.Contracts;
 using Chh.Domain.Constants;
@@ -13,11 +12,15 @@ namespace Chh.Infrastructure.ExternalClients;
 /// (<c>OtpService</c>) and pass it via <c>variables_values</c> for Fast2SMS to substitute into
 /// its DLT-approved OTP template — we deliberately do NOT use Fast2SMS's own auto-generating
 /// "Smart OTP" flow, since that would text a different code than the one hashed and stored.
-/// Registered only when <c>Fast2Sms:ApiKey</c> is configured (see
-/// <c>Chh.Api.Extensions.ServiceCollectionExtensions</c>) — falls back to
-/// <see cref="LoggingSmsGatewayClient"/> otherwise, so local development doesn't spend paid
-/// SMS credits by default.
 /// </summary>
+/// <remarks>
+/// Currently unused in practice — this account has no TRAI DLT registration, so every call fails
+/// with Fast2SMS status_code 996. Kept (not deleted) for when DLT registration completes, and as
+/// a fallback if <see cref="Fast2SmsWhatsAppGatewayClient"/> (the current OTP channel — see its
+/// doc comment) proves unreliable. Registered only when <c>Fast2Sms:Channel</c> is <c>"sms"</c>
+/// (see <c>Chh.Api.Extensions.ServiceCollectionExtensions</c>); falls back to
+/// <see cref="LoggingSmsGatewayClient"/> when no API key is configured at all.
+/// </remarks>
 public class Fast2SmsGatewayClient : ISmsGatewayClient
 {
     private readonly HttpClient _httpClient;
@@ -44,7 +47,8 @@ public class Fast2SmsGatewayClient : ISmsGatewayClient
         // otherwise varies (e.g. "message" is a string on some failures, an array on success),
         // so we only pick out the one field our logic depends on and log the raw body for the rest.
         var responseBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
-        var dispatched = response.IsSuccessStatusCode && TryGetReturnTrue(responseBody);
+        var dispatched = response.IsSuccessStatusCode
+            && Fast2SmsResponseParser.TryGetBooleanProperty(responseBody, "return");
 
         if (!dispatched)
         {
@@ -53,21 +57,6 @@ public class Fast2SmsGatewayClient : ISmsGatewayClient
                 (int)response.StatusCode, OtpConstants.MaskMobileNumber(mobileNumber), responseBody);
             throw new HttpRequestException(
                 $"Fast2SMS reported a dispatch failure ({(int)response.StatusCode}): {responseBody}");
-        }
-    }
-
-    private static bool TryGetReturnTrue(string responseBody)
-    {
-        try
-        {
-            using var responseJson = JsonDocument.Parse(responseBody);
-            return responseJson.RootElement.TryGetProperty("return", out var returnProperty)
-                && returnProperty.ValueKind == JsonValueKind.True;
-        }
-        catch (JsonException)
-        {
-            // A non-2xx response isn't guaranteed to be JSON (e.g. an upstream proxy error page).
-            return false;
         }
     }
 

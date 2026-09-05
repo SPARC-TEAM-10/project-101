@@ -6,8 +6,17 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Chh.Api.Controllers;
 
-/// <summary>Individual registration endpoints (CHH-F02). The "api/v1/individuals" route is applied globally in <c>Program.cs</c>.</summary>
+/// <summary>
+/// Individual registration endpoints (CHH-F02). The "api/v1/individuals" route is applied
+/// globally in <c>Program.cs</c>. The empty <see cref="RouteAttribute"/> below isn't a no-op:
+/// <c>[ApiController]</c> requires every action to be attribute-routed *before*
+/// <c>RoutePrefixConvention</c> (a controller-model convention) ever runs, so without a real
+/// attribute here — even an empty one — a bare <c>[HttpPost]</c> below would fail that check
+/// despite the convention supplying a route a moment later. AuthController doesn't need this
+/// because its own <c>[Route("otp")]</c> already satisfies it.
+/// </summary>
 [ApiController]
+[Route("")]
 public class IndividualsController : ControllerBase
 {
     private const string RouteName = "RegisterIndividual";
@@ -24,13 +33,7 @@ public class IndividualsController : ControllerBase
     /// <summary>Registers a new individual profile for an OTP-verified mobile number.</summary>
     /// <param name="request">The registration details.</param>
     /// <param name="cancellationToken">Cancellation token forwarded through the service and repository layers.</param>
-    // Empty-string template, not bare [HttpPost]: [ApiController] validates that every action is
-    // attribute-routed *before* RoutePrefixConvention (a controller-model convention) ever runs,
-    // so an action with no template of its own fails that check even though the convention would
-    // have supplied one. AuthController's actions never hit this because they carry their own
-    // literal templates ("otp/request", "otp/verify"); anything relying purely on the controller
-    // prefix needs the same explicit (if empty) template.
-    [HttpPost("", Name = RouteName)]
+    [HttpPost(Name = RouteName)]
     // Anonymous: no session token exists yet (CHH-9 is verify-only) — the mobile-number-verified
     // guard inside the service is the actual gate, not [Authorize].
     [AllowAnonymous]
