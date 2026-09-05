@@ -1,12 +1,19 @@
 using Chh.Api.Extensions;
 using Chh.Api.Filters;
+using Chh.Api.Json;
 using Chh.Api.Routing;
 using Chh.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Local-only secrets (gitignored — backend/.gitignore), e.g. the AES key for encrypted PII
+// columns. Optional so its absence doesn't break Production, which resolves the same keys from
+// Azure Key Vault instead (api-standards.md §5).
+builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
 
 // Serilog, configured entirely from the "Serilog" block in appsettings.json
 // (api-standards.md §8). Never log OTP codes, JWTs, full mobile numbers, or
@@ -31,7 +38,15 @@ builder.Services.AddControllers(options =>
     // FluentValidationActionFilter for why this replaces FluentValidation.AspNetCore's
     // auto-validation (it returned 400, not the required 422).
     options.Filters.Add<FluentValidationActionFilter>();
-});
+})
+    .AddJsonOptions(options =>
+    {
+        // BloodGroup first — its clinical-notation converter ("A+", "AB-", ...) takes priority
+        // over the generic enum-as-string converter registered after it (System.Text.Json checks
+        // converters in registration order). Every other enum (e.g. Gender) falls through to it.
+        options.JsonSerializerOptions.Converters.Add(new BloodGroupJsonConverter());
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHealthChecks();

@@ -12,6 +12,8 @@ servers:
 tags:
   - name: Auth
     description: Mobile-number + OTP authentication (CHH-F01)
+  - name: Individuals
+    description: Individual user registration (CHH-F02)
 paths:
   /auth/otp/request:
     post:
@@ -92,6 +94,52 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/ProblemDetails"
+  /individuals:
+    post:
+      tags:
+        - Individuals
+      summary: Register an individual profile
+      description: >
+        Creates the individual profile completed after OTP verification
+        (CHH-F02): personal details, blood group, DOB, gender, location, and
+        health screening. `mobileNumber` must have a verified OTP already
+        (CHH-9) — creates an addressable resource, so a successful call
+        returns `201 Created` with a `Location` header
+        (`.claude/rules/api-standards.md` §1/§2).
+      operationId: registerIndividual
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateIndividualProfileRequest"
+      responses:
+        "201":
+          description: Individual profile created.
+          headers:
+            Location:
+              schema:
+                type: string
+              description: URI of the created profile.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IndividualProfileDto"
+        "422":
+          description: >
+            Request malformed (field-level validation) or the mobile number
+            does not have a verified OTP.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "409":
+          description: An individual profile already exists for this mobile number.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
 components:
   schemas:
     OtpRequestRequest:
@@ -153,6 +201,95 @@ components:
           type: string
           format: date-time
           description: UTC timestamp the OTP was successfully verified.
+    BloodGroup:
+      type: string
+      description: Clinical blood group notation.
+      enum: ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"]
+    Gender:
+      type: string
+      enum: ["Male", "Female", "Other"]
+    CreateIndividualProfileRequest:
+      type: object
+      required:
+        - mobileNumber
+        - fullName
+        - email
+        - bloodGroup
+        - dateOfBirth
+        - gender
+        - locationCityArea
+      properties:
+        mobileNumber:
+          type: string
+          description: Must have a verified OTP (CHH-9) already.
+          pattern: "^[0-9]{10}$"
+          example: "9876543210"
+        fullName:
+          type: string
+          description: 2–50 characters after trimming.
+          example: "Jane Doe"
+        email:
+          type: string
+          format: email
+        bloodGroup:
+          $ref: "#/components/schemas/BloodGroup"
+        dateOfBirth:
+          type: string
+          format: date
+          description: Must be in the past and indicate an age of 18 or older.
+        gender:
+          $ref: "#/components/schemas/Gender"
+        locationCityArea:
+          type: string
+          description: >
+            City/area, free text for now — a predefined/searchable list is an
+            open product question (see the CHH-F02 doc's Open Questions).
+        isChronicIllness:
+          type: boolean
+          default: false
+        hasRecentSurgery:
+          type: boolean
+          default: false
+        isInfectiousDisease:
+          type: boolean
+          default: false
+        isUnderweight:
+          type: boolean
+          default: false
+        isOtherIllness:
+          type: boolean
+          default: false
+        otherIllnessDetails:
+          type: string
+          description: Required (max 200 chars) when isOtherIllness is true.
+          maxLength: 200
+    IndividualProfileDto:
+      type: object
+      description: >
+        Deliberately excludes email, DOB, and health-screening detail — PII
+        the registration-confirmation response doesn't need to echo back.
+      required:
+        - id
+        - fullName
+        - bloodGroup
+        - isReceiverOnly
+        - createdAtUtc
+      properties:
+        id:
+          type: string
+          format: uuid
+        fullName:
+          type: string
+        bloodGroup:
+          $ref: "#/components/schemas/BloodGroup"
+        isReceiverOnly:
+          type: boolean
+          description: >
+            True if any health-restriction flag was set — excluded from
+            donor search, can still request blood (PRD §7 CHH-F02 AC2).
+        createdAtUtc:
+          type: string
+          format: date-time
     ProblemDetails:
       type: object
       description: RFC 7807 problem details.

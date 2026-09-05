@@ -3,6 +3,7 @@ using Chh.Application.Services;
 using Chh.Application.Validators;
 using Chh.Infrastructure.ExternalClients;
 using Chh.Infrastructure.Persistence;
+using Chh.Infrastructure.Persistence.Encryption;
 using Chh.Infrastructure.Persistence.Repositories;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
@@ -24,8 +25,14 @@ public static class ServiceCollectionExtensions
         services.AddDbContext<ChhDbContext>(options =>
             options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
 
+        // Backs the AES-256 value converters on IndividualProfile's PII/health-screening columns
+        // (db-standards.md §3). Singleton: stateless besides the key, and ChhDbContext resolves it once per scope anyway.
+        services.AddSingleton<IFieldEncryptor, AesFieldEncryptor>();
+
         services.AddScoped<IOtpRequestRepository, OtpRequestRepository>();
         services.AddScoped<IOtpService, OtpService>();
+        services.AddScoped<IIndividualProfileRepository, IndividualProfileRepository>();
+        services.AddScoped<IIndividualProfileService, IndividualProfileService>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         // SMS gateway: Fast2SMS when an API key is configured (Azure Key Vault / user-secrets —

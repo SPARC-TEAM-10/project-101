@@ -42,6 +42,17 @@ public static class ProblemDetailsServiceCollectionExtensions
                 {
                     Detail = ex.Message
                 });
+            // CHH-F02: individual registration domain exception mappings.
+            options.Map<MobileNumberNotVerifiedException>(ex =>
+                new StatusCodeProblemDetails(StatusCodes.Status422UnprocessableEntity)
+                {
+                    Detail = ex.Message
+                });
+            options.Map<IndividualAlreadyRegisteredException>(ex =>
+                new StatusCodeProblemDetails(StatusCodes.Status409Conflict)
+                {
+                    Detail = ex.Message
+                });
             // Surfaces the per-field failure messages (not just the generic exception message) —
             // api-standards.md §7's documented ValidationProblemDetails(ex.Failures) shape.
             options.Map<ChhValidationException>(ex =>
