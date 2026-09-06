@@ -6,6 +6,9 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>Chh.Api</RootNamespace>
+    <!-- Enables `dotnet user-secrets` for local-only config (DB password, encryption key) —
+         loaded automatically in Development, never committed, no code needed in Program.cs. -->
+    <UserSecretsId>chh-api-a1e6c9f2-8b3d-4b7a-9c1e-2f6d8a4b5c7e</UserSecretsId>
     <!-- Required by Swashbuckle so /// XML comments surface in Swagger (api-standards.md §4). -->
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <!-- CS1591: don't fail the build for undocumented types while the API surface is still empty.
@@ -22,7 +25,7 @@
     <PackageReference Include="Serilog.Enrichers.Process" Version="2.0.2" />
     <PackageReference Include="Serilog.Enrichers.Environment" Version="2.3.0" />
     <PackageReference Include="Hellang.Middleware.ProblemDetails" Version="6.5.1" />
-    <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
+    <!-- FluentValidation.AspNetCore intentionally not referenced — see Chh.Api.Filters.FluentValidationActionFilter. -->
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.9.2" />
     <PackageReference Include="Hangfire.AspNetCore" Version="1.8.14" />
     <PackageReference Include="Hangfire.PostgreSql" Version="1.20.9" />

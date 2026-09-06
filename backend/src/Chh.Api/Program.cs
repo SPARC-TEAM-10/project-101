@@ -1,9 +1,13 @@
 using Chh.Api.Extensions;
+using Chh.Api.Filters;
+using Chh.Api.Json;
 using Chh.Api.Routing;
 using Chh.Infrastructure.Persistence;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,7 +30,19 @@ builder.Services.AddControllers(options =>
 {
     options.Conventions.Add(new RoutePrefixConvention("api/v1/[controller]"));
     options.Conventions.Add(new RouteTokenTransformerConvention(new KebabCaseParameterTransformer()));
-});
+    // Runs FluentValidation and throws ChhValidationException (-> 422) on failure — see
+    // FluentValidationActionFilter for why this replaces FluentValidation.AspNetCore's
+    // auto-validation (it returned 400, not the required 422).
+    options.Filters.Add<FluentValidationActionFilter>();
+})
+    .AddJsonOptions(options =>
+    {
+        // BloodGroup first — its clinical-notation converter ("A+", "AB-", ...) takes priority
+        // over the generic enum-as-string converter registered after it (System.Text.Json checks
+        // converters in registration order). Every other enum (e.g. Gender) falls through to it.
+        options.JsonSerializerOptions.Converters.Add(new BloodGroupJsonConverter());
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHealthChecks();
@@ -40,11 +56,12 @@ builder.Services.AddInfrastructureServices(builder.Configuration);
 var app = builder.Build();
 
 // Applies pending EF Core migrations on startup. Skipped under the "Testing" environment
-// (see ApiWebApplicationFactory) — WebApplicationFactory-hosted tests have no real database.
+// (see ApiWebApplicationFactory) — WebApplicationFactory-hosted tests have no real database,
+// and user-secrets (where the real local connection string lives) only load in Development.
 if (!app.Environment.IsEnvironment("Testing"))
 {
-    using var startupScope = app.Services.CreateScope();
-    var dbContext = startupScope.ServiceProvider.GetRequiredService<ChhDbContext>();
+    using var scope = app.Services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<ChhDbContext>();
     await dbContext.Database.MigrateAsync();
 }
 
@@ -61,9 +78,17 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// Liveness probe. Anonymous by design — it is infrastructure, not an API resource,
-// so it is not part of contracts/chh-api.v1.yaml and carries no /api/v1 prefix.
-app.MapHealthChecks("/health");
+// Liveness probe. Anonymous by design — it is infrastructure, not an API resource, so it is not
+// part of contracts/chh-api.v1.yaml and carries no /api/v1 prefix. Excludes "external"-tagged
+// checks (e.g. Fast2SmsWalletHealthCheck) — an orchestrator restarting this container over an
+// external provider being down would fix nothing.
+app.MapHealthChecks("/health", new HealthCheckOptions
+{
+    Predicate = check => !check.Tags.Contains("external")
+});
+
+// Readiness probe — includes external-dependency checks.
+app.MapHealthChecks("/health/ready");
 
 app.MapControllers();
 

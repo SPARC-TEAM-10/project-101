@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Chh.Infrastructure.Migrations
 {
     [DbContext(typeof(ChhDbContext))]
-    [Migration("20260906074725_AddOtpRequestTable")]
+    [Migration("20260904165122_AddOtpRequestTable")]
     partial class AddOtpRequestTable
     {
         /// <inheritdoc />

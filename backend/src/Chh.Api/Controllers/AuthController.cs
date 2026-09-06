@@ -6,8 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Chh.Api.Controllers;
 
-/// <summary>Mobile-number + OTP authentication endpoints (CHH-F01). The "api/v1" route prefix is applied globally in <c>Program.cs</c>.</summary>
+/// <summary>Mobile-number + OTP authentication endpoints (CHH-F01). The "api/v1/auth" prefix comes from the global convention in <c>Program.cs</c>; "otp" is this controller's own shared segment.</summary>
 [ApiController]
+[Route("otp")]
 public class AuthController : ControllerBase
 {
     private readonly IOtpService _otpService;
@@ -23,7 +24,7 @@ public class AuthController : ControllerBase
     /// <summary>Requests a one-time password for a mobile number and dispatches it via the SMS gateway.</summary>
     /// <param name="request">The mobile number to send the OTP to.</param>
     /// <param name="cancellationToken">Cancellation token forwarded through the service and repository layers.</param>
-    [HttpPost("otp/request")]
+    [HttpPost("request")]
     // One of only 2 endpoints allowed [AllowAnonymous] in this system — see api-standards.md §5
     [AllowAnonymous]
     [ProducesResponseType(typeof(OtpRequestResponse), StatusCodes.Status200OK)]
@@ -35,6 +36,22 @@ public class AuthController : ControllerBase
         CancellationToken cancellationToken)
     {
         var result = await _otpService.RequestOtpAsync(request, cancellationToken);
+        return Ok(result);
+    }
+
+    /// <summary>Verifies a submitted OTP code for a mobile number.</summary>
+    /// <param name="request">The mobile number and OTP code to verify.</param>
+    /// <param name="cancellationToken">Cancellation token forwarded through the service and repository layers.</param>
+    [HttpPost("verify")]
+    // One of only 2 endpoints allowed [AllowAnonymous] in this system — see api-standards.md §5
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(OtpVerifyResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+    public async Task<ActionResult<OtpVerifyResponse>> VerifyOtpAsync(
+        [FromBody] OtpVerifyRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await _otpService.VerifyOtpAsync(request, cancellationToken);
         return Ok(result);
     }
 }

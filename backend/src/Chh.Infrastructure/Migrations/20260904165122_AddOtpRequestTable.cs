@@ -8,7 +8,7 @@ namespace Chh.Infrastructure.Migrations
     /// <inheritdoc />
     public partial class AddOtpRequestTable : Migration
     {
-        /// <inheritdoc />
+        /// <summary>Creates the <c>OtpRequest</c> table and its <c>MobileNumber</c> index.</summary>
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
@@ -34,7 +34,7 @@ namespace Chh.Infrastructure.Migrations
                 column: "MobileNumber");
         }
 
-        /// <inheritdoc />
+        /// <summary>Drops the <c>OtpRequest</c> table.</summary>
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(

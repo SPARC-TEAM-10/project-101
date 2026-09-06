@@ -77,6 +77,43 @@ public class OtpService : IOtpService
         return response;
     }
 
+    /// <inheritdoc />
+    public async Task<OtpVerifyResponse> VerifyOtpAsync(OtpVerifyRequest request, CancellationToken ct)
+    {
+        var verifiedAtUtc = DateTimeOffset.UtcNow;
+
+        var latest = await _otpRequestRepository
+            .GetLatestTrackedByMobileNumberAsync(request.MobileNumber, ct)
+            .ConfigureAwait(false);
+
+        if (latest is null || latest.OtpExpiresAtUtc < verifiedAtUtc || !IsMatchingOtpCode(request.OtpCode, latest.OtpCodeHash))
+        {
+            // Same exception regardless of which condition failed (wrong code, expired, or
+            // never requested) — distinguishing them would let a caller enumerate mobile numbers.
+            throw new InvalidOtpException();
+        }
+
+        latest.MarkVerified();
+        await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
+
+        return new OtpVerifyResponse
+        {
+            MaskedMobileNumber = OtpConstants.MaskMobileNumber(request.MobileNumber),
+            VerifiedAtUtc = verifiedAtUtc
+        };
+    }
+
+    private static bool IsMatchingOtpCode(string otpCode, string expectedHash)
+    {
+        var actualHashBytes = Encoding.UTF8.GetBytes(HashOtpCode(otpCode));
+        var expectedHashBytes = Encoding.UTF8.GetBytes(expectedHash);
+
+        // Constant-time comparison — a length/early-exit-sensitive compare here would leak
+        // timing information about the stored hash.
+        return actualHashBytes.Length == expectedHashBytes.Length
+            && CryptographicOperations.FixedTimeEquals(actualHashBytes, expectedHashBytes);
+    }
+
     private static string GenerateOtpCode()
     {
         var code = RandomNumberGenerator.GetInt32(0, (int)Math.Pow(10, OtpConstants.CodeLength));
