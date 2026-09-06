@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 
 import { useOtpVerify } from "../../features/auth/useOtpVerify";
+import { useAuth } from "../../context/AuthProvider";
 
 interface OtpVerificationState {
   mobileNumber: string;
@@ -51,6 +52,7 @@ function OtpVerificationScreen({
     resend,
     submit,
   } = useOtpVerify(mobileNumber, resendAvailableAtUtc);
+  const { setSession } = useAuth();
   const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
 
   useEffect(() => {
@@ -62,12 +64,12 @@ function OtpVerificationScreen({
   async function verifyAndNavigate() {
     const result = await submit();
     if (result.ok && result.data) {
-      onNavigate("/verified", {
-        state: {
-          maskedMobileNumber: result.data.maskedMobileNumber,
-          verifiedAtUtc: result.data.verifiedAtUtc,
-        },
+      setSession({
+        token: result.data.accessToken,
+        role: result.data.role,
+        expiresAtUtc: result.data.tokenExpiresAtUtc,
       });
+      onNavigate("/redirecting");
     }
   }
 

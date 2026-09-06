@@ -1,12 +1,13 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
 
-// Placeholder until the backend's role enum is confirmed (see CHH-8 plan §11 Open Questions).
-// CHH-10 (Role-Based Redirection) should replace this with the real role union.
-export type Role = string;
+// Matches backend/src/Chh.Domain/Constants/RoleConstants.cs — Hospital/NGO/Admin aren't
+// resolvable yet (no Facility/Admin entities exist), so those roles aren't issued.
+export type Role = "Individual" | "Guest";
 
 export interface AuthSession {
   token: string;
   role: Role;
+  expiresAtUtc: string;
 }
 
 interface AuthContextValue {

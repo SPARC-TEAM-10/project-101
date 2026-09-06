@@ -4,6 +4,8 @@ import { describe, expect, it } from "vitest";
 
 import { AuthProvider, useAuth } from "./AuthProvider";
 
+const FUTURE = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+
 function wrapper({ children }: { children: ReactNode }) {
   return <AuthProvider>{children}</AuthProvider>;
 }
@@ -18,15 +20,15 @@ describe("AuthProvider / useAuth", () => {
   it("setSession stores the session", () => {
     const { result } = renderHook(() => useAuth(), { wrapper });
 
-    act(() => result.current.setSession({ token: "abc", role: "Individual" }));
+    act(() => result.current.setSession({ token: "abc", role: "Individual", expiresAtUtc: FUTURE }));
 
-    expect(result.current.session).toEqual({ token: "abc", role: "Individual" });
+    expect(result.current.session).toEqual({ token: "abc", role: "Individual", expiresAtUtc: FUTURE });
   });
 
   it("clearSession resets the session to null", () => {
     const { result } = renderHook(() => useAuth(), { wrapper });
 
-    act(() => result.current.setSession({ token: "abc", role: "Individual" }));
+    act(() => result.current.setSession({ token: "abc", role: "Individual", expiresAtUtc: FUTURE }));
     act(() => result.current.clearSession());
 
     expect(result.current.session).toBeNull();

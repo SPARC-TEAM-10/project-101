@@ -6,6 +6,7 @@ import { describe, expect, it } from "vitest";
 import { http, HttpResponse } from "msw";
 
 import { OtpVerificationPage } from "./OtpVerificationPage";
+import { AuthProvider } from "../../context/AuthProvider";
 import { server } from "../../../tests/setup";
 import { OTP_REQUEST_URL, gatewayErrorHandler, verifyInvalidOtpHandler } from "../../../tests/msw/handlers";
 
@@ -17,13 +18,15 @@ function renderAt(state: unknown) {
   });
   return render(
     <QueryClientProvider client={queryClient}>
-      <MemoryRouter initialEntries={[{ pathname: "/otp-verify", state }]}>
-        <Routes>
-          <Route path="/otp-verify" element={<OtpVerificationPage />} />
-          <Route path="/login" element={<div>Mobile Entry Screen</div>} />
-          <Route path="/verified" element={<div>Verified Screen</div>} />
-        </Routes>
-      </MemoryRouter>
+      <AuthProvider>
+        <MemoryRouter initialEntries={[{ pathname: "/otp-verify", state }]}>
+          <Routes>
+            <Route path="/otp-verify" element={<OtpVerificationPage />} />
+            <Route path="/login" element={<div>Mobile Entry Screen</div>} />
+            <Route path="/redirecting" element={<div>Redirecting Screen</div>} />
+          </Routes>
+        </MemoryRouter>
+      </AuthProvider>
     </QueryClientProvider>,
   );
 }
@@ -87,13 +90,13 @@ describe("OtpVerificationPage", () => {
     expect(screen.getByRole("button", { name: /verify otp/i })).toBeDisabled();
   });
 
-  it("auto-submits once all 6 digits are filled and navigates to /verified on success (AC1)", async () => {
+  it("auto-submits once all 6 digits are filled and navigates to /redirecting on success (AC1)", async () => {
     const user = userEvent.setup();
     renderAt(validState);
 
     await typeCode(user, "427159");
 
-    expect(await screen.findByText("Verified Screen")).toBeInTheDocument();
+    expect(await screen.findByText("Redirecting Screen")).toBeInTheDocument();
   });
 
   it("on 422, clears all boxes, shows the AC2 message, and refocuses box 1", async () => {
