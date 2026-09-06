@@ -14,6 +14,8 @@ tags:
     description: Mobile-number + OTP authentication (CHH-F01)
   - name: Individuals
     description: Individual user registration (CHH-F02)
+  - name: BloodRequests
+    description: Blood requests with proximity search radius (CHH-F04, Epic CHH-25)
 paths:
   /auth/otp/request:
     post:
@@ -144,7 +146,59 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/ProblemDetails"
+  /blood-requests:
+    post:
+      tags:
+        - BloodRequests
+      summary: Create a blood request with a search radius
+      description: >
+        Creates a blood request (CHH-33/US-CHH-004-01, part of Epic CHH-25 —
+        CHH-F04 Proximity Notifications) and transitions it to "Matching"
+        (AC1). The requester is the authenticated caller — taken from the
+        JWT, never a request body field. Creates an addressable resource, so
+        a successful call returns `201 Created` with a `Location` header
+        (`.claude/rules/api-standards.md` §1/§2). Donor matching and
+        notification dispatch (CHH-34+) are out of scope here.
+      operationId: createBloodRequest
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateBloodRequestRequest"
+      responses:
+        "201":
+          description: Blood request created.
+          headers:
+            Location:
+              schema:
+                type: string
+              description: URI of the created blood request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BloodRequestDto"
+        "422":
+          description: >
+            Request malformed (field-level validation) — including a search
+            radius outside 5–100km (AC2/AC3), a missing mandatory field
+            (AC4), or device location coordinates that could not be resolved
+            (Edge Case).
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "401":
+          description: Missing or invalid JWT.
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT issued by POST /auth/otp/verify (CHH-F01 AC3).
   schemas:
     OtpRequestRequest:
       type: object
@@ -314,6 +368,100 @@ components:
         createdAtUtc:
           type: string
           format: date-time
+    UrgencyLevel:
+      type: string
+      enum: ["Emergency", "Urgent", "Standard"]
+    BloodRequestStatus:
+      type: string
+      description: >
+        Only "Matching" is set on creation (AC1). "Expired" is set by the
+        donor-matching/notification stories later in this epic (CHH-34+).
+      enum: ["Matching", "Expired"]
+    CreateBloodRequestRequest:
+      type: object
+      required:
+        - patientName
+        - bloodGroup
+        - unitsRequired
+        - locationCityArea
+        - latitude
+        - longitude
+        - searchRadiusKm
+        - urgency
+      properties:
+        patientName:
+          type: string
+          description: 2–100 characters after trimming.
+        bloodGroup:
+          $ref: "#/components/schemas/BloodGroup"
+        unitsRequired:
+          type: integer
+          description: Must be greater than 0.
+          minimum: 1
+        locationCityArea:
+          type: string
+          description: City/area, free text (same simplification as individual registration).
+          maxLength: 100
+        latitude:
+          type: number
+          format: double
+          description: >
+            From the requester's device (browser/device Geolocation) — not
+            server-side geocoding (no maps API key configured yet). A
+            missing/unresolvable value is the story's documented Edge Case.
+          minimum: -90
+          maximum: 90
+        longitude:
+          type: number
+          format: double
+          description: From the requester's device — see latitude.
+          minimum: -180
+          maximum: 180
+        searchRadiusKm:
+          type: integer
+          description: Must be between 5 and 100 inclusive (AC2/AC3).
+          minimum: 5
+          maximum: 100
+        urgency:
+          $ref: "#/components/schemas/UrgencyLevel"
+    BloodRequestDto:
+      type: object
+      required:
+        - id
+        - patientName
+        - bloodGroup
+        - unitsRequired
+        - locationCityArea
+        - searchRadiusKm
+        - urgency
+        - status
+        - createdAtUtc
+        - expiresAtUtc
+      properties:
+        id:
+          type: string
+          format: uuid
+        patientName:
+          type: string
+        bloodGroup:
+          $ref: "#/components/schemas/BloodGroup"
+        unitsRequired:
+          type: integer
+        locationCityArea:
+          type: string
+        searchRadiusKm:
+          type: integer
+        urgency:
+          $ref: "#/components/schemas/UrgencyLevel"
+        status:
+          $ref: "#/components/schemas/BloodRequestStatus"
+        createdAtUtc:
+          type: string
+          format: date-time
+        expiresAtUtc:
+          type: string
+          format: date-time
+          description: createdAtUtc plus the 6-hour validity window.
     ProblemDetails:
       type: object
       description: RFC 7807 problem details.

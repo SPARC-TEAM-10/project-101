@@ -73,4 +73,40 @@ export const verifyInvalidOtpHandler = http.post(OTP_VERIFY_URL, () => {
   );
 });
 
-export const handlers = [successHandler, verifySuccessHandler];
+export const BLOOD_REQUESTS_URL = "/api/v1/blood-requests";
+
+export const createBloodRequestSuccessHandler = http.post(BLOOD_REQUESTS_URL, async ({ request }) => {
+  const body = (await request.json()) as Record<string, unknown>;
+  return HttpResponse.json(
+    {
+      id: "11111111-1111-1111-1111-111111111111",
+      patientName: body.patientName,
+      bloodGroup: body.bloodGroup,
+      unitsRequired: body.unitsRequired,
+      locationCityArea: body.locationCityArea,
+      searchRadiusKm: body.searchRadiusKm,
+      urgency: body.urgency,
+      status: "Matching",
+      createdAtUtc: "2026-09-07T00:00:00.000Z",
+      expiresAtUtc: "2026-09-07T06:00:00.000Z",
+    },
+    { status: 201 },
+  );
+});
+
+export const createBloodRequestValidationErrorHandler = http.post(BLOOD_REQUESTS_URL, () => {
+  return HttpResponse.json(
+    {
+      title: "Validation failed",
+      status: 422,
+      detail: "Minimum radius is 5km",
+    },
+    { status: 422 },
+  );
+});
+
+export const createBloodRequestUnauthorizedHandler = http.post(BLOOD_REQUESTS_URL, () => {
+  return new HttpResponse(null, { status: 401 });
+});
+
+export const handlers = [successHandler, verifySuccessHandler, createBloodRequestSuccessHandler];
