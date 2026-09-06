@@ -7,6 +7,8 @@ import { RoleRedirectPage } from "./pages/auth/RoleRedirectPage";
 import { GuestPlaceholderPage } from "./pages/GuestPlaceholderPage";
 import { IndividualDashboardStubPage } from "./pages/dashboard/IndividualDashboardStubPage";
 import { GuestDashboardStubPage } from "./pages/dashboard/GuestDashboardStubPage";
+import { NewUserGuestDecisionPage } from "./pages/onboarding/NewUserGuestDecisionPage";
+import { RegisterStubPage } from "./pages/onboarding/RegisterStubPage";
 import { RequireAuth } from "./components/RequireAuth";
 
 export const router = createBrowserRouter([
@@ -27,6 +29,22 @@ export const router = createBrowserRouter([
     element: (
       <RequireAuth roles={["Guest"]}>
         <GuestDashboardStubPage />
+      </RequireAuth>
+    ),
+  },
+  {
+    path: "/welcome",
+    element: (
+      <RequireAuth roles={["Guest"]}>
+        <NewUserGuestDecisionPage />
+      </RequireAuth>
+    ),
+  },
+  {
+    path: "/register",
+    element: (
+      <RequireAuth roles={["Guest"]}>
+        <RegisterStubPage />
       </RequireAuth>
     ),
   },
