@@ -40,10 +40,37 @@ public static class ServiceCollectionExtensions
 
         services.AddFast2Sms(configuration);
         services.AddJwt(configuration);
+        services.AddCorsPolicy(configuration);
 
         services.AddValidatorsFromAssembly(typeof(OtpRequestRequestValidator).Assembly);
 
         return services;
+    }
+
+    /// <summary>Name of the CORS policy registered by <see cref="AddCorsPolicy"/>, applied via <c>app.UseCors</c> in <c>Program.cs</c>.</summary>
+    public const string FrontendCorsPolicy = "FrontendCorsPolicy";
+
+    /// <summary>
+    /// Registers a CORS policy allowing only the configured frontend origin(s) — the Vercel
+    /// deployment(s) plus local dev — to call this API from a browser (root CLAUDE.md Decisions
+    /// Log 2026-09-05: split-cloud Vercel/AWS deployment requires explicit CORS). No wildcard
+    /// origin: every origin is listed explicitly in <c>Cors:AllowedOrigins</c>.
+    /// </summary>
+    /// <param name="services">The service collection to register into.</param>
+    /// <param name="configuration">App configuration.</param>
+    private static void AddCorsPolicy(this IServiceCollection services, IConfiguration configuration)
+    {
+        var allowedOrigins = configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+
+        services.AddCors(options =>
+        {
+            options.AddPolicy(FrontendCorsPolicy, policy =>
+            {
+                policy.WithOrigins(allowedOrigins)
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+            });
+        });
     }
 
     /// <summary>

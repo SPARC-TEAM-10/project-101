@@ -77,6 +77,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+// Must run before auth/endpoint dispatch so the frontend's cross-origin requests (Vercel calling
+// this AWS-hosted API — root CLAUDE.md Decisions Log 2026-09-05) get the CORS headers they need.
+app.UseCors(ServiceCollectionExtensions.FrontendCorsPolicy);
+
 // Must come before MapControllers (endpoint routing is implicit in the minimal hosting model)
 // so [Authorize] on protected controllers actually runs. The two OTP endpoints stay reachable
 // regardless — they carry [AllowAnonymous] (api-standards.md §5).
