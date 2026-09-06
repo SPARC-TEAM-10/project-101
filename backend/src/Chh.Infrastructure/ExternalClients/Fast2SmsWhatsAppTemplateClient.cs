@@ -57,8 +57,8 @@ public class Fast2SmsWhatsAppTemplateClient : IWhatsAppTemplateClient
 
         var query = new Dictionary<string, string?>
         {
-            ["message_id"] = "1252891671245102",
-            ["phone_number_id"] = "1252891671245102",
+            ["message_id"] = messageId,
+            ["phone_number_id"] = _phoneNumberId,
             ["numbers"] = Fast2SmsMobileNumberNormalizer.Normalize(mobileNumber),
             ["variables_values"] = string.Join('|', variableValues)
         };
@@ -70,11 +70,11 @@ public class Fast2SmsWhatsAppTemplateClient : IWhatsAppTemplateClient
 
         // Same shape caveat as the SMS route (see Fast2SmsGatewayClient): a non-2xx status isn't
         // guaranteed to be JSON, and a 2xx status doesn't guarantee the send actually succeeded —
-        // this route's success flag is "status", not "return" (Fast2SmsResponseParser takes the
-        // field name per call precisely because the two routes disagree on it).
+        // this route's success flag is "return" (confirmed against a live response:
+        // {"request_id":"...","return":true,"message":["Whatsapp Message sent successfully."]}).
         var responseBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
         var dispatched = response.IsSuccessStatusCode
-            && Fast2SmsResponseParser.TryGetBooleanProperty(responseBody, "status");
+            && Fast2SmsResponseParser.TryGetBooleanProperty(responseBody, "return");
 
         if (!dispatched)
         {
