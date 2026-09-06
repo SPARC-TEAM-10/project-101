@@ -7,7 +7,8 @@ namespace Chh.Application.Factories;
 /// Computes OTP expiry/resend-cooldown timestamps and constructs <see cref="OtpRequest"/> instances.
 /// This construction logic lives here — not on the entity itself — per code-review guidance
 /// (PR #1: "Do not write functions ... in entity models"); the same split applies to any future
-/// entity that needs computed-at-creation fields.
+/// entity that needs computed-at-creation fields. Sets the entity's `internal` setters via object
+/// initializer (Chh.Domain.csproj grants Chh.Application <c>InternalsVisibleTo</c>).
 /// </summary>
 public static class OtpRequestFactory
 {
@@ -17,11 +18,13 @@ public static class OtpRequestFactory
     /// <param name="requestedAtUtc">UTC timestamp the OTP was requested.</param>
     public static OtpRequest Create(string mobileNumber, string otpCodeHash, DateTimeOffset requestedAtUtc)
     {
-        return new OtpRequest(
-            mobileNumber,
-            otpCodeHash,
-            requestedAtUtc,
-            requestedAtUtc.Add(OtpConstants.OtpValidity),
-            requestedAtUtc.Add(OtpConstants.ResendCooldown));
+        return new OtpRequest
+        {
+            MobileNumber = mobileNumber,
+            OtpCodeHash = otpCodeHash,
+            OtpRequestedAtUtc = requestedAtUtc,
+            OtpExpiresAtUtc = requestedAtUtc.Add(OtpConstants.OtpValidity),
+            ResendAvailableAtUtc = requestedAtUtc.Add(OtpConstants.ResendCooldown)
+        };
     }
 }

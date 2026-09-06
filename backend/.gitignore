@@ -17,6 +17,8 @@ coverage*.json
 # Local logs written by the Serilog File sink
 logs/
 
-# Local secrets (secrets belong in Azure Key Vault / user-secrets, never in the repo)
+# Local secrets belong in Azure Key Vault / `dotnet user-secrets`, never in the repo.
+# appsettings.Local.json isn't loaded by Program.cs (removed in favor of user-secrets) — ignored
+# defensively in case one gets created by habit.
 appsettings.Local.json
 *.pfx

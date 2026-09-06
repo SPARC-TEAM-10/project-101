@@ -8,4 +8,11 @@
     <RootNamespace>Chh.Domain</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <!-- Lets Application-layer factories (e.g. IndividualProfileFactory) construct entities via
+         internal-set property initializers instead of a long positional constructor — entities
+         stay plain property bags, construction logic stays out of Chh.Domain. -->
+    <InternalsVisibleTo Include="Chh.Application" />
+  </ItemGroup>
+
 </Project>

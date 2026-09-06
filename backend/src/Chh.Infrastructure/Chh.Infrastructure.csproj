@@ -21,11 +21,20 @@
     <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.2" />
+    <!-- QueryHelpers.AddQueryString, for Fast2SmsWhatsAppTemplateClient's GET query string. -->
+    <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="8.0.8" />
+    <!-- IHealthCheck, for Fast2SmsWalletHealthCheck. -->
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="8.0.8" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Chh.Application\Chh.Application.csproj" />
     <ProjectReference Include="..\Chh.Domain\Chh.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Chh.Infrastructure.Tests" />
   </ItemGroup>
 
 </Project>
