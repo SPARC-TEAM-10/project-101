@@ -1,0 +1,214 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --sand:#F6F0E5; --sand-2:#EFE7D9; --cream:#FDFAF4;
+      --line:#E6DAC7; --line-strong:#D6C6AC;
+      --clay:#B06134; --clay-hover:#96502A;
+      --ink:#392A1D; --ink-2:#6F5C46; --ink-3:#A08A70;
+      --error:#A33325; --leaf:#4E7A46; --blood:#D32F2F; --blood-deep:#8A1F1B;
+      --font:"Plus Jakarta Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+      --r-sm:12px; --r-md:16px; --r-lg:20px;
+      --e1:0 1px 2px rgba(57,42,29,.04),0 2px 6px rgba(57,42,29,.05);
+      --e3:0 10px 24px rgba(57,42,29,.10),0 24px 56px rgba(57,42,29,.14);
+    }
+    *{box-sizing:border-box}
+    body{margin:0}
+    .screen{width:640px;height:760px;background:var(--sand);font-family:var(--font);color:var(--ink);
+      position:relative;overflow:hidden;padding:40px 44px}
+    h1{font-size:22px;font-weight:800;letter-spacing:-.022em;margin:0 0 4px}
+    .sub{font-size:13px;color:var(--ink-2);margin:0 0 32px}
+    h2{font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3);
+      margin:0 0 16px}
+    section{margin-bottom:40px}
+    .card{background:var(--cream);border:1px solid var(--line);border-radius:var(--r-lg);padding:28px;
+      box-shadow:var(--e1)}
+
+    /* ---- blood drip loader ---- */
+    .row{display:flex;align-items:flex-end;gap:40px;flex-wrap:wrap}
+    .swatch{display:flex;flex-direction:column;align-items:center;gap:10px}
+    .swatch span{font-size:11px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+    .drip-loader{position:relative;flex:none}
+    .drip-loader svg{position:absolute;left:50%;transform:translateX(-50%);fill:var(--blood)}
+    .drip-loader svg.duct{top:0}
+    .drip-loader svg.duct .shine{fill:rgba(255,255,255,.4)}
+    .drip-loader svg.drop{transform-origin:50% 0%;animation:drip-fall 1.8s cubic-bezier(.5,0,.4,1) infinite}
+    .drip-loader .ripple{position:absolute;left:50%;bottom:0;border:1.5px solid var(--blood);border-radius:50%;
+      opacity:0;animation:drip-ripple 1.8s cubic-bezier(.5,0,.4,1) infinite}
+    @keyframes drip-fall{
+      0%{opacity:0;transform:translate(-50%,-2px) scaleY(.3)}
+      8%{opacity:1;transform:translate(-50%,0) scaleY(.55)}
+      30%{opacity:1;transform:translate(-50%,0) scaleY(1)}
+      55%{opacity:1;transform:translate(-50%,var(--fall)) scaleY(1.2)}
+      68%{opacity:1;transform:translate(-50%,var(--fall)) scaleY(.5)}
+      76%{opacity:.35;transform:translate(-50%,calc(var(--fall) + 2px)) scaleY(.4)}
+      100%{opacity:0;transform:translate(-50%,calc(var(--fall) + 2px)) scaleY(.4)}
+    }
+    @keyframes drip-ripple{
+      0%,64%{opacity:0;transform:translateX(-50%) scaleX(.15)}
+      72%{opacity:.55;transform:translateX(-50%) scaleX(1)}
+      92%{opacity:0;transform:translateX(-50%) scaleX(1.8)}
+      100%{opacity:0}
+    }
+    .drip-loader.sm{width:22px;height:42px}
+    .drip-loader.sm svg.duct{width:16px;height:16px}
+    .drip-loader.sm svg.drop{width:8px;height:8px;top:11px;--fall:13px}
+    .drip-loader.sm .ripple{bottom:2px;width:13px;height:3px}
+    .drip-loader.md{width:32px;height:60px}
+    .drip-loader.md svg.duct{width:23px;height:23px}
+    .drip-loader.md svg.drop{width:12px;height:12px;top:16px;--fall:19px}
+    .drip-loader.md .ripple{bottom:3px;width:19px;height:4px}
+    .drip-loader.lg{width:52px;height:92px}
+    .drip-loader.lg svg.duct{width:36px;height:36px}
+    .drip-loader.lg svg.drop{width:18px;height:18px;top:25px;--fall:30px}
+    .drip-loader.lg .ripple{bottom:4px;width:28px;height:6px}
+
+    .usage-row{display:flex;gap:16px;margin-top:24px;flex-wrap:wrap}
+    button.cta{height:48px;padding:0 22px;border-radius:var(--r-sm);border:none;font-family:var(--font);
+      font-size:14.5px;font-weight:600;color:#fff;background:var(--clay);display:flex;align-items:center;gap:10px;cursor:default}
+    .cta-card{flex:1;min-width:220px;background:var(--blood-deep);border-radius:var(--r-md);padding:22px;
+      display:flex;flex-direction:column;align-items:center;gap:10px;color:#fff}
+    .cta-card .txt{font-size:12.5px;font-weight:600;opacity:.9}
+
+    /* ---- toast ---- */
+    .toast-host{position:absolute;left:50%;top:16px;transform:translateX(-50%);z-index:60;
+      display:flex;flex-direction:column;gap:8px;width:calc(100% - 88px);max-width:420px}
+    .toast{display:flex;align-items:center;gap:10px;border-radius:var(--r-sm);padding:12px 14px;
+      box-shadow:var(--e3);font-size:13.5px;font-weight:500;background:var(--cream);color:var(--ink);
+      animation:toastIn .22s both}
+    .toast.ok{border-left:4px solid var(--leaf)} .toast.ok svg{color:var(--leaf);flex:none}
+    .toast.err{border-left:4px solid var(--error)} .toast.err svg{color:var(--error);flex:none}
+    .toast.info{border-left:4px solid var(--clay)} .toast.info svg{color:var(--clay);flex:none}
+    .toast span.msg{flex:1}
+    .toast .x{margin-left:auto;background:none;border:none;color:var(--ink-3);cursor:pointer;display:flex;padding:4px;flex:none}
+    @keyframes toastIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+    .trigger-row{display:flex;gap:12px;flex-wrap:wrap}
+    button.trigger{height:44px;padding:0 18px;border-radius:var(--r-sm);border:1.5px solid var(--line-strong);
+      background:var(--cream);font-family:var(--font);font-size:13.5px;font-weight:600;color:var(--ink);cursor:pointer}
+    button.trigger:hover{background:var(--sand-2)}
+  </style>
+</helmet>
+
+<div class="screen">
+  <h1>Feedback components</h1>
+  <p class="sub">Blood-drip loader and toast — standalone reference, not part of a specific flow.</p>
+
+  <section>
+    <h2>Blood-drip loader</h2>
+    <div class="card">
+      <div class="row">
+        <div class="swatch">
+          <div class="drip-loader sm">
+            <svg class="duct" viewBox="0 0 24 24"><path d="M12 2C12 2 4.5 11.5 4.5 16A7.5 7.5 0 0 0 19.5 16C19.5 11.5 12 2 12 2Z"/><ellipse class="shine" cx="9.3" cy="12" rx="1.5" ry="2.4"/></svg>
+            <svg class="drop" viewBox="0 0 24 24"><path d="M12 2C12 2 4.5 11.5 4.5 16A7.5 7.5 0 0 0 19.5 16C19.5 11.5 12 2 12 2Z"/></svg>
+            <div class="ripple"></div>
+          </div>
+          <span>sm</span>
+        </div>
+        <div class="swatch">
+          <div class="drip-loader md">
+            <svg class="duct" viewBox="0 0 24 24"><path d="M12 2C12 2 4.5 11.5 4.5 16A7.5 7.5 0 0 0 19.5 16C19.5 11.5 12 2 12 2Z"/><ellipse class="shine" cx="9.3" cy="12" rx="1.5" ry="2.4"/></svg>
+            <svg class="drop" viewBox="0 0 24 24"><path d="M12 2C12 2 4.5 11.5 4.5 16A7.5 7.5 0 0 0 19.5 16C19.5 11.5 12 2 12 2Z"/></svg>
+            <div class="ripple"></div>
+          </div>
+          <span>md</span>
+        </div>
+        <div class="swatch">
+          <div class="drip-loader lg">
+            <svg class="duct" viewBox="0 0 24 24"><path d="M12 2C12 2 4.5 11.5 4.5 16A7.5 7.5 0 0 0 19.5 16C19.5 11.5 12 2 12 2Z"/><ellipse class="shine" cx="9.3" cy="12" rx="1.5" ry="2.4"/></svg>
+            <svg class="drop" viewBox="0 0 24 24"><path d="M12 2C12 2 4.5 11.5 4.5 16A7.5 7.5 0 0 0 19.5 16C19.5 11.5 12 2 12 2Z"/></svg>
+            <div class="ripple"></div>
+          </div>
+          <span>lg</span>
+        </div>
+      </div>
+
+      <div class="usage-row">
+        <button class="cta">
+          <div class="drip-loader sm" style="width:16px;height:26px">
+            <svg class="duct" viewBox="0 0 24 24" style="width:11px;height:11px"><path d="M12 2C12 2 4.5 11.5 4.5 16A7.5 7.5 0 0 0 19.5 16C19.5 11.5 12 2 12 2Z"/></svg>
+            <svg class="drop" viewBox="0 0 24 24" style="width:6px;height:6px;top:7px;--fall:8px"><path d="M12 2C12 2 4.5 11.5 4.5 16A7.5 7.5 0 0 0 19.5 16C19.5 11.5 12 2 12 2Z"/></svg>
+          </div>
+          Creating account…
+        </button>
+        <div class="cta-card">
+          <div class="drip-loader md">
+            <svg class="duct" viewBox="0 0 24 24"><path d="M12 2C12 2 4.5 11.5 4.5 16A7.5 7.5 0 0 0 19.5 16C19.5 11.5 12 2 12 2Z"/><ellipse class="shine" cx="9.3" cy="12" rx="1.5" ry="2.4"/></svg>
+            <svg class="drop" viewBox="0 0 24 24"><path d="M12 2C12 2 4.5 11.5 4.5 16A7.5 7.5 0 0 0 19.5 16C19.5 11.5 12 2 12 2Z"/></svg>
+            <div class="ripple"></div>
+          </div>
+          <div class="txt">Full-screen overlay usage</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Toast — top-center</h2>
+    <div class="card">
+      <div class="trigger-row">
+        <button class="trigger" onClick="{{showOk}}">Show success toast</button>
+        <button class="trigger" onClick="{{showErr}}">Show error toast</button>
+        <button class="trigger" onClick="{{showInfo}}">Show info toast</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="toast-host">
+    <sc-for list="{{toasts}}" as="t" hint-placeholder-count="0">
+      <div class="toast {{t.kind}}">
+        <sc-if value="{{t.isOk}}" hint-placeholder-val="{{false}}">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M8.4 12.3 11 15l4.6-5.4"/></svg>
+        </sc-if>
+        <sc-if value="{{t.isErr}}" hint-placeholder-val="{{false}}">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5 21 19.5H3L12 4.5Z"/><path d="M12 10v4M12 16.8v.1"/></svg>
+        </sc-if>
+        <sc-if value="{{t.isInfo}}" hint-placeholder-val="{{false}}">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.9v.1"/></svg>
+        </sc-if>
+        <span class="msg">{{t.message}}</span>
+        <button class="x" onClick="{{t.dismiss}}" aria-label="Dismiss"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6.5 6.5 11 11M17.5 6.5l-11 11"/></svg></button>
+      </div>
+    </sc-for>
+  </div>
+</div>
+
+</x-dc>
+<script data-dc-script>
+class Component extends DCLogic {
+  push(kind, message, autoDismissMs) {
+    const id = Date.now() + Math.random();
+    this.setState((s) => ({ toasts: [...(s.toasts ?? []), { id, kind, message }] }));
+    if (autoDismissMs) {
+      setTimeout(() => {
+        this.setState((s) => ({ toasts: (s.toasts ?? []).filter((t) => t.id !== id) }));
+      }, autoDismissMs);
+    }
+  }
+  renderVals() {
+    const toasts = (this.state.toasts ?? []).map((t) => ({
+      id: t.id, kind: t.kind, message: t.message,
+      isOk: t.kind === "ok", isErr: t.kind === "err", isInfo: t.kind === "info",
+      dismiss: () => this.setState((s) => ({ toasts: (s.toasts ?? []).filter((x) => x.id !== t.id) })),
+    }));
+    return {
+      toasts,
+      showOk: () => this.push("ok", "Account created. Welcome to Community Health Hub.", 4000),
+      showErr: () => this.push("err", "Couldn't complete that. Check your connection and try again.", null),
+      showInfo: () => this.push("info", "Your session will expire in 15 minutes.", 4000),
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,261 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --sand:#F6F0E5;--sand-2:#EFE7D9;--cream:#FDFAF4;--line:#E6DAC7;--line-strong:#D6C6AC;
+      --clay:#B06134;--clay-hover:#96502A;--clay-deep:#8A4620;--clay-tint:#F5E4D3;--clay-line:#E8CDB2;
+      --blood:#D32F2F;--blood-deep:#9E1B18;--blood-tint:#FCE9E7;--blood-line:#F5C6C2;
+      --ink:#392A1D;--ink-2:#6F5C46;--ink-3:#A08A70;--ink-off:#BFAE96;
+      --error:#A33325;--error-tint:#F7E4E0;--amber:#8F6A12;--amber-tint:#F7EDD4;--leaf:#4E7A46;--leaf-tint:#E8F0E2;
+      --overlay:rgba(57,42,29,.5);
+      --font:"Plus Jakarta Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
+      --r-xs:8px;--r-sm:12px;--r-md:16px;--r-lg:20px;--r-xl:28px;
+      --e1:0 1px 2px rgba(57,42,29,.04),0 2px 6px rgba(57,42,29,.05);
+      --e3:0 10px 24px rgba(57,42,29,.10),0 24px 56px rgba(57,42,29,.14);
+    }
+    *{box-sizing:border-box}
+    body{margin:0}
+    a{color:var(--clay)} a:hover{color:var(--clay-hover)}
+    .screen{width:390px;height:844px;background:var(--sand);font-family:var(--font);color:var(--ink);display:flex;flex-direction:column;overflow:hidden;position:relative}
+    svg.i{fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;width:18px;height:18px;flex:none}
+    svg.i.s{width:14px;height:14px;stroke-width:2.2}svg.i.m{width:20px;height:20px}svg.i.l{width:32px;height:32px;stroke-width:1.6}
+    .num{font-variant-numeric:tabular-nums}
+
+    .appbar{height:58px;flex:none;display:flex;align-items:center;gap:10px;padding:0 16px;background:var(--cream);border-bottom:1px solid var(--line)}
+    .appbar h1{flex:1;margin:0;font-size:17px;font-weight:800;letter-spacing:-.02em}
+    .appbar .av{width:34px;height:34px;border-radius:999px;background:var(--clay-tint);color:var(--clay-deep);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex:none}
+    .head{flex:none;background:var(--cream);border-bottom:1px solid var(--line);padding:0 16px 13px;display:flex;flex-direction:column;gap:11px}
+    .search{height:50px;border-radius:999px;border:1.5px solid var(--line);background:var(--sand);display:flex;align-items:center;gap:10px;padding:0 14px;color:var(--ink-3);font-size:16px}
+    .search.filled{border-color:var(--clay);background:var(--cream);color:var(--ink)}
+    .search .txt{flex:1}
+    .iconbtn{width:32px;height:32px;border-radius:999px;border:none;background:transparent;color:var(--ink-2);display:flex;align-items:center;justify-content:center;flex:none}
+    .chips{display:flex;gap:8px;overflow:hidden}
+    .chip{height:34px;padding:0 13px;border-radius:999px;background:var(--sand-2);border:1px solid var(--line);display:inline-flex;align-items:center;font-size:12.5px;font-weight:700;color:var(--ink-2);white-space:nowrap}
+    .chip.on{background:var(--clay-tint);border-color:var(--clay-line);color:var(--clay-deep)}
+
+    .scroll{flex:1;min-height:0;padding:14px 16px;display:flex;flex-direction:column;gap:10px;overflow:hidden}
+    .row{background:var(--cream);border:1px solid var(--line);border-radius:var(--r-sm);padding:12px 13px;display:flex;align-items:center;gap:12px}
+    .row.off{background:var(--sand-2);border-color:var(--line-strong)}
+    .row .av{width:42px;height:42px;border-radius:999px;background:var(--clay-tint);color:var(--clay-deep);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex:none}
+    .row .av.dim{background:var(--line);color:var(--ink-3)}
+    .row b{font-size:15px;font-weight:700;display:block;line-height:20px}
+    .row small{font-size:12px;color:var(--ink-2);font-weight:600}
+    .row .meta{flex:1;min-width:0}
+    .row .st{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;border-radius:999px;padding:3px 9px;margin-top:5px}
+    .row .st.ok{background:var(--leaf-tint);color:var(--leaf)}
+    .row .st.bad{background:var(--error-tint);color:var(--error)}
+    .row .st.adm{background:var(--clay-tint);color:var(--clay-deep)}
+    .row .act{flex:none;color:var(--ink-3)}
+
+    .empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:24px 12px}
+    .empty .ic{width:68px;height:68px;border-radius:999px;background:var(--sand-2);color:var(--ink-3);display:flex;align-items:center;justify-content:center}
+    .empty b{font-size:17px;line-height:23px;font-weight:700;max-width:26ch}
+    .empty p{margin:0;font-size:13.5px;line-height:1.6;color:var(--ink-2);max-width:32ch}
+
+    .btn{height:48px;padding:0 20px;border-radius:var(--r-sm);font-family:var(--font);font-size:15px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:9px;border:none;width:100%}
+    .btn.primary{background:var(--clay);color:#fff}
+    .btn.secondary{background:transparent;color:var(--ink);border:1.5px solid var(--line-strong)}
+    .btn.danger{background:transparent;color:var(--blood);border:1.5px solid var(--blood-line)}
+    .btn.dis{background:var(--sand-2);color:var(--ink-off);border:none;cursor:not-allowed}
+
+    .bottomnav{height:66px;flex:none;background:var(--cream);border-top:1px solid var(--line);display:flex;align-items:center;padding:0 6px}
+    .bottomnav a{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:600;color:var(--ink-3);text-decoration:none}
+    .bottomnav a.on{color:var(--clay);font-weight:700}
+
+    .scrim{position:absolute;inset:0;background:var(--overlay);display:flex;align-items:flex-end}
+    .sheet{width:100%;background:var(--cream);border-radius:var(--r-xl) var(--r-xl) 0 0;box-shadow:var(--e3);display:flex;flex-direction:column;padding-bottom:16px}
+    .grab{width:40px;height:4px;border-radius:999px;background:var(--line-strong);margin:10px auto 6px;flex:none}
+    .sbody{padding:8px 16px 0;display:flex;flex-direction:column;gap:13px}
+    .sbody h2{margin:0;font-size:20px;line-height:26px;font-weight:800;letter-spacing:-.02em}
+    .sbody p{margin:0;font-size:13.5px;line-height:1.6;color:var(--ink-2)}
+    .subject{display:flex;align-items:center;gap:11px;background:var(--sand);border:1px solid var(--line);border-radius:var(--r-sm);padding:11px 12px}
+    .subject .av{width:40px;height:40px;border-radius:999px;background:var(--clay-tint);color:var(--clay-deep);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex:none}
+    .subject b{font-size:14.5px;font-weight:700;display:block}
+    .subject small{font-size:12px;color:var(--ink-2);font-weight:600}
+    .field{display:flex;flex-direction:column;gap:6px}
+    .field label{font-size:13px;font-weight:600;color:var(--ink-2)}
+    .field label i{font-style:normal;color:var(--error)}
+    .ta{min-height:96px;border-radius:var(--r-sm);border:1.5px solid var(--clay);background:var(--cream);padding:11px 13px;font-size:16px;line-height:1.5}
+    .ta.err{border-color:var(--error)}
+    .meta2{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--ink-2);line-height:1.45}
+    .meta2 .count{margin-left:auto;font-weight:700}
+    .meta2.err{color:var(--error);font-weight:600}
+    .sfoot{display:flex;flex-direction:column;gap:9px;padding:14px 16px 0}
+  </style>
+</helmet>
+
+<div class="screen">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <g id="shield"><path d="M12 3.5 19 6v6c0 4-3 6.7-7 8.5C8 18.7 5 16 5 12V6Z"/><path d="m9 12 2 2 4-4"/></g>
+    <g id="users"><circle cx="9" cy="8.5" r="3.4"/><path d="M3.5 19.5c.6-3.2 2.9-5 5.5-5s4.9 1.8 5.5 5"/><path d="M16 5.6a3.4 3.4 0 0 1 0 5.9M17.5 14.9c2 .6 3.4 2.3 3.9 4.6"/></g>
+    <g id="bell"><path d="M18 10a6 6 0 1 0-12 0c0 5-2 6.5-2 6.5h16S18 15 18 10Z"/><path d="M13.7 20a2 2 0 0 1-3.4 0"/></g>
+    <g id="search"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></g>
+    <g id="nores"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/><path d="M8.8 11h4.4"/></g>
+    <g id="cross"><path d="M6 6l12 12M18 6 6 18"/></g>
+    <g id="chevr"><path d="M10 6l6 6-6 6"/></g>
+    <g id="check"><path d="M5 12.5 10 17.5 19.5 7"/></g>
+    <g id="ban"><circle cx="12" cy="12" r="8.5"/><path d="M6 18 18 6"/></g>
+    <g id="lock"><rect x="5" y="10.5" width="14" height="9.5" rx="2.2"/><path d="M8.2 10.5V7.8a3.8 3.8 0 0 1 7.6 0v2.7"/></g>
+    <g id="warn"><path d="M12 4.2 21 19.5H3Z"/><path d="M12 10v4M12 16.8v.1"/></g>
+  </defs></svg>
+
+  <div class="appbar">
+    <h1>Users</h1>
+    <span class="av">AK</span>
+  </div>
+
+  <div class="head">
+    <sc-if value="{{hasQuery}}" hint-placeholder-val="{{false}}">
+      <div class="search filled">
+        <svg class="i"><use href="#search"/></svg>
+        <span class="txt num">98470 55</span>
+        <button type="button" class="iconbtn" aria-label="Clear search"><svg class="i s"><use href="#cross"/></svg></button>
+      </div>
+    </sc-if>
+    <sc-if value="{{noQuery}}" hint-placeholder-val="{{true}}">
+      <div class="search">
+        <svg class="i"><use href="#search"/></svg>
+        <span class="txt">Search by name or mobile</span>
+      </div>
+    </sc-if>
+    <div class="chips">
+      <span class="chip on">All</span>
+      <span class="chip">Individuals</span>
+      <span class="chip">Facilities</span>
+      <span class="chip">Suspended</span>
+    </div>
+  </div>
+
+  <sc-if value="{{showList}}" hint-placeholder-val="{{true}}">
+    <div class="scroll">
+      <div class="row">
+        <span class="av">NM</span>
+        <span class="meta">
+          <b>Nithya Menon</b>
+          <small class="num">+91 98470 55231 · Individual</small>
+          <span class="st ok"><svg class="i s"><use href="#check"/></svg>Active</span>
+        </span>
+        <span class="act"><svg class="i"><use href="#chevr"/></svg></span>
+      </div>
+      <div class="row">
+        <span class="av">RV</span>
+        <span class="meta">
+          <b>Rahul Varghese</b>
+          <small class="num">+91 98470 55884 · Individual</small>
+          <span class="st ok"><svg class="i s"><use href="#check"/></svg>Active</span>
+        </span>
+        <span class="act"><svg class="i"><use href="#chevr"/></svg></span>
+      </div>
+      <div class="row off">
+        <span class="av dim">SP</span>
+        <span class="meta">
+          <b>Sanju Prakash</b>
+          <small class="num">+91 98470 55019 · Individual</small>
+          <span class="st bad"><svg class="i s"><use href="#ban"/></svg>Suspended 28 Aug</span>
+        </span>
+        <span class="act"><svg class="i"><use href="#chevr"/></svg></span>
+      </div>
+      <div class="row">
+        <span class="av">SM</span>
+        <span class="meta">
+          <b>Sreedhara Multispeciality</b>
+          <small class="num">+91 98470 55447 · Hospital admin</small>
+          <span class="st ok"><svg class="i s"><use href="#check"/></svg>Active</span>
+        </span>
+        <span class="act"><svg class="i"><use href="#chevr"/></svg></span>
+      </div>
+      <div class="row">
+        <span class="av">DJ</span>
+        <span class="meta">
+          <b>Deepa Joseph</b>
+          <small class="num">+91 98470 55110 · System admin</small>
+          <span class="st adm"><svg class="i s"><use href="#lock"/></svg>Can't be suspended</span>
+        </span>
+        <span class="act"><svg class="i"><use href="#chevr"/></svg></span>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{isNoMatch}}" hint-placeholder-val="{{false}}">
+    <div class="empty">
+      <span class="ic"><svg class="i l"><use href="#nores"/></svg></span>
+      <b>No user matches “98470 55”.</b>
+      <p>Check the number, or search part of a name instead.</p>
+      <button type="button" class="btn secondary" style="width:auto;padding:0 22px">Clear the search</button>
+    </div>
+  </sc-if>
+
+  <div class="bottomnav">
+    <a><svg class="i m"><use href="#shield"/></svg>Verify</a>
+    <a class="on"><svg class="i m"><use href="#users"/></svg>Users</a>
+    <a><svg class="i m"><use href="#bell"/></svg>Activity</a>
+  </div>
+
+  <sc-if value="{{isSuspendSheet}}" hint-placeholder-val="{{false}}">
+    <div class="scrim">
+      <div class="sheet">
+        <span class="grab"></span>
+        <div class="sbody">
+          <h2>Suspend Sanju Prakash's account?</h2>
+          <div class="subject">
+            <span class="av">SP</span>
+            <span><b>Sanju Prakash</b><small class="num">+91 98470 55019 · Individual</small></span>
+          </div>
+          <p>They're signed out everywhere right now and can't sign in again. Your name, the time and the reason go on the record.</p>
+          <div class="field">
+            <label for="r">Reason for suspension <i>*</i></label>
+            <sc-if value="{{reasonFilled}}" hint-placeholder-val="{{true}}">
+              <div class="ta" id="r">Repeatedly posted blood requests for a hospital that confirmed it had no such patient.</div>
+              <div class="meta2"><span>Required. Minimum 10 characters.</span><span class="count num">88</span></div>
+            </sc-if>
+            <sc-if value="{{reasonShort}}" hint-placeholder-val="{{false}}">
+              <div class="ta err" id="r">Spam</div>
+              <div class="meta2 err"><svg class="i s"><use href="#warn"/></svg><span>Please provide a reason for suspension. Use at least 10 characters.</span><span class="count num">4</span></div>
+            </sc-if>
+          </div>
+        </div>
+        <div class="sfoot">
+          <sc-if value="{{reasonFilled}}" hint-placeholder-val="{{true}}">
+            <button type="button" class="btn danger">Suspend account</button>
+          </sc-if>
+          <sc-if value="{{reasonShort}}" hint-placeholder-val="{{false}}">
+            <button type="button" class="btn dis" aria-disabled="true">Suspend account</button>
+          </sc-if>
+          <button type="button" class="btn secondary">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+
+</x-dc>
+<script data-dc-script data-props='{
+  "state": {"editor":"enum","default":"results","options":["results","noMatch","suspendSheet","reasonTooShort"],"section":"AC state"}
+}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.props.state ?? "results";
+    return {
+      showList: s !== "noMatch",
+      isNoMatch: s === "noMatch",
+      isSuspendSheet: s === "suspendSheet" || s === "reasonTooShort",
+      reasonFilled: s === "suspendSheet",
+      reasonShort: s === "reasonTooShort",
+      hasQuery: s === "noMatch",
+      noQuery: s !== "noMatch"
+    };
+  }
+}
+</script>
+</body>
+</html>

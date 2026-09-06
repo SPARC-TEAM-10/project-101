@@ -1,0 +1,36 @@
+{
+  "artboards": [
+    { "file": "Main.dc.html", "x": 0, "y": 0, "w": 1440, "h": 900, "title": "Facility Registration — Step 1 Details (web)" },
+    { "file": "Contacts.dc.html", "x": 1560, "y": 0, "w": 1440, "h": 900, "title": "Facility Registration — Step 2 Contacts (web)" },
+    { "file": "Upload.dc.html", "x": 3120, "y": 0, "w": 1440, "h": 900, "title": "Facility Registration — Step 3 Licence upload (web)" },
+    { "file": "Dashboard.dc.html", "x": 4680, "y": 0, "w": 1440, "h": 900, "title": "Verification Status — Facility dashboard (web)" },
+    { "file": "MobileWizard.dc.html", "x": 0, "y": 1080, "w": 390, "h": 844, "title": "Facility Registration (mobile)" },
+    { "file": "MobileStatus.dc.html", "x": 560, "y": 1080, "w": 390, "h": 844, "title": "Verification Status (mobile)" },
+    { "file": "UploadProgress.dc.html", "x": 1120, "y": 1080, "w": 640, "h": 900, "title": "Upload & submit — loader states" },
+    { "file": "Toasts.dc.html", "x": 1880, "y": 1080, "w": 640, "h": 1180, "title": "Verification toasts" }
+  ],
+  "annotations": [
+    {
+      "id": "chh-f03-brief",
+      "x": 0,
+      "y": -300,
+      "w": 760,
+      "text": "CHH-F03 — Facility Verification (revision 2)\n\nUS-CHH-003-01 registration wizard, -02 licence upload, -03 verification status widget.\nForm/upload/status states sit behind the tweak chips above each artboard (Step / issue / status).\n\nRevision 2 changes:\n1. Approved is no longer a status-card treatment — an Approved facility shows only a verified tick beside the facility name in the header and profile area. Pending and Rejected keep the badge + status card.\n2. The upload-progress loader and the toasts are now explicit artboards (see the two frames on the right of the mobile row) rather than states implied inside the flow screens.\n\nOpen question for the team: the story caps the licence file at 5 MB, design/ui-standard.md says 10 MB. These artboards use 5 MB per the story AC and the CHH-F03 Data Dictionary — the UI standard needs a matching edit."
+    },
+    {
+      "id": "chh-f03-mobile",
+      "x": 0,
+      "y": 990,
+      "w": 500,
+      "text": "Facility flows are desktop-first per ui-standard.md; these two show the single-column degrade an admin gets on a phone."
+    },
+    {
+      "id": "chh-f03-feedback",
+      "x": 1120,
+      "y": 990,
+      "w": 700,
+      "text": "Feedback states, drawn explicitly — same blood-drip loader and top-center toast anatomy as the Feedback Components artboard on the canonical canvas' Components page."
+    }
+  ],
+  "launch": { "view": "canvas" }
+}

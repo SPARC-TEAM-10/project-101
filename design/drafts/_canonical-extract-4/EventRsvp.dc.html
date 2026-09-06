@@ -1,0 +1,185 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --sand:#F6F0E5;--sand-2:#EFE7D9;--cream:#FDFAF4;--line:#E6DAC7;--line-strong:#D6C6AC;
+      --clay:#B06134;--clay-hover:#96502A;--clay-deep:#8A4620;--clay-tint:#F5E4D3;--clay-line:#E8CDB2;
+      --blood:#D32F2F;--blood-deep:#9E1B18;--blood-tint:#FCE9E7;--blood-line:#F5C6C2;
+      --go:#3F6B39;--go-hover:#345A2F;--go-deep:#2F5629;--go-tint:#E4EFDD;--go-line:#C3DAB8;
+      --ink:#392A1D;--ink-2:#6F5C46;--ink-3:#A08A70;--ink-off:#BFAE96;
+      --error:#A33325;--error-tint:#F7E4E0;--amber:#8F6A12;--amber-tint:#F7EDD4;--leaf:#4E7A46;--leaf-tint:#E8F0E2;
+      --font:"Plus Jakarta Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
+      --r-xs:8px;--r-sm:12px;--r-md:16px;--r-lg:20px;
+      --e1:0 1px 2px rgba(57,42,29,.04),0 2px 6px rgba(57,42,29,.05);
+      --e2:0 2px 6px rgba(57,42,29,.05),0 8px 20px rgba(57,42,29,.07);
+    }
+    *{box-sizing:border-box}
+    body{margin:0}
+    a{color:var(--clay)} a:hover{color:var(--clay-hover)}
+    .screen{width:390px;height:844px;background:var(--sand);font-family:var(--font);color:var(--ink);
+      display:flex;flex-direction:column;overflow:hidden;position:relative}
+    svg.i{fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;width:18px;height:18px;flex:none}
+    svg.i.s{width:14px;height:14px;stroke-width:2.2}svg.i.m{width:20px;height:20px}
+    svg.i.f{fill:currentColor;stroke:none}
+    .appbar{height:58px;flex:none;display:flex;align-items:center;gap:8px;padding:0 12px;background:var(--cream);border-bottom:1px solid var(--line)}
+    .appbar h1{flex:1;margin:0;font-size:16px;font-weight:700;text-align:center}
+    .iconbtn{width:42px;height:42px;border-radius:999px;border:none;background:transparent;color:var(--ink);display:flex;align-items:center;justify-content:center;flex:none}
+    .iconbtn:hover{background:var(--sand-2)}
+    .scroll{flex:1;overflow:hidden;padding:16px 16px 20px;display:flex;flex-direction:column;gap:13px}
+    .stickybar{flex:none;background:var(--cream);border-top:1px solid var(--line);padding:12px 16px 18px;display:flex;flex-direction:column;gap:9px}
+    .card{background:var(--cream);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--e1);padding:16px;display:flex;flex-direction:column;gap:12px}
+    .pill{height:26px;padding:0 11px;border-radius:999px;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;flex:none}
+    .pill.blood{background:var(--blood-tint);color:var(--blood-deep)}.pill.mute{background:var(--sand-2);color:var(--ink-2)}
+    .pill.leaf{background:var(--leaf-tint);color:var(--leaf)}
+    .btn{height:48px;padding:0 20px;border-radius:var(--r-sm);font-family:var(--font);font-size:14.5px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:9px;border:none}
+    .btn.lg{height:54px;padding:0 26px;font-size:16px;border-radius:var(--r-md)}
+    .btn.full{width:100%}
+    .btn.primary{background:var(--clay);color:#fff}
+    .btn.accept{background:var(--go);color:#fff}
+    .btn.sec{background:transparent;color:var(--ink);border:1.5px solid var(--line-strong)}
+    .help{font-size:12.5px;line-height:1.5;color:var(--ink-3)}
+    .map{position:relative;border-radius:var(--r-md);overflow:hidden;border:1px solid var(--line);background:repeating-linear-gradient(0deg,#EDE3D2 0 1px,transparent 1px 26px),repeating-linear-gradient(90deg,#EDE3D2 0 1px,transparent 1px 26px),#F2EADC}
+    .map .road{position:absolute;background:#E5D9C4}
+    .map .pin{position:absolute;transform:translate(-50%,-100%);color:var(--clay)}
+    .map .pin.blood{color:var(--blood)}
+    .map .me{position:absolute;width:16px;height:16px;border-radius:999px;background:#3B6EA5;border:3px solid var(--cream);transform:translate(-50%,-50%);box-shadow:0 0 0 6px rgba(59,110,165,.16)}
+    .meter{display:flex;flex-direction:column;gap:7px}
+    .meter .bar{height:8px;border-radius:999px;background:var(--sand-2);overflow:hidden}
+    .meter .bar i{display:block;height:100%;border-radius:999px;background:var(--clay)}
+    .meter .row{display:flex;align-items:baseline;gap:8px;font-size:12.5px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+    .meter .row b{font-size:14px;color:var(--ink);font-weight:700}
+    .alert{display:flex;gap:11px;padding:14px;border-radius:var(--r-sm);align-items:flex-start}
+    .alert.info{background:var(--clay-tint)}.alert.info svg,.alert.info b{color:var(--clay-deep)}
+    .alert svg{margin-top:2px}
+    .alert b{display:block;font-size:13.5px;font-weight:700;margin-bottom:3px}
+    .alert p{margin:0;font-size:12.5px;line-height:1.55;color:var(--ink-2)}
+    h2.title{margin:0;font-size:26px;line-height:32px;font-weight:800;letter-spacing:-.025em}
+    .factrow{display:flex;gap:11px}
+    .factrow b{font-size:14.5px}
+    .factsub{font-size:12.5px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+  </style>
+</helmet>
+
+<div class="screen">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <g id="back"><path d="M15 5l-7 7 7 7"/></g>
+    <g id="share"><path d="M12 3.5v11M8.5 7 12 3.5 15.5 7"/><path d="M6 12.5v6.5a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-6.5"/></g>
+    <g id="dots"><circle cx="12" cy="5.5" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="12" cy="18.5" r="1.7"/></g>
+    <g id="cal"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3.5v3M16 3.5v3"/></g>
+    <g id="pin"><path d="M12 21s-6.5-5-6.5-10.5a6.5 6.5 0 1 1 13 0C18.5 16 12 21 12 21Z"/><circle cx="12" cy="10.4" r="2.4"/></g>
+    <g id="pinf"><path d="M12 22s-7-5.2-7-11a7 7 0 1 1 14 0c0 5.8-7 11-7 11Z"/><circle cx="12" cy="10.6" r="2.6" fill="#FDFAF4"/></g>
+    <g id="tick"><path d="M5 12.5 10 17l9-10"/></g>
+    <g id="info"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.9v.1"/></g>
+  </defs></svg>
+
+  <div class="appbar">
+    <button type="button" class="iconbtn" aria-label="Back"><svg class="i m"><use href="#back"/></svg></button>
+    <h1>Event</h1>
+    <sc-if value="{{isBefore}}" hint-placeholder-val="{{true}}">
+      <button type="button" class="iconbtn" aria-label="Share"><svg class="i"><use href="#share"/></svg></button>
+    </sc-if>
+    <sc-if value="{{isGoing}}" hint-placeholder-val="{{false}}">
+      <button type="button" class="iconbtn" aria-label="Options"><svg class="i f"><use href="#dots"/></svg></button>
+    </sc-if>
+  </div>
+
+  <div class="scroll">
+    <div style="display:flex;gap:8px">
+      <span class="pill blood">Blood Donation Camp</span>
+      <sc-if value="{{isBefore}}" hint-placeholder-val="{{true}}">
+        <span class="pill mute">about 4 km away</span>
+      </sc-if>
+      <sc-if value="{{isGoing}}" hint-placeholder-val="{{false}}">
+        <span class="pill leaf">You're going</span>
+      </sc-if>
+    </div>
+    <h2 class="title">Community blood drive &mdash; Kaloor</h2>
+
+    <sc-if value="{{isBefore}}" hint-placeholder-val="{{true}}">
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-2)">Kochi Metro Hospital
+        <span style="display:inline-flex;align-items:center;gap:4px;color:var(--leaf);font-weight:700"><svg class="i s"><use href="#tick"/></svg>Verified</span></div>
+      <div class="card" style="gap:12px;padding:14px">
+        <div class="factrow"><svg class="i" style="color:var(--ink-3)"><use href="#cal"/></svg>
+          <div><b>Saturday 13 September</b>
+            <div class="factsub">09:00 &ndash; 14:00 &middot; RSVPs close 12 Sep, 18:00</div></div></div>
+        <div class="factrow" style="border-top:1px solid var(--line);padding-top:12px">
+          <svg class="i" style="color:var(--ink-3)"><use href="#pin"/></svg>
+          <div style="flex:1"><b>Kaloor Community Hall</b>
+            <div style="font-size:12.5px;color:var(--ink-2)">Stadium Link Road, Kaloor &middot; about 4 km away</div></div>
+          <span style="color:var(--clay);font-size:13px;font-weight:700;align-self:center">Directions</span></div>
+      </div>
+      <div class="map" style="height:110px">
+        <div class="road" style="left:0;top:48px;right:0;height:9px"></div>
+        <div class="road" style="left:230px;top:0;bottom:0;width:9px"></div>
+        <div class="me" style="left:90px;top:74px"></div>
+        <div class="pin blood" style="left:250px;top:54px"><svg class="i f m"><use href="#pinf"/></svg></div></div>
+      <div class="card" style="gap:10px;padding:14px">
+        <div class="meter"><div class="row" style="justify-content:space-between"><b>18 spots remaining</b><span>42 of 60 taken</span></div>
+          <div class="bar"><i style="width:70%"></i></div></div>
+        <div class="help">One RSVP per person. You can cancel any time before it starts.</div></div>
+      <p style="margin:0;font-size:14px;line-height:1.62;color:var(--ink-2)">Walk-in donors welcome.
+        Bring a photo ID. Refreshments provided; the session runs to 14:00 or until all 60 places are used.</p>
+    </sc-if>
+
+    <sc-if value="{{isGoing}}" hint-placeholder-val="{{false}}">
+      <div class="card" style="background:var(--leaf-tint);border-color:var(--go-line);gap:11px">
+        <div style="display:flex;align-items:center;gap:11px">
+          <span style="width:38px;height:38px;border-radius:999px;background:var(--leaf);color:#fff;display:flex;align-items:center;justify-content:center;flex:none"><svg class="i m"><use href="#tick"/></svg></span>
+          <div><b style="font-size:16px;color:var(--go-deep)">You're going</b>
+            <div class="factsub">RSVP'd 4 Sep &middot; reference A24</div></div></div>
+        <p style="margin:0;font-size:13px;line-height:1.55;color:var(--ink-2)">Give reference A24 at the
+          organiser's desk when you arrive &mdash; they mark you attended. Doors open 08:00 on the day.</p></div>
+      <div class="card" style="gap:10px;padding:14px">
+        <div class="meter"><div class="row" style="justify-content:space-between"><b>17 spots remaining</b><span>43 of 60 taken</span></div>
+          <div class="bar"><i style="width:72%"></i></div></div>
+        <div class="help">Updated live &mdash; your RSVP took one of them.</div></div>
+      <div class="card" style="gap:12px;padding:14px">
+        <div class="factrow"><svg class="i" style="color:var(--ink-3)"><use href="#cal"/></svg>
+          <div><b>Saturday 13 September</b><div class="factsub">09:00 &ndash; 14:00</div></div></div>
+        <div class="factrow" style="border-top:1px solid var(--line);padding-top:12px">
+          <svg class="i" style="color:var(--ink-3)"><use href="#pin"/></svg>
+          <div><b>Kaloor Community Hall</b>
+            <div style="font-size:12.5px;color:var(--ink-2)">Stadium Link Road, Kaloor</div></div></div></div>
+      <div class="alert info"><svg class="i"><use href="#info"/></svg>
+        <div><b>Cancelling gives your spot back</b>
+          <p>The spot returns to the pool straight away and someone else can take it.</p></div></div>
+    </sc-if>
+  </div>
+
+  <div class="stickybar">
+    <sc-if value="{{isBefore}}" hint-placeholder-val="{{true}}">
+      <button type="button" class="btn accept lg full">RSVP</button>
+      <button type="button" class="btn sec full" style="height:50px">Not this time</button>
+    </sc-if>
+    <sc-if value="{{isGoing}}" hint-placeholder-val="{{false}}">
+      <button type="button" class="btn primary lg full"><svg class="i m"><use href="#cal"/></svg>Add to my calendar</button>
+      <button type="button" class="btn sec full" style="height:50px">Cancel my RSVP</button>
+    </sc-if>
+  </div>
+</div>
+
+</x-dc>
+<script data-dc-script data-props='{
+  "state": {"editor":"enum","default":"before","options":["before","going"],"section":"AC state"}
+}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.props.state ?? "before";
+    // RSVP is the commitment, so the button is --go (b-accept), not --clay. Flagged
+    // in the approved draft as needing a one-line ruling in design/ui-standard.md.
+    return { isBefore: s === "before", isGoing: s === "going" };
+  }
+}
+</script>
+</body>
+</html>

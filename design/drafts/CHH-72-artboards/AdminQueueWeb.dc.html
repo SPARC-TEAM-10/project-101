@@ -1,0 +1,298 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --sand:#F6F0E5;--sand-2:#EFE7D9;--cream:#FDFAF4;--line:#E6DAC7;--line-strong:#D6C6AC;
+      --clay:#B06134;--clay-hover:#96502A;--clay-deep:#8A4620;--clay-tint:#F5E4D3;--clay-line:#E8CDB2;
+      --blood:#D32F2F;--blood-deep:#9E1B18;--blood-tint:#FCE9E7;--blood-line:#F5C6C2;
+      --ink:#392A1D;--ink-2:#6F5C46;--ink-3:#A08A70;--ink-off:#BFAE96;
+      --error:#A33325;--error-tint:#F7E4E0;--amber:#8F6A12;--amber-tint:#F7EDD4;--leaf:#4E7A46;--leaf-tint:#E8F0E2;
+      --font:"Plus Jakarta Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
+      --r-xs:8px;--r-sm:12px;--r-md:16px;--r-lg:20px;
+      --e1:0 1px 2px rgba(57,42,29,.04),0 2px 6px rgba(57,42,29,.05);
+      --e2:0 2px 6px rgba(57,42,29,.05),0 8px 20px rgba(57,42,29,.07);
+    }
+    *{box-sizing:border-box}
+    body{margin:0}
+    a{color:var(--clay)} a:hover{color:var(--clay-hover)}
+    .screen{width:1440px;height:900px;background:var(--sand);font-family:var(--font);color:var(--ink);display:flex;overflow:hidden}
+    svg.i{fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;width:18px;height:18px;flex:none}
+    svg.i.s{width:14px;height:14px;stroke-width:2.2}svg.i.m{width:20px;height:20px}svg.i.l{width:32px;height:32px;stroke-width:1.6}
+    .num{font-variant-numeric:tabular-nums}
+
+    .side{width:248px;flex:none;background:var(--sand-2);border-right:1px solid var(--line);padding:18px 14px;display:flex;flex-direction:column;gap:5px}
+    .brand{display:flex;align-items:center;gap:11px;padding:8px 8px 20px}
+    .brand .mark{width:34px;height:34px;border-radius:10px;background:var(--clay);color:#fff;display:flex;align-items:center;justify-content:center;flex:none}
+    .brand b{font-size:15px;font-weight:800;letter-spacing:-.02em;line-height:1.25}
+    .brand span{display:block;font-size:12px;font-weight:600;color:var(--ink-2)}
+    .navi{height:44px;border-radius:var(--r-sm);display:flex;align-items:center;gap:11px;padding:0 12px;font-size:14px;font-weight:600;color:var(--ink-2)}
+    .navi.on{background:var(--cream);color:var(--clay);box-shadow:var(--e1);font-weight:700}
+    .navi .cnt{margin-left:auto;font-size:12px;font-weight:700;background:var(--clay-tint);color:var(--clay-deep);border-radius:999px;padding:2px 8px}
+    .side .who{margin-top:auto;border-top:1px solid var(--line-strong);padding-top:14px;display:flex;align-items:center;gap:10px}
+    .side .who .av{width:36px;height:36px;border-radius:999px;background:var(--clay-tint);color:var(--clay-deep);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex:none}
+    .side .who small{display:block;font-size:11.5px;color:var(--ink-2);font-weight:600}
+    .side .who b{font-size:13px;font-weight:700}
+
+    .main{flex:1;min-width:0;display:flex;flex-direction:column}
+    .topbar{height:78px;flex:none;background:var(--cream);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:0 28px}
+    .topbar h1{margin:0;font-size:28px;line-height:34px;font-weight:800;letter-spacing:-.025em}
+    .topbar .pill{font-size:12.5px;font-weight:700;padding:5px 11px;border-radius:999px;background:var(--amber-tint);color:var(--amber)}
+    .topbar .right{margin-left:auto;display:flex;align-items:center;gap:10px}
+    .tabs{flex:none;display:flex;gap:26px;padding:0 28px;background:var(--cream);border-bottom:1px solid var(--line)}
+    .tab{height:48px;display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--ink-3);border-bottom:2.5px solid transparent}
+    .tab.on{color:var(--ink);font-weight:700;border-bottom-color:var(--clay)}
+    .tab .n{font-size:12px;font-weight:700;background:var(--sand-2);color:var(--ink-2);border-radius:999px;padding:1px 8px}
+    .tab.on .n{background:var(--clay-tint);color:var(--clay-deep)}
+
+    .body{flex:1;min-height:0;padding:22px 28px 0;display:flex;flex-direction:column}
+    .panel{background:var(--cream);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--e1);display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden}
+    table{border-collapse:collapse;width:100%}
+    th{height:44px;background:var(--sand-2);font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;color:var(--ink-2);text-align:left;padding:0 18px;border-bottom:1px solid var(--line)}
+    th.r{text-align:right}
+    td{height:66px;padding:0 18px;border-bottom:1px solid var(--line);font-size:14px;vertical-align:middle}
+    tr:last-child td{border-bottom:none}
+    .fac{display:flex;align-items:center;gap:12px}
+    .fac .sq{width:38px;height:38px;border-radius:var(--r-sm);background:var(--clay-tint);color:var(--clay-deep);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex:none}
+    .fac b{font-size:15px;font-weight:700;display:block;line-height:20px}
+    .fac small{font-size:12.5px;color:var(--ink-2)}
+    .cat{display:inline-flex;align-items:center;font-size:12.5px;font-weight:700;border-radius:999px;padding:5px 11px;background:var(--sand-2);color:var(--ink-2);border:1px solid var(--line)}
+    .doc{display:inline-flex;align-items:center;gap:7px;font-size:13.5px;font-weight:700;color:var(--clay)}
+    .doc.missing{color:var(--error)}
+    .rowact{display:flex;justify-content:flex-end;gap:8px}
+    .btn{height:48px;padding:0 22px;border-radius:var(--r-sm);font-family:var(--font);font-size:15px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:9px;border:none;white-space:nowrap}
+    .btn.sm{height:36px;padding:0 16px;font-size:13px;border-radius:10px}
+    .btn.primary{background:var(--clay);color:#fff}
+    .btn.secondary{background:transparent;color:var(--ink);border:1.5px solid var(--line-strong)}
+    .btn.ghost{background:transparent;color:var(--clay)}
+    .btn[disabled]{background:var(--sand-2);color:var(--ink-off);border:none;box-shadow:none;cursor:not-allowed}
+
+    .foot{flex:none;height:60px;border-top:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:0 18px;background:var(--sand)}
+    .foot .of{font-size:13px;color:var(--ink-2);font-weight:600}
+    .pager{margin-left:auto;display:flex;align-items:center;gap:6px}
+    .pg{min-width:36px;height:36px;padding:0 10px;border-radius:10px;border:1px solid var(--line);background:var(--cream);display:inline-flex;align-items:center;justify-content:center;font-size:13.5px;font-weight:700;color:var(--ink-2)}
+    .pg.on{background:var(--clay);border-color:var(--clay);color:#fff}
+    .pg.off{color:var(--ink-off);background:var(--sand-2);border-color:var(--line)}
+
+    .empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:13px;text-align:center;padding:48px}
+    .empty .ic{width:68px;height:68px;border-radius:999px;background:var(--sand-2);color:var(--ink-3);display:flex;align-items:center;justify-content:center}
+    .empty .ic.err{background:var(--error-tint);color:var(--error)}
+    .empty b{font-size:17px;font-weight:700}
+    .empty p{margin:0;font-size:14px;line-height:1.6;color:var(--ink-2);max-width:46ch}
+    .sk{background:var(--sand-2);border-radius:var(--r-xs);height:12px}
+    .note{margin:14px 0 18px;font-size:12.5px;color:var(--ink-3);line-height:1.5}
+  </style>
+</helmet>
+
+<div class="screen">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <g id="shield"><path d="M12 3.5 19 6v6c0 4-3 6.7-7 8.5C8 18.7 5 16 5 12V6Z"/><path d="m9 12 2 2 4-4"/></g>
+    <g id="users"><circle cx="9" cy="8.5" r="3.4"/><path d="M3.5 19.5c.6-3.2 2.9-5 5.5-5s4.9 1.8 5.5 5"/><path d="M16 5.6a3.4 3.4 0 0 1 0 5.9M17.5 14.9c2 .6 3.4 2.3 3.9 4.6"/></g>
+    <g id="file"><path d="M13.5 3.5H7a1.5 1.5 0 0 0-1.5 1.5v14A1.5 1.5 0 0 0 7 20.5h10a1.5 1.5 0 0 0 1.5-1.5V8.5Z"/><path d="M13.5 3.5v5h5"/></g>
+    <g id="filewarn"><path d="M13.5 3.5H7a1.5 1.5 0 0 0-1.5 1.5v14A1.5 1.5 0 0 0 7 20.5h10a1.5 1.5 0 0 0 1.5-1.5V8.5Z"/><path d="M13.5 3.5v5h5"/><path d="M12 11.5v3.2M12 17.4v.1"/></g>
+    <g id="inbox"><path d="M3.5 13.5h4l1.5 3h6l1.5-3h4"/><path d="M5.6 5.2h12.8l2.1 8.3v4a1.5 1.5 0 0 1-1.5 1.5H5a1.5 1.5 0 0 1-1.5-1.5v-4Z"/></g>
+    <g id="cloudoff"><path d="M7 18.5h9.5a4 4 0 0 0 1.2-7.8A6 6 0 0 0 8 8.4"/><path d="M4 20 20 4"/></g>
+    <g id="retry"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v4h-4"/></g>
+    <g id="chevl"><path d="M14 6l-6 6 6 6"/></g>
+    <g id="chevr"><path d="M10 6l6 6-6 6"/></g>
+    <g id="bell"><path d="M18 10a6 6 0 1 0-12 0c0 5-2 6.5-2 6.5h16S18 15 18 10Z"/><path d="M13.7 20a2 2 0 0 1-3.4 0"/></g>
+  </defs></svg>
+
+  <div class="side">
+    <div class="brand">
+      <span class="mark"><svg class="i m"><use href="#shield"/></svg></span>
+      <span><b>Community Health Hub</b><span>Admin command center</span></span>
+    </div>
+    <div class="navi on"><svg class="i"><use href="#shield"/></svg>Verifications<span class="cnt num">12</span></div>
+    <div class="navi"><svg class="i"><use href="#users"/></svg>Users</div>
+    <div class="who">
+      <span class="av">AK</span>
+      <span><b>Anitha Kurian</b><small>System admin</small></span>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <h1>Facility verifications</h1>
+      <sc-if value="{{isList}}" hint-placeholder-val="{{true}}">
+        <span class="pill num">12 waiting</span>
+      </sc-if>
+      <div class="right">
+        <button type="button" class="btn secondary" style="height:42px;padding:0 16px;font-size:13.5px">
+          <svg class="i s"><use href="#bell"/></svg>Notification log
+        </button>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab on">Pending verification<span class="n num">12</span></div>
+      <div class="tab">Verified<span class="n num">84</span></div>
+      <div class="tab">Rejected<span class="n num">7</span></div>
+    </div>
+
+    <div class="body">
+      <div class="panel">
+
+        <sc-if value="{{isList}}" hint-placeholder-val="{{true}}">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:38%">Facility</th>
+                <th style="width:16%">Category</th>
+                <th style="width:18%">Registered</th>
+                <th style="width:14%">Licence</th>
+                <th class="r" style="width:14%">&nbsp;</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><div class="fac"><span class="sq">SM</span><span><b>Sreedhara Multispeciality</b><small>Kaloor, Kochi</small></span></div></td>
+                <td><span class="cat">Hospital</span></td>
+                <td class="num">2 Sep 2026</td>
+                <td><span class="doc"><svg class="i s"><use href="#file"/></svg>PDF</span></td>
+                <td><div class="rowact"><button type="button" class="btn sm primary">Review</button></div></td>
+              </tr>
+              <tr>
+                <td><div class="fac"><span class="sq">VJ</span><span><b>Vayali Jeevan Trust</b><small>Thrissur</small></span></div></td>
+                <td><span class="cat">NGO</span></td>
+                <td class="num">2 Sep 2026</td>
+                <td><span class="doc"><svg class="i s"><use href="#file"/></svg>JPG</span></td>
+                <td><div class="rowact"><button type="button" class="btn sm primary">Review</button></div></td>
+              </tr>
+              <tr>
+                <td><div class="fac"><span class="sq">NP</span><span><b>Nirmala Poly Clinic</b><small>Aluva</small></span></div></td>
+                <td><span class="cat">Hospital</span></td>
+                <td class="num">1 Sep 2026</td>
+                <td><span class="doc missing"><svg class="i s"><use href="#filewarn"/></svg>Missing</span></td>
+                <td><div class="rowact"><button type="button" class="btn sm primary">Review</button></div></td>
+              </tr>
+              <tr>
+                <td><div class="fac"><span class="sq">KB</span><span><b>Kadavanthra Blood Centre</b><small>Kadavanthra, Kochi</small></span></div></td>
+                <td><span class="cat">Hospital</span></td>
+                <td class="num">1 Sep 2026</td>
+                <td><span class="doc"><svg class="i s"><use href="#file"/></svg>PDF</span></td>
+                <td><div class="rowact"><button type="button" class="btn sm primary">Review</button></div></td>
+              </tr>
+              <tr>
+                <td><div class="fac"><span class="sq">AS</span><span><b>Ashraya Seva Sangham</b><small>Perumbavoor</small></span></div></td>
+                <td><span class="cat">NGO</span></td>
+                <td class="num">31 Aug 2026</td>
+                <td><span class="doc"><svg class="i s"><use href="#file"/></svg>PDF</span></td>
+                <td><div class="rowact"><button type="button" class="btn sm primary">Review</button></div></td>
+              </tr>
+              <tr>
+                <td><div class="fac"><span class="sq">MT</span><span><b>Marthanda Hospital</b><small>Angamaly</small></span></div></td>
+                <td><span class="cat">Hospital</span></td>
+                <td class="num">31 Aug 2026</td>
+                <td><span class="doc"><svg class="i s"><use href="#file"/></svg>PNG</span></td>
+                <td><div class="rowact"><button type="button" class="btn sm primary">Review</button></div></td>
+              </tr>
+              <tr>
+                <td><div class="fac"><span class="sq">PR</span><span><b>Pranavam Care Foundation</b><small>Muvattupuzha</small></span></div></td>
+                <td><span class="cat">NGO</span></td>
+                <td class="num">30 Aug 2026</td>
+                <td><span class="doc"><svg class="i s"><use href="#file"/></svg>PDF</span></td>
+                <td><div class="rowact"><button type="button" class="btn sm primary">Review</button></div></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="foot">
+            <span class="of num">Showing 1–7 of 12</span>
+            <div class="pager">
+              <span class="pg off"><svg class="i s"><use href="#chevl"/></svg></span>
+              <span class="pg on num">1</span>
+              <span class="pg num">2</span>
+              <span class="pg"><svg class="i s"><use href="#chevr"/></svg></span>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{isEmpty}}" hint-placeholder-val="{{false}}">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:38%">Facility</th>
+                <th style="width:16%">Category</th>
+                <th style="width:18%">Registered</th>
+                <th style="width:14%">Licence</th>
+                <th class="r" style="width:14%">&nbsp;</th>
+              </tr>
+            </thead>
+          </table>
+          <div class="empty">
+            <span class="ic"><svg class="i l"><use href="#inbox"/></svg></span>
+            <b>No pending verifications at this time.</b>
+            <p>Every facility that has registered has been reviewed. New registrations land here the moment they submit a licence.</p>
+            <button type="button" class="btn secondary">See verified facilities</button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{isLoading}}" hint-placeholder-val="{{false}}">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:38%">Facility</th>
+                <th style="width:16%">Category</th>
+                <th style="width:18%">Registered</th>
+                <th style="width:14%">Licence</th>
+                <th class="r" style="width:14%">&nbsp;</th>
+              </tr>
+            </thead>
+            <tbody>
+              <sc-for list="{{skeletons}}" as="row" hint-placeholder-count="6">
+                <tr>
+                  <td><div class="fac"><span class="sq" style="background:var(--sand-2)"></span><span style="display:flex;flex-direction:column;gap:7px"><span class="sk" style="width:190px;height:14px"></span><span class="sk" style="width:104px;height:11px"></span></span></div></td>
+                  <td><span class="sk" style="display:block;width:74px;height:24px;border-radius:999px"></span></td>
+                  <td><span class="sk" style="display:block;width:88px"></span></td>
+                  <td><span class="sk" style="display:block;width:54px"></span></td>
+                  <td><div class="rowact"><span class="sk" style="width:78px;height:36px;border-radius:10px"></span></div></td>
+                </tr>
+              </sc-for>
+            </tbody>
+          </table>
+        </sc-if>
+
+        <sc-if value="{{isError}}" hint-placeholder-val="{{false}}">
+          <div class="empty">
+            <span class="ic err"><svg class="i l"><use href="#cloudoff"/></svg></span>
+            <b>The verification queue didn't load.</b>
+            <p>The connection dropped before the list arrived. Nothing has changed — no facility was approved or rejected.</p>
+            <button type="button" class="btn primary"><svg class="i s"><use href="#retry"/></svg>Try again</button>
+          </div>
+        </sc-if>
+
+      </div>
+      <p class="note">Only System Admins can open this screen. Every approval and rejection is recorded against your account with the reason you give.</p>
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script data-dc-script data-props='{
+  "state": {"editor":"enum","default":"list","options":["list","empty","loading","error"],"section":"AC state"}
+}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.props.state ?? "list";
+    return {
+      isList: s === "list",
+      isEmpty: s === "empty",
+      isLoading: s === "loading",
+      isError: s === "error",
+      // Skeleton rows match the real row height so nothing jumps when data lands.
+      skeletons: [1, 2, 3, 4, 5, 6]
+    };
+  }
+}
+</script>
+</body>
+</html>

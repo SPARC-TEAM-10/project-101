@@ -1,0 +1,449 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --sand:#F6F0E5; --sand-2:#EFE7D9; --cream:#FDFAF4;
+      --line:#E6DAC7; --line-strong:#D6C6AC;
+      --clay:#B06134; --clay-hover:#96502A; --clay-deep:#8A4620; --clay-tint:#F5E4D3; --clay-line:#E8CDB2;
+      --blood:#D32F2F; --blood-hover:#B92626; --blood-deep:#9E1B18; --blood-tint:#FCE9E7; --blood-line:#F5C6C2;
+      --go:#3F6B39; --go-hover:#345A2F; --go-active:#2A4A26; --go-deep:#2F5629; --go-tint:#E4EFDD; --go-line:#C3DAB8;
+      --ink:#392A1D; --ink-2:#6F5C46; --ink-3:#A08A70; --ink-off:#BFAE96;
+      --error:#A33325; --error-tint:#F7E4E0;
+      --amber:#8F6A12; --amber-tint:#F7EDD4; --leaf:#4E7A46; --leaf-tint:#E8F0E2;
+      --overlay:rgba(57,42,29,.5);
+      --font:"Plus Jakarta Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+      --r-xs:8px; --r-sm:12px; --r-md:16px; --r-lg:20px; --r-xl:28px;
+      --e1:0 1px 2px rgba(57,42,29,.04),0 2px 6px rgba(57,42,29,.05);
+      --e2:0 2px 6px rgba(57,42,29,.05),0 8px 20px rgba(57,42,29,.07);
+      --e3:0 10px 24px rgba(57,42,29,.10),0 24px 56px rgba(57,42,29,.14);
+    }
+    *{box-sizing:border-box}
+    body{margin:0}
+    a{color:var(--clay)} a:hover{color:var(--clay-hover)}
+    .screen{width:390px;height:844px;background:var(--sand);font-family:var(--font);color:var(--ink);
+      display:flex;flex-direction:column;overflow:hidden;position:relative}
+    .appbar{height:58px;flex:none;display:flex;align-items:center;gap:8px;padding:0 12px;background:var(--cream);
+      border-bottom:1px solid var(--line)}
+    .iconbtn{width:42px;height:42px;border-radius:999px;border:none;background:transparent;color:var(--ink);
+      display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none}
+    .iconbtn:hover{background:var(--sand-2)}
+    .appbar h1{flex:1;margin:0;font-size:16px;font-weight:700;text-align:center;letter-spacing:-.01em}
+
+    .scroll{flex:1;overflow-y:auto;padding:16px 16px 22px;display:flex;flex-direction:column;gap:14px}
+
+    .summary{background:var(--cream);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--e1);
+      padding:15px;display:flex;flex-direction:column;gap:13px}
+    .sumtop{display:flex;align-items:center;gap:12px}
+    .badge{height:46px;min-width:56px;padding:0 12px;border-radius:999px;background:var(--blood-tint);
+      color:var(--blood-deep);font-weight:800;font-size:19px;font-variant-numeric:tabular-nums;
+      display:flex;align-items:center;justify-content:center;flex:none}
+    .badge.mute{background:var(--sand-2);color:var(--ink-2)}
+    .summary .t{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+    .summary .t b{font-size:16px;font-weight:700}
+    .summary .t span{font-size:12.5px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+    .pill{height:26px;padding:0 11px;border-radius:999px;display:inline-flex;align-items:center;gap:6px;
+      font-size:12px;font-weight:700;flex:none}
+    .pill.emg{background:var(--blood);color:#fff}
+    .pill.live{background:var(--go-tint);color:var(--go-deep)}
+    .pill.gone{background:var(--sand-2);color:var(--ink-2)}
+
+    .clockrow{display:flex;align-items:center;gap:10px;padding-top:12px;border-top:1px solid var(--line)}
+    .clockrow svg{color:var(--ink-3);flex:none}
+    .clockrow .ck{flex:1;font-size:12.5px;color:var(--ink-2)}
+    .clockrow .cv{font-size:16px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+    .clockrow .cv.hot{color:var(--blood-deep)}
+    .lifebar{height:5px;border-radius:999px;background:var(--sand-2);overflow:hidden;margin-top:2px}
+    .lifebar i{display:block;height:100%;border-radius:999px;background:var(--blood)}
+    .lifebar i.done{background:var(--line-strong)}
+    .lifenote{font-size:11px;color:var(--ink-3);margin-top:6px}
+
+    .alert{display:flex;gap:11px;padding:14px;border-radius:var(--r-sm);background:var(--error-tint)}
+    .alert svg{color:var(--error);flex:none;margin-top:1px}
+    .alert b{display:block;font-size:14px;font-weight:700;color:var(--error);margin-bottom:4px}
+    .alert p{margin:0 0 10px;font-size:12.5px;line-height:1.5;color:var(--ink-2)}
+    .alert .act{height:44px;padding:0 16px;border-radius:var(--r-sm);border:1.5px solid var(--blood-line);
+      background:var(--cream);color:var(--blood);font-family:var(--font);font-size:13.5px;font-weight:700;
+      cursor:pointer}
+
+    .guestnote{display:flex;gap:11px;padding:13px 14px;border-radius:var(--r-sm);background:var(--clay-tint)}
+    .guestnote svg{color:var(--clay-deep);flex:none;margin-top:1px}
+    .guestnote b{display:block;font-size:13px;font-weight:700;color:var(--clay-deep);margin-bottom:3px}
+    .guestnote p{margin:0 0 8px;font-size:12.5px;line-height:1.5;color:var(--ink-2)}
+    .guestnote .act{border:none;background:transparent;color:var(--clay);font-family:var(--font);font-size:13px;
+      font-weight:700;cursor:pointer;padding:0}
+
+    .stats{background:var(--cream);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--e1);
+      padding:18px;display:flex;align-items:center;gap:18px}
+    .donut{position:relative;width:112px;height:112px;flex:none}
+    .donut .mid{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
+      justify-content:center;gap:1px}
+    .donut .mid b{font-size:26px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1;color:var(--go-deep)}
+    .donut .mid span{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+    .legend{flex:1;min-width:0;display:flex;flex-direction:column;gap:11px}
+    .leg{display:flex;align-items:center;gap:9px}
+    .swatch{width:11px;height:11px;border-radius:3px;flex:none}
+    .leg .lk{flex:1;font-size:13px;color:var(--ink-2)}
+    .leg .lv{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums}
+
+    .searching{background:var(--cream);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--e1);
+      padding:24px 18px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center}
+    .pulse{position:relative;width:72px;height:72px;display:flex;align-items:center;justify-content:center;
+      color:var(--blood)}
+    .pulse .wave{position:absolute;inset:0;border-radius:999px;border:2px solid var(--blood-line);
+      animation:pulse 1.9s ease-out infinite}
+    .pulse .wave.b{animation-delay:.95s}
+    @keyframes pulse{0%{transform:scale(.55);opacity:.9}100%{transform:scale(1);opacity:0}}
+    @media (prefers-reduced-motion:reduce){.pulse .wave{animation:none;opacity:.5;transform:scale(.8)}}
+    .searching b{font-size:16px;font-weight:700}
+    .searching p{margin:0;font-size:12.5px;line-height:1.55;color:var(--ink-2);max-width:30ch}
+    .skel{width:100%;display:flex;flex-direction:column;gap:9px;margin-top:4px}
+    .sk{height:56px;border-radius:var(--r-sm);background:var(--sand-2)}
+
+    h2.sec{margin:6px 0 0;display:flex;align-items:baseline;gap:8px;font-size:13px;font-weight:700;color:var(--ink-2)}
+    h2.sec em{font-style:normal;font-weight:600;color:var(--ink-3);font-size:12px}
+
+    .donor{display:flex;align-items:center;gap:12px;background:var(--cream);border:1px solid var(--line);
+      border-radius:var(--r-sm);padding:13px;box-shadow:var(--e1)}
+    .donor.hidden{background:var(--sand);box-shadow:none}
+    .avatar{width:42px;height:42px;border-radius:999px;background:var(--clay-tint);color:var(--clay-deep);
+      display:flex;align-items:center;justify-content:center;font-size:13.5px;font-weight:700;flex:none}
+    .avatar.lock{background:var(--sand-2);color:var(--ink-3)}
+    .donor .d{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+    .donor .d b{font-size:15px;font-weight:700}
+    .donor .d b.masked{color:var(--ink-3);font-weight:600;font-size:14px}
+    .donor .d span{font-size:12px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+    .donor .d .num{font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--ink)}
+    .callbtn{width:46px;height:46px;border-radius:999px;border:1.5px solid var(--clay);background:transparent;
+      color:var(--clay);display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none}
+    .callbtn:hover{background:var(--clay-tint)}
+    .tagpill{height:24px;padding:0 9px;border-radius:999px;font-size:11.5px;font-weight:700;flex:none;
+      display:flex;align-items:center}
+    .tagpill.acc{background:var(--go-tint);color:var(--go-deep)}
+    .tagpill.pend{background:var(--sand-2);color:var(--ink-2)}
+
+    .listnote{font-size:11.5px;line-height:1.55;color:var(--ink-3);padding:0 2px}
+
+    .empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;padding:44px 20px}
+    .empty .ic{width:68px;height:68px;border-radius:999px;background:var(--sand-2);color:var(--ink-3);
+      display:flex;align-items:center;justify-content:center}
+    .empty b{font-size:17px;font-weight:700;line-height:24px}
+    .empty p{margin:0;font-size:13.5px;line-height:1.6;color:var(--ink-2);max-width:32ch}
+    .empty .cta{height:54px;padding:0 24px;border:none;border-radius:var(--r-md);background:var(--clay);color:#fff;
+      font-family:var(--font);font-size:16px;font-weight:700;cursor:pointer;margin-top:4px;display:flex;
+      align-items:center;gap:9px}
+    .empty .cta:hover{background:var(--clay-hover)}
+    .empty small{font-size:12px;color:var(--ink-3);max-width:34ch;line-height:1.5}
+
+    .scrim{position:absolute;inset:0;background:var(--overlay);display:flex;align-items:flex-end;z-index:40}
+    .sheet{width:100%;background:var(--cream);border-radius:var(--r-xl) var(--r-xl) 0 0;box-shadow:var(--e3);
+      padding:10px 20px 26px;display:flex;flex-direction:column;gap:16px}
+    .grab{width:44px;height:4px;border-radius:999px;background:var(--line-strong);align-self:center;margin-bottom:4px}
+    .sheet h4{margin:0;font-size:20px;line-height:26px;font-weight:800;letter-spacing:-.02em}
+    .sheet p{margin:0;font-size:13px;line-height:1.55;color:var(--ink-2)}
+    .radiusrow{display:flex;align-items:flex-end;gap:12px}
+    .sliderwrap{flex:1;min-width:0;padding-top:14px}
+    .track{position:relative;height:6px;border-radius:999px;background:var(--sand-2)}
+    .fill{position:absolute;left:0;top:0;height:6px;border-radius:999px;background:var(--clay)}
+    .was{position:absolute;top:-6px;width:2px;height:18px;background:var(--line-strong)}
+    .thumb{position:absolute;top:50%;width:26px;height:26px;border-radius:999px;background:var(--cream);
+      border:3px solid var(--clay);box-shadow:var(--e1);transform:translate(-50%,-50%)}
+    .ticks{display:flex;justify-content:space-between;margin-top:9px;font-size:11px;color:var(--ink-3);
+      font-variant-numeric:tabular-nums}
+    .kmbox{width:92px;flex:none;height:50px;border-radius:var(--r-sm);border:1.5px solid var(--line);
+      background:var(--sand);display:flex;align-items:center;justify-content:center;gap:3px;font-size:16px;
+      font-weight:700;font-variant-numeric:tabular-nums}
+    .kmbox span{font-size:13px;font-weight:600;color:var(--ink-3)}
+    .sheetcta{height:54px;width:100%;border:none;border-radius:var(--r-md);background:var(--clay);color:#fff;
+      font-family:var(--font);font-size:16px;font-weight:700;cursor:pointer}
+    .sheetghost{height:48px;width:100%;border:none;background:transparent;color:var(--clay);font-family:var(--font);
+      font-size:14.5px;font-weight:700;cursor:pointer}
+  </style>
+</helmet>
+
+<div class="screen">
+  <div class="appbar">
+    <button type="button" class="iconbtn" aria-label="Back">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+    </button>
+    <h1>Your request</h1>
+    <button type="button" class="iconbtn" aria-label="Request options">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5.5" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="12" cy="18.5" r="1.7"/></svg>
+    </button>
+  </div>
+
+  <div class="scroll">
+    <sc-if value="{{isExpired}}" hint-placeholder-val="{{false}}">
+      <div class="alert">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>
+        <div>
+          <b>This request expired a moment ago</b>
+          <p>Requests close 6 hours after they are posted. Donors can no longer respond, and the two who accepted have been told.</p>
+          <button type="button" class="act">Post it again</button>
+        </div>
+      </div>
+    </sc-if>
+
+    <section class="summary">
+      <div class="sumtop">
+        <span class="badge {{badgeClass}}">O&#8722;</span>
+        <span class="t">
+          <b>2 units &middot; 10 km radius</b>
+          <span>Kochi Metro Hospital &middot; posted 18 min ago</span>
+        </span>
+        <span class="pill {{statusClass}}">{{statusLabel}}</span>
+      </div>
+      <div>
+        <div class="clockrow">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 6.8v5.4l3.6 2.1"/></svg>
+          <span class="ck">{{clockLabel}}</span>
+          <span class="cv {{clockTone}}">{{clockValue}}</span>
+        </div>
+        <div class="lifebar"><i class="{{lifeClass}}" style="width:{{lifePct}}"></i></div>
+        <div class="lifenote">A request stays open for 6 hours from the moment it is posted, then closes on its own.</div>
+      </div>
+    </section>
+
+    <sc-if value="{{isGuest}}" hint-placeholder-val="{{false}}">
+      <div class="guestnote">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.9v.1"/></svg>
+        <div>
+          <b>You are tracking this as a guest</b>
+          <p>Guests see donors as they accept. Register to follow the whole matched list and keep this request in your history.</p>
+          <button type="button" class="act">Register in a minute</button>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{isMatching}}" hint-placeholder-val="{{false}}">
+      <div class="searching">
+        <span class="pulse">
+          <span class="wave"></span>
+          <span class="wave b"></span>
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.6-7-9.5A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 7 3.5C19 15.4 12 20 12 20Z"/></svg>
+        </span>
+        <b>Matching donors within 10 km</b>
+        <p>We are checking blood group, eligibility and distance. This usually takes a few seconds.</p>
+        <span class="skel">
+          <span class="sk"></span>
+          <span class="sk"></span>
+          <span class="sk"></span>
+        </span>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{showStats}}" hint-placeholder-val="{{true}}">
+      <section class="stats">
+        <span class="donut">
+          <svg width="112" height="112" viewBox="0 0 112 112" role="img" aria-label="2 of 40 notified donors have accepted">
+            <circle cx="56" cy="56" r="46" fill="none" stroke="#EFE7D9" stroke-width="14"/>
+            <circle cx="56" cy="56" r="46" fill="none" stroke="#3F6B39" stroke-width="14"
+              stroke-dasharray="{{acceptedArc}}" stroke-linecap="round" transform="rotate(-90 56 56)"/>
+          </svg>
+          <span class="mid">
+            <b>{{acceptedCount}}</b>
+            <span>Accepted</span>
+          </span>
+        </span>
+        <span class="legend">
+          <span class="leg">
+            <span class="swatch" style="background:#3F6B39"></span>
+            <span class="lk">Accepted</span>
+            <span class="lv">{{acceptedCount}}</span>
+          </span>
+          <span class="leg">
+            <span class="swatch" style="background:#EFE7D9"></span>
+            <span class="lk">Yet to respond</span>
+            <span class="lv">{{pendingCount}}</span>
+          </span>
+          <span class="leg">
+            <span class="swatch" style="background:transparent"></span>
+            <span class="lk">Donors notified</span>
+            <span class="lv">{{sentCount}}</span>
+          </span>
+        </span>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{showList}}" hint-placeholder-val="{{true}}">
+      <h2 class="sec">{{listTitle}} <em>{{listNote}}</em></h2>
+
+      <div class="donor">
+        <span class="avatar">RS</span>
+        <span class="d">
+          <b>Rahul Suresh</b>
+          <span class="num">+91 90000 45871</span>
+          <span>O&#8722; &middot; about 4 km away</span>
+        </span>
+        <span class="tagpill acc">Accepted</span>
+        <button type="button" class="callbtn" aria-label="Call Rahul Suresh">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 4h3l1.5 4-2 1.5a12 12 0 0 0 5.5 5.5l1.5-2 4 1.5v3a2 2 0 0 1-2.2 2A16.5 16.5 0 0 1 4.5 6.2 2 2 0 0 1 6.5 4Z"/></svg>
+        </button>
+      </div>
+
+      <div class="donor">
+        <span class="avatar">NM</span>
+        <span class="d">
+          <b>Nithya Menon</b>
+          <span class="num">+91 90000 77213</span>
+          <span>O&#8722; &middot; about 9 km away</span>
+        </span>
+        <span class="tagpill acc">Accepted</span>
+        <button type="button" class="callbtn" aria-label="Call Nithya Menon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 4h3l1.5 4-2 1.5a12 12 0 0 0 5.5 5.5l1.5-2 4 1.5v3a2 2 0 0 1-2.2 2A16.5 16.5 0 0 1 4.5 6.2 2 2 0 0 1 6.5 4Z"/></svg>
+        </button>
+      </div>
+
+      <sc-if value="{{showPending}}" hint-placeholder-val="{{true}}">
+        <div class="donor hidden">
+          <span class="avatar lock">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="9.5" rx="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></svg>
+          </span>
+          <span class="d">
+            <b class="masked">Donor 3</b>
+            <span>O&#8722; &middot; about 6 km away</span>
+          </span>
+          <span class="tagpill pend">Pending</span>
+        </div>
+
+        <div class="donor hidden">
+          <span class="avatar lock">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="9.5" rx="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></svg>
+          </span>
+          <span class="d">
+            <b class="masked">Donor 4</b>
+            <span>O+ &middot; about 11 km away</span>
+          </span>
+          <span class="tagpill pend">Pending</span>
+        </div>
+
+        <div class="donor hidden">
+          <span class="avatar lock">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="9.5" rx="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></svg>
+          </span>
+          <span class="d">
+            <b class="masked">Donor 5</b>
+            <span>O&#8722; &middot; about 7 km away</span>
+          </span>
+          <span class="tagpill pend">Pending</span>
+        </div>
+      </sc-if>
+
+      <p class="listnote">{{privacyNote}}</p>
+    </sc-if>
+
+    <sc-if value="{{isZero}}" hint-placeholder-val="{{false}}">
+      <div class="empty">
+        <span class="ic">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/><path d="M8.6 11h4.8"/></svg>
+        </span>
+        <b>No eligible donors found within 10 km</b>
+        <p>Nobody with a compatible group is registered and available inside that radius right now.</p>
+        <button type="button" class="cta">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8.5" stroke-dasharray="3 3"/></svg>
+          Increase radius
+        </button>
+        <small>We never widen the search on your behalf. You choose how far to look, up to 100 km.</small>
+      </div>
+    </sc-if>
+  </div>
+
+  <sc-if value="{{showSheet}}" hint-placeholder-val="{{false}}">
+    <div class="scrim">
+      <div class="sheet">
+        <span class="grab"></span>
+        <h4>Search further out</h4>
+        <p>Widening to 25 km adds about 60 more donors. Everyone already notified keeps their alert; nobody is notified twice.</p>
+        <div class="radiusrow">
+          <div class="sliderwrap">
+            <div class="track">
+              <div class="fill" style="width:21%"></div>
+              <div class="was" style="left:5.3%"></div>
+              <div class="thumb" style="left:21%"></div>
+            </div>
+            <div class="ticks"><span>5</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+          </div>
+          <div class="kmbox">25<span>km</span></div>
+        </div>
+        <button type="button" class="sheetcta">Search again within 25 km</button>
+        <button type="button" class="sheetghost">Keep it at 10 km</button>
+      </div>
+    </div>
+  </sc-if>
+</div>
+
+</x-dc>
+<script data-dc-script data-props='{
+  "state": {"editor":"enum","default":"responses","options":["matching","responses","zero-match","increase-radius","expired"],"section":"AC state"},
+  "viewer": {"editor":"enum","default":"registered","options":["registered","guest"],"section":"Donor-list rule"}
+}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.props.state ?? "responses";
+    const v = this.props.viewer ?? "registered";
+    const guest = v === "guest";
+
+    const matching = s === "matching";
+    const zero = s === "zero-match" || s === "increase-radius";
+    const expired = s === "expired";
+    const responses = s === "responses" || expired;
+
+    // Business rule: a request lives 6 hours (360 min). 18 min elapsed here.
+    const totalMin = 360, elapsedMin = expired ? 360 : 18;
+    const leftMin = totalMin - elapsedMin;
+    const hh = Math.floor(leftMin / 60), mm = leftMin % 60;
+
+    const sent = 40, accepted = 2;
+
+    // Guest sees only donors who reached Accepted. Registered sees every
+    // matched donor as Donor 1..n with one flat Pending label — no per-donor
+    // Sent / Viewed / Declined breakdown for anyone.
+    const circumference = 2 * Math.PI * 46;
+    const acceptedArc = (accepted / sent) * circumference;
+
+    return {
+      isMatching: matching,
+      isZero: zero,
+      isExpired: expired,
+      isGuest: guest,
+      showStats: responses,
+      showList: responses,
+      showPending: responses && !guest,
+      showSheet: s === "increase-radius",
+      badgeClass: expired ? "mute" : "",
+      statusClass: matching ? "emg" : (expired || zero ? "gone" : "live"),
+      statusLabel: matching ? "Matching" : (expired ? "Expired" : (zero ? "No matches" : "2 accepted")),
+
+      clockLabel: expired ? "Closed at" : "Expires in",
+      clockValue: expired ? "12:40 today" : (hh + " hr " + mm + " min"),
+      clockTone: expired ? "" : "hot",
+      lifePct: Math.round((elapsedMin / totalMin) * 100) + "%",
+      lifeClass: expired ? "done" : "",
+
+      acceptedArc: acceptedArc.toFixed(1) + " " + (circumference - acceptedArc).toFixed(1),
+      sentCount: String(sent),
+      acceptedCount: String(accepted),
+      pendingCount: String(sent - accepted),
+
+      listTitle: guest ? "Donors who accepted" : "Matched donors",
+      listNote: expired
+        ? "final result"
+        : (guest ? "shown as each one accepts" : "updates as donors respond"),
+      privacyNote: guest
+        ? "38 more donors were notified. As a guest you see each one here the moment they accept — names and numbers are never shown before that."
+        : "Donors stay anonymous until they accept. Donor 3 is the same person every time you look, and their name and number appear here the moment they say yes."
+    };
+  }
+}
+</script>
+</body>
+</html>

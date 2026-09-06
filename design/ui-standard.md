@@ -1,8 +1,9 @@
 # UI Standard — Community Health Hub
 
-> **Instructions page v4.0** — created 2026-09-02. Warm sand and clay base
-> from the team's reference designs, with the PRD's blood red restored as
-> the urgency and blood signal.
+> **Instructions page v4.1** — created 2026-09-02, revised 2026-09-04.
+> Warm sand and clay base from the team's reference designs, with the PRD's
+> blood red restored as the urgency and blood signal, and a dedicated
+> accept-green added in v4.1.
 > Read by the Designer agent and the frontend coding agent. Governed by the
 > **Project Rules** page (root `CLAUDE.md` / `.claude/rules/`).
 > This page is a team extension **[EXT]** — it is not part of the base
@@ -30,17 +31,26 @@ registers and the UI shifts between them.
 
 Same tokens throughout. Density and weight change, not the system.
 
-**Two colour families, one job each.**
+**Three colour families, one job each.**
 
 - **Clay `#B06134`** is the brand. Primary actions, navigation, the hero
   panel, everything routine.
 - **Blood red `#D32F2F`** is reserved: blood groups, emergency, donate
   actions, destructive controls.
+- **Go green `#3F6B39`** is the commitment colour, and nothing else: the
+  action by which a person agrees to help. Accept a blood request, confirm
+  attendance, confirm availability.
 
 Red appears rarely, which is what lets it read as a signal rather than
 decoration. A screen where everything is red tells the reader nothing.
 This is the rule that matters most in the whole system — every time you
 are tempted to use red for a non-urgent accent, use clay.
+
+Green appears even more rarely than red. It is not a general "success"
+colour and it is not a second primary — `--leaf` already carries *status*
+green (verified, eligible), and `--go` carries the *act* of accepting.
+Keeping those apart is what makes a green button mean "I am coming" rather
+than "this worked."
 
 **Supersedes the PRD's blue.** The PRD's Wireframe Instructions specify
 `#D32F2F` and `#1976D2`. The red is retained exactly; the wellness blue is
@@ -89,6 +99,14 @@ chip.
   --blood-tint:  #FCE9E7;
   --blood-line:  #F5C6C2;
 
+  /* commitment — go green. Accept / agree-to-help actions only */
+  --go:          #3F6B39;
+  --go-hover:    #345A2F;
+  --go-active:   #2A4A26;
+  --go-deep:     #2F5629;  /* text on tint */
+  --go-tint:     #E4EFDD;
+  --go-line:     #C3DAB8;
+
   /* text */
   --ink:         #392A1D;
   --ink-2:       #6F5C46;
@@ -106,9 +124,9 @@ chip.
 ```
 
 **Dark theme** is supported and shipped. Same token names, swapped values
-on `[data-theme="dark"]` — clay lifts to `#C36F3C` and blood to `#E5493F`
-for contrast on dark surfaces (sand becomes `#15110C`, cream becomes
-`#221B14`). Components never reference a theme, only tokens.
+on `[data-theme="dark"]` — clay lifts to `#C36F3C`, blood to `#E5493F` and
+go to `#6FA463` for contrast on dark surfaces (sand becomes `#15110C`,
+cream becomes `#221B14`). Components never reference a theme, only tokens.
 
 **Where each colour is allowed**
 
@@ -118,9 +136,11 @@ for contrast on dark surfaces (sand becomes `#15110C`, cream becomes
 | Emergency urgency, card rail, banner | `--blood` |
 | Urgent urgency | `--amber` |
 | Standard urgency | `--sand-2` / `--ink-2` |
-| "Request blood", "Donate", "Respond" on an emergency | `--blood` filled |
+| "Request blood", "Donate", "Broadcast request" — *initiating* an emergency | `--blood` filled |
+| "Accept and donate", "Accept", "Confirm I'm coming" — *committing* to help | `--go` filled |
 | "Save", "Continue", "RSVP", navigation active | `--clay` filled |
 | Destructive — withdraw, delete, reject | `--blood` **outlined**, not filled |
+| Decline — a donor turning a request down | `--line-strong` outlined, `--ink` text (neutral, never red) |
 | Field and form errors | `--error` |
 | Verified, eligible | `--leaf` |
 | Elapsed-time ring | `--blood` |
@@ -129,6 +149,10 @@ Destructive actions are outlined rather than filled. An outline signals
 consequence without shouting, and it keeps solid red meaning "this is an
 emergency" rather than "this button is dangerous."
 
+Declining is not destructive and is not an error. It is a neutral,
+legitimate answer — a donor may simply be unable to give today. It gets
+the secondary button, never red.
+
 **Rules**
 
 1. `--clay` is the primary/urgency-neutral action colour. `--blood` is
@@ -136,15 +160,20 @@ emergency" rather than "this button is dangerous."
    interchangeable.
 2. **Red is a signal, not an accent.** If it is not blood, emergency or
    destructive, it is clay.
-3. **Colour never carries meaning alone.** Every status, blood group and
+3. **Green is the commitment, not the confirmation.** `--go` is only ever
+   the control by which a person agrees to help — Accept, Confirm I'm
+   coming, Confirm attendance. Status greens (verified, eligible, an
+   "Accepted" pill after the fact) stay on `--leaf`/`--leaf-tint`. A
+   success toast is `--leaf`, not `--go`.
+4. **Colour never carries meaning alone.** Every status, blood group and
    urgency level also carries text. Not optional on this product.
-4. Shadows are warm-tinted (`rgba(57,42,29,…)`), never neutral grey. Grey
+5. Shadows are warm-tinted (`rgba(57,42,29,…)`), never neutral grey. Grey
    shadows on a sand background read as dirt.
-5. Body text clears 4.5:1. Large text, icons and UI boundaries clear 3:1.
-   White on `--blood` measures 5.0:1 and white on `--clay` measures 4.7:1
-   — both pass, but neither has margin, so re-check if you shift either
-   value.
-6. No colour outside this list. If a screen needs one, add it here first.
+6. Body text clears 4.5:1. Large text, icons and UI boundaries clear 3:1.
+   White on `--blood` measures 5.0:1, white on `--clay` 4.7:1, and white
+   on `--go` 6.2:1. The first two have no margin, so re-check if you
+   shift either value.
+7. No colour outside this list. If a screen needs one, add it here first.
 
 ### Type
 
@@ -220,6 +249,12 @@ that exists to show the app is still working.
 Individual and Guest flows are mobile-first. Facility and Admin dashboards
 are desktop-first and degrade to a single column.
 
+**Every screen ships both.** A mobile artboard without its web counterpart
+is an incomplete design. Mobile-first governs the *order* you design in,
+not the *set* you deliver — the web layout is a real layout decision
+(sidebar, table instead of cards, modal instead of bottom sheet), not the
+phone frame stretched wide.
+
 ---
 
 ## Interaction rules — apply to every component
@@ -258,9 +293,10 @@ that shrinks to fit a spinner moves everything below it.
 
 | Variant | Fill | Text | Border | Use |
 |---|---|---|---|---|
-| `b-blood` | `--blood` | `#fff` | none | Request blood, Donate, Respond to an emergency |
+| `b-blood` | `--blood` | `#fff` | none | Request blood, Donate, Broadcast an emergency request |
+| `b-accept` | `--go` | `#fff` | none | Accept and donate, Accept, Confirm I'm coming |
 | `b-primary` | `--clay` | `#fff` | none | Save, Continue, RSVP, Verify |
-| `b-secondary` | transparent | `--ink` | 1.5px `--line-strong` | Cancel, Back, respond to a standard request |
+| `b-secondary` | transparent | `--ink` | 1.5px `--line-strong` | Cancel, Back, Decline a request |
 | `b-ghost` | transparent | `--clay` | none | Inline text actions, resend |
 | `b-danger` | transparent | `--blood` | 1.5px `--blood-line` | Withdraw consent, Delete, Reject |
 | `b-onclay` | `--cream` | `--blood-deep` | none | Action inside a solid red banner |
@@ -280,6 +316,11 @@ Disabled per the global rule.
 
 **One primary per screen.** If two actions look equally important, one of
 them isn't.
+
+**Accept and Decline are not a symmetric pair.** Accept is `b-accept`,
+full width, 54px — it is the point of the screen. Decline is `b-secondary`
+below it at 50px. Two filled buttons of equal weight force a decision the
+donor has not been given enough information to make yet.
 
 ### Icon button
 
@@ -339,6 +380,10 @@ options, `--clay-tint` on hover, checkmark on the selected item. Above 8
 options it becomes searchable.
 
 Blood group select renders each option in `data` (tabular-nums) type.
+
+**The urgency control is a segmented control, not a select** — three
+options, always visible, in this order and with exactly these words:
+**Emergency · Urgent · Standard**. See "Urgency vocabulary" below.
 
 ### Search
 
@@ -568,6 +613,21 @@ button.
 small dot indicator plus a text "Rare" tag beside it — the dot is never
 the only signal.
 
+### Urgency vocabulary — three words, no synonyms
+
+The urgency scale has exactly three levels and exactly three labels.
+These strings are the contract between the request form, the notification,
+the SMS, the card and the dashboard:
+
+**Emergency** · **Urgent** · **Standard**
+
+Never "High". Never "Normal". Never "Critical", "Medium" or "Low". A
+donor who reads "Urgent" in an SMS and "High" in the app has to work out
+whether those are the same thing, at the exact moment we need them not to
+be thinking about the interface. Where a source document (a PRD line, a
+Jira story) uses other words, they map to these three and these three are
+what ships.
+
 ### Urgency indicator
 
 | Level | Treatment |
@@ -580,6 +640,32 @@ The word is mandatory at every level. Card left rail (`--line-strong` /
 `--amber` / `--blood`) and the elapsed-time ring reinforce it — three
 signals, none alone.
 
+### Request lifetime and countdown
+
+**A blood request lives for 6 hours.** It is created, matched and
+broadcast; if it is not fulfilled within 6 hours of creation it expires
+automatically and stops accepting responses. This is a product rule, not
+a visual one — but the UI has to be honest about it, so:
+
+- The requester's dashboard shows a labelled countdown at all times:
+  `Expires in` / `5 hr 42 min`, tabular numerals, in the summary strip.
+  Once expired the same slot flips to `Closed at` / a wall-clock time —
+  the label changes with the meaning; the number never sits there
+  unexplained.
+- The donor's request-details screen shows `Request closes in` on the
+  facts list, so a donor can tell whether accepting is still useful.
+- The expiry copy names the rule in words the first time it matters:
+  "Requests close 6 hours after they are posted." Never "expired" with no
+  reason.
+- The elapsed-time ring is scaled to the same 6 hours, so a full ring and
+  an expired request mean the same thing.
+- Expiry is never silent and never a toast alone: the dashboard carries a
+  persistent inline alert with a "Post it again" action.
+
+Frontend and backend both take 6 hours as the single value. If it ever
+becomes configurable, it becomes a value the UI reads — not a second
+number written into a component.
+
 ### Status pill
 
 `--r-full`, 12.5px, `--s2`(vert)/`--s3`(horiz) padding, semantic tint fill
@@ -587,6 +673,35 @@ with semantic text.
 
 Pending · Verified · Rejected · Eligible · Receiver only · Guest, expires
 in *n* days.
+
+### Donor list visibility — who sees which donors
+
+The matched-donor list is the most privacy-sensitive surface in the
+product, and what it shows depends on who is looking. Two rules, both
+binding:
+
+**Guest requester** (unregistered, anonymous session) — the list contains
+**only donors who have reached Accepted**. Pending, sent and viewed donors
+are not listed, not counted per-row, and not implied by a placeholder
+row. A guest with no acceptances yet gets the empty state, not a list of
+locked rows. Aggregate reassurance ("38 donors notified") is allowed; a
+per-donor trace is not.
+
+**Registered requester** — the list contains **every matched donor**,
+anonymised as `Donor 1`, `Donor 2`, `Donor 3`… in match order, with **no
+per-donor status breakdown**. Every unaccepted donor row carries the same
+flat label: **Pending**. Never Sent, Viewed, Opened, Delivered or
+Declined on a row — delivery telemetry about a named individual is not
+the requester's business, and "viewed but didn't answer" invites exactly
+the pressure this product must not create.
+
+**Both** — the moment a donor accepts, that row reveals their real name
+and contact number, and only then. The reveal is the reward for consent;
+nothing before it leaks identity. `Donor 3` becoming `Nithya Menon` in
+place is the whole interaction.
+
+The ordinal is stable for the life of the request: `Donor 3` is the same
+person every time the requester looks.
 
 ### Tag / chip
 
@@ -599,6 +714,10 @@ a small close icon. Filter chips toggle to `--clay-tint` fill /
 44px default, `--r-full`. Initials on `--clay-tint` in `--clay-deep` when
 no image. Facility avatars are `--r-sm` square — organisations aren't
 people, and the shape says so.
+
+An anonymised donor has no initials: the avatar becomes a `--sand-2`
+circle with a lock glyph in `--ink-3`. Never invent initials for a person
+whose name is deliberately hidden.
 
 ### Table — desktop only
 
@@ -646,6 +765,66 @@ separate things clearly.
 
 ---
 
+## Off-app delivery — push and SMS
+
+A proximity alert is not only a screen. The same request reaches donors
+through push notification and, for donors without the app or with push
+disabled, through SMS. All three carry the same payload and the same
+limits.
+
+### What an alert may contain
+
+**Always:** blood group, units needed, urgency (one of the three words),
+approximate distance, the facility's area.
+
+**Never:** the patient's name, the requester's name, the requester's
+number, the exact address or a map pin, any diagnosis or reason for the
+transfusion. Identity is revealed on acceptance and not before — the
+off-app channels are the easiest place to leak it, because they land on a
+lock screen anyone can read.
+
+Distance is always **approximate** and phrased that way ("about 5 km
+away"). A precise distance to one decimal place is a location disclosure
+dressed as a convenience.
+
+### Push notification
+
+Title carries the group and units; body carries urgency, distance and
+area. Emergency gets the red app-icon treatment and a bolder title;
+Urgent and Standard step down to amber and neutral. Two actions where the
+OS allows them: **Accept** and **Decline** — never Accept alone, because
+an alert a donor cannot dismiss honestly is one they will learn to
+ignore.
+
+### SMS
+
+The fallback channel, and the only channel for a donor with no app. It is
+plain text on an unknown handset, so:
+
+- **Under 160 characters** where possible — one segment, one delivery
+  charge, no split-message reordering.
+- Same field order as push, so a donor who gets both reads the same
+  shape: group and units, urgency, distance, area.
+- **Reply-keyword response**: `Reply YES to accept, NO to decline.`
+  Keywords are short, uppercase in the copy, and case-insensitive in
+  handling. Never more than two keywords in one message.
+- A confirmation SMS follows a YES and contains the requester's name and
+  number — the same reveal-on-acceptance rule as the app, using the same
+  trigger.
+- A NO is acknowledged once and ends the thread for that request. No
+  reminder, no second ask.
+- One link at most, and only to open the request in the browser. Never a
+  shortened link the recipient cannot read — this is a channel people are
+  rightly suspicious of.
+- No emoji, no branding banner, no marketing sentence. The message opens
+  with the fact and closes with the instruction.
+
+The SMS body is a designed artefact and lives on the canvas as its own
+artboard, next to the push previews. Copy changes to it are design
+changes, not string edits.
+
+---
+
 ## Navigation
 
 ### App bar
@@ -686,8 +865,9 @@ For Facility and Admin dashboards.
    apply.
 4. **Colour never alone.** Every status, urgency level and blood group
    carries text.
-5. **Mobile first.** Build the mobile layout, then adapt upward.
-   Exception: Facility and Admin dashboards.
+5. **Mobile first, but never mobile only.** Build the mobile layout, then
+   adapt upward — and ship both. Exception to the order, not the set:
+   Facility and Admin dashboards start at `lg`.
 6. **Contrast is measured, not assumed.** 4.5:1 body, 3:1 large text and
    UI boundaries.
 7. **Every input has a visible label.** A placeholder is never the only
@@ -704,6 +884,11 @@ For Facility and Admin dashboards.
     "Submit". The action keeps its name through the flow — "Publish"
     produces "Published". Sentence case everywhere. Errors explain what
     happened and what to do next.
+12. **Urgency is always Emergency / Urgent / Standard**, in every
+    surface including push and SMS. See "Urgency vocabulary".
+13. **Never widen a donor's exposure to fit a layout.** If a table column
+    needs a value the visibility rules above withhold, the column goes,
+    not the rule.
 
 ---
 
@@ -734,3 +919,12 @@ Architect's Jira tickets are keyed.
 | PRD: Community Health Hub | PRD-CHH-v2.2 (Confluence) — see root `CLAUDE.md` |
 | Component Gallery (live) | `design/component-gallery.html` |
 | Design links / canvas | `design/design-links.md` |
+
+---
+
+## Change log
+
+| Version | Date | Change |
+|---|---|---|
+| v4.0 | 2026-09-02 | Initial standard — sand/clay base, blood red signal |
+| v4.1 | 2026-09-04 | Added the `--go` green family and the `b-accept` button variant as the standard positive/accept action colour, distinct from `--blood` (emergency/destructive) and `--leaf` (status). Added "Urgency vocabulary" fixing Emergency/Urgent/Standard as the only three labels. Added "Request lifetime and countdown" documenting the 6-hour expiry window. Added "Donor list visibility" (guest vs. registered). Added "Off-app delivery — push and SMS" including the SMS reply-keyword pattern. Made web parity an explicit deliverable in Breakpoints and agent rule 5. Raised during CHH-F04 (Proximity Notifications). |

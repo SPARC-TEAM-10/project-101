@@ -1,0 +1,199 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --sand:#F6F0E5;--sand-2:#EFE7D9;--cream:#FDFAF4;--line:#E6DAC7;--line-strong:#D6C6AC;
+      --clay:#B06134;--clay-hover:#96502A;--clay-deep:#8A4620;--clay-tint:#F5E4D3;--clay-line:#E8CDB2;
+      --blood:#D32F2F;--blood-deep:#9E1B18;--blood-tint:#FCE9E7;--blood-line:#F5C6C2;
+      --ink:#392A1D;--ink-2:#6F5C46;--ink-3:#A08A70;--ink-off:#BFAE96;
+      --error:#A33325;--error-tint:#F7E4E0;--amber:#8F6A12;--amber-tint:#F7EDD4;--leaf:#4E7A46;--leaf-tint:#E8F0E2;
+      --font:"Plus Jakarta Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
+      --r-xs:8px;--r-sm:12px;--r-md:16px;--r-lg:20px;
+      --e1:0 1px 2px rgba(57,42,29,.04),0 2px 6px rgba(57,42,29,.05);
+      --e2:0 2px 6px rgba(57,42,29,.05),0 8px 20px rgba(57,42,29,.07);
+    }
+    *{box-sizing:border-box}
+    body{margin:0}
+    a{color:var(--clay)} a:hover{color:var(--clay-hover)}
+    .screen{width:1440px;height:900px;background:var(--sand);font-family:var(--font);color:var(--ink);
+      display:flex;flex-direction:column;overflow:hidden}
+    svg.i{fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;width:18px;height:18px;flex:none}
+    svg.i.s{width:14px;height:14px;stroke-width:2.2}svg.i.m{width:20px;height:20px}svg.i.l{width:34px;height:34px;stroke-width:1.6}
+    .topbar{height:70px;flex:none;background:var(--cream);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:22px;padding:0 32px}
+    .brand{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:800;letter-spacing:-.01em}
+    .brand .mk{width:32px;height:32px;border-radius:9px;background:var(--blood);color:#fff;display:flex;align-items:center;justify-content:center}
+    .nav{display:flex;gap:4px;margin-left:14px}
+    .nav a{height:40px;padding:0 15px;border-radius:var(--r-sm);display:flex;align-items:center;font-size:14px;font-weight:600;color:var(--ink-2);text-decoration:none}
+    .nav a.on{background:var(--clay-tint);color:var(--clay-deep);font-weight:700}
+    .spacer{flex:1}
+    .gueststat{display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 13px;border-radius:999px;background:var(--sand-2);color:var(--ink-2);font-size:12.5px;font-weight:700}
+    .main{flex:1;display:flex;min-height:0}
+    .panel{width:512px;flex:none;background:var(--cream);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+    .filters{flex:none;padding:24px 28px 18px;display:flex;flex-direction:column;gap:14px;border-bottom:1px solid var(--line)}
+    .filters h1{margin:0;font-size:28px;line-height:34px;font-weight:800;letter-spacing:-.025em}
+    .search{height:50px;border-radius:var(--r-sm);border:1.5px solid var(--line);background:var(--sand);display:flex;align-items:center;gap:10px;padding:0 14px;color:var(--ink-3)}
+    .search.filled{border-color:var(--clay);background:var(--cream);color:var(--ink)}
+    .search .txt{flex:1;font-size:16px}
+    .seg{display:flex;background:var(--sand-2);border-radius:var(--r-sm);padding:4px;gap:4px}
+    .seg span{flex:1;height:42px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13.5px;font-weight:600;color:var(--ink-2)}
+    .seg span.on{background:var(--cream);color:var(--ink);box-shadow:var(--e1);font-weight:700}
+    .fr{display:flex;gap:12px}
+    .field{display:flex;flex-direction:column;gap:6px;flex:1}
+    .field label{font-size:13px;font-weight:600;color:var(--ink-2)}
+    .select{height:46px;border-radius:var(--r-sm);border:1.5px solid var(--line);background:var(--sand);display:flex;align-items:center;
+      justify-content:space-between;gap:10px;padding:0 14px;font-size:15px;color:var(--ink)}
+    .body{flex:1;min-height:0;padding:26px 28px;display:flex;flex-direction:column;gap:14px}
+    .empty{display:flex;flex-direction:column;gap:12px;padding-top:10px}
+    .empty .ic{width:64px;height:64px;border-radius:999px;background:var(--sand-2);color:var(--ink-3);display:flex;align-items:center;justify-content:center}
+    .empty .ic.err{background:var(--error-tint);color:var(--error)}
+    .empty b{font-size:21px;line-height:27px;font-weight:800;letter-spacing:-.015em;max-width:22ch}
+    .empty p{margin:0;font-size:14px;line-height:1.6;color:var(--ink-2);max-width:44ch}
+    .acts{display:flex;flex-direction:column;gap:10px;margin-top:4px}
+    .btn{height:46px;padding:0 20px;border-radius:var(--r-sm);font-family:var(--font);font-size:14.5px;font-weight:700;
+      display:inline-flex;align-items:center;justify-content:center;gap:9px;border:none}
+    .btn.lg{height:52px;border-radius:var(--r-md);font-size:15.5px}
+    .btn.primary{background:var(--clay);color:#fff}
+    .btn.secondary{background:transparent;color:var(--ink);border:1.5px solid var(--line-strong)}
+    .btn.ghost{background:transparent;color:var(--clay);padding:0 10px;align-self:flex-start}
+    .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:2px}
+    .chip{height:34px;padding:0 13px;border-radius:999px;background:var(--clay-tint);border:1px solid var(--clay-line);
+      display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;color:var(--clay-deep)}
+    .foot{font-size:12.5px;color:var(--ink-3);line-height:1.55;max-width:44ch;margin-top:auto}
+    .map{flex:1;position:relative;background:var(--sand-2);overflow:hidden;min-width:0}
+    .map i.g{position:absolute;background:var(--line-strong);opacity:.5}
+    .map .blob{position:absolute;background:var(--line);opacity:.6;border-radius:18px}
+    .map .ring{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border-radius:999px;
+      border:2px dashed var(--line-strong);background:rgba(176,97,52,.05)}
+    .map .me{position:absolute;left:50%;top:50%;width:22px;height:22px;border-radius:999px;border:3px solid var(--cream);
+      background:var(--clay);box-shadow:var(--e2);transform:translate(-50%,-50%)}
+    .map .cap{position:absolute;left:50%;top:calc(50% + 232px);transform:translateX(-50%);background:var(--cream);
+      border:1px solid var(--line);border-radius:999px;box-shadow:var(--e1);padding:9px 16px;font-size:13px;font-weight:600;color:var(--ink-2);
+      font-variant-numeric:tabular-nums}
+    .map .veil{position:absolute;inset:0;background:var(--sand);opacity:.55}
+  </style>
+</helmet>
+
+<div class="screen">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <g id="search"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></g>
+    <g id="cross"><path d="M12 6v12M6 12h12"/></g>
+    <g id="chevd"><path d="m6.5 9.5 5.5 5.5 5.5-5.5"/></g>
+    <g id="shield"><path d="M12 3.5 19 6v6c0 4-3 6.7-7 8.5C8 18.7 5 16 5 12V6Z"/><path d="m9 12 2 2 4-4"/></g>
+    <g id="cloudoff"><path d="M7 18.5h9.5a4 4 0 0 0 1.2-7.8A6 6 0 0 0 8 8.4"/><path d="M4 20 20 4"/></g>
+    <g id="retry"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v4h-4"/></g>
+    <g id="user"><path d="M12 13.5a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9Z"/><path d="M4.5 20.5a7.5 7.5 0 0 1 15 0"/></g>
+  </defs></svg>
+
+  <div class="topbar">
+    <span class="brand"><span class="mk"><svg class="i m"><use href="#shield"/></svg></span>Community Health Hub</span>
+    <nav class="nav"><a class="on">Emergency services</a><a>Blood requests</a><a>Events</a></nav>
+    <span class="spacer"></span>
+    <span class="gueststat"><svg class="i s"><use href="#user"/></svg>Guest &middot; expires in 7 days</span>
+    <button type="button" class="btn primary">Verify my number</button>
+  </div>
+
+  <div class="main">
+    <div class="panel">
+      <div class="filters">
+        <h1>Emergency services near you</h1>
+        <div class="{{searchCls}}">
+          <svg class="i"><use href="#search"/></svg>
+          <span class="txt">{{query}}</span>
+          <sc-if value="{{isNoResults}}" hint-placeholder-val="{{true}}">
+            <svg class="i s" style="transform:rotate(45deg);color:var(--ink-3)"><use href="#cross"/></svg>
+          </sc-if>
+        </div>
+        <div class="seg">
+          <span>All</span>
+          <span>Hospitals</span>
+          <span class="{{ambOn}}">Ambulances</span>
+        </div>
+        <div class="fr">
+          <div class="field"><label>Area</label><div class="select">Near me &mdash; Kaloor<svg class="i"><use href="#chevd"/></svg></div></div>
+          <div class="field"><label>Within</label><div class="select">15 km<svg class="i"><use href="#chevd"/></svg></div></div>
+        </div>
+      </div>
+
+      <sc-if value="{{isNoResults}}" hint-placeholder-val="{{true}}">
+        <div class="body">
+          <div class="empty">
+            <span class="ic"><svg class="i l"><use href="#search"/></svg></span>
+            <b>No services found</b>
+            <p>No ambulance services match &ldquo;Vypin ambulance&rdquo; within 15 km of Kaloor. Try a broader area, or include hospitals in the search.</p>
+          </div>
+          <div class="chips">
+            <span class="chip">Ambulances<svg class="i s" style="transform:rotate(45deg)"><use href="#cross"/></svg></span>
+            <span class="chip">Within 15 km<svg class="i s" style="transform:rotate(45deg)"><use href="#cross"/></svg></span>
+          </div>
+          <div class="acts">
+            <button type="button" class="btn primary lg">Clear filters</button>
+            <button type="button" class="btn secondary">Search across all of Ernakulam</button>
+          </div>
+          <p class="foot">Only facilities verified by an administrator appear in the hub, so a service you know of may not be listed yet.</p>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{isError}}" hint-placeholder-val="{{false}}">
+        <div class="body">
+          <div class="empty">
+            <span class="ic err"><svg class="i l"><use href="#cloudoff"/></svg></span>
+            <b>We couldn't load emergency services</b>
+            <p>The connection dropped before the list arrived. Your search and filters are still here &mdash; try again.</p>
+          </div>
+          <div class="acts">
+            <button type="button" class="btn primary lg"><svg class="i m"><use href="#retry"/></svg>Try again</button>
+          </div>
+          <p class="foot">If you need help right now, call your local emergency number directly rather than waiting for this page.</p>
+        </div>
+      </sc-if>
+    </div>
+
+    <div class="map">
+      <i class="g" style="left:0;right:0;top:200px;height:1px"></i>
+      <i class="g" style="left:0;right:0;top:480px;height:1px"></i>
+      <i class="g" style="left:0;right:0;top:700px;height:1px"></i>
+      <i class="g" style="top:0;bottom:0;left:200px;width:1px"></i>
+      <i class="g" style="top:0;bottom:0;left:520px;width:1px"></i>
+      <span class="blob" style="left:70px;top:70px;width:150px;height:66px"></span>
+      <span class="blob" style="left:560px;top:640px;width:200px;height:84px"></span>
+      <span class="blob" style="left:290px;top:520px;width:120px;height:60px"></span>
+      <span class="ring" style="width:440px;height:440px"></span>
+      <span class="me"></span>
+      <span class="cap">15 km around Kaloor &middot; no matching services</span>
+      <sc-if value="{{isError}}" hint-placeholder-val="{{false}}">
+        <span class="veil"></span>
+      </sc-if>
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script data-dc-script data-props='{
+  "state": {"editor":"enum","default":"noResults","options":["noResults","error"],"section":"AC state"}
+}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.props.state ?? "noResults";
+    const noResults = s === "noResults";
+    return {
+      isNoResults: noResults,
+      isError: !noResults,
+      searchCls: noResults ? "search filled" : "search",
+      query: noResults ? "Vypin ambulance" : "Search by name or area",
+      ambOn: noResults ? "on" : ""
+    };
+  }
+}
+</script>
+</body>
+</html>

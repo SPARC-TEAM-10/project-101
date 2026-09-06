@@ -1,0 +1,101 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --sand:#F6F0E5;--sand-2:#EFE7D9;--cream:#FDFAF4;--line:#E6DAC7;--line-strong:#D6C6AC;
+      --clay:#B06134;--clay-hover:#96502A;--clay-deep:#8A4620;--clay-tint:#F5E4D3;--clay-line:#E8CDB2;
+      --blood:#D32F2F;--blood-deep:#9E1B18;--blood-tint:#FCE9E7;--blood-line:#F5C6C2;
+      --go:#3F6B39;--go-deep:#2F5629;--go-tint:#E4EFDD;--go-line:#C3DAB8;
+      --ink:#392A1D;--ink-2:#6F5C46;--ink-3:#A08A70;--ink-off:#BFAE96;
+      --error:#A33325;--error-tint:#F7E4E0;--amber:#8F6A12;--amber-tint:#F7EDD4;--leaf:#4E7A46;--leaf-tint:#E8F0E2;
+      --font:"Plus Jakarta Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
+      --r-xs:8px;--r-sm:12px;--r-md:16px;--r-lg:20px;
+      --e1:0 1px 2px rgba(57,42,29,.04),0 2px 6px rgba(57,42,29,.05);
+    }
+    *{box-sizing:border-box}
+    body{margin:0}
+    a{color:var(--clay)} a:hover{color:var(--clay-hover)}
+    .sheet{width:600px;background:var(--sand);font-family:var(--font);color:var(--ink);
+      padding:28px 26px 34px;display:flex;flex-direction:column;gap:22px}
+    h1{margin:0;font-size:22px;line-height:28px;font-weight:800;letter-spacing:-.025em}
+    .sub{margin:6px 0 0;font-size:13px;line-height:1.6;color:var(--ink-2);max-width:64ch}
+    h2{margin:0;font-size:13px;font-weight:700;color:var(--ink-2)}
+    .group{display:flex;flex-direction:column;gap:10px}
+    .sms{background:#E9E3D6;border-radius:var(--r-md);padding:13px 15px;display:flex;flex-direction:column;gap:7px}
+    .sms .bubble{background:var(--cream);border:1px solid var(--line);border-radius:14px;padding:11px 13px;font-size:13.4px;line-height:1.55;font-variant-numeric:tabular-nums}
+    .sms .count{font-size:11.5px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+    .kw{display:inline-block;padding:1px 7px;border-radius:var(--r-xs);background:var(--sand-2);font-size:12.5px;font-weight:700;letter-spacing:.02em}
+    .note{background:var(--sand-2);border-radius:var(--r-sm);padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+    .note b{font-size:13.5px;font-weight:700}
+    .note p{margin:0;font-size:12.5px;line-height:1.6;color:var(--ink-2)}
+  </style>
+</helmet>
+
+<div class="sheet">
+  <div>
+    <h1>Event SMS &mdash; the only channel for someone without the app</h1>
+    <p class="sub">Same field order as push: what, when, where, how far, spots remaining. A text has no
+      buttons, so the recipient answers with a keyword. Every message below is one segment.</p>
+  </div>
+
+  <div class="group">
+    <h2>New event in your region</h2>
+    <div class="sms">
+      <div class="bubble">Blood donation camp Sat 13 Sep 09:00, Kaloor Community Hall, about 4 km away. 18 spots left. Reply YES to RSVP, NO to stop. &mdash; Community Health Hub</div>
+      <div class="count">152 characters &middot; one segment</div>
+    </div>
+  </div>
+
+  <div class="group">
+    <h2>After a YES</h2>
+    <div class="sms">
+      <div class="bubble">RSVP confirmed, reference A24. Blood donation camp Sat 13 Sep 09:00, Kaloor Community Hall. Show this reference at the desk. &mdash; Community Health Hub</div>
+      <div class="count">148 characters &middot; one segment</div>
+    </div>
+  </div>
+
+  <div class="group">
+    <h2>After a YES when the last spot has gone</h2>
+    <div class="sms">
+      <div class="bubble">Sorry, the Kaloor camp on Sat 13 Sep is now full. We will text you about the next camp near you. Reply STOP to stop. &mdash; Community Health Hub</div>
+      <div class="count">140 characters &middot; one segment</div>
+    </div>
+  </div>
+
+  <div class="group">
+    <h2>Venue change, and cancellation</h2>
+    <div class="sms">
+      <div class="bubble">Venue changed: blood donation camp Sat 13 Sep 09:00 is now at Kaloor Parish Hall, Church Road. &mdash; Community Health Hub</div>
+      <div class="count">119 characters &middot; one segment</div>
+    </div>
+    <div class="sms">
+      <div class="bubble">Cancelled: blood donation camp Sat 13 Sep, Kaloor Parish Hall. The hall is unavailable after storm damage. Do not attend. &mdash; Community Health Hub</div>
+      <div class="count">144 characters &middot; one segment</div>
+    </div>
+  </div>
+
+  <div class="note">
+    <b>Rules these follow</b>
+    <p>Same field order as push. Distance always approximate. Two keywords at most &mdash;
+      <span class="kw">YES</span> <span class="kw">NO</span> &mdash; uppercase in the copy,
+      case-insensitive in handling. No link, no emoji, no marketing line. A cancellation is a
+      statement, not an offer, so it carries no keyword.</p>
+  </div>
+</div>
+
+</x-dc>
+<script data-dc-script>
+class Component extends DCLogic {}
+</script>
+</body>
+</html>

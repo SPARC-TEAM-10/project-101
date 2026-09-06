@@ -1,0 +1,152 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --sand:#F6F0E5; --sand-2:#EFE7D9; --cream:#FDFAF4;
+      --line:#E6DAC7; --line-strong:#D6C6AC;
+      --clay:#B06134; --clay-hover:#96502A; --clay-tint:#F5E4D3;
+      --ink:#392A1D; --ink-2:#6F5C46; --ink-3:#A08A70;
+      --error:#A33325; --leaf:#4E7A46; --amber:#8F6A12;
+      --font:"Plus Jakarta Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+      --r-xs:8px; --r-sm:12px; --r-md:16px; --r-lg:20px;
+      --e1:0 1px 2px rgba(57,42,29,.04),0 2px 6px rgba(57,42,29,.05);
+      --e3:0 10px 24px rgba(57,42,29,.10),0 24px 56px rgba(57,42,29,.14);
+    }
+    *{box-sizing:border-box}
+    body{margin:0}
+    a{color:var(--clay)} a:hover{color:var(--clay-hover)}
+    .screen{width:640px;height:1180px;background:var(--sand);font-family:var(--font);color:var(--ink);
+      position:relative;overflow:hidden;padding:36px 40px 40px}
+    h1{font-size:22px;font-weight:800;letter-spacing:-.022em;margin:0 0 4px}
+    .sub{font-size:13px;color:var(--ink-2);margin:0 0 28px;line-height:1.5}
+    h2{font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3);
+      margin:0 0 12px}
+    section{margin-bottom:26px}
+    .card{background:var(--cream);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px;
+      box-shadow:var(--e1);display:flex;flex-direction:column;gap:10px}
+    .caption{font-size:11.5px;color:var(--ink-3);margin:8px 0 0;line-height:1.5}
+
+    /* ---- toast (same anatomy as Feedback Components) ---- */
+    .toast{display:flex;align-items:flex-start;gap:10px;border-radius:var(--r-sm);padding:12px 14px;
+      box-shadow:var(--e3);font-size:13.5px;line-height:1.45;font-weight:500;background:var(--cream);color:var(--ink)}
+    .toast.ok{border-left:4px solid var(--leaf)} .toast.ok > svg{color:var(--leaf);flex:none;margin-top:1px}
+    .toast.err{border-left:4px solid var(--error)} .toast.err > svg{color:var(--error);flex:none;margin-top:1px}
+    .toast.info{border-left:4px solid var(--clay)} .toast.info > svg{color:var(--clay);flex:none;margin-top:1px}
+    .toast .msg{flex:1}
+    .toast .msg em{display:block;font-style:normal;font-size:12px;color:var(--ink-3);margin-top:3px}
+    .toast .x{background:none;border:none;color:var(--ink-3);cursor:pointer;display:flex;padding:4px;flex:none;
+      margin-top:-1px}
+    .life{font-size:11px;font-weight:700;color:var(--ink-3);letter-spacing:.03em;flex:none;align-self:center;
+      background:var(--sand-2);border-radius:999px;padding:3px 9px;font-variant-numeric:tabular-nums}
+
+    /* ---- placement demo ---- */
+    .frame{position:relative;height:230px;border-radius:var(--r-md);border:1px solid var(--line-strong);
+      background:var(--sand-2);overflow:hidden}
+    .frame .bar{height:34px;background:var(--cream);border-bottom:1px solid var(--line);display:flex;
+      align-items:center;padding:0 14px;font-size:11.5px;font-weight:700;color:var(--ink-2)}
+    .frame .ghost{padding:20px 22px;display:flex;flex-direction:column;gap:10px}
+    .frame .ghost i{display:block;height:11px;border-radius:999px;background:var(--line)}
+    .frame .ghost i.w1{width:56%} .frame .ghost i.w2{width:76%} .frame .ghost i.w3{width:38%}
+    .toast-host{position:absolute;left:50%;top:48px;transform:translateX(-50%);z-index:10;width:78%}
+  </style>
+</helmet>
+
+<div class="screen">
+  <h1>Verification toasts</h1>
+  <p class="sub">Every notification the CHH-F03 flow raises, drawn as an explicit state. Top-center placement, one at a time; success and info self-dismiss, errors stay until the admin dismisses them, because each one names a correction to make.</p>
+
+  <section>
+    <h2>1 · Success</h2>
+    <div class="card">
+      <div class="toast ok">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M8.4 12.3 11 15l4.6-5.4"/></svg>
+        <span class="msg">Licence uploaded.</span>
+        <span class="life">4s</span>
+        <button type="button" class="x" aria-label="Dismiss"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6.5 6.5 11 11M17.5 6.5l-11 11"/></svg></button>
+      </div>
+      <div class="toast ok">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M8.4 12.3 11 15l4.6-5.4"/></svg>
+        <span class="msg">Submitted for verification.<em>We will notify Anitha Varghese as soon as an admin decides.</em></span>
+        <span class="life">6s</span>
+        <button type="button" class="x" aria-label="Dismiss"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6.5 6.5 11 11M17.5 6.5l-11 11"/></svg></button>
+      </div>
+      <div class="toast ok">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M8.4 12.3 11 15l4.6-5.4"/></svg>
+        <span class="msg">Kochi Metro Hospital is verified.<em>Events, blood requests and inventory are now unlocked.</em></span>
+        <span class="life">6s</span>
+        <button type="button" class="x" aria-label="Dismiss"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6.5 6.5 11 11M17.5 6.5l-11 11"/></svg></button>
+      </div>
+    </div>
+    <p class="caption">The verified toast is the moment of change — the persistent signal afterwards is the tick beside the facility name, not a status card.</p>
+  </section>
+
+  <section>
+    <h2>2 · Error — stays until dismissed</h2>
+    <div class="card">
+      <div class="toast err">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5 21 19.5H3L12 4.5Z"/><path d="M12 10v4M12 16.8v.1"/></svg>
+        <span class="msg">Invalid file format. Please upload PDF or Image.</span>
+        <button type="button" class="x" aria-label="Dismiss"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6.5 6.5 11 11M17.5 6.5l-11 11"/></svg></button>
+      </div>
+      <div class="toast err">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5 21 19.5H3L12 4.5Z"/><path d="M12 10v4M12 16.8v.1"/></svg>
+        <span class="msg">File too large. Maximum size is 5MB.</span>
+        <button type="button" class="x" aria-label="Dismiss"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6.5 6.5 11 11M17.5 6.5l-11 11"/></svg></button>
+      </div>
+      <div class="toast err">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5 21 19.5H3L12 4.5Z"/><path d="M12 10v4M12 16.8v.1"/></svg>
+        <span class="msg">Upload failed.<em>Check your connection, then retry — we kept what was sent.</em></span>
+        <button type="button" class="x" aria-label="Dismiss"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6.5 6.5 11 11M17.5 6.5l-11 11"/></svg></button>
+      </div>
+      <div class="toast err">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5 21 19.5H3L12 4.5Z"/><path d="M12 10v4M12 16.8v.1"/></svg>
+        <span class="msg">Verification was not approved.<em>Open your facility profile to read the admin's reason.</em></span>
+        <button type="button" class="x" aria-label="Dismiss"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6.5 6.5 11 11M17.5 6.5l-11 11"/></svg></button>
+      </div>
+    </div>
+    <p class="caption">Wording matches the Data Dictionary error strings exactly (US-CHH-003-02 AC2 and AC3).</p>
+  </section>
+
+  <section>
+    <h2>3 · Info</h2>
+    <div class="card">
+      <div class="toast info">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.9v.1"/></svg>
+        <span class="msg">Feature locked until account verification.</span>
+        <span class="life">4s</span>
+        <button type="button" class="x" aria-label="Dismiss"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6.5 6.5 11 11M17.5 6.5l-11 11"/></svg></button>
+      </div>
+    </div>
+    <p class="caption">Raised only when a locked action is triggered from a place with no room for the modal — the dashboard tiles still open the full explanation dialog.</p>
+  </section>
+
+  <section>
+    <h2>4 · Placement</h2>
+    <div class="frame">
+      <div class="bar">Community Health Hub</div>
+      <div class="ghost"><i class="w2"></i><i class="w1"></i><i class="w3"></i><i class="w2"></i></div>
+      <div class="toast-host">
+        <div class="toast ok">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M8.4 12.3 11 15l4.6-5.4"/></svg>
+          <span class="msg">Submitted for verification.</span>
+          <button type="button" class="x" aria-label="Dismiss"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6.5 6.5 11 11M17.5 6.5l-11 11"/></svg></button>
+        </div>
+      </div>
+    </div>
+    <p class="caption">Top-center, 16px below the app bar, max width 420px — the same host as the rest of the product.</p>
+  </section>
+</div>
+
+</x-dc>
+</body>
+</html>

@@ -1,0 +1,252 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --sand:#F6F0E5;--sand-2:#EFE7D9;--cream:#FDFAF4;--line:#E6DAC7;--line-strong:#D6C6AC;
+      --clay:#B06134;--clay-hover:#96502A;--clay-deep:#8A4620;--clay-tint:#F5E4D3;--clay-line:#E8CDB2;
+      --blood:#D32F2F;--blood-deep:#9E1B18;--blood-tint:#FCE9E7;--blood-line:#F5C6C2;
+      --ink:#392A1D;--ink-2:#6F5C46;--ink-3:#A08A70;--ink-off:#BFAE96;
+      --error:#A33325;--error-tint:#F7E4E0;--amber:#8F6A12;--amber-tint:#F7EDD4;--leaf:#4E7A46;--leaf-tint:#E8F0E2;
+      --font:"Plus Jakarta Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
+      --r-xs:8px;--r-sm:12px;--r-md:16px;--r-lg:20px;--r-xl:28px;
+      --e1:0 1px 2px rgba(57,42,29,.04),0 2px 6px rgba(57,42,29,.05);
+      --e3:0 10px 24px rgba(57,42,29,.10),0 24px 56px rgba(57,42,29,.14);
+    }
+    *{box-sizing:border-box}
+    body{margin:0}
+    a{color:var(--clay)} a:hover{color:var(--clay-hover)}
+    .screen{width:390px;height:844px;background:var(--sand);font-family:var(--font);color:var(--ink);display:flex;flex-direction:column;overflow:hidden;position:relative}
+    svg.i{fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;width:18px;height:18px;flex:none}
+    svg.i.s{width:14px;height:14px;stroke-width:2.2}svg.i.m{width:20px;height:20px}svg.i.l{width:32px;height:32px;stroke-width:1.6}
+    .num{font-variant-numeric:tabular-nums}
+
+    .appbar{height:58px;flex:none;display:flex;align-items:center;gap:10px;padding:0 12px 0 8px;background:var(--cream);border-bottom:1px solid var(--line)}
+    .appbar .back{width:42px;height:42px;border-radius:999px;display:flex;align-items:center;justify-content:center;color:var(--ink);flex:none}
+    .appbar h1{flex:1;margin:0;font-size:17px;font-weight:800;letter-spacing:-.02em}
+
+    .scroll{flex:1;min-height:0;padding:14px 16px 16px;display:flex;flex-direction:column;gap:13px;overflow:hidden}
+
+    .alert{display:flex;gap:10px;border-radius:var(--r-sm);padding:12px 13px;align-items:flex-start}
+    .alert b{display:block;font-size:13.5px;font-weight:700;line-height:19px}
+    .alert p{margin:3px 0 0;font-size:12.5px;line-height:1.55}
+    .alert.info{background:var(--clay-tint);color:var(--clay-deep)}
+    .alert.ok{background:var(--leaf-tint);color:var(--leaf)}
+
+    .card{background:var(--cream);border:1px solid var(--line);border-radius:var(--r-md);padding:15px 14px;display:flex;flex-direction:column;gap:12px}
+    .card h2{margin:0;font-size:15px;font-weight:700}
+    .card .lead{margin:0;font-size:12.5px;line-height:1.55;color:var(--ink-2)}
+
+    .drop{border:2px dashed var(--line-strong);border-radius:var(--r-md);background:var(--sand);padding:26px 18px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+    .drop .ic{width:64px;height:64px;border-radius:999px;background:var(--sand-2);color:var(--ink-3);display:flex;align-items:center;justify-content:center}
+    .drop b{font-size:16px;line-height:22px;font-weight:700;max-width:22ch}
+    .drop p{margin:0;font-size:12.5px;line-height:1.6;color:var(--ink-2);max-width:32ch}
+
+    .filerow{display:flex;align-items:center;gap:11px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--sand);padding:12px 13px}
+    .filerow.bad{border-color:var(--blood-line);background:var(--blood-tint)}
+    .filerow .fic{width:38px;height:38px;border-radius:10px;background:var(--sand-2);color:var(--ink-2);display:flex;align-items:center;justify-content:center;flex:none}
+    .filerow.bad .fic{background:#fff;color:var(--blood)}
+    .filerow .meta{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+    .filerow .nm{display:flex;align-items:baseline;gap:8px}
+    .filerow .nm b{font-size:13.5px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .filerow .nm .sz{font-size:12px;color:var(--ink-2);flex:none;margin-left:auto;font-weight:700}
+    .filerow .rowerr{font-size:12px;font-weight:600;color:var(--error);display:flex;align-items:flex-start;gap:6px;line-height:1.45}
+    .bar{height:6px;border-radius:999px;background:var(--sand-2);overflow:hidden}
+    .bar i{display:block;height:100%;background:var(--clay);border-radius:999px}
+    .upnote{font-size:12px;color:var(--ink-2);font-weight:600}
+    .iconbtn{width:36px;height:36px;border-radius:999px;border:none;background:transparent;color:var(--ink-2);display:flex;align-items:center;justify-content:center;flex:none}
+
+    .stats{display:flex;gap:9px}
+    .stat{flex:1;background:var(--sand-2);border-radius:var(--r-sm);padding:11px 12px}
+    .stat small{display:block;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;color:var(--ink-2)}
+    .stat b{font-size:24px;line-height:29px;font-weight:800;letter-spacing:-.02em;display:block;margin-top:1px}
+    .stat.ok{background:var(--leaf-tint)} .stat.ok b{color:var(--leaf)}
+    .stat.bad{background:var(--error-tint)} .stat.bad b{color:var(--error)}
+
+    .frow{background:var(--cream);border:1px solid var(--line);border-left:3px solid var(--error);border-radius:var(--r-sm);padding:12px 13px;display:flex;flex-direction:column;gap:6px}
+    .frow .top{display:flex;align-items:baseline;gap:9px}
+    .frow .top b{font-size:14px;font-weight:700;flex:1;min-width:0}
+    .frow .top .rn{font-size:11.5px;font-weight:700;color:var(--ink-2);background:var(--sand-2);border-radius:999px;padding:3px 9px;flex:none}
+    .frow .cl{display:inline-flex;font-size:11.5px;font-weight:700;border-radius:var(--r-xs);padding:2px 7px;background:var(--sand-2);color:var(--ink-2);align-self:flex-start}
+    .frow .why{font-size:12.5px;line-height:1.5;color:var(--error);font-weight:600;display:flex;gap:6px;align-items:flex-start}
+
+    .sechead{display:flex;align-items:baseline;gap:9px;padding:2px 2px 0}
+    .sechead h2{margin:0;font-size:15px;font-weight:700}
+    .sechead .r{margin-left:auto;font-size:13px;font-weight:700;color:var(--clay)}
+
+    .stick{flex:none;background:var(--cream);border-top:1px solid var(--line);padding:12px 16px 18px;display:flex;flex-direction:column;gap:8px}
+    .stick .note{font-size:12px;color:var(--ink-2);line-height:1.5;text-align:center}
+    .btn{height:54px;padding:0 20px;border-radius:var(--r-md);font-family:var(--font);font-size:16px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:9px;border:none;width:100%}
+    .btn.md{height:48px;border-radius:var(--r-sm);font-size:15px}
+    .btn.primary{background:var(--clay);color:#fff}
+    .btn.secondary{background:transparent;color:var(--ink);border:1.5px solid var(--line-strong)}
+  </style>
+</helmet>
+
+<div class="screen">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <g id="back"><path d="M14 6l-6 6 6 6"/></g>
+    <g id="sheet"><path d="M6 3h8l4 4v14H6Z"/><path d="M14 3v4h4"/><path d="M9 13h6M9 17h4"/></g>
+    <g id="up"><path d="M12 19V6"/><path d="m6.5 11.5 5.5-5.5 5.5 5.5"/><path d="M4.5 20.5h15"/></g>
+    <g id="down"><path d="M12 5v13"/><path d="m6.5 12.5 5.5 5.5 5.5-5.5"/><path d="M4.5 20.5h15"/></g>
+    <g id="check"><path d="M5 12.5 10 17.5 19.5 7"/></g>
+    <g id="warn"><path d="M12 4.2 21 19.5H3Z"/><path d="M12 10v4M12 16.8v.1"/></g>
+    <g id="info"><circle cx="12" cy="12" r="8.6"/><path d="M12 11v5.4M12 7.9v.1"/></g>
+    <g id="cross"><path d="M6 6l12 12M18 6 6 18"/></g>
+  </defs></svg>
+
+  <div class="appbar">
+    <span class="back"><svg class="i m"><use href="#back"/></svg></span>
+    <h1>Bulk upload</h1>
+  </div>
+
+  <sc-if value="{{isEmpty}}" hint-placeholder-val="{{true}}">
+    <div class="scroll">
+      <div class="alert info">
+        <svg class="i m"><use href="#info"/></svg>
+        <span>
+          <b>Everything in the file is created as Verified.</b>
+          <p>Bulk upload skips the review queue. Only upload a list you have already checked.</p>
+        </span>
+      </div>
+      <div class="drop">
+        <span class="ic"><svg class="i l"><use href="#sheet"/></svg></span>
+        <b>Choose a CSV from your phone</b>
+        <p>One organisation per row, up to 500 rows. CSV only, max 2 MB.</p>
+      </div>
+      <div class="card">
+        <h2>Columns the file needs</h2>
+        <p class="lead"><b>type</b> · <b>name</b> · <b>licence_number</b> · <b>address</b> · <b>contact_name</b> · <b>contact_role</b> · <b>contact_mobile</b> — all required, named exactly like this.</p>
+        <p class="lead">Easiest on a laptop: start from the template, fill it in a spreadsheet, then upload.</p>
+      </div>
+      <div class="card">
+        <h2>How failures are handled</h2>
+        <p class="lead">Valid rows are created even if others fail. A row is never half-created, and a licence number that already exists is skipped, never overwritten.</p>
+      </div>
+    </div>
+    <div class="stick">
+      <button type="button" class="btn primary"><svg class="i"><use href="#up"/></svg>Choose a file</button>
+      <button type="button" class="btn md secondary"><svg class="i"><use href="#down"/></svg>Download the template</button>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{isUploading}}" hint-placeholder-val="{{false}}">
+    <div class="scroll">
+      <div class="alert info">
+        <svg class="i m"><use href="#info"/></svg>
+        <span>
+          <b>Reading the file — nothing is created yet.</b>
+          <p>You'll see how many can be created, and what's wrong with the rest, before anything goes live.</p>
+        </span>
+      </div>
+      <div class="filerow">
+        <span class="fic"><svg class="i m"><use href="#sheet"/></svg></span>
+        <span class="meta">
+          <span class="nm"><b>kerala-partner-facilities-sep2026.csv</b><span class="sz num">{{pct}}%</span></span>
+          <span class="bar"><i style="width: {{pctWidth}}"></i></span>
+          <span class="upnote num">{{upNote}}</span>
+        </span>
+        <button type="button" class="iconbtn" aria-label="Cancel the upload"><svg class="i"><use href="#cross"/></svg></button>
+      </div>
+      <p class="lead" style="font-size:12.5px;color:var(--ink-2);line-height:1.6;text-align:center;padding:0 8px">You can leave this screen. The upload keeps running and the result waits for you here.</p>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{isFileError}}" hint-placeholder-val="{{false}}">
+    <div class="scroll">
+      <div class="filerow bad">
+        <span class="fic"><svg class="i m"><use href="#warn"/></svg></span>
+        <span class="meta">
+          <span class="nm"><b>facility-master-list.xlsx</b><span class="sz num">3.1 MB</span></span>
+          <span class="rowerr"><svg class="i s"><use href="#warn"/></svg>This is an Excel file, and it's over the 2 MB limit. Save it as CSV and upload again.</span>
+        </span>
+        <button type="button" class="iconbtn" aria-label="Remove this file"><svg class="i"><use href="#cross"/></svg></button>
+      </div>
+      <div class="drop">
+        <span class="ic"><svg class="i l"><use href="#up"/></svg></span>
+        <b>Nothing was created</b>
+        <p>In Excel, choose File → Save As → CSV UTF-8, then upload that file instead.</p>
+      </div>
+    </div>
+    <div class="stick">
+      <button type="button" class="btn primary"><svg class="i"><use href="#up"/></svg>Choose another file</button>
+      <button type="button" class="btn md secondary"><svg class="i"><use href="#down"/></svg>Download the template</button>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{isResults}}" hint-placeholder-val="{{false}}">
+    <div class="scroll">
+      <div class="alert ok">
+        <svg class="i m"><use href="#check"/></svg>
+        <span>
+          <b>47 organisations created, verified and live.</b>
+          <p>3 rows were not created. Nothing on those rows was saved.</p>
+        </span>
+      </div>
+      <div class="stats">
+        <div class="stat ok"><small>Created</small><b class="num">47</b></div>
+        <div class="stat bad"><small>Not created</small><b class="num">3</b></div>
+        <div class="stat"><small>Rows read</small><b class="num">50</b></div>
+      </div>
+
+      <div class="sechead">
+        <h2>The 3 rows that failed</h2>
+        <span class="r">Download</span>
+      </div>
+
+      <div class="frow">
+        <span class="top"><b>Ernakulam District Blood Bank</b><span class="rn num">Row 7</span></span>
+        <span class="cl">licence_number</span>
+        <span class="why"><svg class="i s"><use href="#warn"/></svg>Already used by a verified facility (KL-HOSP-002210).</span>
+      </div>
+      <div class="frow">
+        <span class="top"><b>Snehatheeram Charitable Society</b><span class="rn num">Row 19</span></span>
+        <span class="cl">type</span>
+        <span class="why"><svg class="i s"><use href="#warn"/></svg>“Trust” isn't a type. Use hospital or ngo.</span>
+      </div>
+      <div class="frow">
+        <span class="top"><b>Kollam Community Care</b><span class="rn num">Row 42</span></span>
+        <span class="cl">contact_mobile</span>
+        <span class="why"><svg class="i s"><use href="#warn"/></svg>Only 9 digits. A mobile number needs all 10.</span>
+      </div>
+    </div>
+    <div class="stick">
+      <button type="button" class="btn primary">See the 47 new organisations</button>
+      <button type="button" class="btn md secondary"><svg class="i"><use href="#up"/></svg>Upload the corrected rows</button>
+      <span class="note">Re-uploading won't duplicate the 47 — a repeated licence number is skipped.</span>
+    </div>
+  </sc-if>
+</div>
+
+</x-dc>
+<script data-dc-script data-props='{
+  "state": {"editor":"enum","default":"empty","options":["empty","uploading","results","fileError"],"section":"AC state"},
+  "percent": {"editor":"range","default":62,"min":0,"max":100,"step":1,"unit":"%","section":"AC state"}
+}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.props.state ?? "empty";
+    const pct = Math.round(this.props.percent ?? 62);
+    return {
+      isEmpty: s === "empty",
+      isUploading: s === "uploading",
+      isResults: s === "results",
+      isFileError: s === "fileError",
+      pct: pct,
+      pctWidth: pct + "%",
+      upNote: "Reading — " + pct + "% of 418 KB · 50 rows found"
+    };
+  }
+}
+</script>
+</body>
+</html>

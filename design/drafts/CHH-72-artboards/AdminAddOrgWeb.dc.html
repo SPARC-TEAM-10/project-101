@@ -1,0 +1,393 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --sand:#F6F0E5;--sand-2:#EFE7D9;--cream:#FDFAF4;--line:#E6DAC7;--line-strong:#D6C6AC;
+      --clay:#B06134;--clay-hover:#96502A;--clay-deep:#8A4620;--clay-tint:#F5E4D3;--clay-line:#E8CDB2;
+      --blood:#D32F2F;--blood-deep:#9E1B18;--blood-tint:#FCE9E7;--blood-line:#F5C6C2;
+      --ink:#392A1D;--ink-2:#6F5C46;--ink-3:#A08A70;--ink-off:#BFAE96;
+      --error:#A33325;--error-tint:#F7E4E0;--amber:#8F6A12;--amber-tint:#F7EDD4;--leaf:#4E7A46;--leaf-tint:#E8F0E2;
+      --font:"Plus Jakarta Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
+      --r-xs:8px;--r-sm:12px;--r-md:16px;--r-lg:20px;
+      --e1:0 1px 2px rgba(57,42,29,.04),0 2px 6px rgba(57,42,29,.05);
+      --e2:0 2px 6px rgba(57,42,29,.05),0 8px 20px rgba(57,42,29,.07);
+      --e3:0 10px 24px rgba(57,42,29,.10),0 24px 56px rgba(57,42,29,.14);
+    }
+    *{box-sizing:border-box}
+    body{margin:0}
+    a{color:var(--clay)} a:hover{color:var(--clay-hover)}
+    .screen{width:1440px;height:900px;background:var(--sand);font-family:var(--font);color:var(--ink);display:flex;overflow:hidden;position:relative}
+    svg.i{fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;width:18px;height:18px;flex:none}
+    svg.i.s{width:14px;height:14px;stroke-width:2.2}svg.i.m{width:20px;height:20px}svg.i.l{width:32px;height:32px;stroke-width:1.6}
+    .num{font-variant-numeric:tabular-nums}
+    .spin{width:16px;height:16px;border-radius:999px;border:2.2px solid rgba(255,255,255,.45);border-top-color:#fff;display:inline-block}
+
+    .side{width:248px;flex:none;background:var(--sand-2);border-right:1px solid var(--line);padding:18px 14px;display:flex;flex-direction:column;gap:5px}
+    .brand{display:flex;align-items:center;gap:11px;padding:8px 8px 20px}
+    .brand .mark{width:34px;height:34px;border-radius:10px;background:var(--clay);color:#fff;display:flex;align-items:center;justify-content:center;flex:none}
+    .brand b{font-size:15px;font-weight:800;letter-spacing:-.02em;line-height:1.25}
+    .brand span{display:block;font-size:12px;font-weight:600;color:var(--ink-2)}
+    .navi{height:44px;border-radius:var(--r-sm);display:flex;align-items:center;gap:11px;padding:0 12px;font-size:14px;font-weight:600;color:var(--ink-2)}
+    .navi.on{background:var(--cream);color:var(--clay);box-shadow:var(--e1);font-weight:700}
+    .navi .cnt{margin-left:auto;font-size:12px;font-weight:700;background:var(--clay-tint);color:var(--clay-deep);border-radius:999px;padding:2px 8px}
+    .side .sep{height:1px;background:var(--line-strong);margin:12px 8px}
+    .side .grp{font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;color:var(--ink-3);padding:0 12px 6px}
+    .side .who{margin-top:auto;border-top:1px solid var(--line-strong);padding-top:14px;display:flex;align-items:center;gap:10px}
+    .side .who .av{width:36px;height:36px;border-radius:999px;background:var(--clay-tint);color:var(--clay-deep);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex:none}
+    .side .who small{display:block;font-size:11.5px;color:var(--ink-2);font-weight:600}
+    .side .who b{font-size:13px;font-weight:700}
+
+    .main{flex:1;min-width:0;display:flex;flex-direction:column}
+    .topbar{height:78px;flex:none;background:var(--cream);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:16px;padding:0 28px}
+    .topbar h1{margin:0;font-size:28px;line-height:34px;font-weight:800;letter-spacing:-.025em}
+    .topbar .sub{font-size:13px;color:var(--ink-2);font-weight:600;margin-left:2px;align-self:center}
+    .topbar .right{margin-left:auto;display:flex;gap:10px}
+
+    .body{flex:1;min-height:0;padding:20px 28px 22px;display:flex;gap:22px;overflow:hidden}
+    .col{flex:1;min-width:0;display:flex;flex-direction:column;gap:14px}
+    .aside{width:344px;flex:none;display:flex;flex-direction:column;gap:14px}
+
+    .panel{background:var(--cream);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--e1);padding:20px 22px;display:flex;flex-direction:column;gap:16px}
+    .panel.flat{box-shadow:none;background:var(--sand-2);border-color:var(--line)}
+    .panel h2{margin:0;font-size:17px;font-weight:700}
+    .panel .lead{margin:0;font-size:13.5px;line-height:1.6;color:var(--ink-2)}
+
+    .alert{display:flex;gap:11px;border-radius:var(--r-sm);padding:13px 15px;align-items:flex-start}
+    .alert b{display:block;font-size:13.5px;font-weight:700;line-height:19px}
+    .alert p{margin:3px 0 0;font-size:13px;line-height:1.55}
+    .alert.info{background:var(--clay-tint);color:var(--clay-deep)}
+    .alert.err{background:var(--error-tint);color:var(--error)}
+    .alert.ok{background:var(--leaf-tint);color:var(--leaf)}
+
+    .seg{display:flex;gap:5px;background:var(--sand-2);border:1px solid var(--line);border-radius:var(--r-sm);padding:4px}
+    .segbtn{flex:1;height:48px;border:none;border-radius:10px;background:transparent;font-family:var(--font);font-size:14.5px;font-weight:700;color:var(--ink-2);display:flex;align-items:center;justify-content:center;gap:9px}
+    .segbtn.on{background:var(--cream);color:var(--clay-deep);box-shadow:var(--e1)}
+
+    .grid2{display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:16px}
+    .field{display:flex;flex-direction:column;gap:6px;min-width:0}
+    .field label{font-size:13px;font-weight:600;color:var(--ink-2)}
+    .field label i{font-style:normal;color:var(--error)}
+    .inp{height:50px;border-radius:var(--r-sm);border:1.5px solid var(--line);background:var(--sand);padding:0 15px;font-size:16px;display:flex;align-items:center;color:var(--ink)}
+    .inp.ph{color:var(--ink-3)}
+    .inp.err{border-color:var(--error);background:var(--cream)}
+    .ta{min-height:88px;border-radius:var(--r-sm);border:1.5px solid var(--line);background:var(--sand);padding:12px 15px;font-size:16px;line-height:1.5}
+    .ta.ph{color:var(--ink-3)}
+    .hint{font-size:12.5px;line-height:1.5;color:var(--ink-2)}
+    .hint.bad{color:var(--error);font-weight:600;display:flex;align-items:center;gap:6px}
+
+    .drop{border:2px dashed var(--line-strong);border-radius:var(--r-md);background:var(--sand);padding:22px;display:flex;align-items:center;gap:14px}
+    .drop .ic{width:44px;height:44px;border-radius:12px;background:var(--sand-2);color:var(--ink-2);display:flex;align-items:center;justify-content:center;flex:none}
+    .drop b{font-size:14.5px;font-weight:700;display:block}
+    .drop small{font-size:12.5px;color:var(--ink-2)}
+
+    .btn{height:48px;padding:0 22px;border-radius:var(--r-sm);font-family:var(--font);font-size:15px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:9px;border:none;white-space:nowrap}
+    .btn.lg{height:54px;border-radius:var(--r-md);font-size:16px}
+    .btn.sm{height:36px;padding:0 15px;font-size:13px;border-radius:10px}
+    .btn.primary{background:var(--clay);color:#fff}
+    .btn.secondary{background:transparent;color:var(--ink);border:1.5px solid var(--line-strong)}
+    .btn.ghost{background:transparent;color:var(--clay);padding:0 8px}
+    .btn.dis{background:var(--sand-2);color:var(--ink-off);border:none;cursor:not-allowed}
+    .foot{display:flex;align-items:center;gap:12px;padding-top:2px}
+    .foot .note{font-size:12.5px;color:var(--ink-2);margin-left:auto;text-align:right;line-height:1.5;max-width:34ch}
+
+    .pill{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;border-radius:999px;padding:5px 11px}
+    .pill.ok{background:var(--leaf-tint);color:var(--leaf)}
+    .pill.pend{background:var(--amber-tint);color:var(--amber)}
+
+    .cmp{display:flex;flex-direction:column;gap:10px}
+    .cmp .rowb{display:flex;gap:11px;align-items:flex-start;font-size:13px;line-height:1.55;color:var(--ink-2)}
+    .cmp .rowb b{color:var(--ink);font-weight:700}
+    .cmp .rowb .dot{width:20px;height:20px;border-radius:999px;flex:none;display:flex;align-items:center;justify-content:center;margin-top:1px}
+    .cmp .rowb .dot.a{background:var(--amber-tint);color:var(--amber)}
+    .cmp .rowb .dot.b{background:var(--leaf-tint);color:var(--leaf)}
+
+    .done{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:40px}
+    .done .ic{width:76px;height:76px;border-radius:999px;background:var(--leaf-tint);color:var(--leaf);display:flex;align-items:center;justify-content:center}
+    .done h2{margin:0;font-size:28px;line-height:34px;font-weight:800;letter-spacing:-.025em;max-width:22ch}
+    .done p{margin:0;font-size:14px;line-height:1.6;color:var(--ink-2);max-width:52ch}
+    .facts{display:flex;gap:26px;background:var(--sand-2);border-radius:var(--r-sm);padding:14px 20px;margin-top:4px}
+    .facts div{text-align:left}
+    .facts small{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;color:var(--ink-2)}
+    .facts b{font-size:14.5px;font-weight:700}
+
+    .toast{position:absolute;right:26px;bottom:24px;width:400px;background:var(--cream);border-radius:var(--r-sm);box-shadow:var(--e3);border-left:4px solid var(--leaf);padding:13px 15px;display:flex;gap:11px;align-items:flex-start}
+    .toast b{font-size:14px;font-weight:700;display:block}
+    .toast small{font-size:12.5px;color:var(--ink-2);line-height:1.5;display:block;margin-top:2px}
+    .toast .x{margin-left:auto;color:var(--ink-3)}
+  </style>
+</helmet>
+
+<div class="screen">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <g id="shield"><path d="M12 3.5 19 6v6c0 4-3 6.7-7 8.5C8 18.7 5 16 5 12V6Z"/><path d="m9 12 2 2 4-4"/></g>
+    <g id="users"><circle cx="9" cy="8.5" r="3.4"/><path d="M3.5 19.5c.6-3.2 2.9-5 5.5-5s4.9 1.8 5.5 5"/><path d="M16 5.6a3.4 3.4 0 0 1 0 5.9M17.5 14.9c2 .6 3.4 2.3 3.9 4.6"/></g>
+    <g id="plus"><path d="M12 5v14M5 12h14"/></g>
+    <g id="sheet"><path d="M6 3h8l4 4v14H6Z"/><path d="M14 3v4h4"/><path d="M9 13h6M9 17h4"/></g>
+    <g id="hosp"><path d="M4 20V9l8-5 8 5v11"/><path d="M12 9v6M9 12h6"/></g>
+    <g id="hands"><path d="M12 20s-7-4.2-7-9a3.8 3.8 0 0 1 7-2.1A3.8 3.8 0 0 1 19 11c0 4.8-7 9-7 9Z"/></g>
+    <g id="check"><path d="M5 12.5 10 17.5 19.5 7"/></g>
+    <g id="warn"><path d="M12 4.2 21 19.5H3Z"/><path d="M12 10v4M12 16.8v.1"/></g>
+    <g id="info"><circle cx="12" cy="12" r="8.6"/><path d="M12 11v5.4M12 7.9v.1"/></g>
+    <g id="clock"><circle cx="12" cy="12" r="8.6"/><path d="M12 7.2V12l3.2 2"/></g>
+    <g id="cross"><path d="M6 6l12 12M18 6 6 18"/></g>
+    <g id="up"><path d="M12 19V6"/><path d="m6.5 11.5 5.5-5.5 5.5 5.5"/><path d="M4.5 20.5h15"/></g>
+  </defs></svg>
+
+  <div class="side">
+    <div class="brand">
+      <span class="mark"><svg class="i m"><use href="#shield"/></svg></span>
+      <span><b>Community Health Hub</b><span>Admin command center</span></span>
+    </div>
+    <div class="navi"><svg class="i"><use href="#shield"/></svg>Verifications<span class="cnt num">12</span></div>
+    <div class="navi"><svg class="i"><use href="#users"/></svg>Users</div>
+    <div class="sep"></div>
+    <div class="grp">Add directly</div>
+    <div class="navi on"><svg class="i"><use href="#plus"/></svg>Add an organisation</div>
+    <div class="navi"><svg class="i"><use href="#sheet"/></svg>Bulk upload</div>
+    <div class="who">
+      <span class="av">AK</span>
+      <span><b>Anitha Kurian</b><small>System admin</small></span>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <h1>Add an organisation</h1>
+      <span class="pill ok"><svg class="i s"><use href="#check"/></svg>Created as Verified</span>
+      <div class="right">
+        <sc-if value="{{showForm}}" hint-placeholder-val="{{true}}">
+          <button type="button" class="btn secondary">Cancel</button>
+        </sc-if>
+      </div>
+    </div>
+
+    <sc-if value="{{showForm}}" hint-placeholder-val="{{true}}">
+      <div class="body">
+        <div class="col">
+
+          <sc-if value="{{showErrors}}" hint-placeholder-val="{{false}}">
+            <div class="alert err">
+              <svg class="i m"><use href="#warn"/></svg>
+              <span>
+                <b>Nothing was created — three fields need fixing.</b>
+                <p>The organisation is only created once every required field is valid. Your entries are still here.</p>
+              </span>
+            </div>
+          </sc-if>
+
+          <div class="panel">
+            <div class="field">
+              <label>Organisation type <i>*</i></label>
+              <div class="seg" role="radiogroup" aria-label="Organisation type">
+                <button type="button" class="segbtn {{hospCls}}"><svg class="i"><use href="#hosp"/></svg>Hospital or blood bank</button>
+                <button type="button" class="segbtn {{ngoCls}}"><svg class="i"><use href="#hands"/></svg>NGO</button>
+              </div>
+              <span class="hint">Required. This sets what the organisation can publish once it is live.</span>
+            </div>
+
+            <div class="grid2">
+              <div class="field">
+                <label>Organisation name <i>*</i></label>
+                <sc-if value="{{nameOk}}" hint-placeholder-val="{{true}}">
+                  <div class="inp">{{nameValue}}</div>
+                  <span class="hint">Required. Use the name printed on the licence — it is the name donors will see.</span>
+                </sc-if>
+                <sc-if value="{{showErrors}}" hint-placeholder-val="{{false}}">
+                  <div class="inp err ph">Registered name of the hospital or NGO</div>
+                  <span class="hint bad"><svg class="i s"><use href="#warn"/></svg>Enter the organisation's registered name.</span>
+                </sc-if>
+              </div>
+
+              <div class="field">
+                <sc-if value="{{isHospital}}" hint-placeholder-val="{{true}}">
+                  <label>Licence number <i>*</i></label>
+                </sc-if>
+                <sc-if value="{{isNgo}}" hint-placeholder-val="{{false}}">
+                  <label>Registration number <i>*</i></label>
+                </sc-if>
+                <sc-if value="{{licOk}}" hint-placeholder-val="{{true}}">
+                  <div class="inp num">{{licValue}}</div>
+                  <span class="hint">Required. Letters and numbers, exactly as printed on the certificate.</span>
+                </sc-if>
+                <sc-if value="{{showErrors}}" hint-placeholder-val="{{false}}">
+                  <div class="inp err num">KL-HOSP</div>
+                  <span class="hint bad"><svg class="i s"><use href="#warn"/></svg>This doesn't look complete. Check the certificate and enter it in full.</span>
+                </sc-if>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Address <i>*</i></label>
+              <div class="ta">{{addrValue}}</div>
+              <span class="hint">Required. This is the fixed address donors are routed to — it is not tracked or updated automatically.</span>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h2>Primary contact</h2>
+            <p class="lead">The person the platform reaches for a blood request or an event. They sign in with this mobile number.</p>
+            <div class="grid2">
+              <div class="field">
+                <label>Name <i>*</i></label>
+                <div class="inp">{{contactName}}</div>
+                <span class="hint">Required.</span>
+              </div>
+              <div class="field">
+                <label>Designation <i>*</i></label>
+                <div class="inp">{{contactRole}}</div>
+                <span class="hint">Required.</span>
+              </div>
+            </div>
+            <div class="grid2">
+              <div class="field">
+                <label>Mobile <i>*</i></label>
+                <sc-if value="{{mobOk}}" hint-placeholder-val="{{true}}">
+                  <div class="inp num">+91 98470 55447</div>
+                  <span class="hint">Required. 10 digits, no spaces.</span>
+                </sc-if>
+                <sc-if value="{{showErrors}}" hint-placeholder-val="{{false}}">
+                  <div class="inp err num">+91 98470 5</div>
+                  <span class="hint bad"><svg class="i s"><use href="#warn"/></svg>Enter all 10 digits of the mobile number.</span>
+                </sc-if>
+              </div>
+              <div class="field">
+                <label>Licence or certificate <span style="font-weight:400;color:var(--ink-3)">— optional</span></label>
+                <div class="drop" style="padding:12px 14px">
+                  <span class="ic" style="width:38px;height:38px;border-radius:10px"><svg class="i"><use href="#up"/></svg></span>
+                  <span><b>Attach a scan or browse</b><small>PDF, JPG or PNG. Max 10 MB.</small></span>
+                </div>
+                <span class="hint">You verified this organisation yourself, so a document isn't required — attach one if you have it, for the record.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="foot">
+            <sc-if value="{{isCreating}}" hint-placeholder-val="{{false}}">
+              <button type="button" class="btn lg primary" style="min-width:262px" aria-disabled="true"><span class="spin"></span>Creating…</button>
+            </sc-if>
+            <sc-if value="{{canSubmit}}" hint-placeholder-val="{{true}}">
+              <button type="button" class="btn lg primary" style="min-width:262px">Create verified organisation</button>
+            </sc-if>
+            <button type="button" class="btn secondary">Cancel</button>
+            <span class="note">Goes live immediately. Your name and the time are recorded against it.</span>
+          </div>
+        </div>
+
+        <div class="aside">
+          <div class="alert info">
+            <svg class="i m"><use href="#info"/></svg>
+            <span>
+              <b>This one skips the review queue.</b>
+              <p>An organisation you add here is created as <b>Verified</b> and can sign in, publish events and post blood requests straight away. There is no Approve step, because you are the approval.</p>
+            </span>
+          </div>
+
+          <div class="panel flat">
+            <h2 style="font-size:15px">How the two routes differ</h2>
+            <div class="cmp">
+              <div class="rowb">
+                <span class="dot a"><svg class="i s"><use href="#clock"/></svg></span>
+                <span><b>They register themselves</b> — the facility uploads a licence, lands in Verifications as Pending, and waits for an admin to approve or reject it.</span>
+              </div>
+              <div class="rowb">
+                <span class="dot b"><svg class="i s"><use href="#check"/></svg></span>
+                <span><b>You add them here</b> — created Verified on save. Nothing appears in the queue. Use it for organisations you have already checked offline.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel flat">
+            <h2 style="font-size:15px">What happens on save</h2>
+            <div class="cmp">
+              <div class="rowb"><span class="dot b num">1</span><span>The organisation record is created with status <b>Verified</b>.</span></div>
+              <div class="rowb"><span class="dot b num">2</span><span>The primary contact gets an SMS telling them they can sign in with this number.</span></div>
+              <div class="rowb"><span class="dot b num">3</span><span>The record is logged against your admin account, the same way an approval is.</span></div>
+            </div>
+          </div>
+
+          <sc-if value="{{isNgo}}" hint-placeholder-val="{{false}}">
+            <div class="alert info">
+              <svg class="i m"><use href="#hands"/></svg>
+              <span>
+                <b>NGOs can publish events, not inventory.</b>
+                <p>Blood stock and hospital inventory screens stay hidden for this type.</p>
+              </span>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{isCreated}}" hint-placeholder-val="{{false}}">
+      <div class="done">
+        <span class="ic"><svg class="i l"><use href="#check"/></svg></span>
+        <h2>Sreedhara Multispeciality is live and verified.</h2>
+        <p>It can sign in and post blood requests now. It never entered the verification queue — this record shows you as the verifier.</p>
+        <div class="facts">
+          <div><small>Type</small><b>Hospital</b></div>
+          <div><small>Licence</small><b class="num">KL-HOSP-004821</b></div>
+          <div><small>Status</small><b><span class="pill ok"><svg class="i s"><use href="#check"/></svg>Verified</span></b></div>
+          <div><small>Verified by</small><b>Anitha Kurian</b></div>
+        </div>
+        <div style="display:flex;gap:12px;margin-top:8px">
+          <button type="button" class="btn primary"><svg class="i"><use href="#plus"/></svg>Add another organisation</button>
+          <button type="button" class="btn secondary">Open the record</button>
+        </div>
+      </div>
+      <div class="toast">
+        <svg class="i m" style="color:var(--leaf)"><use href="#check"/></svg>
+        <span>
+          <b>Created — Sreedhara Multispeciality</b>
+          <small>Verified, no review needed. Undo isn't available; suspend it from Users if this was a mistake.</small>
+        </span>
+        <span class="x"><svg class="i s"><use href="#cross"/></svg></span>
+      </div>
+    </sc-if>
+  </div>
+</div>
+
+</x-dc>
+<script data-dc-script data-props='{
+  "state": {"editor":"enum","default":"hospital","options":["hospital","ngo","errors","creating","created"],"section":"AC state"}
+}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.props.state ?? "hospital";
+    const ngo = s === "ngo";
+    return {
+      isHospital: !ngo,
+      isNgo: ngo,
+      hospCls: ngo ? "" : "on",
+      ngoCls: ngo ? "on" : "",
+      showErrors: s === "errors",
+      isCreating: s === "creating",
+      isCreated: s === "created",
+      showForm: s !== "created",
+      // A field renders its valid version in every state except the error one.
+      nameOk: s !== "errors",
+      licOk: s !== "errors",
+      mobOk: s !== "errors",
+      canSubmit: s !== "creating",
+      nameValue: ngo ? "Vayali Jeevan Trust" : "Sreedhara Multispeciality",
+      licValue: ngo ? "KL-NGO-2019-3140" : "KL-HOSP-004821",
+      addrValue: ngo
+        ? "Vayali Bhavan, Round South, Thrissur, Kerala 680001"
+        : "42 Kaloor Junction Road, Kaloor, Kochi, Kerala 682017",
+      contactName: ngo ? "Meera Anand" : "Dr Suresh Nair",
+      contactRole: ngo ? "Programme lead" : "Blood bank in-charge"
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,204 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --sand:#F6F0E5; --sand-2:#EFE7D9; --cream:#FDFAF4;
+      --line:#E6DAC7; --line-strong:#D6C6AC;
+      --clay:#B06134; --clay-hover:#96502A; --clay-deep:#8A4620; --clay-tint:#F5E4D3; --clay-line:#E8CDB2;
+      --blood:#D32F2F; --blood-deep:#9E1B18; --blood-tint:#FCE9E7; --blood-line:#F5C6C2;
+      --go:#3F6B39; --go-hover:#345A2F; --go-active:#2A4A26; --go-deep:#2F5629; --go-tint:#E4EFDD; --go-line:#C3DAB8;
+      --ink:#392A1D; --ink-2:#6F5C46; --ink-3:#A08A70; --ink-off:#BFAE96;
+      --error:#A33325; --error-tint:#F7E4E0;
+      --amber:#8F6A12; --amber-tint:#F7EDD4; --leaf:#4E7A46; --leaf-tint:#E8F0E2;
+      --font:"Plus Jakarta Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+      --r-xs:8px; --r-sm:12px; --r-md:16px; --r-lg:20px;
+      --e1:0 1px 2px rgba(57,42,29,.04),0 2px 6px rgba(57,42,29,.05);
+      --e2:0 2px 6px rgba(57,42,29,.05),0 8px 20px rgba(57,42,29,.07);
+    }
+    *{box-sizing:border-box}
+    body{margin:0}
+    a{color:var(--clay)} a:hover{color:var(--clay-hover)}
+    .sheet{width:700px;background:var(--sand);font-family:var(--font);color:var(--ink);
+      padding:28px 26px 34px;display:flex;flex-direction:column;gap:26px}
+    h1{margin:0;font-size:22px;line-height:28px;font-weight:800;letter-spacing:-.025em}
+    .sub{margin:6px 0 0;font-size:13px;line-height:1.6;color:var(--ink-2);max-width:64ch}
+    h2{margin:0;font-size:13px;font-weight:700;color:var(--ink-2)}
+    .group{display:flex;flex-direction:column;gap:13px}
+    .note{font-size:12px;line-height:1.55;color:var(--ink-3);max-width:66ch;margin:0}
+
+    /* SMS thread */
+    .thread{background:var(--cream);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--e1);
+      overflow:hidden}
+    .thread .hd{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:11px}
+    .thread .hd .from{width:34px;height:34px;border-radius:var(--r-xs);background:var(--sand-2);color:var(--ink-2);
+      display:flex;align-items:center;justify-content:center;flex:none}
+    .thread .hd b{font-size:14px;font-weight:700;letter-spacing:-.01em}
+    .thread .hd span{font-size:11.5px;color:var(--ink-3);margin-left:auto;font-variant-numeric:tabular-nums}
+    .msgs{padding:18px;display:flex;flex-direction:column;gap:14px}
+
+    .bubble{max-width:400px;font-size:14px;line-height:1.55;padding:13px 15px;white-space:pre-line;
+      font-variant-numeric:tabular-nums}
+    .bubble.in{align-self:flex-start;background:var(--sand-2);color:var(--ink);
+      border-radius:var(--r-lg) var(--r-lg) var(--r-lg) var(--r-xs)}
+    .bubble.out{align-self:flex-end;background:var(--clay);color:#fff;
+      border-radius:var(--r-lg) var(--r-lg) var(--r-xs) var(--r-lg);font-weight:700}
+    .bubble.out.yes{background:var(--go)}
+    .stamp{font-size:11px;color:var(--ink-3);font-variant-numeric:tabular-nums;margin-top:-8px}
+    .stamp.left{align-self:flex-start}
+    .stamp.right{align-self:flex-end}
+
+    .meta{display:flex;gap:16px;padding:12px 18px;border-top:1px solid var(--line);background:var(--sand);
+      font-size:11.5px;color:var(--ink-3);font-variant-numeric:tabular-nums;flex-wrap:wrap}
+    .meta b{color:var(--ink-2);font-weight:700}
+
+    /* variant strip */
+    .variants{display:flex;flex-direction:column;gap:10px}
+    .variant{display:flex;gap:14px;align-items:flex-start;background:var(--cream);border:1px solid var(--line);
+      border-radius:var(--r-md);padding:14px 16px}
+    .variant.emg{border-left:5px solid var(--blood)}
+    .variant.urgent{border-left:5px solid var(--amber)}
+    .variant.standard{border-left:5px solid var(--line-strong)}
+    .variant .lvl{width:92px;flex:none;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+      color:var(--ink-3);padding-top:2px}
+    .variant .txt{flex:1;min-width:0;font-size:13.5px;line-height:1.55;white-space:pre-line;
+      font-variant-numeric:tabular-nums}
+    .variant .len{flex:none;font-size:11px;color:var(--ink-3);font-variant-numeric:tabular-nums;padding-top:3px}
+
+    .rules{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+    .rule{border-radius:var(--r-sm);padding:13px 14px;display:flex;gap:10px;align-items:flex-start}
+    .rule.yes{background:var(--go-tint)}
+    .rule.yes svg{color:var(--go-deep)}
+    .rule.yes b{color:var(--go-deep)}
+    .rule.no{background:var(--error-tint)}
+    .rule.no svg{color:var(--error)}
+    .rule.no b{color:var(--error)}
+    .rule svg{flex:none;margin-top:1px}
+    .rule b{display:block;font-size:12.5px;font-weight:700;margin-bottom:3px}
+    .rule p{margin:0;font-size:12px;line-height:1.5;color:var(--ink-2)}
+
+    .kw{display:inline-block;padding:1px 7px;border-radius:var(--r-xs);background:var(--sand-2);
+      font-size:12.5px;font-weight:700;letter-spacing:.02em}
+  </style>
+</helmet>
+
+<div class="sheet">
+  <div>
+    <h1>SMS alert &mdash; the fallback channel</h1>
+    <p class="sub">For a donor with no app, or with push switched off, SMS is the only way the alert arrives. It carries exactly the same four facts as the push notification &mdash; blood group and units, urgency, approximate distance, area &mdash; and never the patient's name. Because a text message has no buttons, the donor answers with a keyword.</p>
+  </div>
+
+  <div class="group">
+    <h2>Accept path &mdash; the donor replies YES</h2>
+    <div class="thread">
+      <div class="hd">
+        <span class="from"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 15.5a2 2 0 0 1-2 2H8l-4 3.5v-14a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2Z"/></svg></span>
+        <b>CHHUB</b>
+        <span>Today</span>
+      </div>
+      <div class="msgs">
+        <div class="bubble in">CHH: O&#8722; blood needed, 2 units. Emergency. About 5 km from you, Ernakulam.
+Reply YES to accept, NO to decline.</div>
+        <span class="stamp left">09:14</span>
+
+        <div class="bubble out yes">YES</div>
+        <span class="stamp right">09:16 &middot; Sent</span>
+
+        <div class="bubble in">CHH: Thank you. Contact Anitha Varghese on +91 90000 12345, Kochi Metro Hospital, Marine Drive. Request closes 15:14.</div>
+        <span class="stamp left">09:16</span>
+      </div>
+      <div class="meta">
+        <span><b>Alert</b> 146 characters &middot; 1 segment</span>
+        <span><b>Confirmation</b> 129 characters &middot; 1 segment</span>
+        <span>No link &middot; no emoji &middot; no branding line</span>
+      </div>
+    </div>
+    <p class="note">The reveal rule is identical to the app's: the requester's name and number arrive only after the donor has said yes, and the requester gets the donor's details at the same moment. The confirmation also carries the closing time, because a donor who accepts by text has no countdown on a screen to look at.</p>
+  </div>
+
+  <div class="group">
+    <h2>Decline path &mdash; the donor replies NO</h2>
+    <div class="thread">
+      <div class="hd">
+        <span class="from"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 15.5a2 2 0 0 1-2 2H8l-4 3.5v-14a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2Z"/></svg></span>
+        <b>CHHUB</b>
+        <span>Today</span>
+      </div>
+      <div class="msgs">
+        <div class="bubble in">CHH: B+ blood needed, 1 unit. Urgent. About 12 km from you, Kalamassery.
+Reply YES to accept, NO to decline.</div>
+        <span class="stamp left">11:02</span>
+
+        <div class="bubble out">NO</div>
+        <span class="stamp right">11:03 &middot; Sent</span>
+
+        <div class="bubble in">CHH: Understood, thanks for answering. You will not be messaged about this request again.</div>
+        <span class="stamp left">11:03</span>
+      </div>
+      <div class="meta">
+        <span><b>Acknowledgement</b> 88 characters &middot; 1 segment</span>
+        <span>One reply, then the thread ends for this request &mdash; no reminder, no second ask</span>
+      </div>
+    </div>
+    <p class="note">Declining is a legitimate answer, not a failure, and the acknowledgement says so plainly. A donor who is never thanked for a NO stops replying at all, and silence is worse than a decline &mdash; it leaves the requester waiting on someone who is not coming.</p>
+  </div>
+
+  <div class="group">
+    <h2>The same message at each urgency level</h2>
+    <div class="variants">
+      <div class="variant emg">
+        <span class="lvl">Emergency</span>
+        <span class="txt">CHH: O&#8722; blood needed, 2 units. Emergency. About 5 km from you, Ernakulam.
+Reply YES to accept, NO to decline.</span>
+        <span class="len">146</span>
+      </div>
+      <div class="variant urgent">
+        <span class="lvl">Urgent</span>
+        <span class="txt">CHH: B+ blood needed, 1 unit. Urgent. About 12 km from you, Kalamassery.
+Reply YES to accept, NO to decline.</span>
+        <span class="len">143</span>
+      </div>
+      <div class="variant standard">
+        <span class="lvl">Standard</span>
+        <span class="txt">CHH: A+ blood needed, 3 units. Standard. About 22 km from you, Aluva.
+Reply YES to accept, NO to decline.</span>
+        <span class="len">139</span>
+      </div>
+    </div>
+    <p class="note">Plain text has no colour and no rail, so the urgency word is doing all the work on its own &mdash; which is exactly why it must be one of the three the rest of the product uses. A donor who reads "Urgent" here and "High" in the app has to work out whether those are the same thing.</p>
+  </div>
+
+  <div class="group">
+    <h2>Rules for the SMS body</h2>
+    <div class="rules">
+      <div class="rule yes">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.8 9.8 17.5 19 7.5"/></svg>
+        <div>
+          <b>Always</b>
+          <p>Under 160 characters, so it sends as one segment and cannot arrive out of order &middot; the four facts in the same order as push &middot; at most two keywords, <span class="kw">YES</span> and <span class="kw">NO</span>, uppercase in the copy and case-insensitive in handling</p>
+        </div>
+      </div>
+      <div class="rule no">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="9.5" rx="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></svg>
+        <div>
+          <b>Never</b>
+          <p>Patient name &middot; requester name or number before a YES &middot; exact address &middot; a shortened link the recipient cannot read &middot; emoji, branding banner or a marketing sentence</p>
+        </div>
+      </div>
+    </div>
+    <p class="note">At most one link, and only to open the request in a browser &mdash; spelled out in full. This is a channel people are rightly suspicious of, and an unreadable short link from an unknown sender asking about blood is indistinguishable from a scam. The message opens with the fact and closes with the instruction; nothing sits between them.</p>
+  </div>
+</div>
+
+</x-dc>
+</body>
+</html>

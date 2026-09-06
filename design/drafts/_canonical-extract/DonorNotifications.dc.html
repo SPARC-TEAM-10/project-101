@@ -1,0 +1,285 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --sand:#F6F0E5; --sand-2:#EFE7D9; --cream:#FDFAF4;
+      --line:#E6DAC7; --line-strong:#D6C6AC;
+      --clay:#B06134; --clay-hover:#96502A; --clay-deep:#8A4620; --clay-tint:#F5E4D3; --clay-line:#E8CDB2;
+      --blood:#D32F2F; --blood-hover:#B92626; --blood-deep:#9E1B18; --blood-tint:#FCE9E7; --blood-line:#F5C6C2;
+      --go:#3F6B39; --go-hover:#345A2F; --go-active:#2A4A26; --go-deep:#2F5629; --go-tint:#E4EFDD; --go-line:#C3DAB8;
+      --ink:#392A1D; --ink-2:#6F5C46; --ink-3:#A08A70; --ink-off:#BFAE96;
+      --error:#A33325; --error-tint:#F7E4E0;
+      --amber:#8F6A12; --amber-tint:#F7EDD4; --leaf:#4E7A46; --leaf-tint:#E8F0E2;
+      --font:"Plus Jakarta Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+      --r-xs:8px; --r-sm:12px; --r-md:16px; --r-lg:20px;
+      --e1:0 1px 2px rgba(57,42,29,.04),0 2px 6px rgba(57,42,29,.05);
+      --e2:0 2px 6px rgba(57,42,29,.05),0 8px 20px rgba(57,42,29,.07);
+    }
+    *{box-sizing:border-box}
+    body{margin:0}
+    a{color:var(--clay)} a:hover{color:var(--clay-hover)}
+    .screen{width:390px;height:844px;background:var(--sand);font-family:var(--font);color:var(--ink);
+      display:flex;flex-direction:column;overflow:hidden;position:relative}
+    .appbar{height:58px;flex:none;display:flex;align-items:center;gap:8px;padding:0 12px;background:var(--cream);
+      border-bottom:1px solid var(--line)}
+    .appbar h1{flex:1;margin:0 0 0 6px;font-size:19px;font-weight:800;letter-spacing:-.02em}
+    .count{height:22px;min-width:22px;padding:0 7px;border-radius:999px;background:var(--blood);color:#fff;
+      font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;
+      font-variant-numeric:tabular-nums}
+    .iconbtn{width:42px;height:42px;border-radius:999px;border:none;background:transparent;color:var(--ink-2);
+      display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none}
+    .iconbtn:hover{background:var(--sand-2)}
+
+    .scroll{flex:1;overflow-y:auto;padding:14px 16px 22px;display:flex;flex-direction:column;gap:12px}
+
+    .banner{display:flex;gap:11px;padding:13px 14px;border-radius:var(--r-sm);align-items:flex-start}
+    .banner.warn{background:var(--amber-tint)}
+    .banner.warn svg{color:var(--amber)}
+    .banner.info{background:var(--clay-tint)}
+    .banner.info svg{color:var(--clay-deep)}
+    .banner svg{flex:none;margin-top:1px}
+    .banner b{display:block;font-size:13px;font-weight:700;margin-bottom:3px}
+    .banner.warn b{color:var(--amber)}
+    .banner.info b{color:var(--clay-deep)}
+    .banner p{margin:0 0 8px;font-size:12.5px;line-height:1.5;color:var(--ink-2)}
+    .banner .act{border:none;background:transparent;color:var(--clay);font-family:var(--font);font-size:13px;
+      font-weight:700;cursor:pointer;padding:0}
+    .banner .act:hover{color:var(--clay-hover)}
+
+    h2.sec{margin:6px 0 0;font-size:12.5px;font-weight:700;color:var(--ink-2)}
+
+    .card{display:flex;background:var(--cream);border:1px solid var(--line);border-radius:var(--r-md);
+      box-shadow:var(--e1);overflow:hidden;text-align:left;font-family:var(--font);padding:0}
+    .card:hover{box-shadow:var(--e2)}
+    .card .rail{width:5px;flex:none;background:var(--line-strong)}
+    .card.emergency{border-color:var(--blood-line);box-shadow:0 2px 6px rgba(211,47,47,.10),0 8px 20px rgba(57,42,29,.07)}
+    .card.emergency .rail{background:var(--blood)}
+    .card.urgent .rail{background:var(--amber)}
+    .card.read{box-shadow:none;background:var(--sand)}
+    .card .body{flex:1;min-width:0;padding:14px 15px;display:flex;flex-direction:column;gap:10px}
+    .toprow{display:flex;align-items:center;gap:9px}
+    .badge{height:40px;min-width:52px;padding:0 12px;border-radius:999px;background:var(--blood-tint);
+      color:var(--blood-deep);font-weight:800;font-size:17px;font-variant-numeric:tabular-nums;
+      display:flex;align-items:center;justify-content:center;flex:none}
+    .badge.sm{height:34px;min-width:44px;font-size:15px}
+    .badge.mute{background:var(--sand-2);color:var(--ink-2)}
+    .units{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+    .units b{font-size:16px;font-weight:700;letter-spacing:-.01em}
+    .units span{font-size:12.5px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+    .unread{width:10px;height:10px;border-radius:999px;background:var(--blood);flex:none;align-self:flex-start;
+      margin-top:4px}
+    .pill{height:26px;padding:0 11px;border-radius:999px;display:inline-flex;align-items:center;gap:6px;
+      font-size:12px;font-weight:700;flex:none}
+    .pill.emg{background:var(--blood);color:#fff}
+    .pill.urg{background:var(--amber-tint);color:var(--amber)}
+    .pill.std{background:var(--sand-2);color:var(--ink-2)}
+    .metarow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .when{font-size:12px;color:var(--ink-3);margin-left:auto;font-variant-numeric:tabular-nums}
+    .closes{font-size:11.5px;color:var(--ink-3);font-variant-numeric:tabular-nums;display:flex;
+      align-items:center;gap:5px}
+    .closes svg{color:var(--ink-3);flex:none}
+
+    .actions{display:flex;gap:9px}
+    .btn{height:48px;border-radius:var(--r-sm);font-family:var(--font);font-size:15px;font-weight:700;
+      cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;border:none;flex:1}
+    .btn.accept{background:var(--go);color:#fff}
+    .btn.accept:hover{background:var(--go-hover)}
+    .btn.accept:active{background:var(--go-active)}
+    .btn.view{background:transparent;color:var(--ink);border:1.5px solid var(--line-strong)}
+    .btn.view:hover{background:var(--sand-2)}
+    .settled{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-2)}
+    .settled svg{color:var(--ink-3);flex:none}
+
+    .bottomnav{flex:none;height:74px;background:var(--cream);border-top:1px solid var(--line);display:flex;
+      padding-bottom:10px}
+    .nav{flex:1;border:none;background:transparent;display:flex;flex-direction:column;align-items:center;
+      justify-content:center;gap:4px;font-family:var(--font);font-size:11px;font-weight:600;color:var(--ink-3);
+      cursor:pointer;position:relative}
+    .nav.on{color:var(--clay)}
+    .navdot{position:absolute;top:12px;right:26px;width:8px;height:8px;border-radius:999px;background:var(--blood)}
+  </style>
+</helmet>
+
+<div class="screen">
+  <div class="appbar">
+    <h1>Notifications</h1>
+    <span class="count">3</span>
+    <button type="button" class="iconbtn" aria-label="Notification settings">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.6 1.6 0 0 0 .32 1.77l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.6 1.6 0 0 0-2.72 1.13V21a2 2 0 1 1-4 0v-.1A1.6 1.6 0 0 0 7.1 19.4a1.6 1.6 0 0 0-1.77.32l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.6 1.6 0 0 0 3 14.9a2 2 0 1 1 0-4h.1A1.6 1.6 0 0 0 4.6 7.1a1.6 1.6 0 0 0-.32-1.77l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.6 1.6 0 0 0 9.1 3H9a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 2.72 1.13l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.6 1.6 0 0 0 21 9.1V9a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 2Z"/></svg>
+    </button>
+  </div>
+
+  <div class="scroll">
+    <sc-if value="{{pushOff}}" hint-placeholder-val="{{false}}">
+      <div class="banner warn">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 17.5H4.5s1.9-1.6 1.9-6.1a5.6 5.6 0 0 1 3.2-5.1"/><path d="M9.6 20.5a2.6 2.6 0 0 0 4.8 0"/><path d="M4 4l16 16"/></svg>
+        <div>
+          <b>Push notifications are off &middot; alerts are going to you by SMS</b>
+          <p>Emergency requests still arrive here and as a text message, but your phone will not alert you when the screen is locked.</p>
+          <button type="button" class="act">Turn on push notifications</button>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{offline}}" hint-placeholder-val="{{false}}">
+      <div class="banner info">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5a9 9 0 0 1 4.2-2.2M14.8 10.3A9 9 0 0 1 19 12.5"/><path d="M8.5 16a5 5 0 0 1 7 0"/><path d="M12 19.6v.1"/><path d="M4 4l16 16"/></svg>
+        <div>
+          <b>You are offline</b>
+          <p>New alerts may be delayed. This list last updated 2 minutes ago and will refresh as soon as you reconnect.</p>
+          <button type="button" class="act">Retry now</button>
+        </div>
+      </div>
+    </sc-if>
+
+    <h2 class="sec">Unread</h2>
+
+    <div class="card emergency">
+      <span class="rail"></span>
+      <div class="body">
+        <div class="toprow">
+          <span class="badge">O&#8722;</span>
+          <span class="units">
+            <b>2 units needed</b>
+            <span>About 5 km away &middot; Ernakulam</span>
+          </span>
+          <span class="unread" aria-label="Unread"></span>
+        </div>
+        <div class="metarow">
+          <span class="pill emg">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5 21 19.5H3L12 4.5Z"/><path d="M12 10v4M12 16.8v.1"/></svg>
+            Emergency
+          </span>
+          <span class="when">Just now</span>
+        </div>
+        <span class="closes">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 6.8v5.4l3.6 2.1"/></svg>
+          Closes in 5 hr 42 min
+        </span>
+        <div class="actions">
+          <button type="button" class="btn accept">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.8 9.8 17.5 19 7.5"/></svg>
+            Accept
+          </button>
+          <button type="button" class="btn view">View request</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card urgent">
+      <span class="rail"></span>
+      <div class="body">
+        <div class="toprow">
+          <span class="badge sm">B+</span>
+          <span class="units">
+            <b>1 unit needed</b>
+            <span>About 12 km away &middot; Kalamassery</span>
+          </span>
+          <span class="unread" aria-label="Unread"></span>
+        </div>
+        <div class="metarow">
+          <span class="pill urg">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>
+            Urgent
+          </span>
+          <span class="when">8 min ago</span>
+        </div>
+        <span class="closes">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 6.8v5.4l3.6 2.1"/></svg>
+          Closes in 5 hr 52 min
+        </span>
+        <div class="actions">
+          <button type="button" class="btn view">View request</button>
+        </div>
+      </div>
+    </div>
+
+    <h2 class="sec">Earlier</h2>
+
+    <div class="card read">
+      <span class="rail"></span>
+      <div class="body">
+        <div class="toprow">
+          <span class="badge sm mute">A+</span>
+          <span class="units">
+            <b>3 units needed</b>
+            <span>About 22 km away &middot; Aluva</span>
+          </span>
+        </div>
+        <div class="metarow">
+          <span class="pill std">Standard</span>
+          <span class="when">1 hr ago</span>
+        </div>
+        <span class="closes">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 6.8v5.4l3.6 2.1"/></svg>
+          Closes in 5 hr
+        </span>
+      </div>
+    </div>
+
+    <div class="card read">
+      <span class="rail"></span>
+      <div class="body">
+        <div class="toprow">
+          <span class="badge sm mute">O+</span>
+          <span class="units">
+            <b>2 units needed</b>
+            <span>About 7 km away &middot; Kakkanad</span>
+          </span>
+        </div>
+        <span class="settled">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M8.5 12h7"/></svg>
+          You declined this. No more reminders will be sent.
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottomnav">
+    <button type="button" class="nav">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5 12 5l8 6.5V20a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1Z"/></svg>
+      Home
+    </button>
+    <button type="button" class="nav">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.6-7-9.5A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 7 3.5C19 15.4 12 20 12 20Z"/></svg>
+      Requests
+    </button>
+    <button type="button" class="nav on">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 16.5H6s1.8-1.6 1.8-6.2a4.2 4.2 0 0 1 8.4 0c0 4.6 1.8 6.2 1.8 6.2Z"/><path d="M10 19.5a2.4 2.4 0 0 0 4 0"/></svg>
+      Alerts
+      <span class="navdot"></span>
+    </button>
+    <button type="button" class="nav">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3.5v3M16 3.5v3"/></svg>
+      Events
+    </button>
+    <button type="button" class="nav">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 13.5a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9Z"/><path d="M4.5 20.5a7.5 7.5 0 0 1 15 0"/></svg>
+      Profile
+    </button>
+  </div>
+</div>
+
+</x-dc>
+<script data-dc-script data-props='{
+  "state": {"editor":"enum","default":"push-on","options":["push-on","push-off","offline"],"section":"AC state"}
+}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.props.state ?? "push-on";
+    return { pushOff: s === "push-off", offline: s === "offline" };
+  }
+}
+</script>
+</body>
+</html>

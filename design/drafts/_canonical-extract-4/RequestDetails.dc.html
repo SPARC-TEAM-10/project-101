@@ -1,0 +1,319 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --sand:#F6F0E5; --sand-2:#EFE7D9; --cream:#FDFAF4;
+      --line:#E6DAC7; --line-strong:#D6C6AC;
+      --clay:#B06134; --clay-hover:#96502A; --clay-deep:#8A4620; --clay-tint:#F5E4D3; --clay-line:#E8CDB2;
+      --blood:#D32F2F; --blood-hover:#B92626; --blood-deep:#9E1B18; --blood-tint:#FCE9E7; --blood-line:#F5C6C2;
+      --go:#3F6B39; --go-hover:#345A2F; --go-active:#2A4A26; --go-deep:#2F5629; --go-tint:#E4EFDD; --go-line:#C3DAB8;
+      --ink:#392A1D; --ink-2:#6F5C46; --ink-3:#A08A70; --ink-off:#BFAE96;
+      --error:#A33325; --error-tint:#F7E4E0;
+      --amber:#8F6A12; --amber-tint:#F7EDD4; --leaf:#4E7A46; --leaf-tint:#E8F0E2;
+      --font:"Plus Jakarta Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+      --r-xs:8px; --r-sm:12px; --r-md:16px; --r-lg:20px;
+      --e1:0 1px 2px rgba(57,42,29,.04),0 2px 6px rgba(57,42,29,.05);
+      --e2:0 2px 6px rgba(57,42,29,.05),0 8px 20px rgba(57,42,29,.07);
+    }
+    *{box-sizing:border-box}
+    body{margin:0}
+    a{color:var(--clay)} a:hover{color:var(--clay-hover)}
+    .screen{width:390px;height:844px;background:var(--sand);font-family:var(--font);color:var(--ink);
+      display:flex;flex-direction:column;overflow:hidden;position:relative}
+    .appbar{height:58px;flex:none;display:flex;align-items:center;gap:8px;padding:0 12px;background:var(--cream);
+      border-bottom:1px solid var(--line)}
+    .iconbtn{width:42px;height:42px;border-radius:999px;border:none;background:transparent;color:var(--ink);
+      display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none}
+    .iconbtn:hover{background:var(--sand-2)}
+    .appbar h1{flex:1;margin:0;font-size:16px;font-weight:700;text-align:center;letter-spacing:-.01em}
+    .appbar .pad{width:42px;flex:none}
+
+    .scroll{flex:1;overflow-y:auto;padding:16px 16px 20px;display:flex;flex-direction:column;gap:14px}
+
+    .hero{background:var(--cream);border:1px solid var(--blood-line);border-radius:var(--r-lg);overflow:hidden;
+      box-shadow:var(--e1)}
+    .hero .rail{height:5px;background:var(--blood)}
+    .hero.urg{border-color:#EBDCB4}
+    .hero.urg .rail{background:var(--amber)}
+    .hero.dim{border-color:var(--line)}
+    .hero.dim .rail{background:var(--line-strong)}
+    .hero .in{padding:18px;display:flex;flex-direction:column;gap:14px}
+    .headrow{display:flex;align-items:center;gap:13px}
+    .badge{height:56px;min-width:64px;padding:0 14px;border-radius:999px;background:var(--blood-tint);
+      color:var(--blood-deep);font-weight:800;font-size:24px;font-variant-numeric:tabular-nums;
+      display:flex;align-items:center;justify-content:center;flex:none}
+    .badge.mute{background:var(--sand-2);color:var(--ink-2)}
+    .headrow .t{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+    .headrow .t b{font-size:22px;line-height:28px;font-weight:800;letter-spacing:-.02em}
+    .pill{height:27px;padding:0 11px;border-radius:999px;display:inline-flex;align-items:center;gap:6px;
+      font-size:12.5px;font-weight:700;align-self:flex-start}
+    .pill.emg{background:var(--blood);color:#fff}
+    .pill.urg{background:var(--amber-tint);color:var(--amber)}
+    .pill.std{background:var(--sand-2);color:var(--ink-2)}
+    .pill.gone{background:var(--sand-2);color:var(--ink-2)}
+    .pill.ok{background:var(--go-tint);color:var(--go-deep)}
+
+    .facts{display:flex;flex-direction:column;gap:0;border-top:1px solid var(--line)}
+    .fact{display:flex;align-items:center;gap:11px;padding:12px 0;border-bottom:1px solid var(--line)}
+    .fact:last-child{border-bottom:none}
+    .fact svg{color:var(--ink-3);flex:none}
+    .fact .k{font-size:13px;color:var(--ink-2);flex:1}
+    .fact .v{font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;text-align:right}
+    .fact .v small{display:block;font-size:11.5px;font-weight:500;color:var(--ink-3)}
+    .fact.clock .v{color:var(--blood-deep)}
+    .fact.clock.calm .v{color:var(--ink)}
+
+    .map{position:relative;height:130px;border-radius:var(--r-md);overflow:hidden;border:1px solid var(--line);
+      background:var(--sand-2)}
+    .blk{position:absolute;background:#E7DCC8;border-radius:3px}
+    .road{position:absolute;background:var(--cream)}
+    .ring{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:110px;height:110px;
+      border-radius:999px;background:rgba(211,47,47,.10);border:1.5px dashed var(--blood)}
+    .pin{position:absolute;left:50%;top:50%;transform:translate(-50%,-100%);color:var(--blood)}
+    .youpin{position:absolute;left:78px;top:92px;transform:translate(-50%,-100%);color:var(--clay)}
+    .maptag{position:absolute;right:10px;bottom:10px;background:var(--cream);border:1px solid var(--line);
+      border-radius:999px;padding:5px 11px;font-size:12px;font-weight:700;font-variant-numeric:tabular-nums;
+      box-shadow:var(--e1)}
+
+    .privacy{display:flex;gap:10px;padding:13px 14px;border-radius:var(--r-sm);background:var(--sand-2)}
+    .privacy svg{color:var(--ink-2);flex:none;margin-top:1px}
+    .privacy p{margin:0;font-size:12.5px;line-height:1.55;color:var(--ink-2)}
+
+    .alert{display:flex;gap:11px;padding:14px;border-radius:var(--r-sm);background:var(--error-tint)}
+    .alert svg{color:var(--error);flex:none;margin-top:1px}
+    .alert b{display:block;font-size:14px;font-weight:700;color:var(--error);margin-bottom:4px}
+    .alert p{margin:0;font-size:12.5px;line-height:1.5;color:var(--ink-2)}
+
+    .confirm{background:var(--go-tint);border-radius:var(--r-md);padding:16px;display:flex;gap:12px}
+    .confirm .tick{width:34px;height:34px;border-radius:999px;background:var(--go);color:#fff;flex:none;
+      display:flex;align-items:center;justify-content:center}
+    .confirm b{display:block;font-size:15px;font-weight:700;color:var(--go-deep);margin-bottom:4px}
+    .confirm p{margin:0;font-size:12.5px;line-height:1.55;color:var(--ink-2)}
+
+    .contact{background:var(--cream);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--e1);
+      padding:16px;display:flex;flex-direction:column;gap:14px}
+    .contact h3{margin:0;font-size:13px;font-weight:700;color:var(--ink-2)}
+    .person{display:flex;align-items:center;gap:12px}
+    .avatar{width:44px;height:44px;border-radius:999px;background:var(--clay-tint);color:var(--clay-deep);
+      display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex:none}
+    .person .p{flex:1;min-width:0}
+    .person b{display:block;font-size:15.5px;font-weight:700}
+    .person span{font-size:12.5px;color:var(--ink-2)}
+    .phone{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums}
+    .actrow{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    .mini{height:48px;border-radius:var(--r-sm);border:1.5px solid var(--line-strong);background:transparent;
+      color:var(--ink);font-family:var(--font);font-size:14px;font-weight:700;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;gap:8px}
+    .mini:hover{background:var(--sand-2)}
+    .mini.clay{border-color:var(--clay);color:var(--clay)}
+
+    .foot{flex:none;background:var(--cream);border-top:1px solid var(--line);padding:12px 16px 18px;
+      display:flex;flex-direction:column;gap:9px}
+    .btn{height:54px;width:100%;border-radius:var(--r-md);font-family:var(--font);font-size:16px;font-weight:700;
+      cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;border:none}
+    .btn.accept{background:var(--go);color:#fff}
+    .btn.accept:hover{background:var(--go-hover)}
+    .btn.accept:active{background:var(--go-active)}
+    .btn.decline{background:transparent;color:var(--ink);border:1.5px solid var(--line-strong);height:50px;
+      font-size:15px}
+    .btn.decline:hover{background:var(--sand-2)}
+    .btn.danger{background:transparent;color:var(--blood);border:1.5px solid var(--blood-line);height:50px;
+      font-size:15px}
+    .btn[disabled]{background:var(--sand-2);color:var(--ink-off);border:none;cursor:not-allowed}
+    .footnote{font-size:11.5px;color:var(--ink-3);text-align:center}
+  </style>
+</helmet>
+
+<div class="screen">
+  <div class="appbar">
+    <button type="button" class="iconbtn" aria-label="Back">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+    </button>
+    <h1>Request details</h1>
+    <span class="pad"></span>
+  </div>
+
+  <div class="scroll">
+    <sc-if value="{{isExpired}}" hint-placeholder-val="{{false}}">
+      <div class="alert">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>
+        <div>
+          <b>This request is no longer active</b>
+          <p>Requests close 6 hours after they are posted. This one was fulfilled at 11:42, so responses are closed. Nothing is needed from you here.</p>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{isAccepted}}" hint-placeholder-val="{{false}}">
+      <div class="confirm">
+        <span class="tick"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.8 9.8 17.5 19 7.5"/></svg></span>
+        <div>
+          <b>You accepted this request</b>
+          <p>The requester has been told you are coming and can now see your name and number, as you can see theirs. You have 4 hr 12 min before the request closes.</p>
+        </div>
+      </div>
+    </sc-if>
+
+    <section class="hero {{heroClass}}">
+      <div class="rail"></div>
+      <div class="in">
+        <div class="headrow">
+          <span class="badge {{badgeClass}}">O&#8722;</span>
+          <span class="t">
+            <b>2 units needed</b>
+            <span class="pill {{urgencyClass}}">
+              <sc-if value="{{showUrgencyIcon}}" hint-placeholder-val="{{true}}">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5 21 19.5H3L12 4.5Z"/><path d="M12 10v4M12 16.8v.1"/></svg>
+              </sc-if>
+              {{urgencyLabel}}
+            </span>
+          </span>
+        </div>
+
+        <div class="facts">
+          <div class="fact">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s6.5-6 6.5-10.5a6.5 6.5 0 0 0-13 0C5.5 15 12 21 12 21Z"/><circle cx="12" cy="10.5" r="2.4"/></svg>
+            <span class="k">Approximate distance</span>
+            <span class="v">About 5 km away</span>
+          </div>
+          <div class="fact">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 20.5h15M6.5 20.5V6.5l5.5-3 5.5 3v14"/><path d="M12 9.5v5M9.5 12h5"/></svg>
+            <span class="k">Facility</span>
+            <span class="v">Kochi Metro Hospital<small>Marine Drive, Ernakulam</small></span>
+          </div>
+          <div class="fact">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>
+            <span class="k">Posted</span>
+            <span class="v">18 min ago</span>
+          </div>
+          <div class="fact clock {{clockTone}}">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 6.8v5.4l3.6 2.1"/></svg>
+            <span class="k">{{clockLabel}}</span>
+            <span class="v">{{clockValue}}<small>{{clockNote}}</small></span>
+          </div>
+          <div class="fact">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.6-7-9.5A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 7 3.5C19 15.4 12 20 12 20Z"/></svg>
+            <span class="k">Units still needed</span>
+            <span class="v">{{unitsLeft}}</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="map">
+      <div class="road" style="left:0;top:52px;width:100%;height:8px"></div>
+      <div class="road" style="left:150px;top:0;width:7px;height:100%"></div>
+      <div class="blk" style="left:16px;top:10px;width:56px;height:32px"></div>
+      <div class="blk" style="left:190px;top:12px;width:70px;height:30px"></div>
+      <div class="blk" style="left:24px;top:74px;width:44px;height:26px"></div>
+      <div class="blk" style="left:230px;top:76px;width:66px;height:28px"></div>
+      <div class="ring"></div>
+      <span class="pin"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11Z"/><circle cx="12" cy="11" r="2.6" fill="#FDFAF4"/></svg></span>
+      <span class="youpin"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3" fill="#FDFAF4"/></svg></span>
+      <span class="maptag">About 5 km away</span>
+    </div>
+
+    <sc-if value="{{showPrivacy}}" hint-placeholder-val="{{true}}">
+      <div class="privacy">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="9.5" rx="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></svg>
+        <p>The patient is never named in a request. You will see the requester name and number only after you accept, and they will see yours.</p>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{isAccepted}}" hint-placeholder-val="{{false}}">
+      <div class="contact">
+        <h3>Requester contact</h3>
+        <div class="person">
+          <span class="avatar">AV</span>
+          <span class="p">
+            <b>Anitha Varghese</b>
+            <span>Requesting for a patient at Kochi Metro Hospital</span>
+          </span>
+        </div>
+        <span class="phone">+91 90000 12345</span>
+        <div class="actrow">
+          <button type="button" class="mini clay">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 4h3l1.5 4-2 1.5a12 12 0 0 0 5.5 5.5l1.5-2 4 1.5v3a2 2 0 0 1-2.2 2A16.5 16.5 0 0 1 4.5 6.2 2 2 0 0 1 6.5 4Z"/></svg>
+            Call
+          </button>
+          <button type="button" class="mini">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s6.5-6 6.5-10.5a6.5 6.5 0 0 0-13 0C5.5 15 12 21 12 21Z"/><circle cx="12" cy="10.5" r="2.4"/></svg>
+            Directions
+          </button>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+
+  <div class="foot">
+    <sc-if value="{{showRespond}}" hint-placeholder-val="{{true}}">
+      <button type="button" class="btn accept" disabled="{{respondDisabled}}">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.8 9.8 17.5 19 7.5"/></svg>
+        Accept and donate
+      </button>
+      <button type="button" class="btn decline" disabled="{{respondDisabled}}">Decline</button>
+    </sc-if>
+    <sc-if value="{{isAccepted}}" hint-placeholder-val="{{false}}">
+      <button type="button" class="btn danger">Cancel my acceptance</button>
+    </sc-if>
+    <span class="footnote">{{footNote}}</span>
+  </div>
+</div>
+
+</x-dc>
+<script data-dc-script data-props='{
+  "state": {"editor":"enum","default":"active","options":["active","urgent","standard","expired","accepted"],"section":"AC state"}
+}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.props.state ?? "active";
+    const expired = s === "expired";
+    const accepted = s === "accepted";
+    const urgent = s === "urgent";
+    const standard = s === "standard";
+    const live = !expired && !accepted;
+
+    let urgencyClass = "emg", urgencyLabel = "Emergency", heroClass = "";
+    if (urgent) { urgencyClass = "urg"; urgencyLabel = "Urgent"; heroClass = "urg"; }
+    if (standard) { urgencyClass = "std"; urgencyLabel = "Standard"; heroClass = "dim"; }
+    if (expired) { urgencyClass = "gone"; urgencyLabel = "Fulfilled"; heroClass = "dim"; }
+    if (accepted) { urgencyClass = "ok"; urgencyLabel = "You accepted"; heroClass = "dim"; }
+
+    return {
+      isExpired: expired,
+      isAccepted: accepted,
+      heroClass: heroClass,
+      badgeClass: live ? "" : "mute",
+      urgencyClass: urgencyClass,
+      urgencyLabel: urgencyLabel,
+      showUrgencyIcon: live && !standard,
+      // Business rule: a request lives 6 hours from creation, then auto-expires.
+      clockLabel: expired ? "Closed at" : "Request closes in",
+      clockValue: expired ? "11:42 today" : (accepted ? "4 hr 12 min" : "5 hr 42 min"),
+      clockNote: expired ? "6 hours after it was posted" : "of its 6-hour window",
+      clockTone: expired ? "calm" : (urgent || standard ? "calm" : ""),
+      unitsLeft: expired ? "0 of 2" : (accepted ? "1 of 2" : "2 of 2"),
+      showPrivacy: !accepted,
+      showRespond: !accepted,
+      respondDisabled: expired ? true : null,
+      footNote: expired
+        ? "Responses closed. This request was fulfilled."
+        : (accepted
+          ? "Cancelling puts this request back out to other donors nearby."
+          : "Accepting shares your name and number with the requester.")
+    };
+  }
+}
+</script>
+</body>
+</html>

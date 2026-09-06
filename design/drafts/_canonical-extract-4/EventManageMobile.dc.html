@@ -1,0 +1,97 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --sand:#F6F0E5;--sand-2:#EFE7D9;--cream:#FDFAF4;--line:#E6DAC7;--line-strong:#D6C6AC;
+      --clay:#B06134;--clay-hover:#96502A;--clay-deep:#8A4620;--clay-tint:#F5E4D3;--clay-line:#E8CDB2;
+      --blood:#D32F2F;--blood-deep:#9E1B18;--blood-tint:#FCE9E7;--blood-line:#F5C6C2;
+      --go:#3F6B39;--go-deep:#2F5629;--go-tint:#E4EFDD;--go-line:#C3DAB8;
+      --ink:#392A1D;--ink-2:#6F5C46;--ink-3:#A08A70;--ink-off:#BFAE96;
+      --error:#A33325;--error-tint:#F7E4E0;--amber:#8F6A12;--amber-tint:#F7EDD4;--leaf:#4E7A46;--leaf-tint:#E8F0E2;
+      --font:"Plus Jakarta Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
+      --r-xs:8px;--r-sm:12px;--r-md:16px;--r-lg:20px;
+      --e1:0 1px 2px rgba(57,42,29,.04),0 2px 6px rgba(57,42,29,.05);
+    }
+    *{box-sizing:border-box}
+    body{margin:0}
+    a{color:var(--clay)} a:hover{color:var(--clay-hover)}
+    .screen{width:390px;height:844px;background:var(--sand);font-family:var(--font);color:var(--ink);
+      display:flex;flex-direction:column;overflow:hidden;position:relative}
+    svg.i{fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;width:18px;height:18px;flex:none}
+    svg.i.s{width:14px;height:14px;stroke-width:2.2}svg.i.m{width:20px;height:20px}
+    .appbar{height:58px;flex:none;display:flex;align-items:center;gap:8px;padding:0 12px;background:var(--cream);border-bottom:1px solid var(--line)}
+    .appbar h1{flex:1;margin:0;font-size:16px;font-weight:700;text-align:center}
+    .iconbtn{width:42px;height:42px;border-radius:999px;border:none;background:transparent;color:var(--ink);display:flex;align-items:center;justify-content:center;flex:none}
+    .pad{width:42px;flex:none}
+    .scroll{flex:1;overflow:hidden;padding:16px 16px 20px;display:flex;flex-direction:column;gap:13px}
+    .card{background:var(--cream);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--e1);padding:16px;display:flex;flex-direction:column;gap:12px}
+    .card.flat{box-shadow:none}
+    .pill{height:26px;padding:0 11px;border-radius:999px;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;flex:none}
+    .pill.blood{background:var(--blood-tint);color:var(--blood-deep)}
+    .pill.clay{background:var(--clay-tint);color:var(--clay-deep)}
+    .btn{height:48px;padding:0 20px;border-radius:var(--r-sm);font-family:var(--font);font-size:14.5px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:9px;border:none}
+    .btn.lg{height:54px;padding:0 26px;font-size:16px;border-radius:var(--r-md)}
+    .btn.full{width:100%}
+    .btn.primary{background:var(--clay);color:#fff}
+    .btn.sec{background:transparent;color:var(--ink);border:1.5px solid var(--line-strong)}
+    .btn.dis{background:var(--sand-2);color:var(--ink-off);box-shadow:none}
+    .help{font-size:12.5px;line-height:1.5;color:var(--ink-3)}
+    .alert{display:flex;gap:11px;padding:14px;border-radius:var(--r-sm);align-items:flex-start}
+    .alert.warn{background:var(--amber-tint)}.alert.warn svg,.alert.warn b{color:var(--amber)}
+    .alert svg{margin-top:2px}
+    .alert b{display:block;font-size:13.5px;font-weight:700;margin-bottom:3px}
+    .alert p{margin:0;font-size:12.5px;line-height:1.55;color:var(--ink-2)}
+  </style>
+</helmet>
+
+<div class="screen">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <g id="back"><path d="M15 5l-7 7 7 7"/></g>
+    <g id="warn"><path d="M12 3.5 21 19H3l9-15.5Z"/><path d="M12 10v4M12 16.6v.1"/></g>
+  </defs></svg>
+
+  <div class="appbar">
+    <button type="button" class="iconbtn" aria-label="Back"><svg class="i m"><use href="#back"/></svg></button>
+    <h1>Manage event</h1>
+    <span class="pad"></span>
+  </div>
+  <div class="scroll">
+    <div class="card" style="gap:10px">
+      <div style="display:flex;gap:8px"><span class="pill blood">Blood Donation Camp</span><span class="pill clay">In progress</span></div>
+      <b style="font-size:16px">Community blood drive &mdash; Kaloor</b>
+      <div style="font-size:12.5px;color:var(--ink-2);font-variant-numeric:tabular-nums">Started 09:00 &middot; ends 14:00 &middot; 28 marked attended</div>
+    </div>
+    <div class="alert warn"><svg class="i"><use href="#warn"/></svg>
+      <div><b>This event has already started, so it cannot be cancelled</b>
+        <p>People are at the venue and 28 have been marked attended. Editing the venue or the times is
+          also closed. If it has to stop, contact attendees directly &mdash; the coordinator number
+          is on the event page.</p></div></div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <button type="button" class="btn primary lg full">Mark attendance</button>
+      <button type="button" class="btn dis lg full" aria-disabled="true">Cancel event</button>
+      <div class="help" style="text-align:center">Cancelling is available until the start time only.</div>
+    </div>
+    <div class="card flat" style="background:var(--sand-2);border:none;gap:7px">
+      <b style="font-size:13.5px">What you can still do</b>
+      <p style="margin:0;font-size:12.5px;line-height:1.6;color:var(--ink-2)">Mark people attended,
+        correct an attendance record, and export the list once the event ends.</p>
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script data-dc-script>
+class Component extends DCLogic {}
+</script>
+</body>
+</html>

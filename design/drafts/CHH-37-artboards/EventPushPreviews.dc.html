@@ -1,0 +1,131 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --sand:#F6F0E5;--sand-2:#EFE7D9;--cream:#FDFAF4;--line:#E6DAC7;--line-strong:#D6C6AC;
+      --clay:#B06134;--clay-hover:#96502A;--clay-deep:#8A4620;--clay-tint:#F5E4D3;--clay-line:#E8CDB2;
+      --blood:#D32F2F;--blood-deep:#9E1B18;--blood-tint:#FCE9E7;--blood-line:#F5C6C2;
+      --go:#3F6B39;--go-deep:#2F5629;--go-tint:#E4EFDD;--go-line:#C3DAB8;
+      --ink:#392A1D;--ink-2:#6F5C46;--ink-3:#A08A70;--ink-off:#BFAE96;
+      --error:#A33325;--error-tint:#F7E4E0;--amber:#8F6A12;--amber-tint:#F7EDD4;--leaf:#4E7A46;--leaf-tint:#E8F0E2;
+      --font:"Plus Jakarta Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
+      --r-xs:8px;--r-sm:12px;--r-md:16px;--r-lg:20px;
+      --e1:0 1px 2px rgba(57,42,29,.04),0 2px 6px rgba(57,42,29,.05);
+      --e2:0 2px 6px rgba(57,42,29,.05),0 8px 20px rgba(57,42,29,.07);
+      --e3:0 10px 24px rgba(57,42,29,.10),0 24px 56px rgba(57,42,29,.14);
+    }
+    *{box-sizing:border-box}
+    body{margin:0}
+    a{color:var(--clay)} a:hover{color:var(--clay-hover)}
+    .sheet{width:600px;background:var(--sand);font-family:var(--font);color:var(--ink);
+      padding:28px 26px 34px;display:flex;flex-direction:column;gap:24px}
+    h1{margin:0;font-size:22px;line-height:28px;font-weight:800;letter-spacing:-.025em}
+    .sub{margin:6px 0 0;font-size:13px;line-height:1.6;color:var(--ink-2);max-width:64ch}
+    h2{margin:0;font-size:13px;font-weight:700;color:var(--ink-2)}
+    .group{display:flex;flex-direction:column;gap:12px}
+    svg.i{fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;width:18px;height:18px;flex:none}
+    svg.i.s{width:14px;height:14px;stroke-width:2.2}
+    .push{background:var(--cream);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--e2);padding:13px 15px;display:flex;flex-direction:column;gap:8px}
+    .push .h{display:flex;align-items:center;gap:9px;font-size:11.5px;color:var(--ink-3);font-weight:600}
+    .push .ico{width:22px;height:22px;border-radius:6px;background:var(--clay);color:#fff;display:flex;align-items:center;justify-content:center;flex:none}
+    .push .ico.blood{background:var(--blood)}
+    .push b{font-size:14.5px;font-weight:700;line-height:19px}
+    .push p{margin:0;font-size:13px;line-height:1.5;color:var(--ink-2)}
+    .push .acts{display:flex;gap:8px;border-top:1px solid var(--line);padding-top:9px}
+    .btn{height:48px;padding:0 20px;border-radius:var(--r-sm);font-family:var(--font);font-size:14.5px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:9px;border:none}
+    .btn.sm{height:38px;padding:0 14px;font-size:13px}
+    .btn.accept{background:var(--go);color:#fff}
+    .btn.sec{background:transparent;color:var(--ink);border:1.5px solid var(--line-strong)}
+    .toast{background:var(--cream);border-radius:var(--r-sm);box-shadow:var(--e3);padding:12px 14px;display:flex;gap:11px;align-items:flex-start;border-left:4px solid var(--leaf)}
+    .toast.info{border-left-color:var(--clay)}.toast.err{border-left-color:var(--error)}.toast.warn{border-left-color:var(--amber)}
+    .toast b{font-size:13.5px;font-weight:700}
+    .toast p{margin:2px 0 0;font-size:12.5px;color:var(--ink-2);line-height:1.5}
+    .toast svg{margin-top:1px;color:var(--leaf)}
+    .toast.info svg{color:var(--clay)}.toast.err svg{color:var(--error)}.toast.warn svg{color:var(--amber)}
+    .note{background:var(--sand-2);border-radius:var(--r-sm);padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+    .note b{font-size:13.5px;font-weight:700}
+    .note p{margin:0;font-size:12.5px;line-height:1.6;color:var(--ink-2)}
+  </style>
+</helmet>
+
+<div class="sheet">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <g id="heart"><path d="M12 20s-7-4.6-7-9.5A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 7 3.5C19 15.4 12 20 12 20Z"/></g>
+    <g id="pin"><path d="M12 21s-6.5-5-6.5-10.5a6.5 6.5 0 1 1 13 0C18.5 16 12 21 12 21Z"/><circle cx="12" cy="10.4" r="2.4"/></g>
+    <g id="x"><path d="M6 6l12 12M18 6L6 18"/></g>
+    <g id="tick"><path d="M5 12.5 10 17l9-10"/></g>
+    <g id="warn"><path d="M12 3.5 21 19H3l9-15.5Z"/><path d="M12 10v4M12 16.6v.1"/></g>
+    <g id="err"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5M12 16.2v.1"/></g>
+  </defs></svg>
+
+  <div>
+    <h1>Event alerts &mdash; push and toasts</h1>
+    <p class="sub">Every channel carries the same facts in the same order: what, when, where, how far,
+      spots remaining. Distance is always approximate. Nothing here names a patient, a requester or an
+      exact address.</p>
+  </div>
+
+  <div class="group">
+    <h2>New event published in your region (US-CHH-005-05)</h2>
+    <div class="push">
+      <div class="h"><span class="ico blood"><svg class="i s"><use href="#heart"/></svg></span>Community Health Hub &middot; now</div>
+      <b>Blood donation camp on Sat 13 Sep, about 4 km away</b>
+      <p>Kaloor, 09:00&ndash;14:00. 18 spots remaining of 60.</p>
+      <div class="acts">
+        <button type="button" class="btn accept sm" style="flex:1">RSVP</button>
+        <button type="button" class="btn sec sm" style="flex:1">Not now</button></div>
+    </div>
+  </div>
+
+  <div class="group">
+    <h2>Venue changed (005-04 AC3) and cancelled (AC2)</h2>
+    <div class="push">
+      <div class="h"><span class="ico"><svg class="i s"><use href="#pin"/></svg></span>Community Health Hub &middot; now</div>
+      <b>Venue changed: blood drive, Sat 13 Sep</b>
+      <p>Now at Kaloor Parish Hall, Church Road. Same time, 09:00&ndash;14:00.</p>
+    </div>
+    <div class="push">
+      <div class="h"><span class="ico"><svg class="i s"><use href="#x"/></svg></span>Community Health Hub &middot; now</div>
+      <b>Cancelled: blood drive, Sat 13 Sep</b>
+      <p>Kaloor Parish Hall. Tap to read why and to find another event.</p>
+    </div>
+  </div>
+
+  <div class="group">
+    <h2>Toasts</h2>
+    <div class="toast"><svg class="i"><use href="#tick"/></svg>
+      <div><b>Published</b><p>About 340 people in the region are being told now.</p></div></div>
+    <div class="toast"><svg class="i"><use href="#tick"/></svg>
+      <div><b>RSVP'd</b><p>Reference A24 &middot; Sat 13 Sep, 09:00 &middot; 17 spots remaining.</p></div></div>
+    <div class="toast"><svg class="i"><use href="#tick"/></svg>
+      <div><b>Marked attended</b><p>Nithya Menon &middot; 09:41 &middot; undo within 5 minutes.</p></div></div>
+    <div class="toast warn"><svg class="i"><use href="#warn"/></svg>
+      <div><b>Attendance already marked</b><p>Nithya Menon was marked attended at 09:12 by A. Thomas.</p></div></div>
+    <div class="toast err"><svg class="i"><use href="#err"/></svg>
+      <div><b>The last spot went while you were reading</b><p>This event is now full. Other camps nearby still have spots.</p></div></div>
+  </div>
+
+  <div class="note">
+    <b>Why RSVP is green here</b>
+    <p>The push action is the commitment itself, so it takes the b-accept variant on --go, the same
+      as Accept on a blood request. The success toasts stay on --leaf: a toast confirms, it does not
+      commit.</p>
+  </div>
+</div>
+
+</x-dc>
+<script data-dc-script>
+class Component extends DCLogic {}
+</script>
+</body>
+</html>

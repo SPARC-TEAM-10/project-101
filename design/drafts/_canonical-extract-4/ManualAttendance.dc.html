@@ -1,0 +1,160 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --sand:#F6F0E5;--sand-2:#EFE7D9;--cream:#FDFAF4;--line:#E6DAC7;--line-strong:#D6C6AC;
+      --clay:#B06134;--clay-hover:#96502A;--clay-deep:#8A4620;--clay-tint:#F5E4D3;--clay-line:#E8CDB2;
+      --blood:#D32F2F;--blood-deep:#9E1B18;--blood-tint:#FCE9E7;--blood-line:#F5C6C2;
+      --go:#3F6B39;--go-hover:#345A2F;--go-deep:#2F5629;--go-tint:#E4EFDD;--go-line:#C3DAB8;
+      --ink:#392A1D;--ink-2:#6F5C46;--ink-3:#A08A70;--ink-off:#BFAE96;
+      --error:#A33325;--error-tint:#F7E4E0;--amber:#8F6A12;--amber-tint:#F7EDD4;--leaf:#4E7A46;--leaf-tint:#E8F0E2;
+      --font:"Plus Jakarta Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
+      --r-xs:8px;--r-sm:12px;--r-md:16px;--r-lg:20px;
+      --e1:0 1px 2px rgba(57,42,29,.04),0 2px 6px rgba(57,42,29,.05);
+      --e3:0 10px 24px rgba(57,42,29,.10),0 24px 56px rgba(57,42,29,.14);
+    }
+    *{box-sizing:border-box}
+    body{margin:0}
+    a{color:var(--clay)} a:hover{color:var(--clay-hover)}
+    .screen{width:390px;height:844px;background:var(--sand);font-family:var(--font);color:var(--ink);
+      display:flex;flex-direction:column;overflow:hidden;position:relative}
+    svg.i{fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;width:18px;height:18px;flex:none}
+    svg.i.s{width:14px;height:14px;stroke-width:2.2}svg.i.m{width:20px;height:20px}svg.i.l{width:32px;height:32px;stroke-width:1.6}
+    .appbar{height:58px;flex:none;display:flex;align-items:center;gap:8px;padding:0 12px;background:var(--cream);border-bottom:1px solid var(--line)}
+    .appbar h1{flex:1;margin:0;font-size:16px;font-weight:700;text-align:center}
+    .iconbtn{width:42px;height:42px;border-radius:999px;border:none;background:transparent;color:var(--ink);display:flex;align-items:center;justify-content:center;flex:none}
+    .pad{width:42px;flex:none}
+    .scroll{flex:1;overflow:hidden;padding:16px 16px 20px;display:flex;flex-direction:column;gap:12px}
+    .stickybar{flex:none;background:var(--cream);border-top:1px solid var(--line);padding:12px 16px 18px;display:flex;flex-direction:column;gap:9px}
+    .card{background:var(--cream);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--e1);padding:16px;display:flex;flex-direction:column;gap:12px}
+    .card.flat{box-shadow:none}
+    .btn{height:48px;padding:0 20px;border-radius:var(--r-sm);font-family:var(--font);font-size:14.5px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:9px;border:none}
+    .btn.lg{height:54px;padding:0 26px;font-size:16px;border-radius:var(--r-md)}
+    .btn.sm{height:38px;padding:0 14px;font-size:13px}
+    .btn.full{width:100%}
+    .btn.primary{background:var(--clay);color:#fff}
+    .btn.accept{background:var(--go);color:#fff}
+    .inp{height:50px;border-radius:var(--r-sm);border:1.5px solid var(--line);background:var(--sand);padding:0 16px;display:flex;align-items:center;gap:10px;font-size:16px}
+    .inp.err{border-color:var(--error)}
+    .inp.focus{border-color:var(--clay);background:var(--cream);box-shadow:0 0 0 2px rgba(176,97,52,.28)}
+    .help{font-size:12.5px;line-height:1.5;color:var(--ink-3)}
+    .help.error{color:var(--error);display:flex;align-items:flex-start;gap:6px;font-weight:600}
+    .eyebrow{font-size:12px;font-weight:700;color:var(--ink-3);letter-spacing:.06em;text-transform:uppercase}
+    .avatar{width:42px;height:42px;border-radius:999px;background:var(--clay-tint);color:var(--clay-deep);display:flex;align-items:center;justify-content:center;font-size:13.5px;font-weight:700;flex:none}
+    .avatar.lock{background:var(--sand-2);color:var(--ink-3)}
+    .prow{display:flex;align-items:center;gap:12px;padding:12px;border-radius:var(--r-sm);background:var(--cream);border:1px solid var(--line)}
+    .prow .id{flex:1;min-width:0}
+    .prow .id b{font-size:15px;font-weight:700;display:block}
+    .prow .id span{font-size:12px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+    .pill{height:26px;padding:0 11px;border-radius:999px;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;flex:none}
+    .pill.leaf{background:var(--leaf-tint);color:var(--leaf)}
+    .meter{display:flex;flex-direction:column;gap:7px}
+    .meter .bar{height:8px;border-radius:999px;background:var(--sand-2);overflow:hidden}
+    .meter .bar i{display:block;height:100%;border-radius:999px;background:var(--clay)}
+    .meter .bar i.leaf{background:var(--leaf)}
+    .meter .row{display:flex;align-items:baseline;gap:8px;font-size:12.5px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+    .meter .row b{font-size:14px;color:var(--ink);font-weight:700}
+    .empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;padding:40px 20px}
+    .empty .ic{width:68px;height:68px;border-radius:999px;background:var(--sand-2);color:var(--ink-3);display:flex;align-items:center;justify-content:center}
+    .empty b{font-size:17px;line-height:24px;font-weight:700}
+    .empty p{margin:0;font-size:13.5px;line-height:1.6;color:var(--ink-2);max-width:34ch}
+    .toast{background:var(--cream);border-radius:var(--r-sm);box-shadow:var(--e3);padding:12px 14px;display:flex;gap:11px;align-items:flex-start;border-left:4px solid var(--leaf)}
+    .toast b{font-size:13.5px;font-weight:700}
+    .toast p{margin:2px 0 0;font-size:12.5px;color:var(--ink-2);line-height:1.5}
+    .toast svg{margin-top:1px;color:var(--leaf)}
+    .alert{display:flex;gap:11px;padding:14px;border-radius:var(--r-sm);align-items:flex-start}
+    .alert.info{background:var(--clay-tint)}.alert.info svg,.alert.info b{color:var(--clay-deep)}
+    .alert svg{margin-top:2px}
+    .alert b{display:block;font-size:13.5px;font-weight:700;margin-bottom:3px}
+    .alert p{margin:0;font-size:12.5px;line-height:1.55;color:var(--ink-2)}
+  </style>
+</helmet>
+
+<div class="screen">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <g id="back"><path d="M15 5l-7 7 7 7"/></g>
+    <g id="search"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></g>
+    <g id="tick"><path d="M5 12.5 10 17l9-10"/></g>
+    <g id="err"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5M12 16.2v.1"/></g>
+    <g id="info"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.9v.1"/></g>
+  </defs></svg>
+
+  <div class="appbar">
+    <button type="button" class="iconbtn" aria-label="Back"><svg class="i m"><use href="#back"/></svg></button>
+    <h1>Mark attendance</h1>
+    <span class="pad"></span>
+  </div>
+
+  <sc-if value="{{isResults}}" hint-placeholder-val="{{true}}">
+    <div class="scroll">
+      <div class="card flat" style="gap:9px;padding:14px">
+        <b style="font-size:15px">Community blood drive &mdash; Kaloor</b>
+        <div class="meter"><div class="row" style="justify-content:space-between"><b>28 marked attended</b><span>of 43 RSVP'd</span></div>
+          <div class="bar"><i class="leaf" style="width:65%"></i></div></div></div>
+      <div class="inp focus" style="border-radius:999px"><svg class="i" style="color:var(--ink-3)"><use href="#search"/></svg>
+        <span style="font-size:15px">nith</span></div>
+      <div class="help">Name (3 characters or more) or full mobile number.</div>
+      <div class="eyebrow">2 RSVP'd participants match</div>
+      <div class="prow"><span class="avatar">NM</span>
+        <div class="id"><b>Nithya Menon</b><span>+91 &bull;&bull;&bull;&bull;&bull; 7213 &middot; RSVP 4 Sep</span></div>
+        <button type="button" class="btn accept sm">Mark attended</button></div>
+      <div class="prow"><span class="avatar">NP</span>
+        <div class="id"><b>Nithin Paul</b><span>+91 &bull;&bull;&bull;&bull;&bull; 1180 &middot; RSVP 5 Sep</span></div>
+        <button type="button" class="btn accept sm">Mark attended</button></div>
+      <div class="prow" style="opacity:.65"><span class="avatar lock"><svg class="i"><use href="#tick"/></svg></span>
+        <div class="id"><b>Nithya Rajan</b><span>Attended 09:12 &middot; marked by A. Thomas</span></div>
+        <span class="pill leaf">Attended</span></div>
+      <div class="card flat" style="background:var(--sand-2);border:none;gap:6px">
+        <b style="font-size:13.5px">Every mark is logged</b>
+        <p style="margin:0;font-size:12.5px;line-height:1.55;color:var(--ink-2)">Who marked it, when,
+          and from which device &mdash; as &sect;6.1 requires.</p></div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{isShort}}" hint-placeholder-val="{{false}}">
+    <div class="scroll">
+      <div class="inp err" style="border-radius:999px"><svg class="i" style="color:var(--ink-3)"><use href="#search"/></svg>
+        <span style="font-size:15px">ni</span></div>
+      <div class="help error"><svg class="i s"><use href="#err"/></svg>Enter at least 3 characters of a name, or a full mobile number.</div>
+      <div class="empty" style="padding:26px 16px">
+        <span class="ic"><svg class="i l"><use href="#search"/></svg></span>
+        <b>Nothing searched yet</b>
+        <p>Type a longer name, or the participant's full mobile number, to find them in the RSVP list.</p></div>
+      <div style="border-top:1px solid var(--line);padding-top:14px;display:flex;flex-direction:column;gap:10px">
+        <div class="eyebrow">Just marked</div>
+        <div class="toast"><svg class="i"><use href="#tick"/></svg>
+          <div><b>Nithya Menon marked attended</b><p>13 Sep, 09:41 &middot; marked by you &middot; undo within 5 minutes</p></div></div>
+        <div class="prow"><span class="avatar">NM</span>
+          <div class="id"><b>Nithya Menon</b><span>Attended 09:41 &middot; marked by you</span></div>
+          <span class="pill leaf">Attended</span></div>
+        <div class="alert info"><svg class="i"><use href="#info"/></svg>
+          <div><b>Correcting a record needs a reason</b>
+            <p>At least 10 characters, kept in the audit log (&sect;6.3).</p></div></div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+
+</x-dc>
+<script data-dc-script data-props='{
+  "state": {"editor":"enum","default":"results","options":["results","searchTooShort"],"section":"AC state"}
+}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.props.state ?? "results";
+    return { isResults: s === "results", isShort: s === "searchTooShort" };
+  }
+}
+</script>
+</body>
+</html>
