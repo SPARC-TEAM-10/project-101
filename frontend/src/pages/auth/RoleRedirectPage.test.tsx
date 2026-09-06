@@ -24,7 +24,7 @@ function renderWithSession(session: AuthSession | null) {
         <Route path="/redirecting" element={<RoleRedirectPage />} />
         <Route path="/login" element={<div>Login Screen</div>} />
         <Route path="/dashboard/individual" element={<div>Individual Dashboard</div>} />
-        <Route path="/dashboard/guest" element={<div>Guest Dashboard</div>} />
+        <Route path="/welcome" element={<div>Welcome Screen</div>} />
       </Routes>
     </MemoryRouter>,
   );
@@ -43,9 +43,9 @@ describe("RoleRedirectPage", () => {
     expect(screen.getByText("Individual Dashboard")).toBeInTheDocument();
   });
 
-  it("redirects to /dashboard/guest for a Guest role", () => {
+  it("redirects to /welcome for a Guest role (CHH-11)", () => {
     renderWithSession({ token: "t", role: "Guest", expiresAtUtc: "2099-01-01T00:00:00.000Z" });
 
-    expect(screen.getByText("Guest Dashboard")).toBeInTheDocument();
+    expect(screen.getByText("Welcome Screen")).toBeInTheDocument();
   });
 });
