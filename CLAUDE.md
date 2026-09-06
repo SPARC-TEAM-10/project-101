@@ -106,6 +106,12 @@ Module-specific additions to this checklist (e.g. "matches OpenAPI spec",
   when needed). Added `frontend-*-agent.md` counterparts (React + TS + Vite)
   alongside the existing `backend-*-agent.md` set, and a design-readiness
   check in the Planning Agent for tickets labeled `needs-design`.
+- **2026-09-05 — Deployment targets locked**: Frontend deploys to **Vercel**
+  (git-push-to-deploy from the `frontend/` folder); backend deploys to
+  **AWS** (App Runner/Elastic Beanstalk + RDS PostgreSQL). Split-cloud, not
+  all-AWS — chosen for Vercel's faster Vite/React deploy experience. Backend
+  CORS must allow the Vercel origin(s); see `backend/CLAUDE.md` and
+  `frontend/CLAUDE.md` for the per-side detail.
 
 ## Non-goals / out of scope
 

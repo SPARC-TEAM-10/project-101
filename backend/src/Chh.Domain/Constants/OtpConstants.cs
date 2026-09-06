@@ -30,11 +30,16 @@ public static class OtpConstants
     public const string InvalidOtpCodeShapeMessage = "Please enter the 6-digit code";
 
     /// <summary>
-    /// User-facing message when a submitted OTP code is wrong, expired, or none was ever
-    /// requested for the mobile number. Deliberately the same message for all three cases —
-    /// distinguishing them in the response would let a caller enumerate valid mobile numbers.
+    /// User-facing message when a submitted OTP code is wrong, or none was ever requested for
+    /// the mobile number. Deliberately the same message for both cases — distinguishing "wrong
+    /// code" from "never requested" would let a caller enumerate valid mobile numbers. An expired
+    /// OTP is reported separately via <see cref="OtpExpiredMessage"/> since, once a matching OTP
+    /// record is confirmed to exist, expiry is unambiguous and safe to surface distinctly.
     /// </summary>
     public const string InvalidOtpMessage = "Invalid OTP. Please try again.";
+
+    /// <summary>User-facing message when a submitted OTP code matches a request that has since expired.</summary>
+    public const string OtpExpiredMessage = "This OTP has expired. Please request a new one.";
 
     /// <summary>User-facing message when the SMS gateway fails to dispatch an OTP.</summary>
     public const string DispatchFailureMessage = "Could not send verification code, please try again";

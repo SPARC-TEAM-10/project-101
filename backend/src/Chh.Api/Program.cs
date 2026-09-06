@@ -47,10 +47,9 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHealthChecks();
 
-// Application/Infrastructure service registration (CHH-8: OTP request — ChhDbContext,
-// repositories, services, SMS gateway client, FluentValidation). JWT Bearer
-// authentication (CHH-F01) is deliberately NOT registered yet — the
-// authentication/authorization middleware is added together with it.
+// Application/Infrastructure service registration (CHH-8/CHH-9/CHH-F02: ChhDbContext,
+// repositories, services, SMS gateway client, FluentValidation, JWT issuance + Bearer
+// authentication scheme — see ServiceCollectionExtensions.AddJwt).
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
 var app = builder.Build();
@@ -77,6 +76,12 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Must come before MapControllers (endpoint routing is implicit in the minimal hosting model)
+// so [Authorize] on protected controllers actually runs. The two OTP endpoints stay reachable
+// regardless — they carry [AllowAnonymous] (api-standards.md §5).
+app.UseAuthentication();
+app.UseAuthorization();
 
 // Liveness probe. Anonymous by design — it is infrastructure, not an API resource, so it is not
 // part of contracts/chh-api.v1.yaml and carries no /api/v1 prefix. Excludes "external"-tagged

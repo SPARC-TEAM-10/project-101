@@ -5,6 +5,7 @@ using Chh.Application.Contracts;
 using Chh.Application.Dtos;
 using Chh.Application.Factories;
 using Chh.Application.Services;
+using Chh.Domain.Constants;
 using Chh.Domain.Entities;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
@@ -17,6 +18,8 @@ public class OtpServiceTests
 {
     private readonly Mock<IOtpRequestRepository> _otpRequestRepository = new();
     private readonly Mock<ISmsGatewayClient> _smsGatewayClient = new();
+    private readonly Mock<IIndividualProfileRepository> _individualProfileRepository = new();
+    private readonly Mock<IJwtTokenGenerator> _jwtTokenGenerator = new();
     private readonly Mock<IUnitOfWork> _unitOfWork = new();
     private readonly OtpService _sut;
 
@@ -24,9 +27,18 @@ public class OtpServiceTests
 
     public OtpServiceTests()
     {
+        _individualProfileRepository
+            .Setup(r => r.GetByMobileNumberAsync(MobileNumber, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IndividualProfile?)null);
+        _jwtTokenGenerator
+            .Setup(j => j.GenerateToken(MobileNumber, It.IsAny<string>()))
+            .Returns(("fake-jwt", DateTimeOffset.UtcNow.AddHours(1)));
+
         _sut = new OtpService(
             _otpRequestRepository.Object,
             _smsGatewayClient.Object,
+            _individualProfileRepository.Object,
+            _jwtTokenGenerator.Object,
             _unitOfWork.Object,
             Mock.Of<ILogger<OtpService>>());
     }
@@ -81,7 +93,7 @@ public class OtpServiceTests
     }
 
     [Fact]
-    public async Task VerifyOtpAsync_WhenCodeMatchesAndUnexpired_MarksVerifiedAndReturnsResponse()
+    public async Task VerifyOtpAsync_WhenCodeMatchesAndUnexpired_MarksVerifiedAndReturnsTokenWithGuestRole()
     {
         var otpRequest = OtpRequestFactory.Create(MobileNumber, HashOtpCode("123456"), DateTimeOffset.UtcNow);
         _otpRequestRepository
@@ -92,8 +104,29 @@ public class OtpServiceTests
             new OtpVerifyRequest { MobileNumber = MobileNumber, OtpCode = "123456" }, CancellationToken.None);
 
         response.MaskedMobileNumber.Should().Be("********10");
+        response.AccessToken.Should().Be("fake-jwt");
+        response.Role.Should().Be(RoleConstants.Guest);
         otpRequest.IsVerified.Should().BeTrue();
+        _jwtTokenGenerator.Verify(j => j.GenerateToken(MobileNumber, RoleConstants.Guest), Times.Once);
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task VerifyOtpAsync_WhenIndividualProfileExists_IssuesTokenWithIndividualRole()
+    {
+        var otpRequest = OtpRequestFactory.Create(MobileNumber, HashOtpCode("123456"), DateTimeOffset.UtcNow);
+        _otpRequestRepository
+            .Setup(r => r.GetLatestTrackedByMobileNumberAsync(MobileNumber, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(otpRequest);
+        _individualProfileRepository
+            .Setup(r => r.GetByMobileNumberAsync(MobileNumber, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Mock.Of<IndividualProfile>());
+
+        var response = await _sut.VerifyOtpAsync(
+            new OtpVerifyRequest { MobileNumber = MobileNumber, OtpCode = "123456" }, CancellationToken.None);
+
+        response.Role.Should().Be(RoleConstants.Individual);
+        _jwtTokenGenerator.Verify(j => j.GenerateToken(MobileNumber, RoleConstants.Individual), Times.Once);
     }
 
     [Fact]
@@ -110,7 +143,7 @@ public class OtpServiceTests
     }
 
     [Fact]
-    public async Task VerifyOtpAsync_WhenCodeIsExpired_ThrowsInvalidOtpException()
+    public async Task VerifyOtpAsync_WhenCodeMatchesButExpired_ThrowsOtpExpiredExceptionAndDoesNotPersist()
     {
         var otpRequest = OtpRequestFactory.Create(MobileNumber, HashOtpCode("123456"), DateTimeOffset.UtcNow.AddMinutes(-10));
         _otpRequestRepository
@@ -120,8 +153,26 @@ public class OtpServiceTests
         var act = () => _sut.VerifyOtpAsync(
             new OtpVerifyRequest { MobileNumber = MobileNumber, OtpCode = "123456" }, CancellationToken.None);
 
-        await act.Should().ThrowAsync<InvalidOtpException>();
+        await act.Should().ThrowAsync<OtpExpiredException>();
         otpRequest.IsVerified.Should().BeFalse();
+        _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task VerifyOtpAsync_WhenCodeIsWrongAndExpired_ThrowsInvalidOtpExceptionNotExpired()
+    {
+        // A wrong code on an expired request must not reveal that a (now-expired) OTP had
+        // existed for this number — it reports the same "invalid" message as a never-requested
+        // number would.
+        var otpRequest = OtpRequestFactory.Create(MobileNumber, HashOtpCode("123456"), DateTimeOffset.UtcNow.AddMinutes(-10));
+        _otpRequestRepository
+            .Setup(r => r.GetLatestTrackedByMobileNumberAsync(MobileNumber, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(otpRequest);
+
+        var act = () => _sut.VerifyOtpAsync(
+            new OtpVerifyRequest { MobileNumber = MobileNumber, OtpCode = "000000" }, CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOtpException>();
     }
 
     [Fact]

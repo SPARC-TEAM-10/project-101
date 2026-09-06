@@ -158,6 +158,19 @@ Test files are co-located with source (`Component.test.tsx` next to `Component.t
 
 ---
 
+## Deployment
+
+| Concern | Value |
+|---|---|
+| Host | **Vercel** — git-push-to-deploy, project root set to `frontend/` |
+| Build command | `npm run build` (Vite) |
+| Output dir | `dist/` |
+| URL | Vercel-generated (e.g. `https://chh-frontend.vercel.app`) until a custom domain is attached |
+| API base URL | Set via a Vercel env var (e.g. `VITE_API_BASE_URL`) pointing at the deployed AWS backend — never hardcoded |
+| CORS | Backend must allow the Vercel origin(s) (production + preview-deploy URLs) — see root `CLAUDE.md` Decisions Log 2026-09-05 |
+
+---
+
 ## Memory
 
 Shared with the backend side — see `backend/CLAUDE.md` §Memory. `.claude/repository-index.md` lists `frontend/` alongside `backend/` as a module row (see `startup-agent.md` Step 5).

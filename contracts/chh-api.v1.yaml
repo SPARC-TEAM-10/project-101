@@ -66,9 +66,11 @@ paths:
       summary: Verify a one-time password for a mobile number
       description: >
         Accepts a mobile number and the 6-digit code sent to it, and checks it
-        against the most recently issued (unexpired) OTP for that number.
-        Verify-only (CHH-9 scope) — does not issue a session token; JWT
-        issuance and role-based redirection are CHH-10.
+        against the most recently issued OTP for that number. On success,
+        issues a JWT access token (CHH-F01 AC3) carrying the mobile number and
+        a role claim — "Individual" if a completed registration exists for
+        this number (CHH-F02), otherwise "Guest". Both cases return `200 OK`
+        with the token; role-specific redirection is a frontend concern.
       operationId: verifyOtp
       security: []
       requestBody:
@@ -79,17 +81,19 @@ paths:
               $ref: "#/components/schemas/OtpVerifyRequest"
       responses:
         "200":
-          description: OTP verified.
+          description: OTP verified; access token issued.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/OtpVerifyResponse"
         "422":
           description: >
-            Request malformed (mobile number/OTP code shape) or the OTP code
-            is wrong, expired, or none was ever requested for this number.
-            The same message and status is used for all three to avoid
-            revealing which case occurred.
+            Request malformed (mobile number/OTP code shape), the OTP code is
+            wrong, or it has expired. A wrong code and "no OTP was ever
+            requested for this number" deliberately share the same message
+            (to avoid revealing which case occurred) — an expired code is
+            reported distinctly since expiry is unambiguous once a matching
+            OTP record exists.
           content:
             application/problem+json:
               schema:
@@ -192,6 +196,9 @@ components:
       required:
         - maskedMobileNumber
         - verifiedAtUtc
+        - accessToken
+        - tokenExpiresAtUtc
+        - role
       properties:
         maskedMobileNumber:
           type: string
@@ -201,6 +208,23 @@ components:
           type: string
           format: date-time
           description: UTC timestamp the OTP was successfully verified.
+        accessToken:
+          type: string
+          description: >
+            Signed JWT session token (CHH-F01 AC3). Carries the mobile number
+            (`sub`) and `role` claims. Send as `Authorization: Bearer
+            <accessToken>` on subsequent requests.
+        tokenExpiresAtUtc:
+          type: string
+          format: date-time
+          description: UTC expiry of accessToken (1 hour from issuance per CHH-F01 AC3).
+        role:
+          type: string
+          description: >
+            Role assigned for this session (PRD §4 Role & Permission Matrix).
+            "Individual" if a completed registration exists for this mobile
+            number, otherwise "Guest".
+          enum: ["Guest", "Individual"]
     BloodGroup:
       type: string
       description: Clinical blood group notation.
