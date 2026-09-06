@@ -6,7 +6,7 @@ import { MobileEntryPage } from "./pages/auth/MobileEntryPage";
 import { OtpVerificationPage } from "./pages/auth/OtpVerificationPage";
 import { VerifiedStubPage } from "./pages/auth/VerifiedStubPage";
 import { GuestPlaceholderPage } from "./pages/GuestPlaceholderPage";
-import { BloodRequestFormPage } from "./pages/bloodRequest/BloodRequestFormPage";
+import { BloodRequestFormModal } from "./pages/bloodRequest/BloodRequestFormModal";
 
 export const router = createBrowserRouter([
   { path: "/", element: <LandingPage /> },
@@ -18,7 +18,7 @@ export const router = createBrowserRouter([
     path: "/blood-requests/new",
     element: (
       <RequireAuth>
-        <BloodRequestFormPage />
+        <BloodRequestFormModal />
       </RequireAuth>
     ),
   },

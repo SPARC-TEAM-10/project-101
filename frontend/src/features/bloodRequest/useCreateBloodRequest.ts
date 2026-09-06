@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 
 import { createBloodRequest, type BloodRequestDto } from "../../api/bloodRequestApi";
@@ -21,11 +21,13 @@ export interface BloodRequestFormError {
 export interface BloodRequestSubmitResult {
   ok: boolean;
   data?: BloodRequestDto;
+  error?: BloodRequestFormError;
 }
 
 const initialValues: Partial<CreateBloodRequestFormValues> = {
   patientName: "",
   locationCityArea: "",
+  unitsRequired: 1,
   searchRadiusKm: 10,
 };
 
@@ -60,6 +62,15 @@ export function useCreateBloodRequest(accessToken: string | undefined) {
     },
   });
 
+  // Auto-fills the location text once "Use current location" resolves a readable address —
+  // the whole point of that button is to save the user from typing it themselves.
+  useEffect(() => {
+    if (geolocation.addressLabel) {
+      setValues((prev) => ({ ...prev, locationCityArea: geolocation.addressLabel! }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [geolocation.addressLabel]);
+
   function setField<K extends keyof CreateBloodRequestFormValues>(key: K, value: CreateBloodRequestFormValues[K]) {
     setValues((prev) => ({ ...prev, [key]: value }));
     if (mutation.isError) {
@@ -72,15 +83,20 @@ export function useCreateBloodRequest(accessToken: string | undefined) {
     if (!parsed.success) {
       return { ok: false };
     }
+    // Location detection is its own explicit button in the UI (not triggered implicitly here) —
+    // a hidden "first click detects location, second click submits" flow was confusing (a real
+    // user-reported issue: clicking Submit appeared to do nothing on the first click).
     if (geolocation.status !== "resolved") {
-      geolocation.request();
       return { ok: false };
     }
     try {
       const data = await mutation.mutateAsync(parsed.data);
       return { ok: true, data };
-    } catch {
-      return { ok: false };
+    } catch (err) {
+      // Returned directly (not read back from the hook's `error` state) — that state updates on
+      // the next render, so a caller checking it synchronously right after this await would see
+      // a stale value from before this attempt.
+      return { ok: false, error: toBloodRequestFormError(err) };
     }
   }
 

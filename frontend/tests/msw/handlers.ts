@@ -109,4 +109,14 @@ export const createBloodRequestUnauthorizedHandler = http.post(BLOOD_REQUESTS_UR
   return new HttpResponse(null, { status: 401 });
 });
 
-export const handlers = [successHandler, verifySuccessHandler, createBloodRequestSuccessHandler];
+export const nominatimReverseGeocodeHandler = http.get(
+  "https://nominatim.openstreetmap.org/reverse",
+  () => HttpResponse.json({ address: { city: "Kochi", postcode: "682017" } }),
+);
+
+export const handlers = [
+  successHandler,
+  verifySuccessHandler,
+  createBloodRequestSuccessHandler,
+  nominatimReverseGeocodeHandler,
+];

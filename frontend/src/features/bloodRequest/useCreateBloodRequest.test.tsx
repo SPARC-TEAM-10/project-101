@@ -74,8 +74,7 @@ describe("useCreateBloodRequest", () => {
     expect(result.current.fieldErrors.searchRadiusKm?.[0]).toBe("Minimum radius is 5km");
   });
 
-  it("on first submit with unresolved location, requests geolocation instead of calling the API", async () => {
-    mockGeolocationSuccess();
+  it("submit is a no-op while location hasn't been detected yet — the Use current location button is a separate, explicit step", async () => {
     const { result } = renderHook(() => useCreateBloodRequest("token"), { wrapper });
 
     act(() => {
@@ -92,10 +91,10 @@ describe("useCreateBloodRequest", () => {
     });
 
     expect(submitResult).toEqual({ ok: false });
-    await waitFor(() => expect(result.current.geolocation.status).toBe("resolved"));
+    expect(result.current.geolocation.status).toBe("idle");
   });
 
-  it("submits successfully once the form is valid and geolocation resolves", async () => {
+  it("submits successfully once the form is valid and the location button has resolved coordinates", async () => {
     mockGeolocationSuccess();
     const { result } = renderHook(() => useCreateBloodRequest("token"), { wrapper });
 
@@ -105,12 +104,9 @@ describe("useCreateBloodRequest", () => {
       result.current.setUnitsRequired(validValues.unitsRequired);
       result.current.setLocationCityArea(validValues.locationCityArea);
       result.current.setUrgency(validValues.urgency);
+      result.current.geolocation.request();
     });
-
-    // First submit resolves geolocation (see previous test); second submit actually calls the API.
-    await act(async () => {
-      await result.current.submit();
-    });
+    await waitFor(() => expect(result.current.geolocation.status).toBe("resolved"));
 
     let submitResult;
     await act(async () => {
@@ -131,11 +127,10 @@ describe("useCreateBloodRequest", () => {
       result.current.setUnitsRequired(validValues.unitsRequired);
       result.current.setLocationCityArea(validValues.locationCityArea);
       result.current.setUrgency(validValues.urgency);
+      result.current.geolocation.request();
     });
+    await waitFor(() => expect(result.current.geolocation.status).toBe("resolved"));
 
-    await act(async () => {
-      await result.current.submit();
-    });
     await act(async () => {
       await result.current.submit();
     });
