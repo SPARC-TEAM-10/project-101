@@ -17,7 +17,10 @@ export class ApiError extends Error {
   }
 }
 
-const API_BASE_URL = "/api/v1";
+// VITE_API_BASE_URL points at the deployed backend origin (e.g. "http://13.63.179.146:5000")
+// in production/preview — see frontend/CLAUDE.md's Deployment section. Falls back to a relative
+// path when unset (local dev against a same-origin proxy, or MSW-mocked tests).
+const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL ?? ""}/api/v1`;
 
 export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${API_BASE_URL}${path}`, {
