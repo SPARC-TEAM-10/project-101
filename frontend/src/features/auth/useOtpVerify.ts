@@ -19,6 +19,8 @@ export interface UseOtpVerifyResult {
   isPending: boolean;
   resendSecondsLeft: number;
   canResend: boolean;
+  resendError: string | null;
+  isResending: boolean;
   resend: () => Promise<void>;
   submit: () => Promise<OtpVerifySubmitResult>;
 }
@@ -90,9 +92,14 @@ export function useOtpVerify(
 
   async function resend(): Promise<void> {
     if (resendSecondsLeft > 0) return;
-    const data = await resendMutation.mutateAsync();
-    setResendSecondsLeft(secondsUntil(data.resendAvailableAtUtc));
-    verifyMutation.reset();
+    try {
+      const data = await resendMutation.mutateAsync();
+      setResendSecondsLeft(secondsUntil(data.resendAvailableAtUtc));
+      verifyMutation.reset();
+    } catch {
+      // resendMutation.error now holds the failure; surfaced via resendError below.
+      // Timer is left at 0 (canResend stays true) so the user can immediately retry.
+    }
   }
 
   const error = verifyMutation.error
@@ -100,6 +107,8 @@ export function useOtpVerify(
       ? "Invalid OTP. Please try again."
       : "Couldn't verify the code. Try again."
     : null;
+
+  const resendError = resendMutation.error ? "Couldn't resend the code. Try again." : null;
 
   return {
     digits,
@@ -109,6 +118,8 @@ export function useOtpVerify(
     isPending: verifyMutation.isPending,
     resendSecondsLeft,
     canResend: resendSecondsLeft <= 0,
+    resendError,
+    isResending: resendMutation.isPending,
     resend,
     submit,
   };

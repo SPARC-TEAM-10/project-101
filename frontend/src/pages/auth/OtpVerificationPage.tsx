@@ -39,8 +39,18 @@ function OtpVerificationScreen({
   onNavigate: ReturnType<typeof useNavigate>;
 }) {
   const { mobileNumber, maskedMobileNumber, resendAvailableAtUtc } = state;
-  const { digits, setDigit, error, isPending, resendSecondsLeft, canResend, resend, submit } =
-    useOtpVerify(mobileNumber, resendAvailableAtUtc);
+  const {
+    digits,
+    setDigit,
+    error,
+    isPending,
+    resendSecondsLeft,
+    canResend,
+    resendError,
+    isResending,
+    resend,
+    submit,
+  } = useOtpVerify(mobileNumber, resendAvailableAtUtc);
   const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
 
   useEffect(() => {
@@ -49,23 +59,27 @@ function OtpVerificationScreen({
     }
   }, [error]);
 
-  useEffect(() => {
-    async function verifyAndNavigate() {
-      if (digits.join("").length === 6 && !isPending && !error) {
-        const result = await submit();
-        if (result.ok && result.data) {
-          onNavigate("/verified", {
-            state: {
-              maskedMobileNumber: result.data.maskedMobileNumber,
-              verifiedAtUtc: result.data.verifiedAtUtc,
-            },
-          });
-        }
-      }
+  async function verifyAndNavigate() {
+    const result = await submit();
+    if (result.ok && result.data) {
+      onNavigate("/verified", {
+        state: {
+          maskedMobileNumber: result.data.maskedMobileNumber,
+          verifiedAtUtc: result.data.verifiedAtUtc,
+        },
+      });
     }
-    verifyAndNavigate();
+  }
+
+  // AC1: auto-submit as soon as all six digits are entered.
+  useEffect(() => {
+    if (digits.join("").length === 6 && !isPending && !error) {
+      verifyAndNavigate();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [digits]);
+
+  const isComplete = digits.every(Boolean);
 
   function handleChange(index: number, rawValue: string) {
     const value = rawValue.replace(/[^0-9]/g, "").slice(-1);
@@ -89,7 +103,7 @@ function OtpVerificationScreen({
     inputRefs.current[Math.min(pasted.length, 5)]?.focus();
   }
 
-  const otpStateClass = error ? "border-error" : digits.every(Boolean) ? "border-clay" : "border-line-strong";
+  const otpStateClass = error ? "border-error" : isComplete ? "border-clay" : "border-line-strong";
 
   return (
     <div className="flex min-h-screen flex-col bg-sand font-sans text-ink">
@@ -144,19 +158,37 @@ function OtpVerificationScreen({
           )}
         </div>
 
+        <button
+          type="button"
+          disabled={!isComplete || isPending}
+          onClick={verifyAndNavigate}
+          className={`mb-5 h-[54px] w-full max-w-[280px] rounded-md text-base font-semibold transition-colors ${
+            isComplete && !isPending
+              ? "bg-clay text-white hover:bg-clay-hover"
+              : "cursor-not-allowed bg-sand-2 text-ink-off"
+          }`}
+        >
+          {isPending ? "Verifying…" : "Verify OTP"}
+        </button>
+
         {canResend ? (
           <button
             type="button"
+            disabled={isResending}
             onClick={() => resend()}
-            className="mb-4 border-none bg-transparent p-0 text-sm font-semibold text-clay"
+            className="mb-2 border-none bg-transparent p-0 text-sm font-semibold text-clay disabled:text-ink-off"
           >
-            Resend OTP
+            {isResending ? "Resending…" : "Resend OTP"}
           </button>
         ) : (
-          <div className="mb-4 text-sm text-ink-2">
+          <div className="mb-2 text-sm text-ink-2">
             Resend in <b className="text-ink [font-variant-numeric:tabular-nums]">{formatTimer(resendSecondsLeft)}</b>
           </div>
         )}
+
+        <div className="mb-4 min-h-[16px] text-[13px] text-error" role="alert">
+          {resendError}
+        </div>
 
         <button type="button" onClick={() => onNavigate("/login")} className="text-[13.5px] text-ink-2 underline">
           Change Number
