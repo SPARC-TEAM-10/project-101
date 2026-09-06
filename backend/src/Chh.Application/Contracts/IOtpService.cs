@@ -12,9 +12,14 @@ public interface IOtpService
     /// <exception cref="Chh.Application.Abstractions.OtpDispatchException">The SMS gateway failed to dispatch the code.</exception>
     Task<OtpRequestResponse> RequestOtpAsync(OtpRequestRequest request, CancellationToken ct);
 
-    /// <summary>Verifies a submitted OTP code against the most recently issued (unexpired) OTP for the mobile number.</summary>
+    /// <summary>
+    /// Verifies a submitted OTP code against the most recently issued OTP for the mobile number,
+    /// and on success issues a JWT access token (CHH-F01 AC3) with a role claim resolved from
+    /// whether a completed individual registration exists for this number.
+    /// </summary>
     /// <param name="request">The mobile number and OTP code to verify.</param>
     /// <param name="ct">Cancellation token.</param>
-    /// <exception cref="Chh.Application.Abstractions.InvalidOtpException">The code is wrong, expired, or none was requested for this number.</exception>
+    /// <exception cref="Chh.Application.Abstractions.InvalidOtpException">The code is wrong, or none was requested for this number.</exception>
+    /// <exception cref="Chh.Application.Abstractions.OtpExpiredException">The code matches a request that has since expired.</exception>
     Task<OtpVerifyResponse> VerifyOtpAsync(OtpVerifyRequest request, CancellationToken ct);
 }

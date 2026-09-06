@@ -16,3 +16,20 @@ export function requestOtp(mobileNumber: string): Promise<OtpRequestResponse> {
     body: JSON.stringify({ mobileNumber } satisfies OtpRequestRequest),
   });
 }
+
+export interface OtpVerifyRequest {
+  mobileNumber: string;
+  otpCode: string;
+}
+
+export interface OtpVerifyResponse {
+  maskedMobileNumber: string;
+  verifiedAtUtc: string;
+}
+
+export function verifyOtp(mobileNumber: string, otpCode: string): Promise<OtpVerifyResponse> {
+  return apiFetch<OtpVerifyResponse>("/auth/otp/verify", {
+    method: "POST",
+    body: JSON.stringify({ mobileNumber, otpCode } satisfies OtpVerifyRequest),
+  });
+}

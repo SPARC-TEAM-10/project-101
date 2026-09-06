@@ -15,7 +15,9 @@ public class Fast2SmsWhatsAppTemplateClientTests
     private const string MessageId = "template-123";
     private const string PhoneNumberId = "phone-456";
     private const string MobileNumber = "9999999999";
-    private const string SuccessBody = """{"status": true, "request_id": "abc123"}""";
+    // Field is "return", not "status" — confirmed against a live Fast2SMS WhatsApp response
+    // while testing CHH-F01's OTP delivery: {"request_id":"...","return":true,"message":[...]}.
+    private const string SuccessBody = """{"return": true, "request_id": "abc123"}""";
 
     private static Fast2SmsWhatsAppTemplateClient CreateSut(
         FakeHttpMessageHandler handler, Mock<ILogger<Fast2SmsWhatsAppTemplateClient>>? logger = null)
@@ -66,7 +68,7 @@ public class Fast2SmsWhatsAppTemplateClientTests
     }
 
     [Fact]
-    public async Task SendTemplateAsync_WhenStatusTrue_ReturnsRequestId()
+    public async Task SendTemplateAsync_WhenReturnTrue_ReturnsRequestId()
     {
         var handler = new FakeHttpMessageHandler(HttpStatusCode.OK, SuccessBody);
         var sut = CreateSut(handler);
@@ -77,9 +79,9 @@ public class Fast2SmsWhatsAppTemplateClientTests
     }
 
     [Fact]
-    public async Task SendTemplateAsync_WhenStatusFalse_ThrowsHttpRequestException()
+    public async Task SendTemplateAsync_WhenReturnFalse_ThrowsHttpRequestException()
     {
-        var handler = new FakeHttpMessageHandler(HttpStatusCode.OK, """{"status": false, "message": "invalid template"}""");
+        var handler = new FakeHttpMessageHandler(HttpStatusCode.OK, """{"return": false, "message": "invalid template"}""");
         var sut = CreateSut(handler);
 
         var act = () => sut.SendTemplateAsync(MessageId, MobileNumber, new[] { "1234" }, CancellationToken.None);

@@ -35,16 +35,31 @@ public class OtpDispatchException : ChhException
 }
 
 /// <summary>
-/// Raised when a submitted OTP code is wrong, expired, or none was ever requested for the
-/// mobile number. Maps to 422 Unprocessable Entity. Deliberately used for all three cases
-/// (see <see cref="OtpConstants.InvalidOtpMessage"/>) so the response can't be used to enumerate
-/// which mobile numbers have a pending OTP.
+/// Raised when a submitted OTP code is wrong, or none was ever requested for the mobile number.
+/// Maps to 422 Unprocessable Entity. Deliberately used for both cases (see
+/// <see cref="OtpConstants.InvalidOtpMessage"/>) so the response can't be used to enumerate which
+/// mobile numbers have a pending OTP. An expired OTP is <see cref="OtpExpiredException"/> instead.
 /// </summary>
 public class InvalidOtpException : ChhException
 {
     /// <summary>Creates the exception with the standard invalid-OTP message.</summary>
     public InvalidOtpException()
         : base(OtpConstants.InvalidOtpMessage)
+    {
+    }
+}
+
+/// <summary>
+/// Raised when a submitted OTP code matches a request that has since expired. Maps to 422
+/// Unprocessable Entity. Kept distinct from <see cref="InvalidOtpException"/> — once a matching
+/// OTP record is confirmed to exist, expiry is unambiguous and reporting it separately from a
+/// wrong code is a deliberate UX choice, not an enumeration risk.
+/// </summary>
+public class OtpExpiredException : ChhException
+{
+    /// <summary>Creates the exception with the standard OTP-expired message.</summary>
+    public OtpExpiredException()
+        : base(OtpConstants.OtpExpiredMessage)
     {
     }
 }

@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Chh.Infrastructure.Migrations
 {
-    /// <summary>Creates the <c>OtpRequest</c> table (CHH-F01, CHH-8).</summary>
+    /// <inheritdoc />
     public partial class AddOtpRequestTable : Migration
     {
         /// <summary>Creates the <c>OtpRequest</c> table and its <c>MobileNumber</c> index.</summary>

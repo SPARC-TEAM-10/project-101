@@ -26,6 +26,9 @@
     <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="8.0.8" />
     <!-- IHealthCheck, for Fast2SmsWalletHealthCheck. -->
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="8.0.8" />
+    <!-- JwtSecurityTokenHandler, for JwtTokenGenerator. Version aligned with the
+         Microsoft.AspNetCore.Authentication.JwtBearer 8.0.8 reference in Chh.Api. -->
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.1.2" />
   </ItemGroup>
 
   <ItemGroup>
