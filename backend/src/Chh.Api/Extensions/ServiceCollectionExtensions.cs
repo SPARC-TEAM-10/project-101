@@ -5,8 +5,11 @@ using Chh.Infrastructure.ExternalClients;
 using Chh.Infrastructure.Persistence;
 using Chh.Infrastructure.Persistence.Encryption;
 using Chh.Infrastructure.Persistence.Repositories;
+using Chh.Infrastructure.Security;
 using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Chh.Api.Extensions;
 
@@ -36,10 +39,71 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         services.AddFast2Sms(configuration);
+        services.AddJwt(configuration);
 
         services.AddValidatorsFromAssembly(typeof(OtpRequestRequestValidator).Assembly);
 
         return services;
+    }
+
+    /// <summary>
+    /// Registers JWT issuance (<see cref="IJwtTokenGenerator"/>) and the JWT Bearer authentication
+    /// scheme used by <c>[Authorize]</c> on every endpoint except the two OTP endpoints
+    /// (api-standards.md §5, CHH-F01 AC3). Both sides — issuing and validating — share the same
+    /// signing key and <c>Issuer</c>/<c>Audience</c>/lifetime configuration.
+    /// </summary>
+    /// <param name="services">The service collection to register into.</param>
+    /// <param name="configuration">App configuration.</param>
+    private static void AddJwt(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddOptions<JwtOptions>()
+            .Bind(configuration.GetSection(JwtOptions.SectionName))
+            .Validate(o => !string.IsNullOrWhiteSpace(o.Issuer), "Jwt:Issuer is required.")
+            .Validate(o => !string.IsNullOrWhiteSpace(o.Audience), "Jwt:Audience is required.")
+            .Validate(o => o.AccessTokenLifetimeMinutes > 0, "Jwt:AccessTokenLifetimeMinutes must be positive.")
+            .Validate(o => !string.IsNullOrWhiteSpace(o.SigningKeyBase64), "Jwt:SigningKeyBase64 is required.")
+            .Validate(o =>
+            {
+                try
+                {
+                    // HMAC-SHA256 needs a key of at least 256 bits (32 bytes) — a shorter key
+                    // would fail at first-token-issuance instead of at startup.
+                    return Convert.FromBase64String(o.SigningKeyBase64).Length >= 32;
+                }
+                catch (FormatException)
+                {
+                    return false;
+                }
+            }, "Jwt:SigningKeyBase64 must be a base64-encoded key of at least 32 bytes.")
+            .ValidateOnStart();
+
+        services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
+
+        var jwtSection = configuration.GetSection(JwtOptions.SectionName);
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                var signingKeyBase64 = jwtSection["SigningKeyBase64"];
+                var signingKey = string.IsNullOrWhiteSpace(signingKeyBase64)
+                    ? new byte[32] // Placeholder only so the app can start with the key still unset
+                                   // in Development; AddJwt's ValidateOnStart above is what actually
+                                   // enforces a real key everywhere else.
+                    : Convert.FromBase64String(signingKeyBase64);
+
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidIssuer = jwtSection["Issuer"],
+                    ValidAudience = jwtSection["Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(signingKey),
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.FromSeconds(30)
+                };
+            });
+
+        services.AddAuthorization();
     }
 
     /// <summary>

@@ -14,22 +14,30 @@ public class OtpService : IOtpService
 {
     private readonly IOtpRequestRepository _otpRequestRepository;
     private readonly ISmsGatewayClient _smsGatewayClient;
+    private readonly IIndividualProfileRepository _individualProfileRepository;
+    private readonly IJwtTokenGenerator _jwtTokenGenerator;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<OtpService> _logger;
 
-    /// <summary>Creates the service with its repository, SMS gateway, unit-of-work, and logger dependencies.</summary>
+    /// <summary>Creates the service with its repository, SMS gateway, JWT, unit-of-work, and logger dependencies.</summary>
     /// <param name="otpRequestRepository">Data layer for reading and persisting OTP requests.</param>
     /// <param name="smsGatewayClient">Gateway used to dispatch the generated OTP code.</param>
+    /// <param name="individualProfileRepository">Used to resolve the role claim (Individual vs. Guest) on verify.</param>
+    /// <param name="jwtTokenGenerator">Issues the access token returned on successful verification.</param>
     /// <param name="unitOfWork">Persists changes made during the request.</param>
     /// <param name="logger">Logger for dispatch-failure diagnostics.</param>
     public OtpService(
         IOtpRequestRepository otpRequestRepository,
         ISmsGatewayClient smsGatewayClient,
+        IIndividualProfileRepository individualProfileRepository,
+        IJwtTokenGenerator jwtTokenGenerator,
         IUnitOfWork unitOfWork,
         ILogger<OtpService> logger)
     {
         _otpRequestRepository = otpRequestRepository;
         _smsGatewayClient = smsGatewayClient;
+        _individualProfileRepository = individualProfileRepository;
+        _jwtTokenGenerator = jwtTokenGenerator;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
@@ -86,20 +94,39 @@ public class OtpService : IOtpService
             .GetLatestTrackedByMobileNumberAsync(request.MobileNumber, ct)
             .ConfigureAwait(false);
 
-        if (latest is null || latest.OtpExpiresAtUtc < verifiedAtUtc || !IsMatchingOtpCode(request.OtpCode, latest.OtpCodeHash))
+        // "Never requested" folds into InvalidOtpException (not OtpExpiredException) so the
+        // response can't be used to enumerate which mobile numbers have ever requested an OTP.
+        if (latest is null || !IsMatchingOtpCode(request.OtpCode, latest.OtpCodeHash))
         {
-            // Same exception regardless of which condition failed (wrong code, expired, or
-            // never requested) — distinguishing them would let a caller enumerate mobile numbers.
             throw new InvalidOtpException();
         }
 
+        // Checked after the code match so a wrong code on an expired request still reports
+        // "invalid" rather than leaking that a (now-expired) OTP had existed for this number —
+        // only a *matching* code past its expiry gets the distinct "expired" message.
+        if (latest.OtpExpiresAtUtc < verifiedAtUtc)
+        {
+            throw new OtpExpiredException();
+        }
+
         latest.MarkVerified();
+
+        var profile = await _individualProfileRepository
+            .GetByMobileNumberAsync(request.MobileNumber, ct)
+            .ConfigureAwait(false);
+        var role = profile is not null ? RoleConstants.Individual : RoleConstants.Guest;
+
+        var (accessToken, tokenExpiresAtUtc) = _jwtTokenGenerator.GenerateToken(request.MobileNumber, role);
+
         await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
 
         return new OtpVerifyResponse
         {
             MaskedMobileNumber = OtpConstants.MaskMobileNumber(request.MobileNumber),
-            VerifiedAtUtc = verifiedAtUtc
+            VerifiedAtUtc = verifiedAtUtc,
+            AccessToken = accessToken,
+            TokenExpiresAtUtc = tokenExpiresAtUtc,
+            Role = role
         };
     }
 
