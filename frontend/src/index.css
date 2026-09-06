@@ -90,3 +90,178 @@
 body {
   font-family: var(--font, "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
 }
+
+/* ---- blood-drip loader (design canvas: FeedbackComponents artboard) ---- */
+.drip-loader {
+  position: relative;
+  flex: none;
+}
+.drip-loader svg {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  fill: var(--blood);
+}
+.drip-loader svg.duct {
+  top: 0;
+}
+.drip-loader svg.duct .shine {
+  fill: rgba(255, 255, 255, 0.4);
+}
+.drip-loader svg.drop {
+  transform-origin: 50% 0%;
+  animation: drip-fall 1.8s cubic-bezier(0.5, 0, 0.4, 1) infinite;
+}
+.drip-loader .ripple {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  border: 1.5px solid var(--blood);
+  border-radius: 50%;
+  opacity: 0;
+  animation: drip-ripple 1.8s cubic-bezier(0.5, 0, 0.4, 1) infinite;
+}
+@keyframes drip-fall {
+  0% { opacity: 0; transform: translate(-50%, -2px) scaleY(0.3); }
+  8% { opacity: 1; transform: translate(-50%, 0) scaleY(0.55); }
+  30% { opacity: 1; transform: translate(-50%, 0) scaleY(1); }
+  55% { opacity: 1; transform: translate(-50%, var(--fall)) scaleY(1.2); }
+  68% { opacity: 1; transform: translate(-50%, var(--fall)) scaleY(0.5); }
+  76% { opacity: 0.35; transform: translate(-50%, calc(var(--fall) + 2px)) scaleY(0.4); }
+  100% { opacity: 0; transform: translate(-50%, calc(var(--fall) + 2px)) scaleY(0.4); }
+}
+@keyframes drip-ripple {
+  0%, 64% { opacity: 0; transform: translateX(-50%) scaleX(0.15); }
+  72% { opacity: 0.55; transform: translateX(-50%) scaleX(1); }
+  92% { opacity: 0; transform: translateX(-50%) scaleX(1.8); }
+  100% { opacity: 0; }
+}
+.drip-loader.sm { width: 22px; height: 42px; }
+.drip-loader.sm svg.duct { width: 16px; height: 16px; }
+.drip-loader.sm svg.drop { width: 8px; height: 8px; top: 11px; --fall: 13px; }
+.drip-loader.sm .ripple { bottom: 2px; width: 13px; height: 3px; }
+.drip-loader.md { width: 32px; height: 60px; }
+.drip-loader.md svg.duct { width: 23px; height: 23px; }
+.drip-loader.md svg.drop { width: 12px; height: 12px; top: 16px; --fall: 19px; }
+.drip-loader.md .ripple { bottom: 3px; width: 19px; height: 4px; }
+.drip-loader.lg { width: 52px; height: 92px; }
+.drip-loader.lg svg.duct { width: 36px; height: 36px; }
+.drip-loader.lg svg.drop { width: 18px; height: 18px; top: 25px; --fall: 30px; }
+.drip-loader.lg .ripple { bottom: 4px; width: 28px; height: 6px; }
+.drip-loader.xl { width: 84px; height: 150px; }
+.drip-loader.xl svg.duct { width: 58px; height: 58px; }
+.drip-loader.xl svg.drop { width: 29px; height: 29px; top: 40px; --fall: 49px; }
+.drip-loader.xl .ripple { bottom: 6px; width: 45px; height: 10px; }
+/* Inline button-scale variant (design canvas "Creating account…" usage). */
+.drip-loader.btn { width: 16px; height: 26px; }
+.drip-loader.btn svg.duct { width: 11px; height: 11px; }
+.drip-loader.btn svg.drop { width: 6px; height: 6px; top: 7px; --fall: 8px; }
+
+/* ---- toast (design canvas: FeedbackComponents artboard) ---- */
+.toast-host {
+  position: fixed;
+  left: 50%;
+  top: 16px;
+  transform: translateX(-50%);
+  z-index: var(--z-toast, 10000);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: calc(100% - 32px);
+  max-width: 420px;
+}
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: var(--r-sm);
+  padding: 12px 14px;
+  box-shadow: var(--e3);
+  font-size: 13.5px;
+  font-weight: 500;
+  background: var(--cream);
+  color: var(--ink);
+  animation: toastIn 0.22s both;
+}
+.toast.ok { border-left: 4px solid var(--leaf); }
+.toast.ok svg { color: var(--leaf); flex: none; }
+.toast.err { border-left: 4px solid var(--error); }
+.toast.err svg { color: var(--error); flex: none; }
+.toast.info { border-left: 4px solid var(--clay); }
+.toast.info svg { color: var(--clay); flex: none; }
+.toast span.msg { flex: 1; }
+.toast .x {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: var(--ink-3);
+  cursor: pointer;
+  display: flex;
+  padding: 4px;
+  flex: none;
+}
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Hide native number input spinners — forms use explicit +/- controls or sliders instead. */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* Custom range slider (blood request search radius) — track/thumb styling isn't reachable via
+   Tailwind utility classes alone since browsers require the vendor-prefixed pseudo-elements. */
+input[type="range"].radius-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: var(--r-full);
+  background: linear-gradient(to right, var(--blood) 0%, var(--blood) var(--fill, 0%), var(--line) var(--fill, 0%), var(--line) 100%);
+}
+input[type="range"].radius-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--blood);
+  border: 3px solid var(--cream);
+  box-shadow: var(--e2);
+  cursor: pointer;
+}
+input[type="range"].radius-slider::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--blood);
+  border: 3px solid var(--cream);
+  box-shadow: var(--e2);
+  cursor: pointer;
+}
+input[type="range"].radius-slider::-moz-range-track {
+  height: 6px;
+  border-radius: var(--r-full);
+  background: transparent;
+}
+
+/* Thin, brand-colored scrollbar for the blood-request modal's scrollable body. */
+.modal-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}
+.modal-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.modal-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.modal-scroll::-webkit-scrollbar-thumb {
+  background-color: var(--line-strong);
+  border-radius: var(--r-full);
+}

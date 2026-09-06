@@ -150,7 +150,7 @@ export function LandingPage() {
           <div className="mx-auto max-w-[1180px] overflow-hidden rounded-xl border border-line shadow-[var(--e3)] md:flex md:min-h-[460px]">
             <div className="flex w-full flex-none flex-col items-center bg-cream px-6 py-12 text-center md:w-[400px] md:justify-center md:border-r md:border-line">
               <div className="mb-4 flex h-20 w-20 items-center justify-center">
-                <span className="flex h-13 w-13 items-center justify-center rounded-full bg-blood text-white shadow-[var(--e1)]">
+                <span className="flex h-[52px] w-[52px] items-center justify-center rounded-full bg-blood text-white shadow-[var(--e1)]">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                     <path d="M12 3.2c3.4 4 6 6.9 6 10a6 6 0 0 1-12 0c0-3.1 2.6-6 6-10Z" />
                   </svg>
@@ -313,7 +313,7 @@ export function LandingPage() {
 
             <div className="grid gap-6 md:grid-cols-3">
               <div className="rounded-lg border border-line bg-cream p-6 shadow-[var(--e1)] transition-shadow hover:shadow-[var(--e2)]">
-                <div className="mb-5 flex h-13 w-13 items-center justify-center rounded-md bg-blood-tint text-blood-deep">
+                <div className="mb-5 flex h-[52px] w-[52px] items-center justify-center rounded-md bg-blood-tint text-blood-deep">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round">
                     <path d="M12 3.2c3.4 4 6 6.9 6 10a6 6 0 0 1-12 0c0-3.1 2.6-6 6-10Z" />
                   </svg>
@@ -326,7 +326,7 @@ export function LandingPage() {
               </div>
 
               <div className="rounded-lg border border-line bg-cream p-6 shadow-[var(--e1)] transition-shadow hover:shadow-[var(--e2)]">
-                <div className="mb-5 flex h-13 w-13 items-center justify-center rounded-md bg-clay-tint text-clay">
+                <div className="mb-5 flex h-[52px] w-[52px] items-center justify-center rounded-md bg-clay-tint text-clay">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round">
                     <path d="M4 20.5V8.2l8-4.7 8 4.7v12.3" />
                     <path d="M9.5 20.5v-5h5v5M12 9v4M10 11h4" />
@@ -340,7 +340,7 @@ export function LandingPage() {
               </div>
 
               <div className="rounded-lg border border-line bg-cream p-6 shadow-[var(--e1)] transition-shadow hover:shadow-[var(--e2)]">
-                <div className="mb-5 flex h-13 w-13 items-center justify-center rounded-md bg-leaf-tint text-leaf">
+                <div className="mb-5 flex h-[52px] w-[52px] items-center justify-center rounded-md bg-leaf-tint text-leaf">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round">
                     <path d="M12 21s7-5.4 7-11a7 7 0 1 0-14 0c0 5.6 7 11 7 11Z" />
                     <circle cx="12" cy="10" r="2.6" />
