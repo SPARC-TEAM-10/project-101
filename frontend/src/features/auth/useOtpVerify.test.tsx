@@ -51,9 +51,14 @@ describe("useOtpVerify", () => {
       submitResult = await result.current.submit();
     });
 
-    expect(submitResult).toEqual({
+    expect(submitResult).toMatchObject({
       ok: true,
-      data: { maskedMobileNumber: "********10", verifiedAtUtc: "2026-09-06T10:00:00.000Z" },
+      data: {
+        maskedMobileNumber: "********10",
+        verifiedAtUtc: "2026-09-06T10:00:00.000Z",
+        accessToken: "test-access-token",
+        role: "Individual",
+      },
     });
   });
 
