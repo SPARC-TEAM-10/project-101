@@ -148,6 +148,10 @@ body {
 .drip-loader.lg svg.duct { width: 36px; height: 36px; }
 .drip-loader.lg svg.drop { width: 18px; height: 18px; top: 25px; --fall: 30px; }
 .drip-loader.lg .ripple { bottom: 4px; width: 28px; height: 6px; }
+.drip-loader.xl { width: 84px; height: 150px; }
+.drip-loader.xl svg.duct { width: 58px; height: 58px; }
+.drip-loader.xl svg.drop { width: 29px; height: 29px; top: 40px; --fall: 49px; }
+.drip-loader.xl .ripple { bottom: 6px; width: 45px; height: 10px; }
 /* Inline button-scale variant (design canvas "Creating account…" usage). */
 .drip-loader.btn { width: 16px; height: 26px; }
 .drip-loader.btn svg.duct { width: 11px; height: 11px; }

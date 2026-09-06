@@ -1,6 +1,6 @@
 const DROP_PATH = "M12 2C12 2 4.5 11.5 4.5 16A7.5 7.5 0 0 0 19.5 16C19.5 11.5 12 2 12 2Z";
 
-export type DripLoaderSize = "sm" | "md" | "lg" | "btn";
+export type DripLoaderSize = "sm" | "md" | "lg" | "xl" | "btn";
 
 // Blood-drip loader — from the design canvas's FeedbackComponents artboard
 // (https://claude.ai/code/artifact/6b185d14-a32d-4647-a2b7-7366b07c2b75, page 2). Styling lives

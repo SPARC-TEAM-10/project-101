@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 
-import { DripLoader } from "../../components/DripLoader";
+import { LoadingOverlay } from "../../components/LoadingOverlay";
 import { useAuth } from "../../context/AuthProvider";
 import { useToast } from "../../context/ToastProvider";
 import { useCreateBloodRequest } from "../../features/bloodRequest/useCreateBloodRequest";
@@ -147,6 +147,8 @@ export function BloodRequestFormModal() {
   const locationNotReady = touched && geolocation.status === "idle";
 
   return (
+    <>
+    {isPending && <LoadingOverlay message="Notifying donors…" />}
     <div
       className="fixed inset-0 z-50 flex items-end justify-center bg-[var(--overlay)] p-0 font-sans sm:items-center sm:p-6"
       onClick={close}
@@ -391,10 +393,7 @@ export function BloodRequestFormModal() {
             }`}
           >
             {isPending ? (
-              <>
-                <DripLoader size="btn" />
-                Notifying donors…
-              </>
+              "Notifying donors…"
             ) : (
               <>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -407,5 +406,6 @@ export function BloodRequestFormModal() {
         </div>
       </div>
     </div>
+    </>
   );
 }
