@@ -252,6 +252,18 @@ All agents must read and strictly enforce all standards before planning or imple
 
 ---
 
+## Deployment
+
+| Concern | Value |
+|---|---|
+| Host | **AWS** — App Runner or Elastic Beanstalk (single service, no ECS/Fargate needed at this scale) |
+| Database | AWS RDS for PostgreSQL 16 |
+| Secrets | Azure Key Vault reference in `.claude/rules/api-standards.md` §5 predates this AWS decision — use **AWS Secrets Manager** instead for the SMS gateway key, FCM server key, maps API key, and JWT signing key; update that rule file if/when this is finalized |
+| CORS | Must explicitly allow the frontend's Vercel origin(s) (production + preview-deploy URLs) — see root `CLAUDE.md` Decisions Log 2026-09-05 |
+| URL | AWS-generated (e.g. `https://chh-api.<region>.awsapprunner.com`) until a custom domain is attached |
+
+---
+
 ## Memory
 
 | File | Written By | Read By |

@@ -1,3 +1,8 @@
 # Claude Design scratch drafts — the seeded bundle files, not the .dc.html source
 design/drafts/**/*.html
 !design/drafts/**/*.dc.html
+
+# .NET build/publish output
+backend/publish/
+backend/**/bin/
+backend/**/obj/
