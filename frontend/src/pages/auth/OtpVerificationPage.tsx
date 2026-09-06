@@ -129,7 +129,7 @@ function OtpVerificationScreen({
           Sent to <b className="text-ink [font-variant-numeric:tabular-nums]">{maskedMobileNumber}</b>
         </p>
 
-        <div className="mb-4 flex gap-2.5">
+        <div className="mb-4 flex gap-[9px]">
           {digits.map((digit, i) => (
             <input
               key={i}
@@ -143,7 +143,7 @@ function OtpVerificationScreen({
               onChange={(e) => handleChange(i, e.target.value)}
               onKeyDown={(e) => handleKeyDown(i, e)}
               onPaste={handlePaste}
-              className={`h-14 w-12 rounded-sm border-[1.5px] bg-cream text-center text-xl font-bold [font-variant-numeric:tabular-nums] ${otpStateClass}`}
+              className={`h-14 w-12 rounded-sm border-[1.5px] bg-cream text-center text-[21px] font-bold [font-variant-numeric:tabular-nums] ${otpStateClass}`}
             />
           ))}
         </div>
@@ -164,7 +164,7 @@ function OtpVerificationScreen({
           type="button"
           disabled={!isComplete || isPending}
           onClick={verifyAndNavigate}
-          className={`mb-5 h-[54px] w-full max-w-[280px] rounded-md text-base font-semibold transition-colors ${
+          className={`mb-[22px] h-[54px] w-full max-w-[280px] rounded-md text-base font-semibold transition-colors ${
             isComplete && !isPending
               ? "bg-clay text-white hover:bg-clay-hover"
               : "cursor-not-allowed bg-sand-2 text-ink-off"
@@ -178,12 +178,12 @@ function OtpVerificationScreen({
             type="button"
             disabled={isResending}
             onClick={() => resend()}
-            className="mb-2 border-none bg-transparent p-0 text-sm font-semibold text-clay disabled:text-ink-off"
+            className="mb-4 border-none bg-transparent p-0 text-sm font-semibold text-clay disabled:text-ink-off"
           >
             {isResending ? "Resending…" : "Resend OTP"}
           </button>
         ) : (
-          <div className="mb-2 text-sm text-ink-2">
+          <div className="mb-4 text-sm text-ink-2">
             Resend in <b className="text-ink [font-variant-numeric:tabular-nums]">{formatTimer(resendSecondsLeft)}</b>
           </div>
         )}

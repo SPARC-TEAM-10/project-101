@@ -29,12 +29,12 @@ export function MobileEntryPage() {
   return (
     <div className="flex min-h-screen flex-col bg-sand font-sans text-ink">
       <div className="px-7 pt-14">
-        <div className="mb-3.5 flex h-13 w-13 items-center justify-center rounded-full bg-blood text-white">
+        <div className="mb-3.5 flex h-[52px] w-[52px] items-center justify-center rounded-full bg-blood text-white">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M12 3.2c3.4 4 6 6.9 6 10a6 6 0 0 1-12 0c0-3.1 2.6-6 6-10Z" />
           </svg>
         </div>
-        <div className="text-sm font-bold text-ink-2">Community Health Hub</div>
+        <div className="text-[15px] font-bold text-ink-2">Community Health Hub</div>
       </div>
 
       <div className="flex flex-1 flex-col justify-center px-7">
@@ -84,7 +84,7 @@ export function MobileEntryPage() {
             </div>
             <div
               id="mobile-number-hint"
-              className={`flex min-h-[17px] items-center gap-1.5 text-xs ${
+              className={`flex min-h-[17px] items-center gap-[5px] text-[12.5px] ${
                 showInvalid ? "text-error" : "text-ink-3"
               }`}
             >
