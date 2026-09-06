@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 
+import { AuthSplitLayout } from "../../components/AuthSplitLayout";
 import { useOtpVerify } from "../../features/auth/useOtpVerify";
 import { useAuth } from "../../context/AuthProvider";
 
@@ -108,18 +109,22 @@ function OtpVerificationScreen({
   const otpStateClass = error ? "border-error" : isComplete ? "border-clay" : "border-line-strong";
 
   return (
+    <AuthSplitLayout imageSrc="/images/auth-otp-verify.png" imageAlt="">
     <div className="flex min-h-screen flex-col bg-sand font-sans text-ink">
       <div className="flex h-[58px] flex-none items-center gap-3 border-b border-line bg-cream px-4">
-        <button
-          type="button"
-          aria-label="Back"
-          onClick={() => onNavigate("/login")}
-          className="flex h-9 w-9 items-center justify-center rounded-full text-ink-2"
+        <a
+          href="/login"
+          onClick={(e) => {
+            e.preventDefault();
+            onNavigate("/login");
+          }}
+          className="inline-flex items-center gap-1 text-sm font-semibold text-ink-2 underline underline-offset-2 hover:text-ink"
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="M19 12H5M11 6l-6 6 6 6" />
           </svg>
-        </button>
+          Back
+        </a>
         <b className="mr-9 flex-1 text-center text-[15px] font-bold">Verify OTP</b>
       </div>
 
@@ -129,7 +134,7 @@ function OtpVerificationScreen({
           Sent to <b className="text-ink [font-variant-numeric:tabular-nums]">{maskedMobileNumber}</b>
         </p>
 
-        <div className="mb-4 flex gap-2.5">
+        <div className="mb-4 flex gap-2">
           {digits.map((digit, i) => (
             <input
               key={i}
@@ -143,7 +148,7 @@ function OtpVerificationScreen({
               onChange={(e) => handleChange(i, e.target.value)}
               onKeyDown={(e) => handleKeyDown(i, e)}
               onPaste={handlePaste}
-              className={`h-14 w-12 rounded-sm border-[1.5px] bg-cream text-center text-xl font-bold [font-variant-numeric:tabular-nums] ${otpStateClass}`}
+              className={`h-11 w-9 rounded-sm border-[1.5px] bg-cream text-center text-lg font-bold [font-variant-numeric:tabular-nums] ${otpStateClass}`}
             />
           ))}
         </div>
@@ -164,7 +169,7 @@ function OtpVerificationScreen({
           type="button"
           disabled={!isComplete || isPending}
           onClick={verifyAndNavigate}
-          className={`mb-5 h-[54px] w-full max-w-[280px] rounded-md text-base font-semibold transition-colors ${
+          className={`mb-5 h-11 w-full max-w-[260px] rounded-md text-sm font-semibold transition-colors ${
             isComplete && !isPending
               ? "bg-clay text-white hover:bg-clay-hover"
               : "cursor-not-allowed bg-sand-2 text-ink-off"
@@ -197,5 +202,6 @@ function OtpVerificationScreen({
         </button>
       </div>
     </div>
+    </AuthSplitLayout>
   );
 }
