@@ -90,6 +90,17 @@ Optional override from Orchestrator handoff:
    ```
    Gate: if this shows any commits, the feature branch is behind `<BaseBranch>` — even if the Coding Agent's Gate 3 already checked this earlier in the task, upstream may have moved again since. **Do not merge automatically.** Report the commits to the developer and ask: *"`<BranchName>` is `<N>` commits behind `<BaseBranch>`. Merge before I push and raise the PR?"* Only merge (`git merge origin/<BaseBranch> --no-edit` — never rebase, this repo uses merge commits) after explicit confirmation. Resolve any conflicts against the real source of truth per file, re-run the build/test suite to confirm the merge didn't break anything, then re-run this gate until it's clean before proceeding.
 
+   **When the incoming commits are someone else's independent fix for the same review
+   comments** (not unrelated upstream work — e.g. `git log` on the incoming commits shows the
+   same ticket ID or same files touched): this is not an ordinary merge, and don't build a
+   hybrid of both solutions. Read both implementations in full, pick the more complete/correct
+   one as authoritative for each conflicting mechanism, then hunt down and remove every leftover
+   artifact of the abandoned side — orphaned files, unused DI registrations, dangling migrations,
+   stale `using` statements, duplicate entries in generated files like an EF model snapshot.
+   Rebuild and re-run the full test suite before treating the merge as resolved; a merge that
+   only compiles is not enough here. Record the outcome as a Decisions Log entry in root
+   `CLAUDE.md` if the reconciliation settled a mechanism other agents might reintroduce later.
+
    Only proceed if all four gates pass.
 
 5. **Invoke the GitHub PR Skill** (`.claude/skills/github-pr-skill/SKILL.md`) with:
