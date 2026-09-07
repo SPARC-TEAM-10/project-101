@@ -1,7 +1,9 @@
 using Chh.Application.Contracts;
 using Chh.Application.Dtos;
 using Chh.Application.Factories;
+using Chh.Application.Jobs;
 using Chh.Domain.Constants;
+using Hangfire;
 
 namespace Chh.Application.Services;
 
@@ -10,14 +12,17 @@ public class BloodRequestService : IBloodRequestService
 {
     private readonly IBloodRequestRepository _bloodRequestRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IBackgroundJobClient _backgroundJobClient;
 
-    /// <summary>Creates the service with its repository and unit-of-work dependencies.</summary>
+    /// <summary>Creates the service with its repository, unit-of-work, and background-job dependencies.</summary>
     /// <param name="bloodRequestRepository">Data layer for persisting blood requests.</param>
     /// <param name="unitOfWork">Persists changes made during the request.</param>
-    public BloodRequestService(IBloodRequestRepository bloodRequestRepository, IUnitOfWork unitOfWork)
+    /// <param name="backgroundJobClient">Enqueues <see cref="MatchDonorsJob"/> after persistence (US-CHH-004-02/CHH-80).</param>
+    public BloodRequestService(IBloodRequestRepository bloodRequestRepository, IUnitOfWork unitOfWork, IBackgroundJobClient backgroundJobClient)
     {
         _bloodRequestRepository = bloodRequestRepository;
         _unitOfWork = unitOfWork;
+        _backgroundJobClient = backgroundJobClient;
     }
 
     /// <inheritdoc />
@@ -28,6 +33,10 @@ public class BloodRequestService : IBloodRequestService
 
         await _bloodRequestRepository.AddAsync(bloodRequest, ct).ConfigureAwait(false);
         await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
+
+        // Fire-and-forget: matching must not delay this response (api-standards.md §6 NFR).
+        // CancellationToken.None — the job runs after this request has already returned.
+        _backgroundJobClient.Enqueue<MatchDonorsJob>(job => job.RunAsync(bloodRequest.Id, CancellationToken.None));
 
         return new BloodRequestDto
         {

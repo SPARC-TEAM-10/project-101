@@ -21,6 +21,13 @@ public class BloodRequestRepository : IBloodRequestRepository
         await _context.BloodRequests.AddAsync(bloodRequest, ct).ConfigureAwait(false);
 
     /// <inheritdoc />
+    public async Task<BloodRequest?> GetByIdAsync(Guid id, CancellationToken ct) =>
+        await _context.BloodRequests
+            .AsNoTracking()
+            .FirstOrDefaultAsync(r => r.Id == id, ct)
+            .ConfigureAwait(false);
+
+    /// <inheritdoc />
     public async Task<(IReadOnlyList<BloodRequest> Items, int TotalCount)> GetByRequesterAsync(
         string requesterMobileNumber, int page, int pageSize, CancellationToken ct)
     {
