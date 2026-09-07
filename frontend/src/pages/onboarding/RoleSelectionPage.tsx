@@ -12,7 +12,7 @@ export function RoleSelectionPage() {
 
   return (
     <AuthSplitLayout imageSrc="/images/auth-otp-verify.png" imageAlt="">
-      <div className="relative flex min-h-screen flex-col bg-sand px-7 pt-16 font-sans text-ink">
+      <div className="relative flex min-h-screen flex-col bg-sand font-sans text-ink">
         <a
           href="/welcome"
           onClick={(e) => {
@@ -27,12 +27,14 @@ export function RoleSelectionPage() {
           Back
         </a>
 
+        <div className="flex flex-1 items-center justify-center px-7">
+        <div className="w-full max-w-[460px]">
         <h1 className="mb-2 text-[26px] font-extrabold tracking-tight">Choose an account type</h1>
         <p className="mb-10 max-w-[34ch] text-[14.5px] leading-relaxed text-ink-2">
           This decides which details we ask for next.
         </p>
 
-        <div className="flex max-w-[460px] flex-col gap-3">
+        <div className="flex flex-col gap-3">
           <button
             type="button"
             onClick={() => navigate("/register/individual")}
@@ -107,6 +109,8 @@ export function RoleSelectionPage() {
               <path d="m9 6 6 6-6 6" />
             </svg>
           </button>
+        </div>
+        </div>
         </div>
       </div>
     </AuthSplitLayout>

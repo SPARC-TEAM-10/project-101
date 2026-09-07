@@ -10,7 +10,9 @@ export function NewUserGuestDecisionPage() {
 
   return (
     <AuthSplitLayout imageSrc="/images/auth-otp-verify.png" imageAlt="">
-      <div className="flex min-h-screen flex-col bg-sand px-7 pt-16 font-sans text-ink">
+      <div className="flex min-h-screen flex-col bg-sand font-sans text-ink">
+        <div className="flex flex-1 items-center justify-center px-7">
+        <div className="w-full max-w-[420px]">
         <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-clay-tint text-clay-deep">
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <circle cx="9" cy="8.5" r="3.2" />
@@ -23,7 +25,7 @@ export function NewUserGuestDecisionPage() {
           We don&apos;t recognize this number yet. How would you like to continue?
         </p>
 
-        <div className="mx-auto flex w-full max-w-[420px] flex-col gap-4">
+        <div className="flex w-full flex-col gap-4">
           <button
             type="button"
             onClick={() => navigate("/register")}
@@ -56,6 +58,8 @@ export function NewUserGuestDecisionPage() {
             </span>
             <span className="text-[13px] opacity-85">Search &amp; request only, no account needed.</span>
           </button>
+        </div>
+        </div>
         </div>
       </div>
     </AuthSplitLayout>
