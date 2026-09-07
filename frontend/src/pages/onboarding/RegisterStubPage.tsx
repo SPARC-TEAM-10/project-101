@@ -43,6 +43,11 @@ const TODAY = new Date().toISOString().slice(0, 10);
 // /register/individual, after RoleSelectionPage. Kept as RegisterStubPage (name and file both)
 // to match the GuestDashboardStubPage precedent of not renaming a route's component once the
 // real feature lands, so router.tsx doesn't churn.
+//
+// Layout mirrors the two design canvas artboards: Registration.dc.html (mobile — single-column
+// scroll, appbar title) and RegistrationWeb{Enabled,Disabled}.dc.html (web — "Almost there." panel
+// on the left, a 2-column field grid on the right). Split at `md:`, same breakpoint AuthSplitLayout
+// uses for its own left/right split.
 export function RegisterStubPage() {
   const navigate = useNavigate();
   const { session, setSession } = useAuth();
@@ -88,299 +93,327 @@ export function RegisterStubPage() {
   const otherIllnessLength = (values.otherIllnessDetails ?? "").length;
 
   return (
-    <div className="flex min-h-screen flex-col bg-sand font-sans text-ink">
+    <div className="flex min-h-screen flex-col bg-sand font-sans text-ink md:grid md:grid-cols-[380px_1fr]">
       {isPending && <LoadingOverlay message="Creating your account…" />}
 
-      <header className="flex h-[58px] flex-none items-center gap-2.5 border-b border-line bg-cream px-3 md:h-16 md:px-8">
-        <button
-          type="button"
-          onClick={() => navigate("/register")}
-          aria-label="Back"
-          className="flex h-10 w-10 items-center justify-center rounded-full text-ink-2 transition-colors hover:bg-sand-2"
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M19 12H5M11 6l-6 6 6 6" />
+      {/* Left panel — desktop only (RegistrationWeb*.dc.html's ".left"), sticky so it stays in
+          view while the form scrolls. */}
+      <div className="relative hidden flex-col overflow-hidden bg-clay-deep px-12 py-14 text-white md:sticky md:top-0 md:flex md:h-screen">
+        <div aria-hidden="true" className="pointer-events-none absolute -bottom-[70px] -right-[70px] h-[220px] w-[220px] rounded-full bg-white/5" />
+        <div className="relative mb-8 flex h-10 w-10 items-center justify-center rounded-full bg-white/[.18]">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 3.2c3.4 4 6 6.9 6 10a6 6 0 0 1-12 0c0-3.1 2.6-6 6-10Z" />
           </svg>
-        </button>
-        <b className="flex-1 text-center text-[15px] font-bold md:text-left md:text-base">Create Account</b>
-        <span className="hidden w-10 md:block" aria-hidden="true" />
-      </header>
-
-      <form
-        onSubmit={handleSubmit}
-        noValidate
-        className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-5 px-4 py-5 md:px-8 md:py-8"
-      >
-        <h2 className="text-[11px] font-extrabold uppercase tracking-wide text-ink-3">Personal details</h2>
-
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="full-name" className="text-sm font-semibold text-ink-2">
-            Full name <i className="not-italic text-error">*</i>
-          </label>
-          <input
-            id="full-name"
-            type="text"
-            value={values.fullName ?? ""}
-            onChange={(e) => setFullName(e.target.value)}
-            placeholder="As per your ID"
-            aria-invalid={touched && !!fieldErrors.fullName}
-            className={`h-[50px] rounded-sm border-[1.5px] bg-cream px-4 text-base outline-none transition-colors focus:border-clay ${
-              touched && fieldErrors.fullName ? "border-error" : "border-line-strong"
-            }`}
-          />
-          {touched && <FieldError message={fieldErrors.fullName?.[0]} />}
         </div>
+        <h2 className="relative mb-3.5 max-w-[13ch] text-[28px] font-extrabold leading-[1.22] tracking-tight">
+          Almost there.
+        </h2>
+        <p className="relative max-w-[28ch] text-sm leading-relaxed text-white/80">
+          Your health screening decides your eligibility — donate, request, or both. You can update it any time from
+          your profile.
+        </p>
+      </div>
 
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="email" className="text-sm font-semibold text-ink-2">
-            Email <i className="not-italic text-error">*</i>
-          </label>
-          <input
-            id="email"
-            type="email"
-            value={values.email ?? ""}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@example.com"
-            aria-invalid={touched && !!fieldErrors.email}
-            className={`h-[50px] rounded-sm border-[1.5px] bg-cream px-4 text-base outline-none transition-colors focus:border-clay ${
-              touched && fieldErrors.email ? "border-error" : "border-line-strong"
-            }`}
-          />
-          {touched && <FieldError message={fieldErrors.email?.[0]} />}
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="blood-group" className="text-sm font-semibold text-ink-2">
-            Blood group <i className="not-italic text-error">*</i>
-          </label>
-          <select
-            id="blood-group"
-            value={values.bloodGroup ?? ""}
-            onChange={(e) => setBloodGroup(e.target.value as BloodGroup)}
-            aria-invalid={touched && !!fieldErrors.bloodGroup}
-            className={`h-[50px] rounded-sm border-[1.5px] bg-cream px-4 text-base outline-none transition-colors focus:border-clay ${
-              touched && fieldErrors.bloodGroup ? "border-error" : "border-line-strong"
-            }`}
+      {/* Right column */}
+      <div className="flex flex-1 flex-col">
+        <header className="flex h-[58px] flex-none items-center gap-2.5 border-b border-line bg-cream px-3 md:hidden">
+          <button
+            type="button"
+            onClick={() => navigate("/register")}
+            aria-label="Back"
+            className="flex h-10 w-10 items-center justify-center rounded-full text-ink-2 transition-colors hover:bg-sand-2"
           >
-            <option value="" disabled>
-              Select blood group
-            </option>
-            {BLOOD_GROUPS.map((group) => (
-              <option key={group} value={group}>
-                {group}
-              </option>
-            ))}
-          </select>
-          {touched && <FieldError message={fieldErrors.bloodGroup?.[0]} />}
-        </div>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M19 12H5M11 6l-6 6 6 6" />
+            </svg>
+          </button>
+          <b className="flex-1 text-center text-[15px] font-bold">Create Account</b>
+          <span className="w-10" aria-hidden="true" />
+        </header>
 
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="date-of-birth" className="text-sm font-semibold text-ink-2">
-            Date of birth <i className="not-italic text-error">*</i>
-          </label>
-          <input
-            id="date-of-birth"
-            type="date"
-            max={TODAY}
-            value={values.dateOfBirth ?? ""}
-            onChange={(e) => setDateOfBirth(e.target.value)}
-            aria-invalid={touched && !!fieldErrors.dateOfBirth}
-            className={`h-[50px] rounded-sm border-[1.5px] bg-cream px-4 text-base outline-none transition-colors focus:border-clay ${
-              touched && fieldErrors.dateOfBirth ? "border-error" : "border-line-strong"
-            }`}
-          />
-          {touched && <FieldError message={fieldErrors.dateOfBirth?.[0]} />}
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="gender" className="text-sm font-semibold text-ink-2">
-            Gender <i className="not-italic text-error">*</i>
-          </label>
-          <select
-            id="gender"
-            value={values.gender ?? ""}
-            onChange={(e) => setGender(e.target.value as Gender)}
-            aria-invalid={touched && !!fieldErrors.gender}
-            className={`h-[50px] rounded-sm border-[1.5px] bg-cream px-4 text-base outline-none transition-colors focus:border-clay ${
-              touched && fieldErrors.gender ? "border-error" : "border-line-strong"
-            }`}
-          >
-            <option value="" disabled>
-              Select gender
-            </option>
-            {GENDERS.map((gender) => (
-              <option key={gender} value={gender}>
-                {gender}
-              </option>
-            ))}
-          </select>
-          {touched && <FieldError message={fieldErrors.gender?.[0]} />}
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <div className="flex items-center justify-between">
-            <label htmlFor="location" className="text-sm font-semibold text-ink-2">
-              Location (City / Area) <i className="not-italic text-error">*</i>
-            </label>
-            <LocationHint status={geolocation.status} isResolvingAddress={geolocation.isResolvingAddress} />
+        <form
+          onSubmit={handleSubmit}
+          noValidate
+          className="mx-auto flex w-full max-w-[680px] flex-1 flex-col gap-5 px-4 py-5 md:px-10 md:py-14"
+        >
+          <div className="hidden md:block">
+            <h1 className="mb-1.5 text-[26px] font-extrabold tracking-tight">Create your account</h1>
+            <p className="mb-2 text-[14.5px] text-ink-2">Tell us a little about yourself.</p>
           </div>
-          <div className="relative">
-            <input
-              id="location"
-              type="text"
-              value={values.locationCityArea ?? ""}
-              onChange={(e) => setLocationCityArea(e.target.value)}
-              placeholder="Search city or area"
-              aria-invalid={touched && !!fieldErrors.locationCityArea}
-              className={`h-[50px] w-full rounded-sm border-[1.5px] bg-cream pl-4 pr-11 text-base outline-none transition-colors focus:border-clay ${
-                touched && fieldErrors.locationCityArea ? "border-error" : "border-line-strong"
-              }`}
-            />
-            <button
-              type="button"
-              onClick={() => geolocation.request()}
-              disabled={geolocation.status === "locating"}
-              aria-label="Use current location"
-              title="Use current location"
-              className="absolute right-1.5 top-1.5 flex h-9 w-9 items-center justify-center rounded-sm text-clay transition-colors hover:bg-clay-tint disabled:opacity-60"
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.9} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <circle cx="12" cy="12" r="3" />
-                <path d="M12 3v3M12 18v3M3 12h3M18 12h3" />
+
+          <h2 className="text-[11px] font-extrabold uppercase tracking-wide text-ink-3">Personal details</h2>
+
+          <div className="grid grid-cols-1 gap-x-4 gap-y-5 md:grid-cols-2">
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="full-name" className="text-sm font-semibold text-ink-2">
+                Full name <i className="not-italic text-error">*</i>
+              </label>
+              <input
+                id="full-name"
+                type="text"
+                value={values.fullName ?? ""}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="As per your ID"
+                aria-invalid={touched && !!fieldErrors.fullName}
+                className={`h-[50px] rounded-sm border-[1.5px] bg-cream px-4 text-base outline-none transition-colors focus:border-clay ${
+                  touched && fieldErrors.fullName ? "border-error" : "border-line-strong"
+                }`}
+              />
+              {touched && <FieldError message={fieldErrors.fullName?.[0]} />}
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="email" className="text-sm font-semibold text-ink-2">
+                Email <i className="not-italic text-error">*</i>
+              </label>
+              <input
+                id="email"
+                type="email"
+                value={values.email ?? ""}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                aria-invalid={touched && !!fieldErrors.email}
+                className={`h-[50px] rounded-sm border-[1.5px] bg-cream px-4 text-base outline-none transition-colors focus:border-clay ${
+                  touched && fieldErrors.email ? "border-error" : "border-line-strong"
+                }`}
+              />
+              {touched && <FieldError message={fieldErrors.email?.[0]} />}
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="blood-group" className="text-sm font-semibold text-ink-2">
+                Blood group <i className="not-italic text-error">*</i>
+              </label>
+              <select
+                id="blood-group"
+                value={values.bloodGroup ?? ""}
+                onChange={(e) => setBloodGroup(e.target.value as BloodGroup)}
+                aria-invalid={touched && !!fieldErrors.bloodGroup}
+                className={`h-[50px] rounded-sm border-[1.5px] bg-cream px-4 text-base outline-none transition-colors focus:border-clay ${
+                  touched && fieldErrors.bloodGroup ? "border-error" : "border-line-strong"
+                }`}
+              >
+                <option value="" disabled>
+                  Select blood group
+                </option>
+                {BLOOD_GROUPS.map((group) => (
+                  <option key={group} value={group}>
+                    {group}
+                  </option>
+                ))}
+              </select>
+              {touched && <FieldError message={fieldErrors.bloodGroup?.[0]} />}
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="date-of-birth" className="text-sm font-semibold text-ink-2">
+                Date of birth <i className="not-italic text-error">*</i>
+              </label>
+              <input
+                id="date-of-birth"
+                type="date"
+                max={TODAY}
+                value={values.dateOfBirth ?? ""}
+                onChange={(e) => setDateOfBirth(e.target.value)}
+                aria-invalid={touched && !!fieldErrors.dateOfBirth}
+                className={`h-[50px] rounded-sm border-[1.5px] bg-cream px-4 text-base outline-none transition-colors focus:border-clay ${
+                  touched && fieldErrors.dateOfBirth ? "border-error" : "border-line-strong"
+                }`}
+              />
+              {touched && <FieldError message={fieldErrors.dateOfBirth?.[0]} />}
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="gender" className="text-sm font-semibold text-ink-2">
+                Gender <i className="not-italic text-error">*</i>
+              </label>
+              <select
+                id="gender"
+                value={values.gender ?? ""}
+                onChange={(e) => setGender(e.target.value as Gender)}
+                aria-invalid={touched && !!fieldErrors.gender}
+                className={`h-[50px] rounded-sm border-[1.5px] bg-cream px-4 text-base outline-none transition-colors focus:border-clay ${
+                  touched && fieldErrors.gender ? "border-error" : "border-line-strong"
+                }`}
+              >
+                <option value="" disabled>
+                  Select gender
+                </option>
+                {GENDERS.map((gender) => (
+                  <option key={gender} value={gender}>
+                    {gender}
+                  </option>
+                ))}
+              </select>
+              {touched && <FieldError message={fieldErrors.gender?.[0]} />}
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <div className="flex items-center justify-between">
+                <label htmlFor="location" className="text-sm font-semibold text-ink-2">
+                  Location (City / Area) <i className="not-italic text-error">*</i>
+                </label>
+                <LocationHint status={geolocation.status} isResolvingAddress={geolocation.isResolvingAddress} />
+              </div>
+              <div className="relative">
+                <input
+                  id="location"
+                  type="text"
+                  value={values.locationCityArea ?? ""}
+                  onChange={(e) => setLocationCityArea(e.target.value)}
+                  placeholder="Search city or area"
+                  aria-invalid={touched && !!fieldErrors.locationCityArea}
+                  className={`h-[50px] w-full rounded-sm border-[1.5px] bg-cream pl-4 pr-11 text-base outline-none transition-colors focus:border-clay ${
+                    touched && fieldErrors.locationCityArea ? "border-error" : "border-line-strong"
+                  }`}
+                />
+                <button
+                  type="button"
+                  onClick={() => geolocation.request()}
+                  disabled={geolocation.status === "locating"}
+                  aria-label="Use current location"
+                  title="Use current location"
+                  className="absolute right-1.5 top-1.5 flex h-9 w-9 items-center justify-center rounded-sm text-clay transition-colors hover:bg-clay-tint disabled:opacity-60"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.9} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="3" />
+                    <path d="M12 3v3M12 18v3M3 12h3M18 12h3" />
+                  </svg>
+                </button>
+              </div>
+              {touched && <FieldError message={fieldErrors.locationCityArea?.[0]} />}
+              {(geolocation.status === "denied" || geolocation.status === "unavailable") && (
+                <span className="flex items-start gap-1.5 rounded-sm bg-amber-tint px-2.5 py-2 text-[12px] leading-tight text-amber">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="mt-0.5 flex-none" aria-hidden="true">
+                    <path d="M12 4.5 21 19.5H3L12 4.5Z" />
+                    <path d="M12 10v4M12 16.8v.1" />
+                  </svg>
+                  We couldn&apos;t determine your location. Please select your City/Area manually.
+                </span>
+              )}
+            </div>
+          </div>
+
+          <h2 className="mt-2 text-[11px] font-extrabold uppercase tracking-wide text-ink-3">Health screening</h2>
+
+          <div className="grid grid-cols-1 gap-2 md:grid-cols-2 md:gap-2.5">
+            <label className="flex items-start gap-3 rounded-sm border-[1.5px] border-line bg-cream p-3.5">
+              <input
+                type="checkbox"
+                className="mt-0.5 h-[19px] w-[19px] flex-none accent-clay"
+                checked={values.isChronicIllness ?? false}
+                onChange={(e) => setChronicIllness(e.target.checked)}
+              />
+              <span className="text-[13.5px] leading-snug text-ink">Chronic illness — diabetes, heart, kidney</span>
+            </label>
+            <label className="flex items-start gap-3 rounded-sm border-[1.5px] border-line bg-cream p-3.5">
+              <input
+                type="checkbox"
+                className="mt-0.5 h-[19px] w-[19px] flex-none accent-clay"
+                checked={values.hasRecentSurgery ?? false}
+                onChange={(e) => setRecentSurgery(e.target.checked)}
+              />
+              <span className="text-[13.5px] leading-snug text-ink">Recent surgery in the last 6 months</span>
+            </label>
+            <label className="flex items-start gap-3 rounded-sm border-[1.5px] border-line bg-cream p-3.5">
+              <input
+                type="checkbox"
+                className="mt-0.5 h-[19px] w-[19px] flex-none accent-clay"
+                checked={values.isInfectiousDisease ?? false}
+                onChange={(e) => setInfectiousDisease(e.target.checked)}
+              />
+              <span className="text-[13.5px] leading-snug text-ink">Infectious disease (HIV, Hepatitis B/C)</span>
+            </label>
+            <label className="flex items-start gap-3 rounded-sm border-[1.5px] border-line bg-cream p-3.5">
+              <input
+                type="checkbox"
+                className="mt-0.5 h-[19px] w-[19px] flex-none accent-clay"
+                checked={values.isUnderweight ?? false}
+                onChange={(e) => setUnderweight(e.target.checked)}
+              />
+              <span className="text-[13.5px] leading-snug text-ink">Currently underweight</span>
+            </label>
+            <label className="flex items-start gap-3 rounded-sm border-[1.5px] border-line bg-cream p-3.5">
+              <input
+                type="checkbox"
+                className="mt-0.5 h-[19px] w-[19px] flex-none accent-clay"
+                checked={values.isOtherIllness ?? false}
+                onChange={(e) => setOtherIllness(e.target.checked)}
+              />
+              <span className="text-[13.5px] leading-snug text-ink">Other</span>
+            </label>
+          </div>
+
+          {values.isOtherIllness && (
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="other-illness" className="text-sm font-semibold text-ink-2">
+                Specify other illness <i className="not-italic text-error">*</i>
+              </label>
+              <textarea
+                id="other-illness"
+                value={values.otherIllnessDetails ?? ""}
+                onChange={(e) => setOtherIllnessDetails(e.target.value.slice(0, MAX_OTHER_ILLNESS_LENGTH))}
+                maxLength={MAX_OTHER_ILLNESS_LENGTH}
+                placeholder="Tell us briefly"
+                aria-invalid={touched && !!fieldErrors.otherIllnessDetails}
+                className={`h-[76px] resize-y rounded-sm border-[1.5px] bg-cream px-4 py-3 text-sm leading-relaxed outline-none transition-colors focus:border-clay ${
+                  touched && fieldErrors.otherIllnessDetails ? "border-error" : "border-line-strong"
+                }`}
+              />
+              <div className="text-right text-[11.5px] text-ink-3">
+                {otherIllnessLength} / {MAX_OTHER_ILLNESS_LENGTH}
+              </div>
+              {touched && <FieldError message={fieldErrors.otherIllnessDetails?.[0]} />}
+            </div>
+          )}
+
+          {isReceiverOnly ? (
+            <div className="flex gap-2.5 rounded-sm bg-clay-tint p-3.5 text-ink">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" className="flex-none" aria-hidden="true">
+                <circle cx="12" cy="12" r="8.5" />
+                <path d="M12 11v5.5M12 7.9v.1" />
               </svg>
+              <div>
+                <b className="block text-[13px] font-bold">Receiver only</b>
+                <p className="m-0 text-[12px] leading-relaxed opacity-85">
+                  Based on your screening you can request blood but not donate. You can update this later.
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="flex gap-2.5 rounded-sm bg-leaf-tint p-3.5 text-ink">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" className="flex-none text-leaf" aria-hidden="true">
+                <circle cx="12" cy="12" r="8.5" />
+                <path d="M8.4 12.3 11 15l4.6-5.4" />
+              </svg>
+              <div>
+                <b className="block text-[13px] font-bold">Eligible donor</b>
+                <p className="m-0 text-[12px] leading-relaxed opacity-85">
+                  No restrictions flagged. You&apos;ll appear in donor search results.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {error && (
+            <div className="rounded-sm border border-error bg-error-tint px-4 py-3 text-sm text-error">
+              {error.message}
+            </div>
+          )}
+
+          <div className="pt-2 md:pt-3">
+            <button
+              type="submit"
+              disabled={isPending}
+              className={`flex h-[52px] w-full items-center justify-center rounded-md text-[15px] font-semibold transition-colors md:w-[220px] ${
+                isPending ? "cursor-not-allowed bg-sand-2 text-ink-off" : "bg-clay text-white hover:bg-clay-hover"
+              }`}
+            >
+              {isPending ? "Creating account…" : "Create Account"}
             </button>
           </div>
-          {touched && <FieldError message={fieldErrors.locationCityArea?.[0]} />}
-          {(geolocation.status === "denied" || geolocation.status === "unavailable") && (
-            <span className="flex items-start gap-1.5 rounded-sm bg-amber-tint px-2.5 py-2 text-[12px] leading-tight text-amber">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="mt-0.5 flex-none" aria-hidden="true">
-                <path d="M12 4.5 21 19.5H3L12 4.5Z" />
-                <path d="M12 10v4M12 16.8v.1" />
-              </svg>
-              We couldn&apos;t determine your location. Please select your City/Area manually.
-            </span>
-          )}
-        </div>
-
-        <h2 className="mt-2 text-[11px] font-extrabold uppercase tracking-wide text-ink-3">Health screening</h2>
-
-        <div className="flex flex-col gap-2">
-          <label className="flex items-start gap-3 rounded-sm border-[1.5px] border-line bg-cream p-3.5">
-            <input
-              type="checkbox"
-              className="mt-0.5 h-[19px] w-[19px] flex-none accent-clay"
-              checked={values.isChronicIllness ?? false}
-              onChange={(e) => setChronicIllness(e.target.checked)}
-            />
-            <span className="text-[13.5px] leading-snug text-ink">Chronic illness — diabetes, heart, kidney</span>
-          </label>
-          <label className="flex items-start gap-3 rounded-sm border-[1.5px] border-line bg-cream p-3.5">
-            <input
-              type="checkbox"
-              className="mt-0.5 h-[19px] w-[19px] flex-none accent-clay"
-              checked={values.hasRecentSurgery ?? false}
-              onChange={(e) => setRecentSurgery(e.target.checked)}
-            />
-            <span className="text-[13.5px] leading-snug text-ink">Recent surgery in the last 6 months</span>
-          </label>
-          <label className="flex items-start gap-3 rounded-sm border-[1.5px] border-line bg-cream p-3.5">
-            <input
-              type="checkbox"
-              className="mt-0.5 h-[19px] w-[19px] flex-none accent-clay"
-              checked={values.isInfectiousDisease ?? false}
-              onChange={(e) => setInfectiousDisease(e.target.checked)}
-            />
-            <span className="text-[13.5px] leading-snug text-ink">Infectious disease (HIV, Hepatitis B/C)</span>
-          </label>
-          <label className="flex items-start gap-3 rounded-sm border-[1.5px] border-line bg-cream p-3.5">
-            <input
-              type="checkbox"
-              className="mt-0.5 h-[19px] w-[19px] flex-none accent-clay"
-              checked={values.isUnderweight ?? false}
-              onChange={(e) => setUnderweight(e.target.checked)}
-            />
-            <span className="text-[13.5px] leading-snug text-ink">Currently underweight</span>
-          </label>
-          <label className="flex items-start gap-3 rounded-sm border-[1.5px] border-line bg-cream p-3.5">
-            <input
-              type="checkbox"
-              className="mt-0.5 h-[19px] w-[19px] flex-none accent-clay"
-              checked={values.isOtherIllness ?? false}
-              onChange={(e) => setOtherIllness(e.target.checked)}
-            />
-            <span className="text-[13.5px] leading-snug text-ink">Other</span>
-          </label>
-        </div>
-
-        {values.isOtherIllness && (
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="other-illness" className="text-sm font-semibold text-ink-2">
-              Specify other illness <i className="not-italic text-error">*</i>
-            </label>
-            <textarea
-              id="other-illness"
-              value={values.otherIllnessDetails ?? ""}
-              onChange={(e) => setOtherIllnessDetails(e.target.value.slice(0, MAX_OTHER_ILLNESS_LENGTH))}
-              maxLength={MAX_OTHER_ILLNESS_LENGTH}
-              placeholder="Tell us briefly"
-              aria-invalid={touched && !!fieldErrors.otherIllnessDetails}
-              className={`h-[76px] resize-y rounded-sm border-[1.5px] bg-cream px-4 py-3 text-sm leading-relaxed outline-none transition-colors focus:border-clay ${
-                touched && fieldErrors.otherIllnessDetails ? "border-error" : "border-line-strong"
-              }`}
-            />
-            <div className="text-right text-[11.5px] text-ink-3">
-              {otherIllnessLength} / {MAX_OTHER_ILLNESS_LENGTH}
-            </div>
-            {touched && <FieldError message={fieldErrors.otherIllnessDetails?.[0]} />}
-          </div>
-        )}
-
-        {isReceiverOnly ? (
-          <div className="flex gap-2.5 rounded-sm bg-clay-tint p-3.5 text-ink">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" className="flex-none" aria-hidden="true">
-              <circle cx="12" cy="12" r="8.5" />
-              <path d="M12 11v5.5M12 7.9v.1" />
-            </svg>
-            <div>
-              <b className="block text-[13px] font-bold">Receiver only</b>
-              <p className="m-0 text-[12px] leading-relaxed opacity-85">
-                Based on your screening you can request blood but not donate. You can update this later.
-              </p>
-            </div>
-          </div>
-        ) : (
-          <div className="flex gap-2.5 rounded-sm bg-leaf-tint p-3.5 text-ink">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" className="flex-none text-leaf" aria-hidden="true">
-              <circle cx="12" cy="12" r="8.5" />
-              <path d="M8.4 12.3 11 15l4.6-5.4" />
-            </svg>
-            <div>
-              <b className="block text-[13px] font-bold">Eligible donor</b>
-              <p className="m-0 text-[12px] leading-relaxed opacity-85">
-                No restrictions flagged. You&apos;ll appear in donor search results.
-              </p>
-            </div>
-          </div>
-        )}
-
-        {error && (
-          <div className="rounded-sm border border-error bg-error-tint px-4 py-3 text-sm text-error">
-            {error.message}
-          </div>
-        )}
-
-        <div className="pt-2">
-          <button
-            type="submit"
-            disabled={isPending}
-            className={`flex h-[52px] w-full items-center justify-center rounded-md text-[15px] font-semibold transition-colors ${
-              isPending ? "cursor-not-allowed bg-sand-2 text-ink-off" : "bg-clay text-white hover:bg-clay-hover"
-            }`}
-          >
-            {isPending ? "Creating account…" : "Create Account"}
-          </button>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   );
 }
