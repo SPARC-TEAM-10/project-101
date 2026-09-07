@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 
+import { AuthSplitLayout } from "../../components/AuthSplitLayout";
 import { useOtpRequest } from "../../features/auth/useOtpRequest";
 
 export function MobileEntryPage() {
@@ -27,9 +28,23 @@ export function MobileEntryPage() {
   const ctaEnabled = isValid && !isPending;
 
   return (
-    <div className="flex min-h-screen flex-col bg-sand font-sans text-ink">
-      <div className="px-7 pt-14">
-        <div className="mb-3.5 flex h-13 w-13 items-center justify-center rounded-full bg-blood text-white">
+    <AuthSplitLayout imageSrc="/images/auth-mobile-entry.png" imageAlt="">
+    <div className="relative flex min-h-screen flex-col bg-sand font-sans text-ink">
+      <a
+        href="/"
+        onClick={(e) => {
+          e.preventDefault();
+          navigate("/");
+        }}
+        className="absolute left-5 top-5 z-10 inline-flex items-center gap-1.5 text-sm font-semibold text-ink-2 underline underline-offset-2 hover:text-ink"
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="m15 18-6-6 6-6" />
+        </svg>
+        Back
+      </a>
+      <div className="px-7 pt-16">
+        <div className="mb-3.5 flex h-[52px] w-[52px] items-center justify-center rounded-full bg-blood text-white">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M12 3.2c3.4 4 6 6.9 6 10a6 6 0 0 1-12 0c0-3.1 2.6-6 6-10Z" />
           </svg>
@@ -43,16 +58,16 @@ export function MobileEntryPage() {
           We&apos;ll send a 6-digit code to verify it&apos;s you.
         </p>
 
-        <form onSubmit={handleSubmit} noValidate>
+        <form onSubmit={handleSubmit} noValidate className="max-w-[360px]">
           <div className="mb-5 flex flex-col gap-2">
             <label htmlFor="mobile-number" className="sr-only">
               Mobile number
             </label>
             <div className="relative">
               <svg
-                className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-ink-3"
-                width="20"
-                height="20"
+                className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-3"
+                width="18"
+                height="18"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -73,7 +88,7 @@ export function MobileEntryPage() {
                 onBlur={markTouched}
                 aria-invalid={showInvalid}
                 aria-describedby="mobile-number-hint"
-                className={`h-[54px] w-full rounded-sm border-[1.5px] bg-cream pl-12 pr-4 text-base text-ink transition-colors ${
+                className={`h-11 w-full rounded-sm border-[1.5px] bg-cream pl-10 pr-4 text-sm text-ink transition-colors ${
                   showInvalid
                     ? "border-error"
                     : isValid
@@ -111,7 +126,7 @@ export function MobileEntryPage() {
           <button
             type="submit"
             disabled={!ctaEnabled}
-            className={`h-[54px] w-full rounded-md text-base font-semibold transition-colors ${
+            className={`h-11 w-full rounded-md text-sm font-semibold transition-colors ${
               ctaEnabled
                 ? "bg-clay text-white hover:bg-clay-hover"
                 : "cursor-not-allowed bg-sand-2 text-ink-off"
@@ -126,5 +141,6 @@ export function MobileEntryPage() {
         By continuing you agree this device isn&apos;t shared for medical alerts.
       </div>
     </div>
+    </AuthSplitLayout>
   );
 }

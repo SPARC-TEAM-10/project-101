@@ -1,4 +1,5 @@
 import { apiFetch } from "./httpClient";
+import type { Role } from "../context/AuthProvider";
 
 export interface OtpRequestRequest {
   mobileNumber: string;
@@ -25,6 +26,9 @@ export interface OtpVerifyRequest {
 export interface OtpVerifyResponse {
   maskedMobileNumber: string;
   verifiedAtUtc: string;
+  accessToken: string;
+  tokenExpiresAtUtc: string;
+  role: Role;
 }
 
 export function verifyOtp(mobileNumber: string, otpCode: string): Promise<OtpVerifyResponse> {

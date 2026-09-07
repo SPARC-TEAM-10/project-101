@@ -84,7 +84,13 @@ Optional override from Orchestrator handoff:
    ```
    Gate: no tracked file changes (no lines starting with `M`, `A`, `D`, `R`). The branch should already be clean — source files were committed by the Coding Agent and tests by the Unittest Agent. No separate commit is made here. Untracked build/test artifacts (`TestResults/`, `coverage-report/`, `*.cobertura.xml`) are acceptable — verify they are in `.gitignore`. If any of these artifact paths are **not** in `.gitignore`, add them now: use **Edit** to append the missing patterns to the repo's `.gitignore` file, then run `git add .gitignore && git commit -m "chore: add build artifact paths to .gitignore"` before proceeding. If tracked source changes remain uncommitted, stop and ask developer to commit or stash first.
 
-   Only proceed if all three gates pass.
+   ```bash
+   git fetch origin <BaseBranch>
+   git log --oneline <BranchName>..origin/<BaseBranch>
+   ```
+   Gate: if this shows any commits, the feature branch is behind `<BaseBranch>` — even if the Coding Agent's Gate 3 already checked this earlier in the task, upstream may have moved again since. **Do not merge automatically.** Report the commits to the developer and ask: *"`<BranchName>` is `<N>` commits behind `<BaseBranch>`. Merge before I push and raise the PR?"* Only merge (`git merge origin/<BaseBranch> --no-edit` — never rebase, this repo uses merge commits) after explicit confirmation. Resolve any conflicts against the real source of truth per file, re-run the build/test suite to confirm the merge didn't break anything, then re-run this gate until it's clean before proceeding.
+
+   Only proceed if all four gates pass.
 
 5. **Invoke the GitHub PR Skill** (`.claude/skills/github-pr-skill/SKILL.md`) with:
    - `BranchName`, `BaseBranch`, `TicketId`, `Title`, `Summary`, `TestPlan`, `Coverage`, `ConfluenceUrl`

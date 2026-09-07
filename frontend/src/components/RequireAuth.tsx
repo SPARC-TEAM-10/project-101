@@ -8,12 +8,15 @@ interface RequireAuthProps {
   roles?: Role[];
 }
 
-// Not wired to any route in CHH-8 — exported for CHH-10 (Role-Based Redirection)
-// to attach to real dashboard routes once JWT/role data exists.
 export function RequireAuth({ children, roles }: RequireAuthProps) {
   const { session } = useAuth();
 
   if (!session) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // AC3 (CHH-10): a session past its 1-hour token lifetime is treated as logged-out.
+  if (new Date(session.expiresAtUtc).getTime() <= Date.now()) {
     return <Navigate to="/login" replace />;
   }
 
