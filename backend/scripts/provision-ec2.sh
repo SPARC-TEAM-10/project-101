@@ -13,17 +13,26 @@
 # exist: PostgreSQL, and a JWT signing key wired into the systemd service.
 #
 # NOT covered by this script (do manually, credentials aren't stored here):
-# the Fast2Sms WhatsApp OTP config also lives in the same systemd override
-# and was lost along with the JWT key. Get the real API key from
+# the Fast2Sms OTP config also lives in the same systemd override and was
+# lost along with the JWT key. Get the real API key from
 # https://www.fast2sms.com/ (Dev API section) and add to
 # /etc/systemd/system/chh-api.service.d/override.conf under [Service]:
 #   Environment="Fast2Sms__ApiKey=<real key from Fast2SMS dashboard>"
+#   Environment="Fast2Sms__Channel=sms"
 #   Environment="Fast2Sms__WhatsApp__PhoneNumberId=1344445125411727"
 #   Environment="Fast2Sms__WhatsApp__OtpMessageId=31541"
 #   Environment="Fast2Sms__WhatsApp__DonorRequestMessageId=31543"
 # (PhoneNumberId/message IDs are not secret -- they're the approved
 # WhatsApp template IDs tied to the "Klockk" sender +1555-399-1190 -- only
 # the ApiKey itself needs fetching fresh.)
+#
+# Channel=sms (added 2026-09-07): OTP delivery uses Fast2SMS's Quick SMS
+# route (see Fast2SmsGatewayClient) -- WhatsApp OTP delivery is blocked by
+# Meta error 131037 (display-name approval pending). Without this line the
+# app silently falls back to appsettings.json's default ("whatsapp"), which
+# is exactly how this got missed the first time -- no error, just silent
+# non-delivery. Switch back to "whatsapp" once the display-name is approved,
+# if WhatsApp delivery is preferred once it works again.
 set -euo pipefail
 
 DB_NAME="CHH"
