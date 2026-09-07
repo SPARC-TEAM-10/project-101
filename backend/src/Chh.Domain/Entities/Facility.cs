@@ -3,36 +3,45 @@ using Chh.Domain.Enums;
 namespace Chh.Domain.Entities;
 
 /// <summary>
-/// A Hospital/NGO facility registration (CHH-78/US-CHH-003-01, part of Epic CHH-77 — CHH-F03
-/// Facility Verification). A plain property bag — construction logic lives in
-/// <see cref="Chh.Application.Factories.FacilityFactory"/>, matching the pattern established for
-/// <see cref="BloodRequest"/>.
+/// A registered hospital/blood-bank or NGO facility (CHH-F03/CHH-F07). Introduced by CHH-73 for
+/// the Admin Command Center's pending-list query; CHH-78 adds the creation path. Construction
+/// logic lives in <see cref="Chh.Application.Factories.FacilityFactory"/> — upgraded from CHH-73's
+/// plain-setter design to the factory + internal-set pattern established by
+/// <see cref="BloodRequest"/>, per that entity's own doc comment inviting this once a creation
+/// flow existed.
 /// </summary>
 public class Facility
 {
     /// <summary>Surrogate primary key.</summary>
     public Guid Id { get; internal set; } = Guid.NewGuid();
 
-    /// <summary>Registered name of the hospital or NGO (AC1 mandatory field).</summary>
+    /// <summary>Registered name of the hospital or NGO (CHH-78 AC1 mandatory field).</summary>
     public string FacilityName { get; internal set; } = default!;
 
-    /// <summary>Hospital or NGO (AC1 mandatory field) — determines what the facility can publish.</summary>
+    /// <summary>Hospital or NGO (CHH-78 AC1 mandatory field) — determines what the facility can publish.</summary>
     public FacilityCategory Category { get; internal set; }
 
-    /// <summary>Operating license number, as printed on the license (AC1 mandatory field).</summary>
+    /// <summary>Operating license number, as printed on the license (CHH-78 AC1 mandatory field).</summary>
     public string LicenseNumber { get; internal set; } = default!;
 
     /// <summary>
-    /// Fixed address donors are routed to — not geocoded or tracked automatically (AC1 mandatory
-    /// field), same simplification as <see cref="IndividualProfile.LocationCityArea"/>.
+    /// Fixed address donors are routed to — not geocoded or tracked automatically (CHH-78 AC1
+    /// mandatory field), same simplification as <see cref="IndividualProfile.LocationCityArea"/>.
     /// </summary>
     public string Address { get; internal set; } = default!;
 
     /// <summary>
     /// Verification lifecycle state — <see cref="FacilityVerificationStatus.Pending"/> from creation
-    /// (AC1). Restricts high-impact features until a System Admin approves (CHH-F03 LLD §6.1).
+    /// (CHH-78 AC1). Restricts high-impact features until a System Admin approves (CHH-F03 LLD §6.1).
     /// </summary>
-    public FacilityVerificationStatus VerificationStatus { get; internal set; }
+    public FacilityVerificationStatus VerificationStatus { get; internal set; } = FacilityVerificationStatus.Pending;
+
+    /// <summary>
+    /// Blob storage reference for the uploaded license document. Null until CHH-74's upload path
+    /// populates it — CHH-78's creation endpoint never sets this, CHH-73's pending-list endpoint
+    /// never sets this either.
+    /// </summary>
+    public string? LicenseDocumentUrl { get; internal set; }
 
     /// <summary>
     /// Mobile number of the facility admin who created this registration, taken from the JWT "sub"
@@ -40,9 +49,12 @@ public class Facility
     /// </summary>
     public string CreatedByMobileNumber { get; internal set; } = default!;
 
-    /// <summary>UTC timestamp the facility was registered.</summary>
+    /// <summary>UTC timestamp the facility record was created — also serves as "Date of Registration" (CHH-73 AC1).</summary>
     public DateTimeOffset CreatedAtUtc { get; internal set; }
 
-    /// <summary>Contacts for this facility — 1 to 3, the first (lowest <see cref="FacilityContact.SortOrder"/>) is primary (AC2).</summary>
+    /// <summary>UTC timestamp of the last update (e.g. a CHH-75 approve/reject transition). Set to <see cref="CreatedAtUtc"/> on creation.</summary>
+    public DateTimeOffset UpdatedAtUtc { get; internal set; }
+
+    /// <summary>Contacts for this facility — 1 to 3, the first (lowest <see cref="FacilityContact.SortOrder"/>) is primary (CHH-78 AC2).</summary>
     public ICollection<FacilityContact> Contacts { get; internal set; } = new List<FacilityContact>();
 }

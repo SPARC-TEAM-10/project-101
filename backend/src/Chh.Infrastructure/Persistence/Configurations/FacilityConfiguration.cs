@@ -4,14 +4,15 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Chh.Infrastructure.Persistence.Configurations;
 
-/// <summary>EF Core fluent configuration for <see cref="Facility"/> (`.claude/rules/db-standards.md`, CHH-78/US-CHH-003-01).</summary>
+/// <summary>EF Core fluent configuration for <see cref="Facility"/> (`.claude/rules/db-standards.md`, CHH-73/CHH-78).</summary>
 public class FacilityConfiguration : IEntityTypeConfiguration<Facility>
 {
     private const int FacilityNameMaxLength = 200;
     private const int CategoryMaxLength = 50;
-    private const int LicenseNumberMaxLength = 50;
+    private const int LicenseNumberMaxLength = 100;
     private const int AddressMaxLength = 500;
     private const int VerificationStatusMaxLength = 50;
+    private const int LicenseDocumentUrlMaxLength = 500;
     private const int MobileNumberMaxLength = 10;
 
     /// <summary>Configures the <c>Facility</c> table mapping.</summary>
@@ -45,6 +46,9 @@ public class FacilityConfiguration : IEntityTypeConfiguration<Facility>
             .HasMaxLength(VerificationStatusMaxLength)
             .IsRequired();
 
+        builder.Property(e => e.LicenseDocumentUrl)
+            .HasMaxLength(LicenseDocumentUrlMaxLength);
+
         builder.Property(e => e.CreatedByMobileNumber)
             .HasMaxLength(MobileNumberMaxLength)
             .IsRequired();
@@ -54,9 +58,17 @@ public class FacilityConfiguration : IEntityTypeConfiguration<Facility>
         builder.Property(e => e.CreatedAtUtc)
             .IsRequired();
 
+        builder.Property(e => e.UpdatedAtUtc)
+            .IsRequired();
+
+        // Backs CHH-73's pending-list query: "facilities in this state, oldest registration first".
+        builder.HasIndex(e => new { e.VerificationStatus, e.CreatedAtUtc })
+            .HasDatabaseName("IX_Facility_VerificationStatus_CreatedAtUtc");
+
         builder.HasMany(e => e.Contacts)
             .WithOne()
             .HasForeignKey(c => c.FacilityId)
+            .HasConstraintName("FK_FacilityContact_Facility_FacilityId")
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

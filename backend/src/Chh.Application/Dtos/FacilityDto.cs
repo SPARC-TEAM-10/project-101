@@ -2,20 +2,11 @@ using Chh.Domain.Enums;
 
 namespace Chh.Application.Dtos;
 
-/// <summary>One contact entry within a <see cref="FacilityDto"/> (CHH-78/US-CHH-003-01 AC2).</summary>
-public record FacilityContactDto
-{
-    /// <summary>Contact's full name.</summary>
-    public required string Name { get; init; }
-
-    /// <summary>Contact's role at the facility.</summary>
-    public required string Designation { get; init; }
-
-    /// <summary>Contact's mobile number.</summary>
-    public required string Mobile { get; init; }
-}
-
-/// <summary>Response body for <c>POST /api/v1/facilities</c> (CHH-78/US-CHH-003-01). Never the raw <c>Facility</c> entity (db-standards.md §2b).</summary>
+/// <summary>
+/// Response body for <c>POST /api/v1/facilities</c> (CHH-78/US-CHH-003-01) and response item for
+/// <c>GET /api/v1/admin/facilities/pending</c> (CHH-73). Never the raw <c>Facility</c> entity
+/// (db-standards.md §2b).
+/// </summary>
 public record FacilityDto
 {
     /// <summary>Surrogate primary key.</summary>
@@ -36,9 +27,12 @@ public record FacilityDto
     /// <summary>This facility's contacts, in <c>SortOrder</c> — the first is primary.</summary>
     public required IReadOnlyList<FacilityContactDto> Contacts { get; init; }
 
-    /// <summary>Lifecycle state — "Pending" immediately after creation (AC1).</summary>
+    /// <summary>Verification lifecycle state — "Pending" immediately after creation (CHH-78 AC1).</summary>
     public required FacilityVerificationStatus VerificationStatus { get; init; }
 
-    /// <summary>UTC timestamp the facility was registered.</summary>
+    /// <summary>Blob storage reference for the uploaded license document; null until CHH-74's upload path populates it.</summary>
+    public string? LicenseDocumentUrl { get; init; }
+
+    /// <summary>UTC timestamp the facility record was created — also serves as "Date of Registration" (CHH-73 AC1).</summary>
     public required DateTimeOffset CreatedAtUtc { get; init; }
 }

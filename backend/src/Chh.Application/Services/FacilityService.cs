@@ -45,6 +45,7 @@ public class FacilityService : IFacilityService
                 })
                 .ToList(),
             VerificationStatus = facility.VerificationStatus,
+            LicenseDocumentUrl = facility.LicenseDocumentUrl,
             CreatedAtUtc = facility.CreatedAtUtc
         };
     }

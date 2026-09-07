@@ -1,18 +1,14 @@
 namespace Chh.Domain.Enums;
 
-/// <summary>
-/// Verification lifecycle state of a <c>Facility</c> (CHH-F03). Only <see cref="Pending"/> is set
-/// by this story (CHH-78 AC1) — the transition to <see cref="Approved"/>/<see cref="Rejected"/>
-/// belongs to the admin verification story (CHH-28), not this one.
-/// </summary>
+/// <summary>Facility verification lifecycle state (CHH-F03/CHH-F07). Only <see cref="Pending"/> is set by CHH-78 (AC1) — the transition to <see cref="Verified"/>/<see cref="Rejected"/> belongs to the admin verification stories (CHH-75), not this one.</summary>
 public enum FacilityVerificationStatus
 {
-    /// <summary>Submitted, awaiting System Admin review — restricts high-impact features (LLD §6.1).</summary>
+    /// <summary>Awaiting System Admin review — the default state on registration; restricts high-impact features (CHH-F03 LLD §6.1).</summary>
     Pending = 1,
 
-    /// <summary>Verified by a System Admin — full feature access.</summary>
-    Approved = 2,
+    /// <summary>Approved by a System Admin (CHH-75 AC1).</summary>
+    Verified = 2,
 
-    /// <summary>Rejected by a System Admin — may resubmit corrected information.</summary>
+    /// <summary>Rejected by a System Admin, with a mandatory reason (CHH-75 AC2) — may resubmit corrected information.</summary>
     Rejected = 3
 }

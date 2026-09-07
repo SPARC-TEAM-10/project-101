@@ -16,6 +16,13 @@ tags:
     description: Individual user registration (CHH-F02)
   - name: BloodRequests
     description: Blood requests with proximity search radius (CHH-F04, Epic CHH-25)
+  - name: Admin
+    description: >
+      System Admin moderation endpoints (CHH-F07 Admin Command Center, Epic
+      CHH-72). Interim admin identity: mobile numbers whose
+      IndividualProfile.IsAdmin flag is set are issued the "SystemAdmin" role
+      on OTP verification — see the CHH-F07 LLD "Cross-cutting decisions" for why.
+      Real Role/RoleId-based authorization (PRD §4) is future scope.
 paths:
   /auth/otp/request:
     post:
@@ -241,6 +248,49 @@ paths:
                 $ref: "#/components/schemas/ProblemDetails"
         "401":
           description: Missing or invalid JWT.
+  /admin/facilities/pending:
+    get:
+      tags:
+        - Admin
+      summary: List facilities pending verification
+      description: >
+        Returns facilities with `verificationStatus = Pending`, ordered by
+        registration date, for the System Admin's "Pending Verification" tab
+        (CHH-73/US-CHH-001-01 AC1). An empty result is a normal `200` with an
+        empty `items` array — the "No pending verifications at this time"
+        message (AC2) is a frontend concern, not a distinct API shape.
+      operationId: listPendingFacilities
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        "200":
+          description: Page of pending facilities.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PagedResponseOfFacilityDto"
+        "401":
+          description: Missing or invalid JWT.
+        "403":
+          description: Authenticated caller does not carry the SystemAdmin role.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
 components:
   securitySchemes:
     bearerAuth:
@@ -513,14 +563,17 @@ components:
           description: createdAtUtc plus the 6-hour validity window.
     FacilityCategory:
       type: string
-      description: Type of facility registering on the platform.
+      description: >
+        Type of facility registering on the platform. Wire value is "NGO"
+        (not "Ngo") to match the frontend's already-shipped FACILITY_CATEGORIES
+        constant.
       enum: ["Hospital", "NGO"]
     FacilityVerificationStatus:
       type: string
       description: >
-        Only "Pending" is set on creation (AC1). "Approved"/"Rejected" are
-        set by the admin verification story later in this epic (CHH-28).
-      enum: ["Pending", "Approved", "Rejected"]
+        Only "Pending" is set on creation (CHH-78 AC1). "Verified"/"Rejected"
+        are set by the admin verification story (CHH-75).
+      enum: ["Pending", "Verified", "Rejected"]
     CreateFacilityContactRequest:
       type: object
       required:
@@ -574,6 +627,7 @@ components:
           type: string
         mobile:
           type: string
+          pattern: "^[0-9]{10}$"
     FacilityDto:
       type: object
       required:
@@ -603,9 +657,36 @@ components:
             $ref: "#/components/schemas/FacilityContactDto"
         verificationStatus:
           $ref: "#/components/schemas/FacilityVerificationStatus"
+        licenseDocumentUrl:
+          type: string
+          nullable: true
+          description: Blob storage reference; populated by CHH-74's upload path, null until then.
         createdAtUtc:
           type: string
           format: date-time
+          description: Also serves as "Date of Registration" (CHH-73 AC1).
+    PagedResponseOfFacilityDto:
+      type: object
+      description: >
+        Generic paging envelope (DOTNET-RULES §12) — this is the first
+        paginated list endpoint in the contract; later list endpoints should
+        follow the same `items`/`totalCount`/`page`/`pageSize` shape.
+      required:
+        - items
+        - totalCount
+        - page
+        - pageSize
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/FacilityDto"
+        totalCount:
+          type: integer
+        page:
+          type: integer
+        pageSize:
+          type: integer
     ProblemDetails:
       type: object
       description: RFC 7807 problem details.

@@ -26,7 +26,8 @@ public static class FacilityFactory
             Address = request.Address.Trim(),
             VerificationStatus = FacilityVerificationStatus.Pending,
             CreatedByMobileNumber = createdByMobileNumber,
-            CreatedAtUtc = createdAtUtc
+            CreatedAtUtc = createdAtUtc,
+            UpdatedAtUtc = createdAtUtc
         };
 
         var sortOrder = 1;

@@ -22,7 +22,7 @@ public class OtpService : IOtpService
     /// <summary>Creates the service with its repository, SMS gateway, JWT, unit-of-work, and logger dependencies.</summary>
     /// <param name="otpRequestRepository">Data layer for reading and persisting OTP requests.</param>
     /// <param name="smsGatewayClient">Gateway used to dispatch the generated OTP code.</param>
-    /// <param name="individualProfileRepository">Used to resolve the role claim (Individual vs. Guest) on verify.</param>
+    /// <param name="individualProfileRepository">Used to resolve the role claim (SystemAdmin/Individual/Guest) on verify.</param>
     /// <param name="jwtTokenGenerator">Issues the access token returned on successful verification.</param>
     /// <param name="unitOfWork">Persists changes made during the request.</param>
     /// <param name="logger">Logger for dispatch-failure diagnostics.</param>
@@ -116,7 +116,12 @@ public class OtpService : IOtpService
         var profile = await _individualProfileRepository
             .GetByMobileNumberAsync(request.MobileNumber, ct)
             .ConfigureAwait(false);
-        var role = profile is not null ? RoleConstants.Individual : RoleConstants.Guest;
+        var role = profile switch
+        {
+            { IsAdmin: true } => RoleConstants.SystemAdmin,
+            not null => RoleConstants.Individual,
+            null => RoleConstants.Guest
+        };
 
         var (accessToken, tokenExpiresAtUtc) = _jwtTokenGenerator.GenerateToken(request.MobileNumber, role);
 
