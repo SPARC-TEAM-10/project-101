@@ -1,8 +1,9 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
 
-// Matches backend/src/Chh.Domain/Constants/RoleConstants.cs — Hospital/NGO/Admin aren't
-// resolvable yet (no Facility/Admin entities exist), so those roles aren't issued.
-export type Role = "Individual" | "Guest";
+// Matches backend/src/Chh.Domain/Constants/RoleConstants.cs (CHH-10) — all five roles are
+// resolvable: Individual/SystemAdmin via IndividualProfile, Hospital/Ngo via FacilityContact,
+// otherwise Guest.
+export type Role = "Individual" | "Guest" | "Hospital" | "Ngo" | "SystemAdmin";
 
 export interface AuthSession {
   token: string;

@@ -16,8 +16,9 @@ export function RequireAuth({ children, roles }: RequireAuthProps) {
   }
 
   // AC3 (CHH-10): a session past its 24-hour token lifetime is treated as logged-out.
+  // Expiry is never silent (design standard) — MobileEntryPage reads this reason to show why.
   if (new Date(session.expiresAtUtc).getTime() <= Date.now()) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" replace state={{ reason: "session-expired" }} />;
   }
 
   if (roles && !roles.includes(session.role)) {

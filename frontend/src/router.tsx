@@ -10,6 +10,9 @@ import { BloodRequestFormModal } from "./pages/bloodRequest/BloodRequestFormModa
 import { FacilityRegistrationPage } from "./pages/facility/FacilityRegistrationPage";
 import { IndividualDashboardStubPage } from "./pages/dashboard/IndividualDashboardStubPage";
 import { GuestDashboardStubPage } from "./pages/dashboard/GuestDashboardStubPage";
+import { HospitalDashboardStubPage } from "./pages/dashboard/HospitalDashboardStubPage";
+import { NgoDashboardStubPage } from "./pages/dashboard/NgoDashboardStubPage";
+import { AdminDashboardStubPage } from "./pages/dashboard/AdminDashboardStubPage";
 
 export const router = createBrowserRouter([
   { path: "/", element: <LandingPage /> },
@@ -29,6 +32,30 @@ export const router = createBrowserRouter([
     element: (
       <RequireAuth roles={["Guest"]}>
         <GuestDashboardStubPage />
+      </RequireAuth>
+    ),
+  },
+  {
+    path: "/dashboard/hospital",
+    element: (
+      <RequireAuth roles={["Hospital"]}>
+        <HospitalDashboardStubPage />
+      </RequireAuth>
+    ),
+  },
+  {
+    path: "/dashboard/ngo",
+    element: (
+      <RequireAuth roles={["Ngo"]}>
+        <NgoDashboardStubPage />
+      </RequireAuth>
+    ),
+  },
+  {
+    path: "/dashboard/admin",
+    element: (
+      <RequireAuth roles={["SystemAdmin"]}>
+        <AdminDashboardStubPage />
       </RequireAuth>
     ),
   },

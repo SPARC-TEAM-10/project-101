@@ -1,10 +1,12 @@
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { AuthSplitLayout } from "../../components/AuthSplitLayout";
 import { useOtpRequest } from "../../features/auth/useOtpRequest";
 
 export function MobileEntryPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const sessionExpired = (location.state as { reason?: string } | null)?.reason === "session-expired";
   const { mobileNumber, setMobileNumber, isValid, touched, markTouched, submit, isPending, error } =
     useOtpRequest();
 
@@ -53,6 +55,23 @@ export function MobileEntryPage() {
       </div>
 
       <div className="flex flex-1 flex-col justify-center px-7">
+        {sessionExpired && (
+          <div
+            role="alert"
+            tabIndex={-1}
+            ref={(el) => el?.focus()}
+            className="mb-6 flex max-w-[460px] items-start gap-3 rounded-md bg-amber-tint px-4 py-3 text-amber"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="mt-0.5 flex-none">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M12 7.5V12l3 2" />
+            </svg>
+            <div>
+              <b className="mb-0.5 block text-sm font-bold">Your session has ended</b>
+              <p className="text-sm text-ink-2">Sessions stay active for 24 hours. Enter your mobile number to sign in again.</p>
+            </div>
+          </div>
+        )}
         <h1 className="mb-2 text-[26px] font-extrabold tracking-tight">Enter your mobile number</h1>
         <p className="mb-8 max-w-[30ch] text-[14.5px] leading-relaxed text-ink-2">
           We&apos;ll send a 6-digit code to verify it&apos;s you.
