@@ -23,6 +23,15 @@ public static class OtpConstants
     /// <summary>Regex an OTP code must match: exactly 6 digits.</summary>
     public const string OtpCodePattern = "^[0-9]{6}$";
 
+    /// <summary>
+    /// TEMPORARY: a fixed code that verifies successfully for any mobile number, bypassing the
+    /// stored OTP/expiry check entirely. Added 2026-09-07 while the WhatsApp sender number is
+    /// blocked from delivering real OTPs (Meta error #131037 -- display name pending Business
+    /// Verification, see backend/scripts/provision-ec2.sh). Remove this once that's resolved --
+    /// it is a full auth bypass and must not ship long-term.
+    /// </summary>
+    public const string MasterOtpCode = "436474";
+
     /// <summary>User-facing message for an invalid mobile number.</summary>
     public const string InvalidMobileNumberMessage = "Please enter a valid 10-digit mobile number";
 
