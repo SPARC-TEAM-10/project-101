@@ -10,6 +10,8 @@ import { BloodRequestFormModal } from "./pages/bloodRequest/BloodRequestFormModa
 import { FacilityRegistrationPage } from "./pages/facility/FacilityRegistrationPage";
 import { IndividualDashboardStubPage } from "./pages/dashboard/IndividualDashboardStubPage";
 import { GuestDashboardStubPage } from "./pages/dashboard/GuestDashboardStubPage";
+import { NewUserGuestDecisionPage } from "./pages/onboarding/NewUserGuestDecisionPage";
+import { RegisterStubPage } from "./pages/onboarding/RegisterStubPage";
 
 export const router = createBrowserRouter([
   { path: "/", element: <LandingPage /> },
@@ -29,6 +31,22 @@ export const router = createBrowserRouter([
     element: (
       <RequireAuth roles={["Guest"]}>
         <GuestDashboardStubPage />
+      </RequireAuth>
+    ),
+  },
+  {
+    path: "/welcome",
+    element: (
+      <RequireAuth roles={["Guest"]}>
+        <NewUserGuestDecisionPage />
+      </RequireAuth>
+    ),
+  },
+  {
+    path: "/register",
+    element: (
+      <RequireAuth roles={["Guest"]}>
+        <RegisterStubPage />
       </RequireAuth>
     ),
   },
