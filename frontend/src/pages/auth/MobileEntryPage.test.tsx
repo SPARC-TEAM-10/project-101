@@ -12,13 +12,13 @@ import {
   validationErrorHandler,
 } from "../../../tests/msw/handlers";
 
-function renderPage() {
+function renderPage(locationState?: Record<string, unknown>) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   });
   return render(
     <QueryClientProvider client={queryClient}>
-      <MemoryRouter initialEntries={["/login"]}>
+      <MemoryRouter initialEntries={[{ pathname: "/login", state: locationState }]}>
         <Routes>
           <Route path="/login" element={<MobileEntryPage />} />
           <Route path="/otp-verify" element={<div>OTP Verify Screen</div>} />
@@ -127,5 +127,24 @@ describe("MobileEntryPage", () => {
     const input = screen.getByLabelText(/mobile number/i);
     expect(input).toBeVisible();
     expect(input.tagName).toBe("INPUT");
+  });
+
+  it("shows a persistent session-ended alert when arriving with a session-expired reason (CHH-10)", () => {
+    renderPage({ reason: "session-expired" });
+
+    expect(screen.getByRole("alert")).toHaveTextContent("Your session has ended");
+    expect(screen.getByText(/sessions stay active for 24 hours/i)).toBeInTheDocument();
+  });
+
+  it("does not show the session-ended alert on a normal visit", () => {
+    renderPage();
+
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
+  it("does not show the session-ended alert for an unrelated navigation reason", () => {
+    renderPage({ reason: "something-else" });
+
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 });

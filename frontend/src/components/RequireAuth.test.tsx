@@ -1,9 +1,20 @@
 import { render, screen } from "@testing-library/react";
-import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
 import { RequireAuth } from "./RequireAuth";
 import type { AuthSession, Role } from "../context/AuthProvider";
+
+function LoginScreenWithReason() {
+  const location = useLocation();
+  const reason = (location.state as { reason?: string } | null)?.reason;
+  return (
+    <div>
+      Login Screen
+      {reason && <span>reason: {reason}</span>}
+    </div>
+  );
+}
 
 const FUTURE = new Date(Date.now() + 60 * 60 * 1000).toISOString();
 const mockUseAuth = vi.fn();
@@ -30,7 +41,7 @@ function renderProtected(session: AuthSession | null, roles?: Role[]) {
             </RequireAuth>
           }
         />
-        <Route path="/login" element={<div>Login Screen</div>} />
+        <Route path="/login" element={<LoginScreenWithReason />} />
       </Routes>
     </MemoryRouter>,
   );
@@ -68,6 +79,19 @@ describe("RequireAuth", () => {
 
     expect(screen.getByText("Login Screen")).toBeInTheDocument();
     expect(screen.queryByText("Protected content")).not.toBeInTheDocument();
+  });
+
+  it("passes a session-expired reason via navigation state when the session has expired (CHH-10)", () => {
+    const past = new Date(Date.now() - 1000).toISOString();
+    renderProtected({ token: "t", role: "Individual", expiresAtUtc: past });
+
+    expect(screen.getByText("reason: session-expired")).toBeInTheDocument();
+  });
+
+  it("does not set a session-expired reason when redirecting for a missing session", () => {
+    renderProtected(null);
+
+    expect(screen.queryByText(/^reason:/)).not.toBeInTheDocument();
   });
 
   it("renders children when the session has not yet expired and the role matches", () => {
