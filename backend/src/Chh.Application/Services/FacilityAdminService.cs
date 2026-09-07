@@ -1,6 +1,6 @@
-using Chh.Application.Constants;
 using Chh.Application.Contracts;
 using Chh.Application.Dtos;
+using Chh.Domain.Constants;
 using Chh.Domain.Enums;
 
 namespace Chh.Application.Services;
@@ -21,7 +21,9 @@ public class FacilityAdminService : IFacilityAdminService
     public async Task<PagedResponse<FacilityDto>> GetPendingFacilitiesAsync(int page, int pageSize, CancellationToken ct)
     {
         var normalizedPage = page < 1 ? 1 : page;
-        var normalizedPageSize = pageSize < 1 ? PaginationConstants.DefaultPageSize : Math.Min(pageSize, PaginationConstants.MaxPageSize);
+        var normalizedPageSize = pageSize < 1
+            ? PaginationConstants.DefaultPageSize
+            : Math.Min(pageSize, PaginationConstants.MaxPageSize);
 
         var (facilities, totalCount) = await _facilityRepository
             .GetByStatusAsync(FacilityVerificationStatus.Pending, normalizedPage, normalizedPageSize, ct)

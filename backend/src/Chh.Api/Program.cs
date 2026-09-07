@@ -23,14 +23,12 @@ builder.Host.UseSerilog((context, services, configuration) => configuration
 // ProblemDetailsServiceCollectionExtensions, not here.
 builder.Services.AddChhProblemDetails(builder.Environment);
 
-// Every controller gets the "api/v1" prefix (api-standards.md §1 URL versioning) — declared once
-// here instead of repeated on each controller. Each controller states its own resource segment(s)
-// explicitly via its own [Route(...)] (e.g. AuthController's "auth/otp", AdminFacilitiesController's
-// "admin/facilities") — see RoutePrefixConvention's doc comment for why this isn't derived from the
-// controller's class name via a "[controller]" token.
+// Every controller gets the "api/v1/[controller]" route (api-standards.md §1 URL versioning),
+// kebab-cased (e.g. BloodRequestsController -> "api/v1/blood-requests") — declared once here
+// instead of a [Route] attribute repeated on each controller.
 builder.Services.AddControllers(options =>
 {
-    options.Conventions.Add(new RoutePrefixConvention("api/v1"));
+    options.Conventions.Add(new RoutePrefixConvention("api/v1/[controller]"));
     options.Conventions.Add(new RouteTokenTransformerConvention(new KebabCaseParameterTransformer()));
     // Runs FluentValidation and throws ChhValidationException (-> 422) on failure — see
     // FluentValidationActionFilter for why this replaces FluentValidation.AspNetCore's

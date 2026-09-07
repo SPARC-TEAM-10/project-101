@@ -16,10 +16,11 @@ public static class RoleConstants
 
     /// <summary>
     /// Role gating the CHH-F07 Admin Command Center endpoints (facility verification, user
-    /// suspension). Assigned to a mobile number whose <see cref="Chh.Domain.Entities.IndividualProfile.IsAdmin"/>
-    /// flag is set (see <c>OtpService.VerifyOtpAsync</c>) — that flag has no self-service way to
-    /// become <c>true</c> yet, so granting it is a manual, out-of-band DB operation until a proper
-    /// admin-management endpoint exists.
+    /// suspension). Assigned to any mobile number with an active <c>AdminUser.IsAdmin</c> grant
+    /// (see <c>IAdminUserRepository</c>, checked in <c>OtpService.VerifyOtpAsync</c>) — not yet
+    /// full Role/RoleId-based authorization (PRD §4 Role & Permission Matrix), but data-driven
+    /// rather than a compiled-in mobile number (PR #18 review feedback superseded the earlier
+    /// <c>AdminMobileNumber</c> constant this class used to carry).
     /// </summary>
     public const string SystemAdmin = "SystemAdmin";
 }

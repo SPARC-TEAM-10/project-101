@@ -64,12 +64,4 @@ public class IndividualProfile
 
     /// <summary>UTC timestamp the profile was created.</summary>
     public DateTimeOffset CreatedAtUtc { get; internal set; }
-
-    /// <summary>
-    /// Grants the CHH-F07 Admin Command Center's <see cref="Chh.Domain.Constants.RoleConstants.SystemAdmin"/>
-    /// role on OTP verification (<c>OtpService.VerifyOtpAsync</c>). Defaults <c>false</c> — never
-    /// set from a self-service registration request; flipping it is an out-of-band operation
-    /// (direct DB access) until a proper admin-management endpoint exists.
-    /// </summary>
-    public bool IsAdmin { get; internal set; }
 }

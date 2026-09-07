@@ -6,9 +6,17 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Chh.Api.Controllers;
 
-/// <summary>Individual registration endpoints (CHH-F02). "api/v1" comes from the global convention in <c>Program.cs</c>; "individuals" is this controller's own route.</summary>
+/// <summary>
+/// Individual registration endpoints (CHH-F02). The "api/v1/individuals" route is applied
+/// globally in <c>Program.cs</c>. The empty <see cref="RouteAttribute"/> below isn't a no-op:
+/// <c>[ApiController]</c> requires every action to be attribute-routed *before*
+/// <c>RoutePrefixConvention</c> (a controller-model convention) ever runs, so without a real
+/// attribute here — even an empty one — a bare <c>[HttpPost]</c> below would fail that check
+/// despite the convention supplying a route a moment later. AuthController doesn't need this
+/// because its own <c>[Route("otp")]</c> already satisfies it.
+/// </summary>
 [ApiController]
-[Route("individuals")]
+[Route("")]
 public class IndividualsController : ControllerBase
 {
     private const string RouteName = "RegisterIndividual";
