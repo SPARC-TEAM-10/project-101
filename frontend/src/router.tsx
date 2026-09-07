@@ -11,6 +11,7 @@ import { FacilityRegistrationPage } from "./pages/facility/FacilityRegistrationP
 import { IndividualDashboardStubPage } from "./pages/dashboard/IndividualDashboardStubPage";
 import { GuestDashboardStubPage } from "./pages/dashboard/GuestDashboardStubPage";
 import { NewUserGuestDecisionPage } from "./pages/onboarding/NewUserGuestDecisionPage";
+import { RoleSelectionPage } from "./pages/onboarding/RoleSelectionPage";
 import { RegisterStubPage } from "./pages/onboarding/RegisterStubPage";
 
 export const router = createBrowserRouter([
@@ -44,6 +45,14 @@ export const router = createBrowserRouter([
   },
   {
     path: "/register",
+    element: (
+      <RequireAuth roles={["Guest"]}>
+        <RoleSelectionPage />
+      </RequireAuth>
+    ),
+  },
+  {
+    path: "/register/individual",
     element: (
       <RequireAuth roles={["Guest"]}>
         <RegisterStubPage />

@@ -1,6 +1,7 @@
 // Placeholder for the real CHH-F02 individual registration form — a future ticket.
 // The backend endpoint (POST /individuals) already exists; only the frontend form is pending.
-// Reachable only via RequireAuth roles={["Guest"]} (see router.tsx).
+// Reached via /register/individual, after RoleSelectionPage — guarded by
+// RequireAuth roles={["Guest"]} (see router.tsx).
 export function RegisterStubPage() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-2 bg-sand px-7 font-sans text-ink">
