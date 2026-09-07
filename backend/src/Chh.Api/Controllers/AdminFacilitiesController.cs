@@ -7,16 +7,13 @@ using Microsoft.AspNetCore.Mvc;
 namespace Chh.Api.Controllers;
 
 /// <summary>
-/// System Admin facility moderation endpoints (CHH-F07 Admin Command Center, Epic CHH-72). The
-/// route is an absolute override (<c>~/</c>) rather than the global "api/v1/[controller]"
-/// convention — <c>RoutePrefixConvention</c> would kebab-case this controller's name to
-/// "admin-facilities", but the contract (`contracts/chh-api.v1.yaml`) documents
-/// "admin/facilities/..." as two segments, matching CHH-76's future sibling
-/// "admin/users/...". See <c>Chh.Api.Routing.RoutePrefixConvention</c>'s doc comment for how the
-/// convention normally applies.
+/// System Admin facility moderation endpoints (CHH-F07 Admin Command Center, Epic CHH-72).
+/// "api/v1" comes from the global convention in <c>Program.cs</c>; "admin/facilities" is this
+/// controller's own route, matching the contract (`contracts/chh-api.v1.yaml`)'s two-segment
+/// path and CHH-76's future sibling "admin/users/...".
 /// </summary>
 [ApiController]
-[Route("~/api/v1/admin/facilities")]
+[Route("admin/facilities")]
 [Authorize(Roles = RoleConstants.SystemAdmin)]
 public class AdminFacilitiesController : ControllerBase
 {

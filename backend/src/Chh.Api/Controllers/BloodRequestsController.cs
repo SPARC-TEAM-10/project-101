@@ -9,10 +9,11 @@ namespace Chh.Api.Controllers;
 
 /// <summary>
 /// Blood request endpoints (CHH-33/US-CHH-004-01, part of Epic CHH-25 — CHH-F04 Proximity
-/// Notifications). The "api/v1/blood-requests" route is applied globally in <c>Program.cs</c>.
+/// Notifications). "api/v1" comes from the global convention in <c>Program.cs</c>;
+/// "blood-requests" is this controller's own route.
 /// </summary>
 [ApiController]
-[Route("")]
+[Route("blood-requests")]
 [Authorize]
 public class BloodRequestsController : ControllerBase
 {

@@ -16,20 +16,10 @@ public static class RoleConstants
 
     /// <summary>
     /// Role gating the CHH-F07 Admin Command Center endpoints (facility verification, user
-    /// suspension). Assigned via <see cref="AdminMobileNumber"/> below — see that constant's doc
-    /// comment for why.
+    /// suspension). Assigned to a mobile number whose <see cref="Chh.Domain.Entities.IndividualProfile.IsAdmin"/>
+    /// flag is set (see <c>OtpService.VerifyOtpAsync</c>) — that flag has no self-service way to
+    /// become <c>true</c> yet, so granting it is a manual, out-of-band DB operation until a proper
+    /// admin-management endpoint exists.
     /// </summary>
     public const string SystemAdmin = "SystemAdmin";
-
-    /// <summary>
-    /// INTERIM SHORTCUT (CHH-F07, added 2026-09-07, by explicit user decision): the mobile number
-    /// treated as the System Admin identity. No Role/RoleId or User-with-IsActive infrastructure
-    /// exists in this backend yet, so real PRD §4 role-based authorization isn't buildable today —
-    /// this hardcoded number is the interim mechanism for the whole CHH-F07 epic (CHH-73/74/75/76).
-    /// A mobile number that verifies OTP with this value is issued <see cref="SystemAdmin"/>
-    /// instead of the usual Guest/Individual resolution (see <c>OtpService.VerifyOtpAsync</c>).
-    /// Documented in the CHH-F07 LLD's "Cross-cutting decisions" — proper RBAC is future scope and
-    /// should replace this constant, not extend it.
-    /// </summary>
-    public const string AdminMobileNumber = "7907468509";
 }

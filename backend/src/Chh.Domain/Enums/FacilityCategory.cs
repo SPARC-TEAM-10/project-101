@@ -4,8 +4,8 @@ namespace Chh.Domain.Enums;
 public enum FacilityCategory
 {
     /// <summary>Hospital or blood bank.</summary>
-    Hospital,
+    Hospital = 1,
 
     /// <summary>Non-governmental organization.</summary>
-    Ngo
+    Ngo = 2
 }

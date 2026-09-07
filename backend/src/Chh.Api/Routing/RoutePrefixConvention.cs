@@ -4,14 +4,25 @@ using Microsoft.AspNetCore.Mvc.ApplicationModels;
 namespace Chh.Api.Routing;
 
 /// <summary>
-/// Prepends a fixed route template (e.g. <c>api/v1/[controller]</c>) to every controller's route,
-/// so the version prefix is declared once — in <c>Program.cs</c> — instead of on a <c>[Route]</c>
-/// attribute repeated by each controller (api-standards.md §1 URL versioning). The <c>[controller]</c>
-/// token is resolved per-controller same as it would be on a class-level <c>[Route]</c> attribute.
-/// Combined with <see cref="KebabCaseParameterTransformer"/>, a controller named e.g.
-/// <c>BloodRequestsController</c> resolves to <c>api/v1/blood-requests</c> with no route
-/// attribute of its own.
+/// Prepends a fixed route template (currently just <c>api/v1</c>) to every controller's route, so
+/// the version prefix is declared once — in <c>Program.cs</c> — instead of on a <c>[Route]</c>
+/// attribute repeated by each controller (api-standards.md §1 URL versioning).
 /// </summary>
+/// <remarks>
+/// Deliberately does NOT also derive the resource segment from the controller's class name via a
+/// <c>[controller]</c> token (an earlier version of this prefix was <c>api/v1/[controller]</c>).
+/// That worked for resources whose kebab-cased class name happened to match the desired URL
+/// (<c>IndividualsController</c> -&gt; "individuals"), but breaks for anything that doesn't —
+/// <c>AdminFacilitiesController</c> needs the two-segment <c>admin/facilities</c>, not the
+/// single kebab-cased segment <c>admin-facilities</c> the token would have produced, and
+/// <c>[controller]</c> combines with a controller's *own* <c>[Route]</c> rather than being
+/// replaced by it, so simply overriding won't help — the two would concatenate into nonsense.
+/// Every controller now states its resource path explicitly via its own <c>[Route(...)]</c>
+/// (e.g. <c>[Route("auth/otp")]</c>, <c>[Route("admin/facilities")]</c>), combined with this
+/// convention's "api/v1" the normal way <c>[Route]</c> attributes combine with an outer prefix.
+/// <see cref="KebabCaseParameterTransformer"/> still applies to whatever tokens a controller's own
+/// route does use, if any.
+/// </remarks>
 public class RoutePrefixConvention : IControllerModelConvention
 {
     private readonly AttributeRouteModel _prefix;
