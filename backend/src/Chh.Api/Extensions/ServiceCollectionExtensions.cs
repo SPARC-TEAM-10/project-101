@@ -38,6 +38,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IIndividualProfileService, IndividualProfileService>();
         services.AddScoped<IBloodRequestRepository, BloodRequestRepository>();
         services.AddScoped<IBloodRequestService, BloodRequestService>();
+        services.AddScoped<IFacilityRepository, FacilityRepository>();
+        services.AddScoped<IFacilityAdminService, FacilityAdminService>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         services.AddFast2Sms(configuration);
