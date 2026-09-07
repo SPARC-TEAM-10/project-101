@@ -7,6 +7,7 @@ import { OtpVerificationPage } from "./pages/auth/OtpVerificationPage";
 import { RoleRedirectPage } from "./pages/auth/RoleRedirectPage";
 import { GuestPlaceholderPage } from "./pages/GuestPlaceholderPage";
 import { BloodRequestFormModal } from "./pages/bloodRequest/BloodRequestFormModal";
+import { FacilityRegistrationPage } from "./pages/facility/FacilityRegistrationPage";
 import { IndividualDashboardStubPage } from "./pages/dashboard/IndividualDashboardStubPage";
 import { GuestDashboardStubPage } from "./pages/dashboard/GuestDashboardStubPage";
 
@@ -32,6 +33,9 @@ export const router = createBrowserRouter([
     ),
   },
   { path: "/guest", element: <GuestPlaceholderPage /> },
+  // Unguarded for now — Hospital/NGO role isn't issued yet, see AuthProvider.tsx and
+  // CHH-78's Implementation Plan §8 for the tracked follow-up to add a real RequireAuth gate.
+  { path: "/facility/register", element: <FacilityRegistrationPage /> },
   {
     path: "/blood-requests/new",
     element: (

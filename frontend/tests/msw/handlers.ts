@@ -112,6 +112,40 @@ export const createBloodRequestUnauthorizedHandler = http.post(BLOOD_REQUESTS_UR
   return new HttpResponse(null, { status: 401 });
 });
 
+export const FACILITIES_URL = "/api/v1/facilities";
+
+export const createFacilitySuccessHandler = http.post(FACILITIES_URL, async ({ request }) => {
+  const body = (await request.json()) as Record<string, unknown>;
+  return HttpResponse.json(
+    {
+      id: "22222222-2222-2222-2222-222222222222",
+      facilityName: body.facilityName,
+      category: body.category,
+      licenseNumber: body.licenseNumber,
+      address: body.address,
+      contacts: body.contacts,
+      verificationStatus: "Pending",
+      createdAtUtc: "2026-09-07T00:00:00.000Z",
+    },
+    { status: 201 },
+  );
+});
+
+export const createFacilityValidationErrorHandler = http.post(FACILITIES_URL, () => {
+  return HttpResponse.json(
+    {
+      title: "Validation failed",
+      status: 422,
+      detail: "Licence number can contain letters, numbers and hyphens only.",
+    },
+    { status: 422 },
+  );
+});
+
+export const createFacilityNetworkErrorHandler = http.post(FACILITIES_URL, () => {
+  return HttpResponse.error();
+});
+
 export const nominatimReverseGeocodeHandler = http.get(
   "https://nominatim.openstreetmap.org/reverse",
   () => HttpResponse.json({ address: { city: "Kochi", postcode: "682017" } }),
@@ -121,5 +155,6 @@ export const handlers = [
   successHandler,
   verifySuccessHandler,
   createBloodRequestSuccessHandler,
+  createFacilitySuccessHandler,
   nominatimReverseGeocodeHandler,
 ];
