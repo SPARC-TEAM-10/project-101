@@ -271,7 +271,10 @@ components:
         tokenExpiresAtUtc:
           type: string
           format: date-time
-          description: UTC expiry of accessToken (1 hour from issuance per CHH-F01 AC3).
+          description: >
+            UTC expiry of accessToken (24 hours from issuance — widened from
+            the original CHH-F01 AC3 1-hour value by explicit product
+            decision, 2026-09-07).
         role:
           type: string
           description: >

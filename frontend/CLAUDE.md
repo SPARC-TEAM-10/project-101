@@ -46,7 +46,7 @@ Example: `https://experionglobal.atlassian.net/browse/CHH-8` (this ticket has a 
 | Styling | Tailwind CSS (mobile-first utility classes — fits the PRD's mobile-first requirement and needs no separate design-token setup while `needs-design` tickets are still pending real UI designs) |
 | Component library | None locked — plain components for now. PRD §Questions notes design tokens are still TBC; revisit once real designs land. |
 | HTTP client | `fetch` via a thin typed wrapper per API resource (see Application Code Structure) — generate types from `contracts/chh-api.v1.yaml` if/when an OpenAPI-to-TS generator is added |
-| Auth | JWT stored in memory (React context) + `httpOnly` refresh mechanism if added later — never `localStorage` for the access token (XSS exposure); 1-hour session per CHH-F01 AC3 |
+| Auth | JWT stored in `localStorage` via `AuthProvider` (`context/AuthProvider.tsx`), so a page refresh doesn't drop the session — reversed from an earlier "in-memory only" decision by explicit product choice, 2026-09-07 (see that file's doc comment for the XSS-tradeoff reasoning); 24-hour session (widened from CHH-F01 AC3's original 1-hour value) |
 | Testing | Vitest + React Testing Library + `@testing-library/user-event`; MSW (Mock Service Worker) to mock the backend contract in tests |
 | Linter/Formatter | ESLint + Prettier |
 | Build Tool | Vite (`vite build`, `vite preview`) |
