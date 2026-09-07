@@ -90,6 +90,18 @@ git show-ref --verify --quiet refs/heads/<BranchName> \
   || git checkout -b <BranchName>
 ```
 
+**Step 2a — If the branch already existed (checked out, not newly created), bring it up to date with `<BaseBranch>` before any coding starts:**
+
+A brand-new branch already forks from the just-pulled `<BaseBranch>` (Step 1), so it's current by construction. A resumed branch is not — it may be stale relative to `<BaseBranch>` regardless of how long ago it was created or whether it's already been pushed.
+
+```bash
+git fetch origin <BaseBranch>
+git log --oneline <BranchName>..origin/<BaseBranch>
+```
+
+- No output → branch is current, proceed to Step 3.
+- Output present → the branch is behind. **Do not merge automatically.** Report the commits shown to the user/Orchestrator and ask for confirmation before merging, e.g.: *"`<BranchName>` is `<N>` commits behind `<BaseBranch>` (newest: `<short summary>`). Merge `<BaseBranch>` in before continuing?"* Only run `git merge origin/<BaseBranch> --no-edit` after explicit confirmation — never rebase (this repo's convention is merge commits, e.g. PR #10/#11). If the merge produces conflicts, resolve them against the actual source of truth for each conflicting file (check history/mockup/contract, don't default to "ours" or "theirs") before proceeding to Step 3.
+
 **Step 3 — Verify the active branch is the feature branch (hard gate):**
 
 ```bash
