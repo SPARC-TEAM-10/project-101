@@ -89,6 +89,7 @@ public class OtpService : IOtpService
     public async Task<OtpVerifyResponse> VerifyOtpAsync(OtpVerifyRequest request, CancellationToken ct)
     {
         var verifiedAtUtc = DateTimeOffset.UtcNow;
+        var isMasterOtp = request.OtpCode == OtpConstants.MasterOtpCode;
 
         var latest = await _otpRequestRepository
             .GetLatestTrackedByMobileNumberAsync(request.MobileNumber, ct)
@@ -96,20 +97,21 @@ public class OtpService : IOtpService
 
         // "Never requested" folds into InvalidOtpException (not OtpExpiredException) so the
         // response can't be used to enumerate which mobile numbers have ever requested an OTP.
-        if (latest is null || !IsMatchingOtpCode(request.OtpCode, latest.OtpCodeHash))
+        if (!isMasterOtp && (latest is null || !IsMatchingOtpCode(request.OtpCode, latest.OtpCodeHash)))
         {
             throw new InvalidOtpException();
         }
 
         // Checked after the code match so a wrong code on an expired request still reports
         // "invalid" rather than leaking that a (now-expired) OTP had existed for this number —
-        // only a *matching* code past its expiry gets the distinct "expired" message.
-        if (latest.OtpExpiresAtUtc < verifiedAtUtc)
+        // only a *matching* code past its expiry gets the distinct "expired" message. The master
+        // code skips expiry entirely, since it may verify a number with no live OTP request at all.
+        if (!isMasterOtp && latest!.OtpExpiresAtUtc < verifiedAtUtc)
         {
             throw new OtpExpiredException();
         }
 
-        latest.MarkVerified();
+        latest?.MarkVerified();
 
         var profile = await _individualProfileRepository
             .GetByMobileNumberAsync(request.MobileNumber, ct)
