@@ -327,8 +327,11 @@ components:
           description: >
             Role assigned for this session (PRD §4 Role & Permission Matrix).
             "Individual" if a completed registration exists for this mobile
-            number, otherwise "Guest".
-          enum: ["Guest", "Individual"]
+            number; "Hospital"/"Ngo" if the number matches a facility contact
+            (CHH-73, regardless of the facility's verification status);
+            "SystemAdmin" if the individual profile's IsAdmin flag is set;
+            otherwise "Guest".
+          enum: ["Guest", "Individual", "Hospital", "Ngo", "SystemAdmin"]
     BloodGroup:
       type: string
       description: Clinical blood group notation.

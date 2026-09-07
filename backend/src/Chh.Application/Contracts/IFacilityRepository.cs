@@ -17,4 +17,14 @@ public interface IFacilityRepository
     /// <param name="ct">Cancellation token.</param>
     Task<(IReadOnlyList<Facility> Items, int TotalCount)> GetByStatusAsync(
         FacilityVerificationStatus status, int page, int pageSize, CancellationToken ct);
+
+    /// <summary>
+    /// Returns the facility one of whose contacts has <paramref name="mobileNumber"/>, or
+    /// <c>null</c> if no contact matches. Matches regardless of <see cref="Facility.VerificationStatus"/>
+    /// (CHH-10 — role resolution is not gated on verification). Read-only — implementations must
+    /// use <c>AsNoTracking()</c> (api-standards.md §6).
+    /// </summary>
+    /// <param name="mobileNumber">10-digit mobile number to match against <see cref="FacilityContact.Mobile"/>.</param>
+    /// <param name="ct">Cancellation token.</param>
+    Task<Facility?> GetByContactMobileNumberAsync(string mobileNumber, CancellationToken ct);
 }
