@@ -69,4 +69,50 @@ public class BloodRequestServiceTests
         captured.Should().NotBeNull();
         captured!.RequesterMobileNumber.Should().Be(RequesterMobileNumber);
     }
+
+    [Fact]
+    public async Task GetMyRequestsAsync_ReturnsPagedResultForRequester()
+    {
+        var created = DateTimeOffset.UtcNow;
+        var requests = new List<BloodRequest>
+        {
+            new()
+            {
+                RequesterMobileNumber = RequesterMobileNumber,
+                PatientName = "Jane Doe",
+                BloodGroup = BloodGroup.OPositive,
+                UnitsRequired = 1,
+                LocationCityArea = "Kochi",
+                Latitude = 9.9312m,
+                Longitude = 76.2673m,
+                SearchRadiusKm = 10,
+                Urgency = UrgencyLevel.Emergency,
+                Status = BloodRequestStatus.Matching,
+                CreatedAtUtc = created,
+                ExpiresAtUtc = created.AddHours(6)
+            }
+        };
+        _bloodRequestRepository
+            .Setup(r => r.GetByRequesterAsync(RequesterMobileNumber, 1, 20, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((requests, 1));
+
+        var result = await _sut.GetMyRequestsAsync(RequesterMobileNumber, 1, 20, CancellationToken.None);
+
+        result.Items.Should().HaveCount(1);
+        result.TotalCount.Should().Be(1);
+        result.Items[0].PatientName.Should().Be("Jane Doe");
+    }
+
+    [Fact]
+    public async Task GetMyRequestsAsync_NoRequests_ReturnsEmptyPageWithoutThrowing()
+    {
+        _bloodRequestRepository
+            .Setup(r => r.GetByRequesterAsync(RequesterMobileNumber, 1, 20, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((new List<BloodRequest>(), 0));
+
+        var result = await _sut.GetMyRequestsAsync(RequesterMobileNumber, 1, 20, CancellationToken.None);
+
+        result.Items.Should().BeEmpty();
+        result.TotalCount.Should().Be(0);
+    }
 }

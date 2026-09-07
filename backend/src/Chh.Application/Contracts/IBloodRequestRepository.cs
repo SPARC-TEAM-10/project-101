@@ -9,4 +9,16 @@ public interface IBloodRequestRepository
     /// <param name="bloodRequest">The blood request to add.</param>
     /// <param name="ct">Cancellation token.</param>
     Task AddAsync(BloodRequest bloodRequest, CancellationToken ct);
+
+    /// <summary>
+    /// Returns one page of blood requests created by <paramref name="requesterMobileNumber"/>,
+    /// ordered by <c>CreatedAtUtc</c> descending (newest first — CHH-81 Individual Dashboard),
+    /// plus the total matching count. Read-only — <c>AsNoTracking()</c> (api-standards.md §6).
+    /// </summary>
+    /// <param name="requesterMobileNumber">The requester's mobile number, from the JWT.</param>
+    /// <param name="page">1-based page number.</param>
+    /// <param name="pageSize">Number of items per page.</param>
+    /// <param name="ct">Cancellation token.</param>
+    Task<(IReadOnlyList<BloodRequest> Items, int TotalCount)> GetByRequesterAsync(
+        string requesterMobileNumber, int page, int pageSize, CancellationToken ct);
 }
