@@ -117,38 +117,39 @@ export function LandingPage() {
   return (
     <div className="landing-page min-h-screen bg-sand font-sans text-ink">
       <header className="sticky top-0 z-40 border-b border-line bg-cream/90 backdrop-blur">
-        <div className="mx-auto flex max-w-[1180px] items-center justify-between gap-4 px-6 py-3.5">
-          <span className="flex items-center gap-2.5 text-[16.5px] font-extrabold tracking-tight text-ink">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blood text-white">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <div className="mx-auto flex max-w-[1180px] items-center justify-between gap-2 px-4 py-3 sm:gap-4 md:px-12 md:py-4">
+          <span className="flex min-w-0 items-center gap-1.5 whitespace-nowrap text-[13px] font-extrabold tracking-tight text-ink sm:gap-2.5 sm:text-[16.5px]">
+            <span className="flex h-7 w-7 flex-none items-center justify-center rounded-full bg-blood text-white sm:h-8 sm:w-8">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className="sm:h-4 sm:w-4">
                 <path d="M12 3.2c3.4 4 6 6.9 6 10a6 6 0 0 1-12 0c0-3.1 2.6-6 6-10Z" />
               </svg>
             </span>
             Community Health Hub
           </span>
-          <div className="flex items-center gap-2.5">
+          <div className="flex flex-none items-center gap-1.5 sm:gap-2.5">
             <button
               type="button"
               onClick={() => navigate("/login")}
-              className="h-10 rounded-sm border-[1.5px] border-line-strong px-4.5 text-sm font-bold text-ink transition-colors hover:bg-sand-2"
+              className="h-8 whitespace-nowrap rounded-sm border-[1.5px] border-line-strong px-2.5 text-xs font-bold text-ink transition-colors hover:bg-sand-2 sm:h-10 sm:px-[18px] sm:text-sm"
             >
               Log in
             </button>
             <button
               type="button"
               onClick={() => navigate("/guest")}
-              className="h-10 rounded-sm bg-clay px-4.5 text-sm font-bold text-white transition-colors hover:bg-clay-hover"
+              className="h-8 whitespace-nowrap rounded-sm bg-clay px-2.5 text-xs font-bold text-white transition-colors hover:bg-clay-hover sm:h-10 sm:px-[18px] sm:text-sm"
             >
-              Continue as Guest
+              <span className="sm:hidden">Guest</span>
+              <span className="hidden sm:inline">Continue as Guest</span>
             </button>
           </div>
         </div>
       </header>
 
       <main>
-        <section className="px-6 pt-8">
+        <section className="px-6 pb-6 pt-8 md:pb-8">
           <div className="mx-auto max-w-[1180px] overflow-hidden rounded-xl border border-line shadow-[var(--e3)] md:flex md:min-h-[460px]">
-            <div className="flex w-full flex-none flex-col items-center bg-cream px-6 py-12 text-center md:w-[400px] md:justify-center md:border-r md:border-line">
+            <div className="flex w-full flex-none flex-col items-center bg-cream px-8 py-12 text-center md:w-[400px] md:justify-center md:border-r md:border-line">
               <div className="mb-4 flex h-20 w-20 items-center justify-center">
                 <span className="flex h-[52px] w-[52px] items-center justify-center rounded-full bg-blood text-white shadow-[var(--e1)]">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -163,9 +164,9 @@ export function LandingPage() {
 
               <div className="mt-6 flex w-full items-center justify-center gap-6">
                 <StatCounter value={STATS[0].value} suffix={STATS[0].suffix} label={STATS[0].label} />
-                <span className="h-6.5 w-px bg-line-strong" />
+                <span className="h-[26px] w-px bg-line-strong" />
                 <StatCounter value={STATS[1].value} suffix={STATS[1].suffix} label={STATS[1].label} />
-                <span className="h-6.5 w-px bg-line-strong" />
+                <span className="h-[26px] w-px bg-line-strong" />
                 <div className="flex flex-col items-center gap-0.5">
                   <b className="text-xl font-extrabold tracking-tight text-ink [font-variant-numeric:tabular-nums]">
                     &lt;90s
@@ -197,7 +198,7 @@ export function LandingPage() {
                 <div
                   key={slide.key}
                   aria-hidden={i !== activeSlide}
-                  className={`flex h-full flex-col items-center gap-4 p-6 text-center transition-opacity duration-500 md:flex-row md:items-center md:gap-6 md:p-12 md:text-left ${
+                  className={`flex h-full flex-col items-center gap-4 px-6 pb-12 pt-8 text-center transition-opacity duration-500 md:flex-row md:items-center md:gap-8 md:px-12 md:py-8 md:text-left ${
                     i === activeSlide ? "opacity-100" : "pointer-events-none absolute inset-0 opacity-0"
                   }`}
                 >
@@ -312,8 +313,8 @@ export function LandingPage() {
             </div>
 
             <div className="grid gap-6 md:grid-cols-3">
-              <div className="rounded-lg border border-line bg-cream p-6 shadow-[var(--e1)] transition-shadow hover:shadow-[var(--e2)]">
-                <div className="mb-5 flex h-[52px] w-[52px] items-center justify-center rounded-md bg-blood-tint text-blood-deep">
+              <div className="rounded-lg border border-line bg-cream px-6 py-8 shadow-[var(--e1)] transition-shadow hover:shadow-[var(--e2)]">
+                <div className="mb-6 flex h-[52px] w-[52px] items-center justify-center rounded-md bg-blood-tint text-blood-deep">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round">
                     <path d="M12 3.2c3.4 4 6 6.9 6 10a6 6 0 0 1-12 0c0-3.1 2.6-6 6-10Z" />
                   </svg>
@@ -325,8 +326,8 @@ export function LandingPage() {
                 </p>
               </div>
 
-              <div className="rounded-lg border border-line bg-cream p-6 shadow-[var(--e1)] transition-shadow hover:shadow-[var(--e2)]">
-                <div className="mb-5 flex h-[52px] w-[52px] items-center justify-center rounded-md bg-clay-tint text-clay">
+              <div className="rounded-lg border border-line bg-cream px-6 py-8 shadow-[var(--e1)] transition-shadow hover:shadow-[var(--e2)]">
+                <div className="mb-6 flex h-[52px] w-[52px] items-center justify-center rounded-md bg-clay-tint text-clay">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round">
                     <path d="M4 20.5V8.2l8-4.7 8 4.7v12.3" />
                     <path d="M9.5 20.5v-5h5v5M12 9v4M10 11h4" />
@@ -339,8 +340,8 @@ export function LandingPage() {
                 </p>
               </div>
 
-              <div className="rounded-lg border border-line bg-cream p-6 shadow-[var(--e1)] transition-shadow hover:shadow-[var(--e2)]">
-                <div className="mb-5 flex h-[52px] w-[52px] items-center justify-center rounded-md bg-leaf-tint text-leaf">
+              <div className="rounded-lg border border-line bg-cream px-6 py-8 shadow-[var(--e1)] transition-shadow hover:shadow-[var(--e2)]">
+                <div className="mb-6 flex h-[52px] w-[52px] items-center justify-center rounded-md bg-leaf-tint text-leaf">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round">
                     <path d="M12 21s7-5.4 7-11a7 7 0 1 0-14 0c0 5.6 7 11 7 11Z" />
                     <circle cx="12" cy="10" r="2.6" />
