@@ -50,7 +50,7 @@ builder.Services.AddHealthChecks();
 // Application/Infrastructure service registration (CHH-8/CHH-9/CHH-F02: ChhDbContext,
 // repositories, services, SMS gateway client, FluentValidation, JWT issuance + Bearer
 // authentication scheme — see ServiceCollectionExtensions.AddJwt).
-builder.Services.AddInfrastructureServices(builder.Configuration);
+builder.Services.AddInfrastructureServices(builder.Configuration, builder.Environment);
 
 var app = builder.Build();
 

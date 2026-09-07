@@ -1,5 +1,6 @@
 using Chh.Application.Contracts;
 using Chh.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Chh.Infrastructure.Persistence.Repositories;
 
@@ -18,4 +19,11 @@ public class BloodRequestRepository : IBloodRequestRepository
     /// <inheritdoc />
     public async Task AddAsync(BloodRequest bloodRequest, CancellationToken ct) =>
         await _context.BloodRequests.AddAsync(bloodRequest, ct).ConfigureAwait(false);
+
+    /// <inheritdoc />
+    public async Task<BloodRequest?> GetByIdAsync(Guid id, CancellationToken ct) =>
+        await _context.BloodRequests
+            .AsNoTracking()
+            .FirstOrDefaultAsync(r => r.Id == id, ct)
+            .ConfigureAwait(false);
 }

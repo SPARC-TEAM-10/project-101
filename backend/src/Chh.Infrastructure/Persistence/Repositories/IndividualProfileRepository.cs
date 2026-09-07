@@ -1,5 +1,6 @@
 using Chh.Application.Contracts;
 using Chh.Domain.Entities;
+using Chh.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace Chh.Infrastructure.Persistence.Repositories;
@@ -26,4 +27,16 @@ public class IndividualProfileRepository : IIndividualProfileRepository
     /// <inheritdoc />
     public async Task AddAsync(IndividualProfile individualProfile, CancellationToken ct) =>
         await _context.IndividualProfiles.AddAsync(individualProfile, ct).ConfigureAwait(false);
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<IndividualProfile>> GetActiveDonorsByBloodGroupsAsync(IReadOnlySet<BloodGroup> bloodGroups, CancellationToken ct) =>
+        await _context.IndividualProfiles
+            .AsNoTracking()
+            .Where(p => bloodGroups.Contains(p.BloodGroup)
+                && p.AccountStatus == AccountStatus.Active
+                && !p.IsReceiverOnly
+                && p.Latitude != null
+                && p.Longitude != null)
+            .ToListAsync(ct)
+            .ConfigureAwait(false);
 }
