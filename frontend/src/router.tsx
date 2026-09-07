@@ -10,6 +10,7 @@ import { BloodRequestFormModal } from "./pages/bloodRequest/BloodRequestFormModa
 import { FacilityRegistrationPage } from "./pages/facility/FacilityRegistrationPage";
 import { IndividualDashboardStubPage } from "./pages/dashboard/IndividualDashboardStubPage";
 import { GuestDashboardStubPage } from "./pages/dashboard/GuestDashboardStubPage";
+import { PendingVerificationsPage } from "./pages/admin/PendingVerificationsPage";
 
 export const router = createBrowserRouter([
   { path: "/", element: <LandingPage /> },
@@ -33,6 +34,14 @@ export const router = createBrowserRouter([
     ),
   },
   { path: "/guest", element: <GuestPlaceholderPage /> },
+  {
+    path: "/admin",
+    element: (
+      <RequireAuth roles={["SystemAdmin"]}>
+        <PendingVerificationsPage />
+      </RequireAuth>
+    ),
+  },
   // Unguarded for now — Hospital/NGO role isn't issued yet, see AuthProvider.tsx and
   // CHH-78's Implementation Plan §8 for the tracked follow-up to add a real RequireAuth gate.
   { path: "/facility/register", element: <FacilityRegistrationPage /> },

@@ -5,11 +5,12 @@ import { useAuth } from "../../context/AuthProvider";
 const DASHBOARD_ROUTE_BY_ROLE = {
   Individual: "/dashboard/individual",
   Guest: "/dashboard/guest",
+  SystemAdmin: "/admin",
 } as const;
 
 // Brief "Verifying..." transition (CHH-10 UI Notes) between OTP verification and the
-// role-appropriate dashboard. Hospital/NGO/Admin aren't resolvable yet (see AuthProvider's
-// Role type) so only Individual/Guest are routed here.
+// role-appropriate dashboard. Hospital/NGO aren't resolvable yet (see AuthProvider's Role
+// type); SystemAdmin (CHH-73, the CHH-F07 interim shortcut) routes to the Admin Command Center.
 export function RoleRedirectPage() {
   const { session } = useAuth();
 

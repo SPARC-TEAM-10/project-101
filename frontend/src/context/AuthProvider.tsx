@@ -1,8 +1,9 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
 
-// Matches backend/src/Chh.Domain/Constants/RoleConstants.cs — Hospital/NGO/Admin aren't
-// resolvable yet (no Facility/Admin entities exist), so those roles aren't issued.
-export type Role = "Individual" | "Guest";
+// Matches backend/src/Chh.Domain/Constants/RoleConstants.cs — Hospital/NGO aren't resolvable
+// yet (no Facility-owner account concept exists), so those two roles aren't issued. SystemAdmin
+// is issued via the CHH-F07 interim shortcut (a hardcoded mobile number) — see RoleConstants.cs.
+export type Role = "Individual" | "Guest" | "SystemAdmin";
 
 export interface AuthSession {
   token: string;

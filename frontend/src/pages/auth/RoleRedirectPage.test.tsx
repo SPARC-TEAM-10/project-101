@@ -25,6 +25,7 @@ function renderWithSession(session: AuthSession | null) {
         <Route path="/login" element={<div>Login Screen</div>} />
         <Route path="/dashboard/individual" element={<div>Individual Dashboard</div>} />
         <Route path="/dashboard/guest" element={<div>Guest Dashboard</div>} />
+        <Route path="/admin" element={<div>Admin Command Center</div>} />
       </Routes>
     </MemoryRouter>,
   );
@@ -47,5 +48,11 @@ describe("RoleRedirectPage", () => {
     renderWithSession({ token: "t", role: "Guest", expiresAtUtc: "2099-01-01T00:00:00.000Z" });
 
     expect(screen.getByText("Guest Dashboard")).toBeInTheDocument();
+  });
+
+  it("redirects to /admin for a SystemAdmin role (CHH-73)", () => {
+    renderWithSession({ token: "t", role: "SystemAdmin", expiresAtUtc: "2099-01-01T00:00:00.000Z" });
+
+    expect(screen.getByText("Admin Command Center")).toBeInTheDocument();
   });
 });
