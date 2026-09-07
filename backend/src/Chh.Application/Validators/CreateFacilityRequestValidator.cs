@@ -55,7 +55,7 @@ public class CreateFacilityRequestValidator : AbstractValidator<CreateFacilityRe
         RuleFor(x => x.Contacts)
             .NotEmpty().WithMessage("At least one contact is required.")
             .Must(contacts => contacts.Count <= FacilityConstants.MaxContacts)
-            .WithMessage($"Three contacts is the maximum.")
+            .WithMessage(FacilityConstants.TooManyContactsMessage)
             .Must(HaveNoDuplicateMobiles)
             .WithMessage(FacilityConstants.DuplicateContactMobileMessage);
 
