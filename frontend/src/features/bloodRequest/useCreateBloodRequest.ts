@@ -11,7 +11,7 @@ import {
   type CreateBloodRequestFormValues,
   type UrgencyLevel,
 } from "../../lib/validation/bloodRequestSchemas";
-import { useGeolocation } from "./useGeolocation";
+import { useGeolocation } from "../shared/useGeolocation";
 
 export interface BloodRequestFormError {
   status: number | null;

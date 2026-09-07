@@ -151,10 +151,51 @@ export const nominatimReverseGeocodeHandler = http.get(
   () => HttpResponse.json({ address: { city: "Kochi", postcode: "682017" } }),
 );
 
+export const INDIVIDUALS_URL = "/api/v1/individuals";
+
+export const registerIndividualSuccessHandler = http.post(INDIVIDUALS_URL, async ({ request }) => {
+  const body = (await request.json()) as Record<string, unknown>;
+  return HttpResponse.json(
+    {
+      id: "33333333-3333-3333-3333-333333333333",
+      fullName: body.fullName,
+      bloodGroup: body.bloodGroup,
+      isReceiverOnly: Boolean(
+        body.isChronicIllness || body.hasRecentSurgery || body.isInfectiousDisease || body.isUnderweight || body.isOtherIllness,
+      ),
+      createdAtUtc: "2026-09-08T00:00:00.000Z",
+    },
+    { status: 201 },
+  );
+});
+
+export const registerIndividualValidationErrorHandler = http.post(INDIVIDUALS_URL, () => {
+  return HttpResponse.json(
+    {
+      title: "Validation failed",
+      status: 422,
+      detail: "You must be 18 or older to register.",
+    },
+    { status: 422 },
+  );
+});
+
+export const registerIndividualConflictHandler = http.post(INDIVIDUALS_URL, () => {
+  return HttpResponse.json(
+    {
+      title: "Conflict",
+      status: 409,
+      detail: "An individual profile already exists for this mobile number.",
+    },
+    { status: 409 },
+  );
+});
+
 export const handlers = [
   successHandler,
   verifySuccessHandler,
   createBloodRequestSuccessHandler,
   createFacilitySuccessHandler,
   nominatimReverseGeocodeHandler,
+  registerIndividualSuccessHandler,
 ];
