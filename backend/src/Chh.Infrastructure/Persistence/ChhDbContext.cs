@@ -24,6 +24,9 @@ public class ChhDbContext : DbContext
     /// <summary>Individual registration profiles (CHH-F02).</summary>
     public DbSet<IndividualProfile> IndividualProfiles { get; set; } = default!;
 
+    /// <summary>Blood requests with a search radius for proximity donor matching (CHH-33/US-CHH-004-01).</summary>
+    public DbSet<BloodRequest> BloodRequests { get; set; } = default!;
+
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

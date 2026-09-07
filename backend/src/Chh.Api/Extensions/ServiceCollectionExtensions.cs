@@ -36,6 +36,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IOtpService, OtpService>();
         services.AddScoped<IIndividualProfileRepository, IndividualProfileRepository>();
         services.AddScoped<IIndividualProfileService, IndividualProfileService>();
+        services.AddScoped<IBloodRequestRepository, BloodRequestRepository>();
+        services.AddScoped<IBloodRequestService, BloodRequestService>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         services.AddFast2Sms(configuration);
