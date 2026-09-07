@@ -86,7 +86,7 @@ export function FacilityWizard() {
         <div className="w-full max-w-2xl px-4 pb-3 pt-3.5 md:px-8">
           <div className="mb-2 flex items-baseline justify-between">
             <span className="text-sm font-bold">{meta.title}</span>
-            <span className="font-variant-numeric-tabular text-xs text-ink-3">Step {meta.no} of 2</span>
+            <span className="text-xs text-ink-3 [font-variant-numeric:tabular-nums]">Step {meta.no} of 2</span>
           </div>
           <div className="h-1.5 overflow-hidden rounded-full bg-sand-2">
             <div
@@ -115,15 +115,18 @@ export function FacilityWizard() {
                 onChange={(e) => setDetailsField("facilityName", e.target.value)}
                 placeholder="Registered name of the hospital or NGO"
                 aria-invalid={showDetailsErrors && !!detailsErrors.facilityName}
+                aria-describedby="facility-name-hint"
                 className={`h-[50px] rounded-sm border-[1.5px] bg-cream px-4 text-base outline-none transition-colors focus:border-clay ${
                   showDetailsErrors && detailsErrors.facilityName ? "border-error" : "border-line-strong"
                 }`}
               />
-              {showDetailsErrors && detailsErrors.facilityName ? (
-                <FieldError message={detailsErrors.facilityName[0]} />
-              ) : (
-                <Hint>Required. Use the name printed on your licence — an admin checks the two match.</Hint>
-              )}
+              <span id="facility-name-hint">
+                {showDetailsErrors && detailsErrors.facilityName ? (
+                  <FieldError message={detailsErrors.facilityName[0]} />
+                ) : (
+                  <Hint>Required. Use the name printed on your licence — an admin checks the two match.</Hint>
+                )}
+              </span>
             </div>
 
             <div className="flex flex-col gap-1.5">
@@ -135,6 +138,7 @@ export function FacilityWizard() {
                 value={details.category ?? ""}
                 onChange={(e) => setDetailsField("category", e.target.value as FacilityCategory)}
                 aria-invalid={showDetailsErrors && !!detailsErrors.category}
+                aria-describedby="facility-category-hint"
                 className={`h-[50px] rounded-sm border-[1.5px] bg-cream px-4 text-base outline-none transition-colors focus:border-clay ${
                   showDetailsErrors && detailsErrors.category ? "border-error" : "border-line-strong"
                 }`}
@@ -148,11 +152,13 @@ export function FacilityWizard() {
                   </option>
                 ))}
               </select>
-              {showDetailsErrors && detailsErrors.category ? (
-                <FieldError message={detailsErrors.category[0]} />
-              ) : (
-                <Hint>Required. This sets what your facility can publish.</Hint>
-              )}
+              <span id="facility-category-hint">
+                {showDetailsErrors && detailsErrors.category ? (
+                  <FieldError message={detailsErrors.category[0]} />
+                ) : (
+                  <Hint>Required. This sets what your facility can publish.</Hint>
+                )}
+              </span>
             </div>
 
             <div className="flex flex-col gap-1.5">
@@ -166,15 +172,18 @@ export function FacilityWizard() {
                 onChange={(e) => setDetailsField("licenseNumber", e.target.value)}
                 placeholder="KL-HOSP-000000"
                 aria-invalid={showDetailsErrors && !!detailsErrors.licenseNumber}
+                aria-describedby="license-number-hint"
                 className={`h-[50px] rounded-sm border-[1.5px] bg-cream px-4 font-mono text-base outline-none transition-colors focus:border-clay ${
                   showDetailsErrors && detailsErrors.licenseNumber ? "border-error" : "border-line-strong"
                 }`}
               />
-              {showDetailsErrors && detailsErrors.licenseNumber ? (
-                <FieldError message={detailsErrors.licenseNumber[0]} />
-              ) : (
-                <Hint>Required. Letters and numbers, as printed on the licence.</Hint>
-              )}
+              <span id="license-number-hint">
+                {showDetailsErrors && detailsErrors.licenseNumber ? (
+                  <FieldError message={detailsErrors.licenseNumber[0]} />
+                ) : (
+                  <Hint>Required. Letters and numbers, as printed on the licence.</Hint>
+                )}
+              </span>
             </div>
 
             <div className="flex flex-col gap-1.5">
@@ -187,15 +196,18 @@ export function FacilityWizard() {
                 onChange={(e) => setDetailsField("address", e.target.value)}
                 placeholder="Building, street, area, city, PIN code"
                 aria-invalid={showDetailsErrors && !!detailsErrors.address}
+                aria-describedby="facility-address-hint"
                 className={`h-[88px] resize-y rounded-sm border-[1.5px] bg-cream px-4 py-3 text-base leading-relaxed outline-none transition-colors focus:border-clay ${
                   showDetailsErrors && detailsErrors.address ? "border-error" : "border-line-strong"
                 }`}
               />
-              {showDetailsErrors && detailsErrors.address ? (
-                <FieldError message={detailsErrors.address[0]} />
-              ) : (
-                <Hint>Required. This is the fixed address donors are routed to — it is not tracked or updated automatically.</Hint>
-              )}
+              <span id="facility-address-hint">
+                {showDetailsErrors && detailsErrors.address ? (
+                  <FieldError message={detailsErrors.address[0]} />
+                ) : (
+                  <Hint>Required. This is the fixed address donors are routed to — it is not tracked or updated automatically.</Hint>
+                )}
+              </span>
             </div>
 
             <div className="flex justify-end pt-2">
