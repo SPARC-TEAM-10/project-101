@@ -105,5 +105,10 @@ public static class IndividualProfileConfiguration
 
         builder.Property(e => e.CreatedAtUtc)
             .IsRequired();
+
+        // Operational flag, not PII/health data — unencrypted, matching IsReceiverOnly above.
+        builder.Property(e => e.IsAdmin)
+            .HasDefaultValue(false)
+            .IsRequired();
     }
 }

@@ -19,9 +19,19 @@ Use clean architecture with four projects:
 
 **Layer isolation rule:** `Controller` → `IService` → `IRepository`. No layer may skip the one below it. Controllers never reference `DbContext` or repository types directly.
 
+**Enums:** assign explicit values starting at `1` (`Pending = 1, Approved = 2, ...`), never leave them implicit from `0`. Reserving `0` avoids an uninitialized/default field silently reading as a valid, meaningful member, and keeps stored values stable if members are reordered later.
+
+**Shared constants** (pagination defaults, size limits — anything reusable outside one specific service) belong in `[Project].Domain/Constants/`, not `[Project].Application/Constants/`. Reserve an Application-layer `Constants/` folder only for values intrinsically tied to orchestration logic in that layer.
+
 ---
 
 ## 2. Controller Standards
+
+> **CHH override:** this project does not repeat `[Route("api/v.../[controller]")]`
+> on every controller — a single `RoutePrefixConvention` in `Program.cs`
+> applies it to all of them, and controller class names must be chosen to
+> match the intended URL segment. See `.claude/rules/api-standards.md` §1
+> "Routing Implementation" before adding or renaming a controller.
 
 - Inherit from `ControllerBase` (not `Controller` — no Razor views in API projects)
 - Decorate with `[ApiController]` and `[Route("api/v{version:apiVersion}/[controller]")]`

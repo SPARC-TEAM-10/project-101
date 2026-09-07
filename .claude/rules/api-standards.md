@@ -34,9 +34,35 @@
 
 > Exact resource names above are illustrative — the real set of resources
 > is whatever exists in `contracts/chh-api.v1.yaml` (see §3). Don't add a
-> resource here that isn't in the contract yet. Known CHH-F01 endpoints
-> (already scoped in the Jira task breakdown, still to be added to the
-> contract): `POST /api/v1/auth/otp/request`, `POST /api/v1/auth/otp/verify`.
+> resource here that isn't in the contract yet.
+
+### Routing Implementation (ASP.NET Core convention — hard)
+
+The `api/v1` prefix and the `[controller]` → route-segment resolution are
+**not** repeated on every controller via its own `[Route("api/v1/...")]`
+(that's the DOTNET-RULES §2 generic template — CHH overrides it). Instead:
+
+- `Program.cs` registers `RoutePrefixConvention("api/v1/[controller]")`
+  **once**, combined with a kebab-case `RouteTokenTransformerConvention`.
+  Every controller inherits `api/v1/<kebab-cased-class-name>` for free.
+- `[controller]` resolves from the **controller's class name** — name the
+  controller so its kebab-cased name IS the desired top-level resource
+  segment (`AdminController` → `admin`, not `AdminFacilitiesController` →
+  `admin-facilities`). A controller needing an extra path segment adds its
+  own `[Route("segment")]`, which the convention combines with the global
+  prefix rather than replaces it (`AdminController` + `[Route("facilities")]`
+  → `api/v1/admin/facilities`; `AuthController` + `[Route("otp")]` →
+  `api/v1/auth/otp`). **Never** rename a controller class to force a URL —
+  that breaks the `[controller]` token and silently produces the wrong or
+  duplicated path instead of a build error.
+- **Gotcha:** `[ApiController]`'s "must be attribute-routed" validation runs
+  *before* `IControllerModelConvention`s (including `RoutePrefixConvention`)
+  are applied. A controller with `[ApiController]` and no route template of
+  its own anywhere (no class-level `[Route]`, no per-action `[Http*("...")]`
+  template) fails that validation even though the global convention would
+  otherwise supply one at model-build time. Every controller needs at least
+  one attribute-route token on itself, even if it's just the resource
+  segment via `[Route("...")]`.
 
 ### Statelessness
 Every request must contain all information needed to process it. Session
@@ -112,6 +138,21 @@ if (app.Environment.IsDevelopment())
   only endpoints that may carry `[AllowAnonymous]` — every other endpoint
   requires a valid JWT, down to Guest-tier read endpoints (Guest still
   authenticates via OTP per PRD §3, it just gets a limited-permission role).
+
+### Interim SystemAdmin Identity (CHH-F07, until real RBAC lands)
+No `Role`/`RoleId` or `User.IsActive` infrastructure exists yet, so PRD §4's
+full role model isn't buildable today. Until then: a mobile number is
+issued the `SystemAdmin` role on OTP verification when its
+`IndividualProfile.IsAdmin` flag is `true` (checked in
+`OtpService.VerifyOtpAsync` — `IsAdmin: true` → SystemAdmin, profile exists
+→ Individual, else → Guest). `IsAdmin` has no self-service or admin-managed
+way to become `true` yet — granting it is a manual, out-of-band DB
+operation until CHH-76 ships an admin-management endpoint. Do **not**
+reintroduce a hardcoded admin mobile-number constant, and do not add a
+separate `AdminUser`/admin-identity table for this — both were tried and
+superseded by this flag in CHH-73's review-comment fixes; extend this
+mechanism rather than replacing it again without a new decision recorded in
+root `CLAUDE.md`'s Decisions Log.
 
 ### Secure Configuration
 - **Never** store secrets in `appsettings.json` or environment variables
