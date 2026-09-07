@@ -11,6 +11,19 @@
 # .github/workflows/backend-deploy.yml on push to main. This script only
 # provisions the OS-level dependencies that deploy workflow assumes already
 # exist: PostgreSQL, and a JWT signing key wired into the systemd service.
+#
+# NOT covered by this script (do manually, credentials aren't stored here):
+# the Fast2Sms WhatsApp OTP config also lives in the same systemd override
+# and was lost along with the JWT key. Get the real API key from
+# https://www.fast2sms.com/ (Dev API section) and add to
+# /etc/systemd/system/chh-api.service.d/override.conf under [Service]:
+#   Environment="Fast2Sms__ApiKey=<real key from Fast2SMS dashboard>"
+#   Environment="Fast2Sms__WhatsApp__PhoneNumberId=1344445125411727"
+#   Environment="Fast2Sms__WhatsApp__OtpMessageId=31541"
+#   Environment="Fast2Sms__WhatsApp__DonorRequestMessageId=31543"
+# (PhoneNumberId/message IDs are not secret -- they're the approved
+# WhatsApp template IDs tied to the "Klockk" sender +1555-399-1190 -- only
+# the ApiKey itself needs fetching fresh.)
 set -euo pipefail
 
 DB_NAME="CHH"
