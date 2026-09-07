@@ -14,7 +14,7 @@ type: project
 | Feature Branch Prefix | feature/ |
 | Branch Naming Convention | feature/{jira-ticket-id}-{short-description} (bugfix/ for Bug tickets or `/dev` runs) |
 | Git Base Branch | develop |
-| Feature Branch | fix/otp-sms-quick-route |
+| Feature Branch | feature/CHH-11-guest-dashboard |
 
 ## How to Apply
 
