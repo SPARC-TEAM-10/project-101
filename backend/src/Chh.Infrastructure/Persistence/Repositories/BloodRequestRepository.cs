@@ -26,4 +26,24 @@ public class BloodRequestRepository : IBloodRequestRepository
             .AsNoTracking()
             .FirstOrDefaultAsync(r => r.Id == id, ct)
             .ConfigureAwait(false);
+
+    /// <inheritdoc />
+    public async Task<(IReadOnlyList<BloodRequest> Items, int TotalCount)> GetByRequesterAsync(
+        string requesterMobileNumber, int page, int pageSize, CancellationToken ct)
+    {
+        var query = _context.BloodRequests
+            .AsNoTracking()
+            .Where(r => r.RequesterMobileNumber == requesterMobileNumber);
+
+        var totalCount = await query.CountAsync(ct).ConfigureAwait(false);
+
+        var items = await query
+            .OrderByDescending(r => r.CreatedAtUtc)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(ct)
+            .ConfigureAwait(false);
+
+        return (items, totalCount);
+    }
 }

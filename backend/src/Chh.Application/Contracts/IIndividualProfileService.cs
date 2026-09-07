@@ -11,4 +11,9 @@ public interface IIndividualProfileService
     /// <exception cref="Chh.Application.Abstractions.MobileNumberNotVerifiedException">The mobile number has no verified OTP.</exception>
     /// <exception cref="Chh.Application.Abstractions.IndividualAlreadyRegisteredException">A profile already exists for this mobile number.</exception>
     Task<IndividualProfileDto> RegisterAsync(CreateIndividualProfileRequest request, CancellationToken ct);
+
+    /// <summary>Returns the caller's own profile (CHH-81 dashboard), or <c>null</c> if not yet registered.</summary>
+    /// <param name="mobileNumber">The authenticated user's mobile number, from the JWT.</param>
+    /// <param name="ct">Cancellation token.</param>
+    Task<IndividualProfileDto?> GetMyProfileAsync(string mobileNumber, CancellationToken ct);
 }

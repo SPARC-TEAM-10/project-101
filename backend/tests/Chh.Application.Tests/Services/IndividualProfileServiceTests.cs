@@ -131,4 +131,31 @@ public class IndividualProfileServiceTests
         await act.Should().ThrowAsync<IndividualAlreadyRegisteredException>();
         _individualProfileRepository.Verify(r => r.AddAsync(It.IsAny<IndividualProfile>(), It.IsAny<CancellationToken>()), Times.Never);
     }
+
+    [Fact]
+    public async Task GetMyProfileAsync_WhenProfileExists_ReturnsDto()
+    {
+        var profile = IndividualProfileFactory.Create(ValidRequest(), DateTimeOffset.UtcNow);
+        _individualProfileRepository
+            .Setup(r => r.GetByMobileNumberAsync(MobileNumber, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(profile);
+
+        var result = await _sut.GetMyProfileAsync(MobileNumber, CancellationToken.None);
+
+        result.Should().NotBeNull();
+        result!.FullName.Should().Be("Jane Doe");
+        result.LocationCityArea.Should().Be("Kochi");
+    }
+
+    [Fact]
+    public async Task GetMyProfileAsync_WhenNoProfileExists_ReturnsNull()
+    {
+        _individualProfileRepository
+            .Setup(r => r.GetByMobileNumberAsync(MobileNumber, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IndividualProfile?)null);
+
+        var result = await _sut.GetMyProfileAsync(MobileNumber, CancellationToken.None);
+
+        result.Should().BeNull();
+    }
 }

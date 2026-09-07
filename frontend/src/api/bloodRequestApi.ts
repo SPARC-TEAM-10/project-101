@@ -25,6 +25,13 @@ export interface BloodRequestDto {
   expiresAtUtc: string;
 }
 
+export interface PagedResponse<T> {
+  items: T[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+}
+
 // [Authorize]-protected (CHH-33/US-CHH-004-01) — the caller must supply a valid access token
 // (from OTP verify, CHH-F01 AC3).
 export function createBloodRequest(
@@ -35,5 +42,16 @@ export function createBloodRequest(
     method: "POST",
     headers: { Authorization: `Bearer ${accessToken}` },
     body: JSON.stringify(request),
+  });
+}
+
+// [Authorize]-protected (CHH-81 Individual Dashboard) — the caller's own requests, newest first.
+export function getMyBloodRequests(
+  accessToken: string,
+  page = 1,
+  pageSize = 20,
+): Promise<PagedResponse<BloodRequestDto>> {
+  return apiFetch<PagedResponse<BloodRequestDto>>(`/blood-requests/mine?page=${page}&pageSize=${pageSize}`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
   });
 }
