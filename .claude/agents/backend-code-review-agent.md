@@ -160,7 +160,9 @@ These apply to every stack.
 | `[Authorize]` missing on a controller with no `[AllowAnonymous]` annotation and no explicit "public" justification | Critical |
 | HTTP exception (`BadRequestObjectResult`, `NotFoundObjectResult`) constructed manually instead of thrown as domain exception | Major |
 | `[ApiVersion]` attribute missing on a new controller | Major |
-| Route does not follow `/api/v{version:apiVersion}/[controller]` convention | Major |
+| Controller repeats `[Route("api/v1/...")]` itself instead of relying on the project's `RoutePrefixConvention` (CHH override — see `.claude/rules/api-standards.md` §1) | Major |
+| Controller class renamed/named to force a URL segment via the `[controller]` token instead of adding its own `[Route("segment")]` on top of the convention-derived name | Critical |
+| Controller has no attribute-route template of its own anywhere (no class `[Route]`, no per-action `[Http*("...")]` template) — fails `[ApiController]`'s routing validation even under the convention | Critical |
 
 #### Service Layer
 
@@ -245,6 +247,13 @@ These apply to every stack.
    - `.claude/rules/db-standards.md` — if any entities, tables, or migrations were added or modified
 3. **Run Plan Compliance Check** (see section above) — locate the approved plan from conversation context or Confluence, extract the Plan Checksum from Section 2, verify each listed file against the branch using Glob and `git diff`, flag any deviations as Critical.
 4. Use **Read** to review each changed file against every applicable checklist.
+
+   **Generalize, don't spot-fix:** when a finding is an instance of a reusable pattern (a
+   convention violation, a missing guard, a hardcoded value that should be a constant, a
+   validation gap), use **Grep** to check whether the same pattern exists in sibling files
+   (other controllers, other services in the same layer, other entities of the same shape) —
+   not just the one file where it was noticed. Report every instance found, not only the first.
+   This applies even when the developer's own request only pointed at one file.
 5. Use **Grep** to search for risky patterns:
 
    - Hardcoded secrets: `password = "`, `api_key = "`, `SECRET = "`, `connectionString =`
