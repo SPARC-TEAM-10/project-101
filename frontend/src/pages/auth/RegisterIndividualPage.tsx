@@ -66,7 +66,7 @@ function HealthFlagRow({
         type="checkbox"
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
-        className="h-4.5 w-4.5 shrink-0 accent-clay"
+        className="h-5 w-5 shrink-0 accent-clay"
       />
       <span className="text-sm text-ink">{label}</span>
     </label>
