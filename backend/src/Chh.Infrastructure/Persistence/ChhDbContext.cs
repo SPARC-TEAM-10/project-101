@@ -27,6 +27,12 @@ public class ChhDbContext : DbContext
     /// <summary>Blood requests with a search radius for proximity donor matching (CHH-33/US-CHH-004-01).</summary>
     public DbSet<BloodRequest> BloodRequests { get; set; } = default!;
 
+    /// <summary>Facility registrations (CHH-78/US-CHH-003-01, CHH-F03 Facility Verification).</summary>
+    public DbSet<Facility> Facilities { get; set; } = default!;
+
+    /// <summary>Contacts for facility registrations (CHH-78/US-CHH-003-01).</summary>
+    public DbSet<FacilityContact> FacilityContacts { get; set; } = default!;
+
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
