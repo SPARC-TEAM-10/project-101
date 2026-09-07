@@ -8,6 +8,10 @@ export interface AuthSession {
   token: string;
   role: Role;
   expiresAtUtc: string;
+  // OTP-verified mobile number (CHH-9). Not part of the OTP verify response body — captured from
+  // the mobile-entry step instead — because POST /individuals (CHH-F02) is AllowAnonymous and
+  // needs it in the request body, not derived from the JWT.
+  mobileNumber: string;
 }
 
 interface AuthContextValue {

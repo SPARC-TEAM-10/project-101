@@ -69,6 +69,7 @@ function OtpVerificationScreen({
         token: result.data.accessToken,
         role: result.data.role,
         expiresAtUtc: result.data.tokenExpiresAtUtc,
+        mobileNumber,
       });
       onNavigate("/redirecting");
     }

@@ -117,9 +117,55 @@ export const nominatimReverseGeocodeHandler = http.get(
   () => HttpResponse.json({ address: { city: "Kochi", postcode: "682017" } }),
 );
 
+export const INDIVIDUALS_URL = "/api/v1/individuals";
+
+export const registerIndividualSuccessHandler = http.post(INDIVIDUALS_URL, async ({ request }) => {
+  const body = (await request.json()) as Record<string, unknown>;
+  const isReceiverOnly = Boolean(
+    body.isChronicIllness ||
+      body.hasRecentSurgery ||
+      body.isInfectiousDisease ||
+      body.isUnderweight ||
+      body.isOtherIllness,
+  );
+  return HttpResponse.json(
+    {
+      id: "22222222-2222-2222-2222-222222222222",
+      fullName: body.fullName,
+      bloodGroup: body.bloodGroup,
+      isReceiverOnly,
+      createdAtUtc: "2026-09-07T00:00:00.000Z",
+    },
+    { status: 201 },
+  );
+});
+
+export const registerIndividualConflictHandler = http.post(INDIVIDUALS_URL, () => {
+  return HttpResponse.json(
+    {
+      title: "Conflict",
+      status: 409,
+      detail: "An individual profile already exists for this mobile number.",
+    },
+    { status: 409 },
+  );
+});
+
+export const registerIndividualValidationErrorHandler = http.post(INDIVIDUALS_URL, () => {
+  return HttpResponse.json(
+    {
+      title: "Validation failed",
+      status: 422,
+      detail: "Please enter a valid email address",
+    },
+    { status: 422 },
+  );
+});
+
 export const handlers = [
   successHandler,
   verifySuccessHandler,
   createBloodRequestSuccessHandler,
   nominatimReverseGeocodeHandler,
+  registerIndividualSuccessHandler,
 ];

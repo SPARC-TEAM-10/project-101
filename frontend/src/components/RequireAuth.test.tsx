@@ -45,33 +45,33 @@ describe("RequireAuth", () => {
   });
 
   it("redirects to /login when the session role is not in the allowed roles", () => {
-    renderProtected({ token: "t", role: "Individual", expiresAtUtc: FUTURE }, ["Guest"]);
+    renderProtected({ token: "t", role: "Individual", expiresAtUtc: FUTURE, mobileNumber: "9876543210" }, ["Guest"]);
 
     expect(screen.getByText("Login Screen")).toBeInTheDocument();
   });
 
   it("renders children when authenticated and no roles restriction is given", () => {
-    renderProtected({ token: "t", role: "Individual", expiresAtUtc: FUTURE });
+    renderProtected({ token: "t", role: "Individual", expiresAtUtc: FUTURE, mobileNumber: "9876543210" });
 
     expect(screen.getByText("Protected content")).toBeInTheDocument();
   });
 
   it("renders children when authenticated and the role matches", () => {
-    renderProtected({ token: "t", role: "Individual", expiresAtUtc: FUTURE }, ["Individual", "Guest"]);
+    renderProtected({ token: "t", role: "Individual", expiresAtUtc: FUTURE, mobileNumber: "9876543210" }, ["Individual", "Guest"]);
 
     expect(screen.getByText("Protected content")).toBeInTheDocument();
   });
 
   it("redirects to /login when the session has expired", () => {
     const past = new Date(Date.now() - 1000).toISOString();
-    renderProtected({ token: "t", role: "Individual", expiresAtUtc: past });
+    renderProtected({ token: "t", role: "Individual", expiresAtUtc: past, mobileNumber: "9876543210" });
 
     expect(screen.getByText("Login Screen")).toBeInTheDocument();
     expect(screen.queryByText("Protected content")).not.toBeInTheDocument();
   });
 
   it("renders children when the session has not yet expired and the role matches", () => {
-    renderProtected({ token: "t", role: "Guest", expiresAtUtc: FUTURE }, ["Guest"]);
+    renderProtected({ token: "t", role: "Guest", expiresAtUtc: FUTURE, mobileNumber: "9876543210" }, ["Guest"]);
 
     expect(screen.getByText("Protected content")).toBeInTheDocument();
   });

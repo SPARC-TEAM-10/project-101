@@ -4,6 +4,7 @@ import { RequireAuth } from "./components/RequireAuth";
 import { LandingPage } from "./pages/LandingPage";
 import { MobileEntryPage } from "./pages/auth/MobileEntryPage";
 import { OtpVerificationPage } from "./pages/auth/OtpVerificationPage";
+import { RegisterIndividualPage } from "./pages/auth/RegisterIndividualPage";
 import { RoleRedirectPage } from "./pages/auth/RoleRedirectPage";
 import { GuestPlaceholderPage } from "./pages/GuestPlaceholderPage";
 import { BloodRequestFormModal } from "./pages/bloodRequest/BloodRequestFormModal";
@@ -15,6 +16,14 @@ export const router = createBrowserRouter([
   { path: "/login", element: <MobileEntryPage /> },
   { path: "/otp-verify", element: <OtpVerificationPage /> },
   { path: "/redirecting", element: <RoleRedirectPage /> },
+  {
+    path: "/register/individual",
+    element: (
+      <RequireAuth roles={["Guest"]}>
+        <RegisterIndividualPage />
+      </RequireAuth>
+    ),
+  },
   {
     path: "/dashboard/individual",
     element: (
