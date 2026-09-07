@@ -1,6 +1,7 @@
 using Chh.Application.Contracts;
 using Chh.Application.Dtos;
 using Chh.Application.Factories;
+using Chh.Domain.Constants;
 
 namespace Chh.Application.Services;
 
@@ -40,6 +41,41 @@ public class BloodRequestService : IBloodRequestService
             Status = bloodRequest.Status,
             CreatedAtUtc = bloodRequest.CreatedAtUtc,
             ExpiresAtUtc = bloodRequest.ExpiresAtUtc
+        };
+    }
+
+    /// <inheritdoc />
+    public async Task<PagedResponse<BloodRequestDto>> GetMyRequestsAsync(string requesterMobileNumber, int page, int pageSize, CancellationToken ct)
+    {
+        var normalizedPage = page < 1 ? 1 : page;
+        var normalizedPageSize = pageSize < 1
+            ? PaginationConstants.DefaultPageSize
+            : Math.Min(pageSize, PaginationConstants.MaxPageSize);
+
+        var (requests, totalCount) = await _bloodRequestRepository
+            .GetByRequesterAsync(requesterMobileNumber, normalizedPage, normalizedPageSize, ct)
+            .ConfigureAwait(false);
+
+        var items = requests.Select(r => new BloodRequestDto
+        {
+            Id = r.Id,
+            PatientName = r.PatientName,
+            BloodGroup = r.BloodGroup,
+            UnitsRequired = r.UnitsRequired,
+            LocationCityArea = r.LocationCityArea,
+            SearchRadiusKm = r.SearchRadiusKm,
+            Urgency = r.Urgency,
+            Status = r.Status,
+            CreatedAtUtc = r.CreatedAtUtc,
+            ExpiresAtUtc = r.ExpiresAtUtc
+        }).ToList();
+
+        return new PagedResponse<BloodRequestDto>
+        {
+            Items = items,
+            TotalCount = totalCount,
+            Page = normalizedPage,
+            PageSize = normalizedPageSize
         };
     }
 }
