@@ -1,4 +1,5 @@
 using Chh.Application.Contracts;
+using Chh.Application.Jobs;
 using Chh.Application.Services;
 using Chh.Application.Validators;
 using Chh.Infrastructure.ExternalClients;
@@ -7,8 +8,11 @@ using Chh.Infrastructure.Persistence.Encryption;
 using Chh.Infrastructure.Persistence.Repositories;
 using Chh.Infrastructure.Security;
 using FluentValidation;
+using Hangfire;
+using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Chh.Api.Extensions;
@@ -23,7 +27,15 @@ public static class ServiceCollectionExtensions
     /// </summary>
     /// <param name="services">The service collection to register into.</param>
     /// <param name="configuration">App configuration, used to resolve the database connection string.</param>
-    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
+    /// <param name="environment">
+    /// Hosting environment — used to skip Hangfire storage/server registration under "Testing"
+    /// (<see cref="AddHangfireJobs"/>), mirroring how <c>Program.cs</c> skips the startup EF Core
+    /// migration there. <c>WebApplicationFactory</c>-hosted tests have no real Postgres, and
+    /// Hangfire.PostgreSql opens a connection eagerly at host startup (unlike Npgsql's lazy
+    /// <see cref="ChhDbContext"/>), which would otherwise fail every API test regardless of the
+    /// endpoint under test.
+    /// </param>
+    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
     {
         services.AddDbContext<ChhDbContext>(options =>
             options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
@@ -41,10 +53,22 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IFacilityRepository, FacilityRepository>();
         services.AddScoped<IFacilityAdminService, FacilityAdminService>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<IMatchingEngineService, MatchingEngineService>();
+        services.AddScoped<MatchDonorsJob>();
 
         services.AddFast2Sms(configuration);
         services.AddJwt(configuration);
         services.AddCorsPolicy(configuration);
+        if (environment.IsEnvironment("Testing"))
+        {
+            // No real Postgres available under WebApplicationFactory — swap in a no-op so
+            // BloodRequestService (which depends on IBackgroundJobClient) still resolves.
+            services.AddSingleton<IBackgroundJobClient, NoOpBackgroundJobClient>();
+        }
+        else
+        {
+            services.AddHangfireJobs(configuration);
+        }
 
         services.AddValidatorsFromAssembly(typeof(OtpRequestRequestValidator).Assembly);
 
@@ -186,5 +210,26 @@ public static class ServiceCollectionExtensions
         {
             services.AddHttpClient<ISmsGatewayClient, Fast2SmsGatewayClient>(ConfigureClient);
         }
+    }
+
+    /// <summary>
+    /// Registers Hangfire storage and the in-process worker server that runs
+    /// <see cref="MatchDonorsJob"/> (US-CHH-004-02/CHH-80), fire-and-forget enqueued by
+    /// <see cref="BloodRequestService"/> right after a blood request is persisted. Reuses the
+    /// same Postgres database as <c>DefaultConnection</c> — Hangfire owns its own schema there.
+    /// </summary>
+    /// <param name="services">The service collection to register into.</param>
+    /// <param name="configuration">App configuration, used to resolve the Hangfire connection string.</param>
+    private static void AddHangfireJobs(this IServiceCollection services, IConfiguration configuration)
+    {
+        // The single-string overload is obsolete in 1.20.x (removal planned for 2.0, not yet
+        // released) but is still the documented API for this version pin — kept rather than
+        // guessing at the new Action<PostgreSqlBootstrapperOptions> overload's actual member names.
+#pragma warning disable CS0618
+        services.AddHangfire(config => config
+            .UsePostgreSqlStorage(configuration.GetConnectionString("HangfireDatabase")));
+#pragma warning restore CS0618
+
+        services.AddHangfireServer();
     }
 }

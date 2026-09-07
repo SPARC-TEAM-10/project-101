@@ -20,6 +20,9 @@ public record IndividualProfileDto
     /// <summary>True if any health-restriction flag was set — excluded from donor search, can still request blood (PRD §7 CHH-F02 AC2).</summary>
     public required bool IsReceiverOnly { get; init; }
 
+    /// <summary>Registered city/area — free text (CHH-81 dashboard profile summary).</summary>
+    public required string LocationCityArea { get; init; }
+
     /// <summary>UTC timestamp the profile was created.</summary>
     public required DateTimeOffset CreatedAtUtc { get; init; }
 }

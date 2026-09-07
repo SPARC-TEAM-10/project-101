@@ -72,4 +72,21 @@ public class IndividualProfile
     /// (direct DB access) until a proper admin-management endpoint exists.
     /// </summary>
     public bool IsAdmin { get; internal set; }
+
+    /// <summary>
+    /// Registered latitude, used for proximity donor matching (US-CHH-004-02/CHH-80 AC4) — never
+    /// live GPS. Nullable: the CHH-F02 registration flow doesn't collect coordinates yet, so
+    /// existing/new profiles start with none; a donor with no coordinates is excluded from
+    /// matching rather than treated as an error (documented Edge Case).
+    /// </summary>
+    public decimal? Latitude { get; internal set; }
+
+    /// <summary>Registered longitude — see <see cref="Latitude"/>.</summary>
+    public decimal? Longitude { get; internal set; }
+
+    /// <summary>
+    /// Account standing (US-CHH-004-02/CHH-80 AC3). A <see cref="Enums.AccountStatus.Suspended"/>
+    /// donor is excluded from proximity matching. Defaults to <see cref="Enums.AccountStatus.Active"/>.
+    /// </summary>
+    public AccountStatus AccountStatus { get; internal set; } = AccountStatus.Active;
 }

@@ -23,6 +23,7 @@ public static class IndividualProfileConfiguration
     private const int EncryptedBoolMaxLength = 128;
     private const int EncryptedDateMaxLength = 128;
     private const int EncryptedOtherIllnessDetailsMaxLength = 512;
+    private const int AccountStatusMaxLength = 50;
 
     /// <summary>Configures the <c>IndividualProfile</c> table mapping.</summary>
     /// <param name="builder">The entity type builder for <see cref="IndividualProfile"/>.</param>
@@ -109,6 +110,20 @@ public static class IndividualProfileConfiguration
         // Operational flag, not PII/health data — unencrypted, matching IsReceiverOnly above.
         builder.Property(e => e.IsAdmin)
             .HasDefaultValue(false)
+            .IsRequired();
+
+        // Registered coordinates for proximity matching (US-CHH-004-02/CHH-80) — nullable, see
+        // IndividualProfile.Latitude's doc comment. Same precision as BloodRequest's Latitude/Longitude.
+        builder.Property(e => e.Latitude)
+            .HasPrecision(9, 6);
+
+        builder.Property(e => e.Longitude)
+            .HasPrecision(9, 6);
+
+        builder.Property(e => e.AccountStatus)
+            .HasConversion<string>()
+            .HasMaxLength(AccountStatusMaxLength)
+            .HasDefaultValue(Domain.Enums.AccountStatus.Active)
             .IsRequired();
     }
 }

@@ -216,10 +216,22 @@ input[type="number"] {
 }
 
 /* Custom range slider (blood request search radius) — track/thumb styling isn't reachable via
-   Tailwind utility classes alone since browsers require the vendor-prefixed pseudo-elements. */
+   Tailwind utility classes alone since browsers require the vendor-prefixed pseudo-elements.
+   `::-webkit-slider-runnable-track` must be reset explicitly — setting `background` on the
+   input itself only paints its box, not the native track pseudo-element. Without this reset,
+   Chromium on Windows 11 renders its own Fluent-style pill track and accent-colored thumb dot
+   on top of/behind the author styling, producing a doubled, oversized-pill look. */
 input[type="range"].radius-slider {
   -webkit-appearance: none;
   appearance: none;
+  accent-color: var(--blood);
+  width: 100%;
+  height: 22px;
+  background: transparent;
+  cursor: pointer;
+}
+input[type="range"].radius-slider::-webkit-slider-runnable-track {
+  -webkit-appearance: none;
   height: 6px;
   border-radius: var(--r-full);
   background: linear-gradient(to right, var(--blood) 0%, var(--blood) var(--fill, 0%), var(--line) var(--fill, 0%), var(--line) 100%);
