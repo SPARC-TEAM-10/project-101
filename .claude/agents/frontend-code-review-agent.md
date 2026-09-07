@@ -91,6 +91,22 @@ Run this before all other checks.
 | Validation error not associated with its input via `aria-describedby` | Minor |
 | Color is the only signal for a validation/error state | Minor |
 
+### Responsive Fidelity Checklist
+
+> Root cause of a recurring bug class (CHH landing page, 2026-09): a component ships with only
+> one set of size/spacing values (usually matching the desktop mockup) and no smaller mobile-first
+> variant, so text clips or wraps inside a fixed-height control, or elements overflow the 375px
+> viewport. Grep for the patterns below on any changed page/component; a hit is not automatically
+> a defect but must be checked against an actual 375px render (see Coding Agent step 8a) before
+> being waved through.
+
+| Check | Severity |
+|---|---|
+| A button/chip/nav-item has a fixed `h-*`/`text-*`/`px-*` value with no unprefixed (mobile) variant smaller than its `sm:`/`md:` counterpart — i.e. the same size is used at every viewport | Major |
+| A header/toolbar row mixes `whitespace-nowrap` text with no responsive fallback (shortened label, smaller font, or reduced padding) at the unprefixed breakpoint | Major |
+| Two adjacent sections/cards each contribute zero padding/margin on the side facing each other (verify against an actual render, not just the mockup's CSS — the mockup can carry the same flaw) | Minor |
+| Reviewer did not see evidence (screenshot or explicit confirmation) that Coding Agent step 8a's mobile-viewport check was performed for a page/component with layout changes | Major |
+
 ### Code Quality Checklist
 
 | Check | Severity |

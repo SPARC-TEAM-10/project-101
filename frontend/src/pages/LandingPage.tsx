@@ -117,36 +117,37 @@ export function LandingPage() {
   return (
     <div className="landing-page min-h-screen bg-sand font-sans text-ink">
       <header className="sticky top-0 z-40 border-b border-line bg-cream/90 backdrop-blur">
-        <div className="mx-auto flex max-w-[1180px] items-center justify-between gap-4 px-6 py-3.5 md:px-12 md:py-4">
-          <span className="flex items-center gap-2.5 text-[16.5px] font-extrabold tracking-tight text-ink">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blood text-white">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <div className="mx-auto flex max-w-[1180px] items-center justify-between gap-2 px-4 py-3 sm:gap-4 md:px-12 md:py-4">
+          <span className="flex min-w-0 items-center gap-1.5 whitespace-nowrap text-[13px] font-extrabold tracking-tight text-ink sm:gap-2.5 sm:text-[16.5px]">
+            <span className="flex h-7 w-7 flex-none items-center justify-center rounded-full bg-blood text-white sm:h-8 sm:w-8">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className="sm:h-4 sm:w-4">
                 <path d="M12 3.2c3.4 4 6 6.9 6 10a6 6 0 0 1-12 0c0-3.1 2.6-6 6-10Z" />
               </svg>
             </span>
             Community Health Hub
           </span>
-          <div className="flex items-center gap-2.5">
+          <div className="flex flex-none items-center gap-1.5 sm:gap-2.5">
             <button
               type="button"
               onClick={() => navigate("/login")}
-              className="h-10 rounded-sm border-[1.5px] border-line-strong px-[18px] text-sm font-bold text-ink transition-colors hover:bg-sand-2"
+              className="h-8 whitespace-nowrap rounded-sm border-[1.5px] border-line-strong px-2.5 text-xs font-bold text-ink transition-colors hover:bg-sand-2 sm:h-10 sm:px-[18px] sm:text-sm"
             >
               Log in
             </button>
             <button
               type="button"
               onClick={() => navigate("/guest")}
-              className="h-10 rounded-sm bg-clay px-[18px] text-sm font-bold text-white transition-colors hover:bg-clay-hover"
+              className="h-8 whitespace-nowrap rounded-sm bg-clay px-2.5 text-xs font-bold text-white transition-colors hover:bg-clay-hover sm:h-10 sm:px-[18px] sm:text-sm"
             >
-              Continue as Guest
+              <span className="sm:hidden">Guest</span>
+              <span className="hidden sm:inline">Continue as Guest</span>
             </button>
           </div>
         </div>
       </header>
 
       <main>
-        <section className="px-6 pt-8">
+        <section className="px-6 pb-6 pt-8 md:pb-8">
           <div className="mx-auto max-w-[1180px] overflow-hidden rounded-xl border border-line shadow-[var(--e3)] md:flex md:min-h-[460px]">
             <div className="flex w-full flex-none flex-col items-center bg-cream px-8 py-12 text-center md:w-[400px] md:justify-center md:border-r md:border-line">
               <div className="mb-4 flex h-20 w-20 items-center justify-center">

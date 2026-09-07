@@ -202,6 +202,7 @@ export async function requestOtp(mobileNumber: string): Promise<RequestOtpRespon
 6. Use **Write** only when creating new files listed in the plan
 7. Run `npm run typecheck` and `npm run build` via **Bash** in `frontend/` — fix any errors before proceeding
 8. Run `npm run lint` and fix any violations the linter can't auto-fix
+8a. **Mobile-viewport render check** — for every page/component touched, start the dev server and capture a real rendered screenshot at 375px width (see the `run` skill; use a JS-driven headless browser like Playwright/Puppeteer with `waitUntil: 'networkidle'` — a raw `chrome --headless --screenshot` capture has been unreliable on this app's SPA routing and produced false negatives). Look specifically for: text clipped/wrapped inside a fixed-height control (buttons, chips, nav items), any element extending past the 375px viewport edge, and two adjacent sections/cards touching with zero visual separation. A class/value that only targets desktop (no unprefixed mobile-first rule, or a fixed px value with no smaller mobile variant) is the usual root cause — see `frontend/CLAUDE.md` Tech Stack's mobile-first Tailwind convention. Fix before proceeding; do not defer to Code Review.
 9. **Commit all source changes** to the feature branch. This is the **first of two meaningful commits** — source code here, tests later by the Unittest Agent. Stage only the files listed in the plan's Scope of Change (CREATE and MODIFY rows) — never `git add .`/`git add -A`. Do not stage test files here.
 
     ```bash
