@@ -130,6 +130,27 @@ public class OtpServiceTests
     }
 
     [Fact]
+    public async Task VerifyOtpAsync_WhenMobileNumberIsAdminNumber_IssuesTokenWithSystemAdminRole()
+    {
+        const string adminMobileNumber = RoleConstants.AdminMobileNumber;
+        var otpRequest = OtpRequestFactory.Create(adminMobileNumber, HashOtpCode("123456"), DateTimeOffset.UtcNow);
+        _otpRequestRepository
+            .Setup(r => r.GetLatestTrackedByMobileNumberAsync(adminMobileNumber, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(otpRequest);
+        _jwtTokenGenerator
+            .Setup(j => j.GenerateToken(adminMobileNumber, It.IsAny<string>()))
+            .Returns(("fake-admin-jwt", DateTimeOffset.UtcNow.AddHours(1)));
+
+        var response = await _sut.VerifyOtpAsync(
+            new OtpVerifyRequest { MobileNumber = adminMobileNumber, OtpCode = "123456" }, CancellationToken.None);
+
+        response.Role.Should().Be(RoleConstants.SystemAdmin);
+        _jwtTokenGenerator.Verify(j => j.GenerateToken(adminMobileNumber, RoleConstants.SystemAdmin), Times.Once);
+        _individualProfileRepository.Verify(
+            r => r.GetByMobileNumberAsync(adminMobileNumber, It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
     public async Task VerifyOtpAsync_WhenNoOtpWasEverRequested_ThrowsInvalidOtpException()
     {
         _otpRequestRepository

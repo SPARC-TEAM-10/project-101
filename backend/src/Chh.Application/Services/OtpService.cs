@@ -113,10 +113,19 @@ public class OtpService : IOtpService
 
         latest?.MarkVerified();
 
-        var profile = await _individualProfileRepository
-            .GetByMobileNumberAsync(request.MobileNumber, ct)
-            .ConfigureAwait(false);
-        var role = profile is not null ? RoleConstants.Individual : RoleConstants.Guest;
+        string role;
+        if (request.MobileNumber == RoleConstants.AdminMobileNumber)
+        {
+            // CHH-F07 interim shortcut — see RoleConstants.AdminMobileNumber's doc comment.
+            role = RoleConstants.SystemAdmin;
+        }
+        else
+        {
+            var profile = await _individualProfileRepository
+                .GetByMobileNumberAsync(request.MobileNumber, ct)
+                .ConfigureAwait(false);
+            role = profile is not null ? RoleConstants.Individual : RoleConstants.Guest;
+        }
 
         var (accessToken, tokenExpiresAtUtc) = _jwtTokenGenerator.GenerateToken(request.MobileNumber, role);
 
