@@ -33,9 +33,6 @@ public class ChhDbContext : DbContext
     /// <summary>Contact persons for <see cref="Facility"/> records.</summary>
     public DbSet<FacilityContact> FacilityContacts { get; set; } = default!;
 
-    /// <summary>Mobile numbers granted System Admin access (CHH-F07 Admin Command Center).</summary>
-    public DbSet<AdminUser> AdminUsers { get; set; } = default!;
-
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

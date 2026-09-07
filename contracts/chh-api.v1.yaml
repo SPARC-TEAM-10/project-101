@@ -19,9 +19,9 @@ tags:
   - name: Admin
     description: >
       System Admin moderation endpoints (CHH-F07 Admin Command Center, Epic
-      CHH-72). Interim admin identity: mobile numbers with an active
-      AdminUser.IsAdmin grant are issued the "SystemAdmin" role on OTP
-      verification — see the CHH-F07 LLD "Cross-cutting decisions" for why.
+      CHH-72). Interim admin identity: mobile numbers whose
+      IndividualProfile.IsAdmin flag is set are issued the "SystemAdmin" role
+      on OTP verification — see the CHH-F07 LLD "Cross-cutting decisions" for why.
       Real Role/RoleId-based authorization (PRD §4) is future scope.
 paths:
   /auth/otp/request:

@@ -40,7 +40,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IBloodRequestService, BloodRequestService>();
         services.AddScoped<IFacilityRepository, FacilityRepository>();
         services.AddScoped<IFacilityAdminService, FacilityAdminService>();
-        services.AddScoped<IAdminUserRepository, AdminUserRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         services.AddFast2Sms(configuration);
