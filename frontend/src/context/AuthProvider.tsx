@@ -5,6 +5,10 @@ import { createContext, useContext, useMemo, useState, type ReactNode } from "re
 // otherwise Guest.
 export type Role = "Individual" | "Guest" | "Hospital" | "Ngo" | "SystemAdmin";
 
+// Navigate `state.reason` value RequireAuth sets on an expiry redirect (CHH-10 AC3) — shared so
+// MobileEntryPage's check can't silently drift from the value RequireAuth actually sets.
+export const SESSION_EXPIRED_REASON = "session-expired";
+
 export interface AuthSession {
   token: string;
   role: Role;

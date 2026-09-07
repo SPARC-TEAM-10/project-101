@@ -1,12 +1,13 @@
 import { useLocation, useNavigate } from "react-router-dom";
 
 import { AuthSplitLayout } from "../../components/AuthSplitLayout";
+import { SESSION_EXPIRED_REASON } from "../../context/AuthProvider";
 import { useOtpRequest } from "../../features/auth/useOtpRequest";
 
 export function MobileEntryPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const sessionExpired = (location.state as { reason?: string } | null)?.reason === "session-expired";
+  const sessionExpired = (location.state as { reason?: string } | null)?.reason === SESSION_EXPIRED_REASON;
   const { mobileNumber, setMobileNumber, isValid, touched, markTouched, submit, isPending, error } =
     useOtpRequest();
 
