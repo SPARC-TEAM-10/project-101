@@ -66,7 +66,8 @@ The `api/v1` prefix and the `[controller]` → route-segment resolution are
 
 ### Statelessness
 Every request must contain all information needed to process it. Session
-state is the JWT issued on OTP verification (1-hour expiry per CHH-F01 AC3)
+state is the JWT issued on OTP verification (24-hour expiry — widened from
+CHH-F01 AC3's original 1-hour value by explicit product decision, 2026-09-07)
 — no other stored client context between requests.
 
 ### Data Exchange Format
@@ -127,7 +128,7 @@ if (app.Environment.IsDevelopment())
 ### Authentication & Authorisation
 - **OTP-first, not enterprise SSO.** Login is mobile number + 6-digit OTP
   (CHH-F01) — no OAuth2/OIDC identity provider. On successful OTP
-  verification, issue a JWT (1-hour expiry, per CHH-F01 AC3) carrying the
+  verification, issue a JWT (24-hour expiry — see §Statelessness above) carrying the
   user's `RoleID` (Guest / Individual / Hospital Admin / NGO / System Admin
   — see PRD §4 Role & Permission Matrix).
 - Use `[Authorize]` on all protected endpoints — see DOTNET-RULES Part 1 §7
@@ -258,5 +259,5 @@ app.UseExceptionHandler(); // Required to activate IExceptionHandler
 ### Use `DateTimeOffset` / `timestamptz` when:
 - `CreatedAtUtc`, `UpdatedAtUtc` on every entity
 - `OtpRequestedAtUtc`, `OtpExpiresAtUtc` (OTP resend timer, CHH-F01)
-- `SessionExpiresAtUtc` (1-hour JWT session, CHH-F01 AC3)
+- `SessionExpiresAtUtc` (24-hour JWT session — see §Statelessness above)
 - `VerifiedAtUtc` (facility document verification timestamp, CHH-F03)
