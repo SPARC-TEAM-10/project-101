@@ -10,19 +10,18 @@ using Xunit;
 namespace Chh.Api.Tests.Controllers;
 
 /// <summary>
-/// Guards <c>AdminFacilitiesController</c>'s absolute route override against
-/// `contracts/chh-api.v1.yaml`'s documented path, and that the
-/// <c>[Authorize(Roles = RoleConstants.SystemAdmin)]</c> gate actually rejects both an
-/// unauthenticated caller and one authenticated with a non-admin role (CHH-73).
+/// Guards <c>AdminController</c>'s route against `contracts/chh-api.v1.yaml`'s documented path,
+/// and that the <c>[Authorize(Roles = RoleConstants.SystemAdmin)]</c> gate actually rejects both
+/// an unauthenticated caller and one authenticated with a non-admin role (CHH-73).
 /// </summary>
 [Collection(ApiTestCollection.Name)]
-public class AdminFacilitiesControllerRouteTests
+public class AdminControllerRouteTests
 {
     private readonly ApiWebApplicationFactory _factory;
 
     /// <summary>Creates the test class around the shared in-memory API host.</summary>
     /// <param name="factory">The shared API host fixture (see <see cref="ApiTestCollection"/>).</param>
-    public AdminFacilitiesControllerRouteTests(ApiWebApplicationFactory factory) => _factory = factory;
+    public AdminControllerRouteTests(ApiWebApplicationFactory factory) => _factory = factory;
 
     private string IssueToken(string role)
     {
@@ -39,7 +38,7 @@ public class AdminFacilitiesControllerRouteTests
         var response = await client.GetAsync("/api/v1/admin/facilities/pending");
 
         response.StatusCode.Should().NotBe(HttpStatusCode.NotFound,
-            "the absolute route override must still resolve AdminFacilitiesController to contracts/chh-api.v1.yaml's documented path");
+            "the route convention must still resolve AdminController to contracts/chh-api.v1.yaml's documented path");
     }
 
     [Fact]

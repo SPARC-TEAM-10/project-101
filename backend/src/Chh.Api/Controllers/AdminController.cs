@@ -7,24 +7,24 @@ using Microsoft.AspNetCore.Mvc;
 namespace Chh.Api.Controllers;
 
 /// <summary>
-/// System Admin facility moderation endpoints (CHH-F07 Admin Command Center, Epic CHH-72). The
-/// route is an absolute override (<c>~/</c>) rather than the global "api/v1/[controller]"
-/// convention — <c>RoutePrefixConvention</c> would kebab-case this controller's name to
-/// "admin-facilities", but the contract (`contracts/chh-api.v1.yaml`) documents
-/// "admin/facilities/..." as two segments, matching CHH-76's future sibling
-/// "admin/users/...". See <c>Chh.Api.Routing.RoutePrefixConvention</c>'s doc comment for how the
-/// convention normally applies.
+/// System Admin endpoints (CHH-F07 Admin Command Center, Epic CHH-72). Named <c>Admin</c> (not
+/// <c>AdminFacilities</c>) so the global "api/v1/[controller]" convention resolves
+/// <c>[controller]</c> to "admin", and this class's own <see cref="RouteAttribute"/> only needs
+/// to add the "facilities" segment — no absolute-route override needed, unlike an earlier
+/// revision of this file. CHH-76's future sibling endpoints ("admin/users/...") should live in a
+/// separate <c>AdminUsersController</c> with its own <c>[Route("users")]</c>, following the same
+/// pattern, rather than growing this class to cover both resource groups.
 /// </summary>
 [ApiController]
-[Route("~/api/v1/admin/facilities")]
+[Route("facilities")]
 [Authorize(Roles = RoleConstants.SystemAdmin)]
-public class AdminFacilitiesController : ControllerBase
+public class AdminController : ControllerBase
 {
     private readonly IFacilityAdminService _facilityAdminService;
 
     /// <summary>Creates the controller with its service dependency.</summary>
     /// <param name="facilityAdminService">Logic layer for System Admin facility moderation.</param>
-    public AdminFacilitiesController(IFacilityAdminService facilityAdminService)
+    public AdminController(IFacilityAdminService facilityAdminService)
     {
         _facilityAdminService = facilityAdminService;
     }

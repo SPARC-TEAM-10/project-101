@@ -15,6 +15,7 @@ public class OtpService : IOtpService
     private readonly IOtpRequestRepository _otpRequestRepository;
     private readonly ISmsGatewayClient _smsGatewayClient;
     private readonly IIndividualProfileRepository _individualProfileRepository;
+    private readonly IAdminUserRepository _adminUserRepository;
     private readonly IJwtTokenGenerator _jwtTokenGenerator;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<OtpService> _logger;
@@ -23,6 +24,7 @@ public class OtpService : IOtpService
     /// <param name="otpRequestRepository">Data layer for reading and persisting OTP requests.</param>
     /// <param name="smsGatewayClient">Gateway used to dispatch the generated OTP code.</param>
     /// <param name="individualProfileRepository">Used to resolve the role claim (Individual vs. Guest) on verify.</param>
+    /// <param name="adminUserRepository">Used to resolve the SystemAdmin role claim (CHH-F07) on verify.</param>
     /// <param name="jwtTokenGenerator">Issues the access token returned on successful verification.</param>
     /// <param name="unitOfWork">Persists changes made during the request.</param>
     /// <param name="logger">Logger for dispatch-failure diagnostics.</param>
@@ -30,6 +32,7 @@ public class OtpService : IOtpService
         IOtpRequestRepository otpRequestRepository,
         ISmsGatewayClient smsGatewayClient,
         IIndividualProfileRepository individualProfileRepository,
+        IAdminUserRepository adminUserRepository,
         IJwtTokenGenerator jwtTokenGenerator,
         IUnitOfWork unitOfWork,
         ILogger<OtpService> logger)
@@ -37,6 +40,7 @@ public class OtpService : IOtpService
         _otpRequestRepository = otpRequestRepository;
         _smsGatewayClient = smsGatewayClient;
         _individualProfileRepository = individualProfileRepository;
+        _adminUserRepository = adminUserRepository;
         _jwtTokenGenerator = jwtTokenGenerator;
         _unitOfWork = unitOfWork;
         _logger = logger;
@@ -114,9 +118,11 @@ public class OtpService : IOtpService
         latest?.MarkVerified();
 
         string role;
-        if (request.MobileNumber == RoleConstants.AdminMobileNumber)
+        var isAdmin = await _adminUserRepository.IsAdminAsync(request.MobileNumber, ct).ConfigureAwait(false);
+        if (isAdmin)
         {
-            // CHH-F07 interim shortcut — see RoleConstants.AdminMobileNumber's doc comment.
+            // CHH-F07 — see AdminUser's doc comment; still not full Role/RoleId-based
+            // authorization (PRD §4), but data-driven rather than a compiled-in mobile number.
             role = RoleConstants.SystemAdmin;
         }
         else

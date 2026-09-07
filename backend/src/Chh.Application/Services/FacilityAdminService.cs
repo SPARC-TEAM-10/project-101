@@ -1,5 +1,6 @@
 using Chh.Application.Contracts;
 using Chh.Application.Dtos;
+using Chh.Domain.Constants;
 using Chh.Domain.Enums;
 
 namespace Chh.Application.Services;
@@ -7,12 +8,6 @@ namespace Chh.Application.Services;
 /// <summary>Orchestrates System Admin facility moderation (CHH-F07 Admin Command Center).</summary>
 public class FacilityAdminService : IFacilityAdminService
 {
-    /// <summary>Default page size when the caller omits <c>pageSize</c> (DOTNET-RULES §12).</summary>
-    public const int DefaultPageSize = 20;
-
-    /// <summary>Maximum allowed page size (DOTNET-RULES §12).</summary>
-    public const int MaxPageSize = 100;
-
     private readonly IFacilityRepository _facilityRepository;
 
     /// <summary>Creates the service with its repository dependency.</summary>
@@ -26,7 +21,9 @@ public class FacilityAdminService : IFacilityAdminService
     public async Task<PagedResponse<FacilityDto>> GetPendingFacilitiesAsync(int page, int pageSize, CancellationToken ct)
     {
         var normalizedPage = page < 1 ? 1 : page;
-        var normalizedPageSize = pageSize < 1 ? DefaultPageSize : Math.Min(pageSize, MaxPageSize);
+        var normalizedPageSize = pageSize < 1
+            ? PaginationConstants.DefaultPageSize
+            : Math.Min(pageSize, PaginationConstants.MaxPageSize);
 
         var (facilities, totalCount) = await _facilityRepository
             .GetByStatusAsync(FacilityVerificationStatus.Pending, normalizedPage, normalizedPageSize, ct)

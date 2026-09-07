@@ -1,5 +1,6 @@
 using Chh.Application.Contracts;
 using Chh.Application.Services;
+using Chh.Domain.Constants;
 using Chh.Domain.Entities;
 using Chh.Domain.Enums;
 using FluentAssertions;
@@ -66,8 +67,8 @@ public class FacilityAdminServiceTests
     [Theory]
     [InlineData(0, 20, 1, 20)]
     [InlineData(-5, 20, 1, 20)]
-    [InlineData(1, 0, 1, FacilityAdminService.DefaultPageSize)]
-    [InlineData(1, 500, 1, FacilityAdminService.MaxPageSize)]
+    [InlineData(1, 0, 1, PaginationConstants.DefaultPageSize)]
+    [InlineData(1, 500, 1, PaginationConstants.MaxPageSize)]
     public async Task GetPendingFacilitiesAsync_NormalizesOutOfRangePagingInputs(
         int requestedPage, int requestedPageSize, int expectedPage, int expectedPageSize)
     {
