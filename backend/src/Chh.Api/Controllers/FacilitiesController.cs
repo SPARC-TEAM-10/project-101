@@ -71,4 +71,38 @@ public class FacilitiesController : ControllerBase
 
         return result is null ? NotFound() : Ok(result);
     }
+
+    /// <summary>
+    /// Uploads a license document for a facility (CHH-79/US-CHH-003-02), replacing any previously
+    /// uploaded one. 404 if no facility exists for <paramref name="id"/>; 422 if the file's type
+    /// isn't PDF/JPEG/PNG or it exceeds 5MB.
+    /// </summary>
+    /// <param name="id">The facility the document belongs to.</param>
+    /// <param name="file">The uploaded file (multipart/form-data, field name "file").</param>
+    /// <param name="cancellationToken">Cancellation token forwarded through the service and repository layers.</param>
+    [HttpPost("{id:guid}/upload")]
+    // Anonymous: the wizard uploads the document immediately after anonymous registration
+    // (CHH-10's Hospital/Ngo role isn't issued until the contact's first OTP verification), same
+    // reasoning as RegisterAsync above.
+    [AllowAnonymous]
+    [RequestSizeLimit(6 * 1024 * 1024)] // 5MB file + form-data overhead headroom (AC3).
+    [ProducesResponseType(typeof(FacilityDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<FacilityDto>> UploadLicenseDocumentAsync(
+        Guid id,
+        IFormFile? file,
+        CancellationToken cancellationToken)
+    {
+        await using var content = file?.OpenReadStream() ?? Stream.Null;
+        var result = await _facilityService.UploadLicenseDocumentAsync(
+            id,
+            content,
+            file?.FileName ?? string.Empty,
+            file?.ContentType ?? string.Empty,
+            file?.Length ?? 0,
+            cancellationToken);
+
+        return result is null ? NotFound() : Ok(result);
+    }
 }

@@ -331,6 +331,54 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/ProblemDetails"
+  /facilities/{id}/upload:
+    post:
+      tags:
+        - Facilities
+      summary: Upload a facility's license document
+      description: >
+        Uploads (or replaces) a facility's license document (CHH-79/US-CHH-003-02),
+        stored in blob storage (`.claude/rules/db-standards.md` §3) — this
+        response's `licenseDocumentUrl` is what CHH-74's document-review
+        modal opens. `security: []`, same reasoning as `POST /facilities`:
+        the wizard uploads immediately after anonymous registration, before
+        any JWT role exists for the caller.
+      operationId: uploadFacilityLicenseDocument
+      security: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: The facility, with its updated licenseDocumentUrl.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FacilityDto"
+        "404":
+          description: No such facility.
+        "422":
+          description: The file's type isn't PDF/JPEG/PNG, it exceeds 5MB, or none was provided.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
   /admin/facilities/pending:
     get:
       tags:

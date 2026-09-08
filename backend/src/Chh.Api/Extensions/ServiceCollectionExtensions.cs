@@ -53,7 +53,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IFacilityRepository, FacilityRepository>();
         services.AddScoped<IFacilityService, FacilityService>();
         services.AddScoped<IFacilityAdminService, FacilityAdminService>();
-        services.AddScoped<IFacilityService, FacilityService>();
+        services.Configure<Chh.Infrastructure.Storage.FacilityDocumentStorageOptions>(
+            configuration.GetSection(Chh.Infrastructure.Storage.FacilityDocumentStorageOptions.SectionName));
+        services.AddScoped<IFacilityDocumentStorageService, Chh.Infrastructure.Storage.LocalDiskFacilityDocumentStorageService>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IMatchingEngineService, MatchingEngineService>();
         services.AddScoped<MatchDonorsJob>();

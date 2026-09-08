@@ -40,4 +40,13 @@ public interface IFacilityRepository
     /// <param name="licenseNumber">License number to match against <see cref="Facility.LicenseNumber"/>.</param>
     /// <param name="ct">Cancellation token.</param>
     Task<Facility?> GetByLicenseNumberAsync(string licenseNumber, CancellationToken ct);
+
+    /// <summary>
+    /// Returns the facility for the given id, tracked by the context so mutations made to it
+    /// (CHH-79's <c>LicenseDocumentUrl</c> update) are persisted on <c>SaveChangesAsync</c> — or
+    /// <c>null</c> if none exists.
+    /// </summary>
+    /// <param name="id">The facility id.</param>
+    /// <param name="ct">Cancellation token.</param>
+    Task<Facility?> GetTrackedByIdAsync(Guid id, CancellationToken ct);
 }

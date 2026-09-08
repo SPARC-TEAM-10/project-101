@@ -56,4 +56,11 @@ public class FacilityRepository : IFacilityRepository
             .AsNoTracking()
             .FirstOrDefaultAsync(f => f.LicenseNumber == licenseNumber, ct)
             .ConfigureAwait(false);
+
+    /// <inheritdoc />
+    public async Task<Facility?> GetTrackedByIdAsync(Guid id, CancellationToken ct) =>
+        await _context.Facilities
+            .Include(f => f.Contacts)
+            .FirstOrDefaultAsync(f => f.Id == id, ct)
+            .ConfigureAwait(false);
 }

@@ -13,12 +13,13 @@ namespace Chh.Application.Tests.Services;
 public class FacilityServiceTests
 {
     private readonly Mock<IFacilityRepository> _facilityRepository = new();
+    private readonly Mock<IFacilityDocumentStorageService> _documentStorageService = new();
     private readonly Mock<IUnitOfWork> _unitOfWork = new();
     private readonly FacilityService _sut;
 
     public FacilityServiceTests()
     {
-        _sut = new FacilityService(_facilityRepository.Object, _unitOfWork.Object);
+        _sut = new FacilityService(_facilityRepository.Object, _documentStorageService.Object, _unitOfWork.Object);
     }
 
     private static CreateFacilityRequest ValidRequest() => new()
@@ -115,5 +116,104 @@ public class FacilityServiceTests
         var result = await _sut.GetMyFacilityAsync("9876543210", CancellationToken.None);
 
         result.Should().BeNull();
+    }
+
+    // --- UploadLicenseDocumentAsync (CHH-79) ---
+
+    private static Facility MakeFacility() => new()
+    {
+        FacilityName = "City General Hospital",
+        Category = FacilityCategory.Hospital,
+        SubCategory = FacilitySubCategory.Government,
+        LicenseNumber = "KL-HOSP-000000",
+        Address = "123 Main St, Kochi",
+        CreatedAtUtc = DateTimeOffset.UtcNow,
+        UpdatedAtUtc = DateTimeOffset.UtcNow
+    };
+
+    [Fact]
+    public async Task UploadLicenseDocumentAsync_FacilityNotFound_ReturnsNull()
+    {
+        _facilityRepository
+            .Setup(r => r.GetTrackedByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Facility?)null);
+
+        var result = await _sut.UploadLicenseDocumentAsync(
+            Guid.NewGuid(), new MemoryStream([1, 2, 3]), "license.pdf", "application/pdf", 3, CancellationToken.None);
+
+        result.Should().BeNull();
+        _documentStorageService.Verify(
+            s => s.SaveAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task UploadLicenseDocumentAsync_NoFileProvided_ThrowsInvalidFacilityDocumentException()
+    {
+        var facility = MakeFacility();
+        _facilityRepository
+            .Setup(r => r.GetTrackedByIdAsync(facility.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(facility);
+
+        var act = () => _sut.UploadLicenseDocumentAsync(
+            facility.Id, Stream.Null, string.Empty, string.Empty, 0, CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidFacilityDocumentException>()
+            .WithMessage(Chh.Domain.Constants.FacilityDocumentConstants.NoFileProvidedMessage);
+    }
+
+    [Fact]
+    public async Task UploadLicenseDocumentAsync_DisallowedContentType_ThrowsInvalidFacilityDocumentException()
+    {
+        var facility = MakeFacility();
+        _facilityRepository
+            .Setup(r => r.GetTrackedByIdAsync(facility.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(facility);
+
+        var act = () => _sut.UploadLicenseDocumentAsync(
+            facility.Id, new MemoryStream([1, 2, 3]), "malware.exe", "application/x-msdownload", 3, CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidFacilityDocumentException>()
+            .WithMessage(Chh.Domain.Constants.FacilityDocumentConstants.InvalidFileTypeMessage);
+    }
+
+    [Fact]
+    public async Task UploadLicenseDocumentAsync_TooLarge_ThrowsInvalidFacilityDocumentException()
+    {
+        var facility = MakeFacility();
+        _facilityRepository
+            .Setup(r => r.GetTrackedByIdAsync(facility.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(facility);
+
+        var act = () => _sut.UploadLicenseDocumentAsync(
+            facility.Id,
+            new MemoryStream([1, 2, 3]),
+            "license.pdf",
+            "application/pdf",
+            Chh.Domain.Constants.FacilityDocumentConstants.MaxFileSizeBytes + 1,
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidFacilityDocumentException>()
+            .WithMessage(Chh.Domain.Constants.FacilityDocumentConstants.FileTooLargeMessage);
+    }
+
+    [Fact]
+    public async Task UploadLicenseDocumentAsync_Success_StoresFileAndUpdatesLicenseDocumentUrl()
+    {
+        var facility = MakeFacility();
+        _facilityRepository
+            .Setup(r => r.GetTrackedByIdAsync(facility.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(facility);
+        _documentStorageService
+            .Setup(s => s.SaveAsync(facility.Id, "license.pdf", It.IsAny<Stream>(), "application/pdf", It.IsAny<CancellationToken>()))
+            .ReturnsAsync("/uploads/facility-documents/abc/license.pdf");
+
+        var result = await _sut.UploadLicenseDocumentAsync(
+            facility.Id, new MemoryStream([1, 2, 3]), "license.pdf", "application/pdf", 3, CancellationToken.None);
+
+        result.Should().NotBeNull();
+        result!.LicenseDocumentUrl.Should().Be("/uploads/facility-documents/abc/license.pdf");
+        facility.LicenseDocumentUrl.Should().Be("/uploads/facility-documents/abc/license.pdf");
+        _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 }

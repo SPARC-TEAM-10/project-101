@@ -64,4 +64,26 @@ public class FacilitiesControllerRouteTests
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized,
             "CHH-28's status dashboard is restricted to the Hospital/Ngo roles, unlike facility registration");
     }
+
+    [Fact]
+    public async Task PostUpload_UsesContractPath_IsRouted()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.PostAsync($"/api/v1/facilities/{Guid.NewGuid()}/upload", content: null);
+
+        response.StatusCode.Should().NotBe(HttpStatusCode.NotFound,
+            "the route convention must resolve UploadLicenseDocumentAsync to /facilities/{id}/upload — this is the regression guard for the reported 404");
+    }
+
+    [Fact]
+    public async Task PostUpload_WithoutAuthorizationHeader_IsNotUnauthorized()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.PostAsync($"/api/v1/facilities/{Guid.NewGuid()}/upload", content: null);
+
+        response.StatusCode.Should().NotBe(HttpStatusCode.Unauthorized,
+            "the upload happens right after anonymous registration, matching PostFacilities' precedent");
+    }
 }
