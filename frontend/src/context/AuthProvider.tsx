@@ -1,9 +1,9 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
 
-// Matches backend/src/Chh.Domain/Constants/RoleConstants.cs. SystemAdmin is issued but has no
-// dedicated frontend surface yet (CHH-F07 Admin Command Center is backend-only so far) — omitted
-// here until that lands, same as before.
-export type Role = "Individual" | "Guest" | "Hospital" | "Ngo";
+// Matches backend/src/Chh.Domain/Constants/RoleConstants.cs. SystemAdmin is issued when the
+// mobile number's IndividualProfile.IsAdmin flag is set (interim CHH-F07 mechanism, no
+// self-service way to grant it yet — see RoleConstants.cs).
+export type Role = "Individual" | "Guest" | "Hospital" | "Ngo" | "SystemAdmin";
 
 export interface AuthSession {
   token: string;

@@ -257,6 +257,60 @@ export const nominatimReverseGeocodeHandler = http.get(
   () => HttpResponse.json({ address: { city: "Kochi", postcode: "682017" } }),
 );
 
+export const ADMIN_PENDING_FACILITIES_URL = "/api/v1/admin/facilities/pending";
+
+export const pendingFacilitiesSuccessHandler = http.get(ADMIN_PENDING_FACILITIES_URL, ({ request }) => {
+  const url = new URL(request.url);
+  const page = Number(url.searchParams.get("page") ?? "1");
+  const pageSize = Number(url.searchParams.get("pageSize") ?? "20");
+  const items = [
+    {
+      id: "33333333-3333-3333-3333-333333333331",
+      facilityName: "Sreedhara Multispeciality",
+      category: "Hospital",
+      licenseNumber: "KL-HOSP-100200",
+      address: "Kaloor, Kochi",
+      contacts: [{ name: "Anitha Kurian", designation: "Admin", mobile: "9876500111" }],
+      verificationStatus: "Pending",
+      licenseDocumentUrl: null,
+      createdAtUtc: "2026-09-02T00:00:00.000Z",
+    },
+    {
+      id: "33333333-3333-3333-3333-333333333332",
+      facilityName: "Vayali Jeevan Trust",
+      category: "Ngo",
+      licenseNumber: "KL-NGO-100300",
+      address: "Thrissur",
+      contacts: [{ name: "Rahul Menon", designation: "Coordinator", mobile: "9876500112" }],
+      verificationStatus: "Pending",
+      licenseDocumentUrl: null,
+      createdAtUtc: "2026-09-02T00:00:00.000Z",
+    },
+  ];
+  return HttpResponse.json({
+    items,
+    totalCount: items.length,
+    page,
+    pageSize,
+    totalPages: 1,
+  });
+});
+
+export const pendingFacilitiesEmptyHandler = http.get(ADMIN_PENDING_FACILITIES_URL, () => {
+  return HttpResponse.json({ items: [], totalCount: 0, page: 1, pageSize: 20, totalPages: 0 });
+});
+
+export const pendingFacilitiesErrorHandler = http.get(ADMIN_PENDING_FACILITIES_URL, () => {
+  return HttpResponse.error();
+});
+
+export const pendingFacilitiesForbiddenHandler = http.get(ADMIN_PENDING_FACILITIES_URL, () => {
+  return HttpResponse.json(
+    { title: "Forbidden", status: 403, detail: "Authenticated caller does not carry the SystemAdmin role." },
+    { status: 403 },
+  );
+});
+
 export const INDIVIDUALS_URL = "/api/v1/individuals";
 
 export const registerIndividualSuccessHandler = http.post(INDIVIDUALS_URL, async ({ request }) => {
@@ -435,5 +489,6 @@ export const handlers = [
   acceptNotificationSuccessHandler,
   declineNotificationSuccessHandler,
   nominatimReverseGeocodeHandler,
+  pendingFacilitiesSuccessHandler,
   registerIndividualSuccessHandler,
 ];

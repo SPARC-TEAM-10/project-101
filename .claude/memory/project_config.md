@@ -14,7 +14,7 @@ type: project
 | Feature Branch Prefix | feature/ |
 | Branch Naming Convention | feature/{jira-ticket-id}-{short-description} (bugfix/ for Bug tickets or `/dev` runs) |
 | Git Base Branch | develop |
-| Feature Branch | feature/CHH-78-facility-backend |
+| Feature Branch | feature/CHH-73-pending-verification-tab |
 
 ## How to Apply
 
