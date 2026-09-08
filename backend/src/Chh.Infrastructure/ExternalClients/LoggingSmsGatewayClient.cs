@@ -30,4 +30,13 @@ public class LoggingSmsGatewayClient : ISmsGatewayClient
             OtpConstants.MaskMobileNumber(mobileNumber));
         return Task.CompletedTask;
     }
+
+    /// <inheritdoc />
+    public Task SendMessageAsync(string mobileNumber, string message, CancellationToken ct)
+    {
+        _logger.LogInformation(
+            "Stub SMS gateway: would dispatch message to {MaskedMobileNumber}",
+            OtpConstants.MaskMobileNumber(mobileNumber));
+        return Task.CompletedTask;
+    }
 }

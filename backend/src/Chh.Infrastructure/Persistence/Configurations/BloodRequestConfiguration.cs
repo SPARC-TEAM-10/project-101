@@ -81,5 +81,9 @@ public class BloodRequestConfiguration : IEntityTypeConfiguration<BloodRequest>
         // after now" — not exercised by this story, but cheap to add alongside the table.
         builder.HasIndex(e => new { e.Status, e.ExpiresAtUtc })
             .HasDatabaseName("IX_BloodRequest_Status_ExpiresAtUtc");
+
+        builder.Property(e => e.UnitsAccepted)
+            .HasDefaultValue(0)
+            .IsRequired();
     }
 }

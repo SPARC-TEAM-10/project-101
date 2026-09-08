@@ -63,4 +63,13 @@ public class BloodRequest
 
     /// <summary>UTC timestamp the request auto-expires — <see cref="CreatedAtUtc"/> plus the 6-hour validity window.</summary>
     public DateTimeOffset ExpiresAtUtc { get; internal set; }
+
+    /// <summary>
+    /// Units accepted so far across all donors (CHH-35 AC1/Edge Case: "multiple donors accept
+    /// simultaneously" — units remaining must be tracked). Once this reaches <see cref="UnitsRequired"/>,
+    /// <see cref="Status"/> transitions to <see cref="BloodRequestStatus.Fulfilled"/>. Mutated only
+    /// via <c>Chh.Application.Services.DonorResponseService</c>'s atomic conditional update — never
+    /// read-then-write in application code, to stay race-safe under concurrent accepts.
+    /// </summary>
+    public int UnitsAccepted { get; internal set; }
 }

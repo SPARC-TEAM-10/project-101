@@ -1,10 +1,15 @@
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 // Guest Dashboard (CHH-11 AC2) — limited permissions: Search Emergency Hub and Request Blood
 // only (PRD §4 Role & Permission Matrix). "Search Emergency Hub" stays disabled until CHH-68
 // (Emergency Services Hub) ships its frontend — not built yet, tracked as a separate ticket.
 export function GuestDashboardStubPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  // A guest has no persistent request history view (this dashboard is a stub) — the navigation
+  // state set by BloodRequestFormModal on success is the only way back to a just-created
+  // request's match status (CHH-36).
+  const state = location.state as { bloodRequestCreated?: boolean; id?: string } | null;
 
   return (
     <div className="flex min-h-screen flex-col bg-sand px-7 pt-16 font-sans text-ink">
@@ -12,6 +17,17 @@ export function GuestDashboardStubPage() {
       <p className="mb-10 text-center text-[14.5px] leading-relaxed text-ink-2">
         No account needed. You can search for help nearby or request blood directly.
       </p>
+
+      {state?.bloodRequestCreated && state.id && (
+        <button
+          type="button"
+          onClick={() => navigate(`/blood-requests/${state.id}/matches`)}
+          className="mb-4 flex flex-col gap-1 rounded-md border-[1.5px] border-go-line bg-go-tint p-4 text-left"
+        >
+          <b className="text-[14.5px] font-bold text-go-deep">Request sent — view match status</b>
+          <span className="text-[12.5px] text-ink-2">See how many donors have been notified.</span>
+        </button>
+      )}
 
       <div className="flex flex-col gap-4">
         <button

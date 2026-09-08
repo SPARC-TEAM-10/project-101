@@ -16,6 +16,10 @@ tags:
     description: Individual user registration (CHH-F02)
   - name: BloodRequests
     description: Blood requests with proximity search radius (CHH-F04, Epic CHH-25)
+  - name: Notifications
+    description: >
+      Per-donor notifications for matched blood requests (CHH-34/US-CHH-004-03,
+      CHH-F04, Epic CHH-25).
   - name: Facilities
     description: Facility (hospital/blood-bank or NGO) self-registration (CHH-F03/CHH-78)
   - name: Admin
@@ -178,6 +182,41 @@ paths:
           description: Missing or invalid JWT.
         "404":
           description: No individual profile exists for this mobile number yet.
+    patch:
+      tags:
+        - Individuals
+      summary: Update my own individual profile
+      description: >
+        Updates the authenticated caller's location and health-screening
+        flags (CHH-F02 profile edit). Name, email, blood group, date of
+        birth, and gender are not editable here. 404 if the JWT's mobile
+        number hasn't completed registration yet.
+      operationId: updateMyIndividualProfile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateIndividualProfileRequest"
+      responses:
+        "200":
+          description: The updated profile.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IndividualProfileDto"
+        "422":
+          description: Request malformed (field-level validation).
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "401":
+          description: Missing or invalid JWT.
+        "404":
+          description: No individual profile exists for this mobile number yet.
   /blood-requests:
     post:
       tags:
@@ -259,6 +298,87 @@ paths:
                 $ref: "#/components/schemas/PagedResponseOfBloodRequestDto"
         "401":
           description: Missing or invalid JWT.
+  /blood-requests/{id}/matches:
+    get:
+      tags:
+        - BloodRequests
+      summary: Get my own request's match/response status
+      description: >
+        Returns the caller's own request's match/response status (CHH-36
+        AC1/AC2/AC3). 404 if it doesn't exist or wasn't created by this
+        caller. Donor identity is redacted until a donor accepts, per the
+        guest-vs-registered visibility rule: a Guest caller's `donors` list
+        contains only Accepted donors; a registered caller's list contains
+        every matched donor, anonymized as "Donor 1", "Donor 2", ... until
+        accepted. `notifiedCount == 0` while `status` is still "Matching"
+        is the AC3 "no eligible donors found" signal.
+      operationId: getBloodRequestMatchStatus
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: The request's match/response status.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BloodRequestMatchStatusDto"
+        "401":
+          description: Missing or invalid JWT.
+        "404":
+          description: No such request for this caller.
+  /blood-requests/{id}/radius:
+    patch:
+      tags:
+        - BloodRequests
+      summary: Increase my own request's search radius
+      description: >
+        Expands the caller's own request's search radius and re-triggers
+        the matching engine (CHH-36 AC4). Existing matches are unaffected —
+        CHH-34's duplicate-prevention means only newly-in-range donors get
+        a fresh notification. 404 if it doesn't exist or wasn't created by
+        this caller. 422 if the request is no longer "Matching" (already
+        fulfilled or expired — Edge Case) or the new radius isn't larger
+        than the current one.
+      operationId: updateBloodRequestRadius
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateBloodRequestRadiusRequest"
+      responses:
+        "200":
+          description: The updated match/response status.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BloodRequestMatchStatusDto"
+        "401":
+          description: Missing or invalid JWT.
+        "404":
+          description: No such request for this caller.
+        "422":
+          description: The request is no longer Matching, or the new radius isn't larger than the current one.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
   /facilities:
     post:
       tags:
@@ -302,6 +422,156 @@ paths:
                 $ref: "#/components/schemas/ProblemDetails"
         "409":
           description: A facility already exists for this licence number.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+  /notifications/mine:
+    get:
+      tags:
+        - Notifications
+      summary: List my own donor notifications
+      description: >
+        Returns the authenticated caller's own notifications for matched
+        blood requests, newest first (CHH-34 AC3). An empty result is a
+        normal `200` with an empty `items` array — including when the
+        caller hasn't registered an individual profile yet.
+      operationId: listMyNotifications
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        "200":
+          description: Page of the caller's own notifications.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PagedResponseOfDonorNotificationDto"
+        "401":
+          description: Missing or invalid JWT.
+  /notifications/{id}/read:
+    patch:
+      tags:
+        - Notifications
+      summary: Mark one of my own notifications read
+      description: >
+        Marks one of the caller's own notifications read (CHH-34 AC3). 404 if
+        it doesn't exist, belongs to a different donor, or the caller hasn't
+        registered an individual profile yet.
+      operationId: markNotificationRead
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: The updated notification.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DonorNotificationDto"
+        "401":
+          description: Missing or invalid JWT.
+        "404":
+          description: No such notification for this donor.
+  /notifications/{id}/accept:
+    patch:
+      tags:
+        - Notifications
+      summary: Accept the matched blood request behind one of my own notifications
+      description: >
+        Accepts the matched blood request (CHH-35/US-CHH-004-04 AC1). 404 if
+        the notification doesn't exist, belongs to a different donor, or the
+        caller hasn't registered an individual profile yet. 409 if the donor
+        already responded. 422 ("This request is no longer active") if the
+        request has since been fulfilled or expired, or its last remaining
+        unit was just taken by another donor (AC3 / Edge Case). On success,
+        the response carries the requester's contact info and the request's
+        location (AC4).
+      operationId: acceptNotification
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: The recorded acceptance, with the confirmation-view contact/location details.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DonorResponseResultDto"
+        "401":
+          description: Missing or invalid JWT.
+        "404":
+          description: No such notification for this donor.
+        "409":
+          description: The donor already responded to this notification.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "422":
+          description: The request is no longer active.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+  /notifications/{id}/decline:
+    patch:
+      tags:
+        - Notifications
+      summary: Decline the matched blood request behind one of my own notifications
+      description: >
+        Declines the matched blood request (CHH-35/US-CHH-004-04 AC2). 404 if
+        the notification doesn't exist, belongs to a different donor, or the
+        caller hasn't registered an individual profile yet. 409 if the donor
+        already responded.
+      operationId: declineNotification
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: The recorded decline.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DonorResponseResultDto"
+        "401":
+          description: Missing or invalid JWT.
+        "404":
+          description: No such notification for this donor.
+        "409":
+          description: The donor already responded to this notification.
           content:
             application/problem+json:
               schema:
@@ -504,11 +774,44 @@ components:
           type: string
           description: Required (max 200 chars) when isOtherIllness is true.
           maxLength: 200
+    UpdateIndividualProfileRequest:
+      type: object
+      description: >
+        Deliberately narrower than CreateIndividualProfileRequest — name,
+        email, blood group, DOB, and gender are not editable here; only
+        location and the health-screening flags are.
+      required:
+        - locationCityArea
+      properties:
+        locationCityArea:
+          type: string
+        isChronicIllness:
+          type: boolean
+          default: false
+        hasRecentSurgery:
+          type: boolean
+          default: false
+        isInfectiousDisease:
+          type: boolean
+          default: false
+        isUnderweight:
+          type: boolean
+          default: false
+        isOtherIllness:
+          type: boolean
+          default: false
+        otherIllnessDetails:
+          type: string
+          description: Required (max 200 chars) when isOtherIllness is true.
+          maxLength: 200
     IndividualProfileDto:
       type: object
       description: >
-        Deliberately excludes email, DOB, and health-screening detail — PII
-        the registration-confirmation response doesn't need to echo back.
+        Deliberately excludes email and DOB — PII the caller already knows
+        and doesn't need echoed back. The raw health-screening flags ARE
+        included so the caller's own profile-edit form (CHH-F02 profile
+        edit) can pre-fill accurately instead of guessing from the derived
+        isReceiverOnly flag alone.
       required:
         - id
         - fullName
@@ -516,6 +819,11 @@ components:
         - isReceiverOnly
         - locationCityArea
         - createdAtUtc
+        - isChronicIllness
+        - hasRecentSurgery
+        - isInfectiousDisease
+        - isUnderweight
+        - isOtherIllness
       properties:
         id:
           type: string
@@ -535,15 +843,29 @@ components:
         createdAtUtc:
           type: string
           format: date-time
+        isChronicIllness:
+          type: boolean
+        hasRecentSurgery:
+          type: boolean
+        isInfectiousDisease:
+          type: boolean
+        isUnderweight:
+          type: boolean
+        isOtherIllness:
+          type: boolean
+        otherIllnessDetails:
+          type: string
+          maxLength: 200
     UrgencyLevel:
       type: string
       enum: ["Emergency", "Urgent", "Standard"]
     BloodRequestStatus:
       type: string
       description: >
-        Only "Matching" is set on creation (AC1). "Expired" is set by the
-        donor-matching/notification stories later in this epic (CHH-34+).
-      enum: ["Matching", "Expired"]
+        Only "Matching" is set on creation (AC1). "Fulfilled" is set once
+        enough donors accept to cover unitsRequired (CHH-35 AC1/Edge Case).
+        "Expired" is set once the 6-hour validity window elapses.
+      enum: ["Matching", "Expired", "Fulfilled"]
     CreateBloodRequestRequest:
       type: object
       required:
@@ -790,6 +1112,172 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/BloodRequestDto"
+        totalCount:
+          type: integer
+        page:
+          type: integer
+        pageSize:
+          type: integer
+    UpdateBloodRequestRadiusRequest:
+      type: object
+      required:
+        - searchRadiusKm
+      properties:
+        searchRadiusKm:
+          type: integer
+          description: Must be larger than the request's current radius, up to 100km.
+    DonorStatusDto:
+      type: object
+      description: >
+        Shaped per the donor-list visibility rule (CHH-36 Business Rules):
+        identity is redacted behind label until the donor accepts.
+      required:
+        - label
+        - isAccepted
+      properties:
+        label:
+          type: string
+          description: >
+            "Donor 1"/"Donor 2"/... for a still-pending match (registered
+            requester view only), or the donor's real full name once
+            isAccepted is true.
+        mobileNumber:
+          type: string
+          nullable: true
+          description: Populated only when isAccepted is true.
+        isAccepted:
+          type: boolean
+    BloodRequestMatchStatusDto:
+      type: object
+      description: >
+        notifiedCount == 0 while status is still "Matching" is the AC3 "no
+        eligible donors found" signal — there's no separate flag for it.
+      required:
+        - bloodRequestId
+        - status
+        - searchRadiusKm
+        - unitsRequired
+        - unitsAccepted
+        - expiresAtUtc
+        - notifiedCount
+        - viewedCount
+        - acceptedCount
+        - donors
+      properties:
+        bloodRequestId:
+          type: string
+          format: uuid
+        status:
+          $ref: "#/components/schemas/BloodRequestStatus"
+        searchRadiusKm:
+          type: integer
+        unitsRequired:
+          type: integer
+        unitsAccepted:
+          type: integer
+        expiresAtUtc:
+          type: string
+          format: date-time
+        notifiedCount:
+          type: integer
+          description: AC1 "Notifications Sent".
+        viewedCount:
+          type: integer
+          description: AC1 "Viewed".
+        acceptedCount:
+          type: integer
+          description: AC1 "Accepted".
+        donors:
+          type: array
+          items:
+            $ref: "#/components/schemas/DonorStatusDto"
+    DonorNotificationDto:
+      type: object
+      description: >
+        Deliberately excludes the patient's name and exact address (AC2 /
+        off-app-delivery business rule) — only the four safe facts: blood
+        group, units, urgency, and approximate distance/area.
+      required:
+        - id
+        - bloodRequestId
+        - bloodGroup
+        - unitsRequired
+        - urgency
+        - distanceKm
+        - areaLabel
+        - isRead
+        - createdAtUtc
+        - responseStatus
+      properties:
+        id:
+          type: string
+          format: uuid
+        bloodRequestId:
+          type: string
+          format: uuid
+        bloodGroup:
+          $ref: "#/components/schemas/BloodGroup"
+        unitsRequired:
+          type: integer
+        urgency:
+          $ref: "#/components/schemas/UrgencyLevel"
+        distanceKm:
+          type: number
+          description: Approximate distance from the donor to the request, in kilometers.
+        areaLabel:
+          type: string
+          description: The request's city/area — never the exact address.
+        isRead:
+          type: boolean
+        createdAtUtc:
+          type: string
+          format: date-time
+        responseStatus:
+          $ref: "#/components/schemas/DonorResponseStatus"
+    DonorResponseStatus:
+      type: string
+      description: A donor's response to their own DonorNotification (CHH-35).
+      enum: ["Pending", "Accepted", "Declined"]
+    DonorResponseResultDto:
+      type: object
+      description: >
+        The contact/location fields (AC4's "confirmation view") are only
+        populated when responseStatus is "Accepted" — a decline has nothing
+        to confirm.
+      required:
+        - notificationId
+        - responseStatus
+      properties:
+        notificationId:
+          type: string
+          format: uuid
+        responseStatus:
+          $ref: "#/components/schemas/DonorResponseStatus"
+        requesterMobileNumber:
+          type: string
+          nullable: true
+        locationCityArea:
+          type: string
+          nullable: true
+        latitude:
+          type: number
+          nullable: true
+        longitude:
+          type: number
+          nullable: true
+    PagedResponseOfDonorNotificationDto:
+      type: object
+      description: Generic paging envelope (DOTNET-RULES §12) — see PagedResponseOfFacilityDto.
+      required:
+        - items
+        - totalCount
+        - page
+        - pageSize
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/DonorNotificationDto"
         totalCount:
           type: integer
         page:

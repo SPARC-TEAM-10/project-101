@@ -1,5 +1,6 @@
 using Chh.Application.Contracts;
 using Chh.Domain.Entities;
+using Chh.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace Chh.Infrastructure.Persistence.Repositories;
@@ -46,4 +47,27 @@ public class BloodRequestRepository : IBloodRequestRepository
 
         return (items, totalCount);
     }
+
+    /// <inheritdoc />
+    public async Task<bool> TryAcceptUnitAsync(Guid bloodRequestId, DateTimeOffset nowUtc, CancellationToken ct)
+    {
+        var rowsAffected = await _context.BloodRequests
+            .Where(r => r.Id == bloodRequestId
+                && r.Status == BloodRequestStatus.Matching
+                && r.ExpiresAtUtc > nowUtc
+                && r.UnitsAccepted < r.UnitsRequired)
+            .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(r => r.UnitsAccepted, r => r.UnitsAccepted + 1)
+                    .SetProperty(r => r.Status, r => r.UnitsAccepted + 1 >= r.UnitsRequired ? BloodRequestStatus.Fulfilled : r.Status),
+                ct)
+            .ConfigureAwait(false);
+
+        return rowsAffected > 0;
+    }
+
+    /// <inheritdoc />
+    public async Task<BloodRequest?> GetTrackedByIdAsync(Guid id, CancellationToken ct) =>
+        await _context.BloodRequests
+            .FirstOrDefaultAsync(r => r.Id == id, ct)
+            .ConfigureAwait(false);
 }
