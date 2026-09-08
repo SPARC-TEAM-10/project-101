@@ -158,4 +158,67 @@ public class IndividualProfileServiceTests
 
         result.Should().BeNull();
     }
+
+    private static UpdateIndividualProfileRequest ValidUpdateRequest() => new()
+    {
+        LocationCityArea = "Ernakulam"
+    };
+
+    [Fact]
+    public async Task UpdateMyProfileAsync_WhenProfileExists_AppliesUpdateAndPersists()
+    {
+        var profile = IndividualProfileFactory.Create(ValidRequest(), DateTimeOffset.UtcNow);
+        _individualProfileRepository
+            .Setup(r => r.GetTrackedByMobileNumberAsync(MobileNumber, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(profile);
+
+        var result = await _sut.UpdateMyProfileAsync(MobileNumber, ValidUpdateRequest(), CancellationToken.None);
+
+        result.Should().NotBeNull();
+        result!.LocationCityArea.Should().Be("Ernakulam");
+        _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task UpdateMyProfileAsync_WhenNoProfileExists_ReturnsNull()
+    {
+        _individualProfileRepository
+            .Setup(r => r.GetTrackedByMobileNumberAsync(MobileNumber, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IndividualProfile?)null);
+
+        var result = await _sut.UpdateMyProfileAsync(MobileNumber, ValidUpdateRequest(), CancellationToken.None);
+
+        result.Should().BeNull();
+        _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task UpdateMyProfileAsync_WhenHealthFlagSet_RecomputesIsReceiverOnlyTrue()
+    {
+        var profile = IndividualProfileFactory.Create(ValidRequest(), DateTimeOffset.UtcNow);
+        _individualProfileRepository
+            .Setup(r => r.GetTrackedByMobileNumberAsync(MobileNumber, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(profile);
+
+        var result = await _sut.UpdateMyProfileAsync(
+            MobileNumber,
+            ValidUpdateRequest() with { IsChronicIllness = true },
+            CancellationToken.None);
+
+        result!.IsReceiverOnly.Should().BeTrue();
+        result.IsChronicIllness.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task UpdateMyProfileAsync_WhenHealthFlagsAllCleared_RecomputesIsReceiverOnlyFalse()
+    {
+        var profile = IndividualProfileFactory.Create(ValidRequest() with { IsChronicIllness = true }, DateTimeOffset.UtcNow);
+        _individualProfileRepository
+            .Setup(r => r.GetTrackedByMobileNumberAsync(MobileNumber, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(profile);
+
+        var result = await _sut.UpdateMyProfileAsync(MobileNumber, ValidUpdateRequest(), CancellationToken.None);
+
+        result!.IsReceiverOnly.Should().BeFalse();
+    }
 }

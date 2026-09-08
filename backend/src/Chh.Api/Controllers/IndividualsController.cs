@@ -70,4 +70,25 @@ public class IndividualsController : ControllerBase
         var result = await _individualProfileService.GetMyProfileAsync(mobileNumber, cancellationToken);
         return result is null ? NotFound() : Ok(result);
     }
+
+    /// <summary>
+    /// Updates the authenticated caller's own location and health-screening flags (CHH-F02
+    /// profile edit). 404 if the JWT's mobile number hasn't completed registration yet.
+    /// </summary>
+    /// <param name="request">The validated update request.</param>
+    /// <param name="cancellationToken">Cancellation token forwarded through the service and repository layers.</param>
+    [HttpPatch("me")]
+    [Authorize]
+    [ProducesResponseType(typeof(IndividualProfileDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<IndividualProfileDto>> UpdateMyProfileAsync(
+        [FromBody] UpdateIndividualProfileRequest request,
+        CancellationToken cancellationToken)
+    {
+        var mobileNumber = User.FindFirstValue(ClaimTypes.MobilePhone)!;
+        var result = await _individualProfileService.UpdateMyProfileAsync(mobileNumber, request, cancellationToken);
+        return result is null ? NotFound() : Ok(result);
+    }
 }

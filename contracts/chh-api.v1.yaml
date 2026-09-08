@@ -180,6 +180,41 @@ paths:
           description: Missing or invalid JWT.
         "404":
           description: No individual profile exists for this mobile number yet.
+    patch:
+      tags:
+        - Individuals
+      summary: Update my own individual profile
+      description: >
+        Updates the authenticated caller's location and health-screening
+        flags (CHH-F02 profile edit). Name, email, blood group, date of
+        birth, and gender are not editable here. 404 if the JWT's mobile
+        number hasn't completed registration yet.
+      operationId: updateMyIndividualProfile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateIndividualProfileRequest"
+      responses:
+        "200":
+          description: The updated profile.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IndividualProfileDto"
+        "422":
+          description: Request malformed (field-level validation).
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "401":
+          description: Missing or invalid JWT.
+        "404":
+          description: No individual profile exists for this mobile number yet.
   /blood-requests:
     post:
       tags:
@@ -690,11 +725,44 @@ components:
           type: string
           description: Required (max 200 chars) when isOtherIllness is true.
           maxLength: 200
+    UpdateIndividualProfileRequest:
+      type: object
+      description: >
+        Deliberately narrower than CreateIndividualProfileRequest — name,
+        email, blood group, DOB, and gender are not editable here; only
+        location and the health-screening flags are.
+      required:
+        - locationCityArea
+      properties:
+        locationCityArea:
+          type: string
+        isChronicIllness:
+          type: boolean
+          default: false
+        hasRecentSurgery:
+          type: boolean
+          default: false
+        isInfectiousDisease:
+          type: boolean
+          default: false
+        isUnderweight:
+          type: boolean
+          default: false
+        isOtherIllness:
+          type: boolean
+          default: false
+        otherIllnessDetails:
+          type: string
+          description: Required (max 200 chars) when isOtherIllness is true.
+          maxLength: 200
     IndividualProfileDto:
       type: object
       description: >
-        Deliberately excludes email, DOB, and health-screening detail — PII
-        the registration-confirmation response doesn't need to echo back.
+        Deliberately excludes email and DOB — PII the caller already knows
+        and doesn't need echoed back. The raw health-screening flags ARE
+        included so the caller's own profile-edit form (CHH-F02 profile
+        edit) can pre-fill accurately instead of guessing from the derived
+        isReceiverOnly flag alone.
       required:
         - id
         - fullName
@@ -702,6 +770,11 @@ components:
         - isReceiverOnly
         - locationCityArea
         - createdAtUtc
+        - isChronicIllness
+        - hasRecentSurgery
+        - isInfectiousDisease
+        - isUnderweight
+        - isOtherIllness
       properties:
         id:
           type: string
@@ -721,6 +794,19 @@ components:
         createdAtUtc:
           type: string
           format: date-time
+        isChronicIllness:
+          type: boolean
+        hasRecentSurgery:
+          type: boolean
+        isInfectiousDisease:
+          type: boolean
+        isUnderweight:
+          type: boolean
+        isOtherIllness:
+          type: boolean
+        otherIllnessDetails:
+          type: string
+          maxLength: 200
     UrgencyLevel:
       type: string
       enum: ["Emergency", "Urgent", "Standard"]

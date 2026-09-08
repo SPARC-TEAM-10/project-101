@@ -13,7 +13,8 @@ public interface IIndividualProfileRepository
 
     /// <summary>
     /// Returns the individual profile for the given mobile number, tracked by the context so
-    /// mutations made to it are persisted on <c>SaveChangesAsync</c> — or <c>null</c> if none exists.
+    /// mutations made to it are persisted on <c>SaveChangesAsync</c> (CHH-F02 profile edit /
+    /// CHH-34 presence tracking) — or <c>null</c> if none exists.
     /// </summary>
     /// <param name="mobileNumber">The mobile number to look up.</param>
     /// <param name="ct">Cancellation token.</param>
