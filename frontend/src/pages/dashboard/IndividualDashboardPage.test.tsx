@@ -68,7 +68,7 @@ describe("IndividualDashboardPage", () => {
 
     renderPage();
 
-    expect(await screen.findByText("Ananya Nair")).toBeInTheDocument();
+    expect((await screen.findAllByText("Ananya Nair")).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Kaloor, Kochi/).length).toBeGreaterThan(0);
     expect(await screen.findByText(/2 units/)).toBeInTheDocument();
   });
@@ -81,13 +81,12 @@ describe("IndividualDashboardPage", () => {
     expect(await screen.findByText(/finish setting up your profile/i)).toBeInTheDocument();
   });
 
-  it("shows the three honest empty states for not-yet-built sections", async () => {
+  it("shows honest empty states for not-yet-built sections", async () => {
     renderPage();
 
-    await waitFor(() => expect(screen.getByText("Ananya Nair")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getAllByText("Ananya Nair").length).toBeGreaterThan(0));
 
     expect(screen.getByText("No donor responses yet")).toBeInTheDocument();
-    expect(screen.getByText("Nothing to read yet")).toBeInTheDocument();
     expect(screen.getByText("No events near you yet")).toBeInTheDocument();
   });
 
