@@ -197,7 +197,7 @@ export function FacilityWizard() {
                 type="text"
                 value={details.licenseNumber ?? ""}
                 onChange={(e) => setDetailsField("licenseNumber", e.target.value)}
-                placeholder="KL-HOSP-000000"
+                placeholder="As printed on your licence"
                 aria-invalid={showDetailsErrors && !!detailsErrors.licenseNumber}
                 aria-describedby="license-number-hint"
                 className={`h-[50px] rounded-sm border-[1.5px] bg-cream px-4 font-mono text-base outline-none transition-colors focus:border-clay ${
