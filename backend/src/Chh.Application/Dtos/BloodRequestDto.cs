@@ -8,6 +8,9 @@ public record BloodRequestDto
     /// <summary>Surrogate primary key.</summary>
     public required Guid Id { get; init; }
 
+    /// <summary>The requester's own name — see <c>BloodRequest.RequesterName</c>.</summary>
+    public required string RequesterName { get; init; }
+
     /// <summary>Patient's name.</summary>
     public required string PatientName { get; init; }
 

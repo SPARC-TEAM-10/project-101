@@ -19,6 +19,13 @@ public class BloodRequest
     /// </summary>
     public string RequesterMobileNumber { get; internal set; } = default!;
 
+    /// <summary>
+    /// The requester's own name — distinct from <see cref="PatientName"/> (the person needing
+    /// blood, which may not be the requester). Required for every requester, Guest or Individual,
+    /// since a Guest session has no registered profile to pull a name from.
+    /// </summary>
+    public string RequesterName { get; internal set; } = default!;
+
     /// <summary>Patient's name (AC1/AC4 mandatory field).</summary>
     public string PatientName { get; internal set; } = default!;
 
