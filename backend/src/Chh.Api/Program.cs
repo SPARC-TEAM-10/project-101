@@ -100,6 +100,11 @@ app.UseCors(ServiceCollectionExtensions.FrontendCorsPolicy);
 app.UseAuthentication();
 app.UseAuthorization();
 
+// Must come after UseAuthorization (needs HttpContext.User populated) and before MapControllers.
+// Runs before ActivityTrackingMiddleware so a suspended account's request is rejected (CHH-76 AC1)
+// before its presence timestamp gets updated.
+app.UseMiddleware<Chh.Api.Middleware.AccountStatusMiddleware>();
+
 // Must come after UseAuthorization (needs HttpContext.User populated) and before MapControllers
 // so every authenticated request updates presence (CHH-34) regardless of which endpoint it hits.
 app.UseMiddleware<Chh.Api.Middleware.ActivityTrackingMiddleware>();

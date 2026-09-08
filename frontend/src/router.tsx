@@ -12,6 +12,7 @@ import { FacilityRegistrationPage } from "./pages/facility/FacilityRegistrationP
 import { IndividualDashboardPage } from "./pages/dashboard/IndividualDashboardPage";
 import { GuestDashboardStubPage } from "./pages/dashboard/GuestDashboardStubPage";
 import { PendingVerificationsPage } from "./pages/admin/PendingVerificationsPage";
+import { UsersPage } from "./pages/admin/UsersPage";
 import { FacilityDashboardPage } from "./pages/dashboard/FacilityDashboardPage";
 import { ProfilePage } from "./pages/profile/ProfilePage";
 import { NotificationsPage } from "./pages/notifications/NotificationsPage";
@@ -86,6 +87,14 @@ export const router = createBrowserRouter([
     element: (
       <RequireAuth roles={["SystemAdmin"]}>
         <PendingVerificationsPage />
+      </RequireAuth>
+    ),
+  },
+  {
+    path: "/admin/users",
+    element: (
+      <RequireAuth roles={["SystemAdmin"]}>
+        <UsersPage />
       </RequireAuth>
     ),
   },

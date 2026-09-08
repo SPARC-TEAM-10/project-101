@@ -91,6 +91,12 @@ public class IndividualProfile
     public AccountStatus AccountStatus { get; internal set; } = AccountStatus.Active;
 
     /// <summary>
+    /// System Admin's reason for suspending this account (CHH-76/US-CHH-001-04 AC1). Null unless
+    /// <see cref="AccountStatus"/> is <see cref="Enums.AccountStatus.Suspended"/>.
+    /// </summary>
+    public string? SuspensionReason { get; internal set; }
+
+    /// <summary>
     /// UTC timestamp of the most recent authenticated request from this mobile number (CHH-34
     /// presence tracking), updated by <c>Chh.Api.Middleware.ActivityTrackingMiddleware</c>,
     /// throttled to at most once per minute. Nullable: never set for a profile that hasn't made an
