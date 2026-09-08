@@ -86,6 +86,12 @@ public static class ProblemDetailsServiceCollectionExtensions
                 {
                     Detail = ex.Message
                 });
+            // CHH-38: event creation domain exception mapping.
+            options.Map<FacilityNotVerifiedException>(ex =>
+                new StatusCodeProblemDetails(StatusCodes.Status403Forbidden)
+                {
+                    Detail = ex.Message
+                });
             // Surfaces the per-field failure messages (not just the generic exception message) —
             // api-standards.md §7's documented ValidationProblemDetails(ex.Failures) shape.
             options.Map<ChhValidationException>(ex =>

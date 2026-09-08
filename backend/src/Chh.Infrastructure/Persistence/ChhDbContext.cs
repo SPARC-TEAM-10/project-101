@@ -36,6 +36,9 @@ public class ChhDbContext : DbContext
     /// <summary>Per-donor notifications for matched blood requests (CHH-34).</summary>
     public DbSet<DonorNotification> DonorNotifications { get; set; } = default!;
 
+    /// <summary>Community health events created by verified facilities (CHH-38/US-CHH-005-01).</summary>
+    public DbSet<Event> Events { get; set; } = default!;
+
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
