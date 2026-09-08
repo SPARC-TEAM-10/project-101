@@ -231,8 +231,9 @@ export function IndividualDashboardPage() {
                   </div>
                   <div className="flex items-center justify-between text-[13px] text-ink-2">
                     <span>Expires {new Date(data.activeRequest.expiresAtUtc).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}</span>
-                    {/* CHH-36 (donor match tracking) isn't built yet — inert text, not a dead link. */}
-                    <span className="text-ink-3">Donor matches — coming soon (CHH-36)</span>
+                    <Link to={`/blood-requests/${data.activeRequest.id}/matches`} className="font-semibold text-clay hover:text-clay-hover">
+                      View donor matches
+                    </Link>
                   </div>
                 </div>
               </div>
