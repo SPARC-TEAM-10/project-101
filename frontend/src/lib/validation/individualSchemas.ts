@@ -52,6 +52,25 @@ export const individualRegistrationSchema = z
 
 export type IndividualRegistrationFormValues = z.infer<typeof individualRegistrationSchema>;
 
+// Mirrors UpdateIndividualProfileRequest (contracts/chh-api.v1.yaml) — the CHH-F02 profile-edit
+// subset of individualRegistrationSchema: location and health-screening flags only.
+export const individualProfileUpdateSchema = z
+  .object({
+    locationCityArea: z.string().trim().min(1, "Please select your location."),
+    isChronicIllness: z.boolean(),
+    hasRecentSurgery: z.boolean(),
+    isInfectiousDisease: z.boolean(),
+    isUnderweight: z.boolean(),
+    isOtherIllness: z.boolean(),
+    otherIllnessDetails: z.string().trim().max(MAX_OTHER_ILLNESS_LENGTH, "Please specify other illness."),
+  })
+  .refine((values) => !values.isOtherIllness || values.otherIllnessDetails.length > 0, {
+    message: "Please specify other illness.",
+    path: ["otherIllnessDetails"],
+  });
+
+export type IndividualProfileUpdateFormValues = z.infer<typeof individualProfileUpdateSchema>;
+
 export interface HealthScreeningFlags {
   isChronicIllness: boolean;
   hasRecentSurgery: boolean;

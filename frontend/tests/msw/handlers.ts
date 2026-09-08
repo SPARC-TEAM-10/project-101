@@ -156,10 +156,36 @@ export const getMyProfileSuccessHandler = http.get(INDIVIDUALS_ME_URL, () =>
     isReceiverOnly: false,
     locationCityArea: "Kaloor, Kochi",
     createdAtUtc: "2026-08-01T00:00:00.000Z",
+    isChronicIllness: false,
+    hasRecentSurgery: false,
+    isInfectiousDisease: false,
+    isUnderweight: false,
+    isOtherIllness: false,
+    otherIllnessDetails: null,
   }),
 );
 
 export const getMyProfileNotFoundHandler = http.get(INDIVIDUALS_ME_URL, () => new HttpResponse(null, { status: 404 }));
+
+export const updateMyProfileSuccessHandler = http.patch(INDIVIDUALS_ME_URL, async ({ request }) => {
+  const body = (await request.json()) as Record<string, unknown>;
+  return HttpResponse.json({
+    id: "33333333-3333-3333-3333-333333333333",
+    fullName: "Ananya Nair",
+    bloodGroup: "O+",
+    isReceiverOnly: Boolean(
+      body.isChronicIllness || body.hasRecentSurgery || body.isInfectiousDisease || body.isUnderweight || body.isOtherIllness,
+    ),
+    locationCityArea: body.locationCityArea,
+    createdAtUtc: "2026-08-01T00:00:00.000Z",
+    isChronicIllness: Boolean(body.isChronicIllness),
+    hasRecentSurgery: Boolean(body.hasRecentSurgery),
+    isInfectiousDisease: Boolean(body.isInfectiousDisease),
+    isUnderweight: Boolean(body.isUnderweight),
+    isOtherIllness: Boolean(body.isOtherIllness),
+    otherIllnessDetails: body.otherIllnessDetails ?? null,
+  });
+});
 
 export const BLOOD_REQUESTS_MINE_URL = "/api/v1/blood-requests/mine";
 
@@ -240,6 +266,7 @@ export const handlers = [
   createBloodRequestSuccessHandler,
   createFacilitySuccessHandler,
   getMyProfileSuccessHandler,
+  updateMyProfileSuccessHandler,
   getMyBloodRequestsEmptyHandler,
   nominatimReverseGeocodeHandler,
   registerIndividualSuccessHandler,
