@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 
 import { LoadingOverlay } from "../../components/LoadingOverlay";
+import { RadiusMap } from "../../components/RadiusMap";
 import { DASHBOARD_ROUTE_BY_ROLE } from "../auth/RoleRedirectPage";
 import { useAuth } from "../../context/AuthProvider";
 import { useToast } from "../../context/ToastProvider";
@@ -10,12 +11,15 @@ import { ApiError } from "../../api/httpClient";
 import { useCreateBloodRequest } from "../../features/bloodRequest/useCreateBloodRequest";
 import { BLOOD_GROUPS, URGENCY_LEVELS, type BloodGroup, type UrgencyLevel } from "../../lib/validation/bloodRequestSchemas";
 
-type ChipVariant = "clay" | "blood" | "amber" | "leaf";
+type ChipVariant = "clay" | "blood" | "urgent" | "leaf";
 
 const CHIP_SELECTED_CLASSES: Record<ChipVariant, string> = {
   clay: "border-clay bg-clay text-white",
   blood: "border-blood bg-blood text-white",
-  amber: "border-amber bg-amber text-white",
+  // A dedicated shade for "Urgent" (not the shared --amber token, which reads as a muted
+  // brownish-gold everywhere else it's used for warnings) — a clear traffic-light orange that's
+  // visually distinct from both Emergency's red and Standard's green.
+  urgent: "border-[#e07b1a] bg-[#e07b1a] text-white",
   leaf: "border-leaf bg-leaf text-white",
 };
 
@@ -50,40 +54,11 @@ function ChipButton({
 // a glance, matching the same signal convention as a traffic light.
 const URGENCY_VARIANTS: Record<UrgencyLevel, ChipVariant> = {
   Emergency: "blood",
-  Urgent: "amber",
+  Urgent: "urgent",
   Standard: "leaf",
 };
 
 const RADIUS_PRESETS_KM = [5, 10, 25, 50, 100];
-
-// Schematic radius preview, not a real interactive map — no maps/geocoding API key is
-// configured yet (backend/CLAUDE.md's Tech Stack row). Concentric rings are illustrative only;
-// they don't represent real-world scale. Replace with a real map once a provider is chosen.
-function RadiusPreview({ radiusKm, minRadiusKm, maxRadiusKm }: { radiusKm: number; minRadiusKm: number; maxRadiusKm: number }) {
-  const clamped = Math.min(Math.max(radiusKm, minRadiusKm), maxRadiusKm);
-  const fraction = (clamped - minRadiusKm) / (maxRadiusKm - minRadiusKm);
-  const size = 36 + fraction * 56;
-
-  return (
-    <div className="relative flex h-36 w-full items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-clay-tint to-sand-2">
-      <div
-        className="absolute rounded-full border-2 border-clay/40 bg-clay/10 transition-[width,height] duration-200"
-        style={{ width: `${size}%`, height: `${size}%` }}
-        aria-hidden="true"
-      />
-      <div
-        className="absolute rounded-full border-2 border-clay bg-clay-tint transition-[width,height] duration-200"
-        style={{ width: `${size * 0.55}%`, height: `${size * 0.55}%` }}
-        aria-hidden="true"
-      />
-      <div className="relative flex h-4 w-4 items-center justify-center rounded-full bg-blood ring-4 ring-white/70" aria-hidden="true" />
-      <span className="sr-only">Search radius preview: {radiusKm} kilometers</span>
-      <span className="absolute bottom-2.5 right-3 rounded-full bg-cream/90 px-2.5 py-1 text-xs font-semibold text-ink shadow-sm">
-        {radiusKm} km
-      </span>
-    </div>
-  );
-}
 
 function LocationStatus({
   status,
@@ -399,7 +374,17 @@ export function BloodRequestFormModal() {
             {touched && fieldErrors.searchRadiusKm && (
               <p className="text-xs text-error">{fieldErrors.searchRadiusKm[0]}</p>
             )}
-            <RadiusPreview radiusKm={radius} minRadiusKm={minRadiusKm} maxRadiusKm={maxRadiusKm} />
+            {geolocation.coordinates ? (
+              <RadiusMap
+                latitude={geolocation.coordinates.latitude}
+                longitude={geolocation.coordinates.longitude}
+                radiusKm={radius}
+              />
+            ) : (
+              <div className="flex h-48 w-full items-center justify-center rounded-lg border border-dashed border-line-strong bg-sand-2 text-center text-xs text-ink-3">
+                Tap the location pin above to preview your radius on the map.
+              </div>
+            )}
           </div>
         </form>
 
