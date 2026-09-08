@@ -11,4 +11,11 @@ public record MatchedDonorResult
 
     /// <summary>Distance from the request's location to the donor's registered location, in kilometers.</summary>
     public required decimal DistanceKm { get; init; }
+
+    /// <summary>
+    /// The matched donor's <c>IndividualProfile.LastActiveAtUtc</c> (CHH-34 presence tracking) —
+    /// used by <c>NotificationDispatchService</c> to decide whether the donor is "currently
+    /// active" in-app (skip SMS) or needs the SMS fallback (stale/null).
+    /// </summary>
+    public DateTimeOffset? LastActiveAtUtc { get; init; }
 }

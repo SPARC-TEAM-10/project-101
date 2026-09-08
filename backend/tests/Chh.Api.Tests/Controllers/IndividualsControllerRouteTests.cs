@@ -53,4 +53,25 @@ public class IndividualsControllerRouteTests
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
+
+    [Fact]
+    public async Task PatchMyProfile_UsesContractPath_IsRouted()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.PatchAsync("/api/v1/individuals/me", content: null);
+
+        response.StatusCode.Should().NotBe(HttpStatusCode.NotFound,
+            "the route convention must still resolve UpdateMyProfileAsync to contracts/chh-api.v1.yaml's documented path");
+    }
+
+    [Fact]
+    public async Task PatchMyProfile_WithoutAuthorizationHeader_ReturnsUnauthorized()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.PatchAsync("/api/v1/individuals/me", content: null);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
 }

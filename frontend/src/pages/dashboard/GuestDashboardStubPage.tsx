@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { useAuth } from "../../context/AuthProvider";
 
@@ -42,8 +42,14 @@ function LogoutIcon() {
 // (not a bottom button) since a guest session has nothing below the fold to push it down to.
 export function GuestDashboardStubPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { session, clearSession } = useAuth();
   const [now, setNow] = useState(() => Date.now());
+
+  // A guest has no persistent request history view (this dashboard is a stub) — the navigation
+  // state set by BloodRequestFormModal on success is the only way back to a just-created
+  // request's match status (CHH-36).
+  const state = location.state as { bloodRequestCreated?: boolean; id?: string } | null;
 
   useEffect(() => {
     // Same 24h JWT lifetime as every other role (JwtOptions.AccessTokenLifetimeMinutes, no
@@ -128,6 +134,17 @@ export function GuestDashboardStubPage() {
             <p className="mt-1 text-[12.5px] text-ink-3 sm:hidden">{formatRemaining(session.expiresAtUtc, now)}</p>
           )}
         </div>
+
+        {state?.bloodRequestCreated && state.id && (
+          <button
+            type="button"
+            onClick={() => navigate(`/blood-requests/${state.id}/matches`)}
+            className="flex flex-col gap-1 rounded-md border-[1.5px] border-go-line bg-go-tint p-4 text-left"
+          >
+            <b className="text-[14.5px] font-bold text-go-deep">Request sent — view match status</b>
+            <span className="text-[12.5px] text-ink-2">See how many donors have been notified.</span>
+          </button>
+        )}
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {tiles.map((tile) => (

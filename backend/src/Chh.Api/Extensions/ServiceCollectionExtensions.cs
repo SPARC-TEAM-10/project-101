@@ -58,6 +58,11 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IFacilityDocumentStorageService, Chh.Infrastructure.Storage.LocalDiskFacilityDocumentStorageService>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IMatchingEngineService, MatchingEngineService>();
+        services.AddScoped<IPresenceTrackerService, PresenceTrackerService>();
+        services.AddScoped<IDonorNotificationRepository, DonorNotificationRepository>();
+        services.AddScoped<INotificationDispatchService, NotificationDispatchService>();
+        services.AddScoped<INotificationService, NotificationService>();
+        services.AddScoped<IDonorResponseService, DonorResponseService>();
         services.AddScoped<MatchDonorsJob>();
 
         services.AddFast2Sms(configuration);

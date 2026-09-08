@@ -58,6 +58,28 @@ public static class ProblemDetailsServiceCollectionExtensions
                 {
                     Detail = ex.Message
                 });
+            // CHH-35: donor accept/decline domain exception mappings.
+            options.Map<BloodRequestNoLongerActiveException>(ex =>
+                new StatusCodeProblemDetails(StatusCodes.Status422UnprocessableEntity)
+                {
+                    Detail = ex.Message
+                });
+            options.Map<DonorAlreadyRespondedException>(ex =>
+                new StatusCodeProblemDetails(StatusCodes.Status409Conflict)
+                {
+                    Detail = ex.Message
+                });
+            // CHH-36: requester radius-expansion domain exception mappings.
+            options.Map<BloodRequestNotMatchingException>(ex =>
+                new StatusCodeProblemDetails(StatusCodes.Status422UnprocessableEntity)
+                {
+                    Detail = ex.Message
+                });
+            options.Map<RadiusMustIncreaseException>(ex =>
+                new StatusCodeProblemDetails(StatusCodes.Status422UnprocessableEntity)
+                {
+                    Detail = ex.Message
+                });
             // CHH-78: facility registration domain exception mapping.
             options.Map<FacilityAlreadyRegisteredException>(ex =>
                 new StatusCodeProblemDetails(StatusCodes.Status409Conflict)

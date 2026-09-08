@@ -33,6 +33,9 @@ public class ChhDbContext : DbContext
     /// <summary>Contact persons for <see cref="Facility"/> records.</summary>
     public DbSet<FacilityContact> FacilityContacts { get; set; } = default!;
 
+    /// <summary>Per-donor notifications for matched blood requests (CHH-34).</summary>
+    public DbSet<DonorNotification> DonorNotifications { get; set; } = default!;
+
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

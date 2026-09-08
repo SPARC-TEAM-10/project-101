@@ -35,15 +35,22 @@ public class Fast2SmsGatewayClient : ISmsGatewayClient
     }
 
     /// <inheritdoc />
-    public async Task SendOtpAsync(string mobileNumber, string otpCode, CancellationToken ct)
+    public async Task SendOtpAsync(string mobileNumber, string otpCode, CancellationToken ct) =>
+        await SendAsync(mobileNumber, string.Format(MessageTemplate, otpCode), ct).ConfigureAwait(false);
+
+    /// <inheritdoc />
+    public async Task SendMessageAsync(string mobileNumber, string message, CancellationToken ct) =>
+        await SendAsync(mobileNumber, message, ct).ConfigureAwait(false);
+
+    private async Task SendAsync(string mobileNumber, string messageBody, CancellationToken ct)
     {
-        var message = Uri.EscapeDataString(string.Format(MessageTemplate, otpCode));
+        var message = Uri.EscapeDataString(messageBody);
         var requestUri = $"{Fast2SmsConstants.RequestUri}?route={Fast2SmsConstants.QuickSmsRoute}&message={message}&numbers={mobileNumber}";
 
         using var response = await _httpClient.GetAsync(requestUri, ct).ConfigureAwait(false);
 
         // Fast2SMS reports business-level failures as HTTP 200 with "return": false, so a 2xx
-        // status code alone doesn't mean the OTP was actually dispatched. The response shape
+        // status code alone doesn't mean the message was actually dispatched. The response shape
         // otherwise varies (e.g. "message" is a string on some failures, an array on success),
         // so we only pick out the one field our logic depends on and log the raw body for the rest.
         var responseBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);

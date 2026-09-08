@@ -193,10 +193,36 @@ export const getMyProfileSuccessHandler = http.get(INDIVIDUALS_ME_URL, () =>
     isReceiverOnly: false,
     locationCityArea: "Kaloor, Kochi",
     createdAtUtc: "2026-08-01T00:00:00.000Z",
+    isChronicIllness: false,
+    hasRecentSurgery: false,
+    isInfectiousDisease: false,
+    isUnderweight: false,
+    isOtherIllness: false,
+    otherIllnessDetails: null,
   }),
 );
 
 export const getMyProfileNotFoundHandler = http.get(INDIVIDUALS_ME_URL, () => new HttpResponse(null, { status: 404 }));
+
+export const updateMyProfileSuccessHandler = http.patch(INDIVIDUALS_ME_URL, async ({ request }) => {
+  const body = (await request.json()) as Record<string, unknown>;
+  return HttpResponse.json({
+    id: "33333333-3333-3333-3333-333333333333",
+    fullName: "Ananya Nair",
+    bloodGroup: "O+",
+    isReceiverOnly: Boolean(
+      body.isChronicIllness || body.hasRecentSurgery || body.isInfectiousDisease || body.isUnderweight || body.isOtherIllness,
+    ),
+    locationCityArea: body.locationCityArea,
+    createdAtUtc: "2026-08-01T00:00:00.000Z",
+    isChronicIllness: Boolean(body.isChronicIllness),
+    hasRecentSurgery: Boolean(body.hasRecentSurgery),
+    isInfectiousDisease: Boolean(body.isInfectiousDisease),
+    isUnderweight: Boolean(body.isUnderweight),
+    isOtherIllness: Boolean(body.isOtherIllness),
+    otherIllnessDetails: body.otherIllnessDetails ?? null,
+  });
+});
 
 export const BLOOD_REQUESTS_MINE_URL = "/api/v1/blood-requests/mine";
 
@@ -271,13 +297,143 @@ export const registerIndividualConflictHandler = http.post(INDIVIDUALS_URL, () =
   );
 });
 
+export const NOTIFICATIONS_MINE_URL = "/api/v1/notifications/mine";
+
+export const getMyNotificationsEmptyHandler = http.get(NOTIFICATIONS_MINE_URL, () =>
+  HttpResponse.json({ items: [], totalCount: 0, page: 1, pageSize: 20 }),
+);
+
+export const getMyNotificationsSuccessHandler = http.get(NOTIFICATIONS_MINE_URL, () =>
+  HttpResponse.json({
+    items: [
+      {
+        id: "44444444-4444-4444-4444-444444444444",
+        bloodRequestId: "11111111-1111-1111-1111-111111111111",
+        bloodGroup: "O+",
+        unitsRequired: 2,
+        urgency: "Emergency",
+        distanceKm: 4.2,
+        areaLabel: "Kaloor, Kochi",
+        isRead: false,
+        createdAtUtc: new Date().toISOString(),
+        responseStatus: "Pending",
+      },
+    ],
+    totalCount: 1,
+    page: 1,
+    pageSize: 20,
+  }),
+);
+
+export const markNotificationReadSuccessHandler = http.patch("/api/v1/notifications/:id/read", () =>
+  HttpResponse.json({
+    id: "44444444-4444-4444-4444-444444444444",
+    bloodRequestId: "11111111-1111-1111-1111-111111111111",
+    bloodGroup: "O+",
+    unitsRequired: 2,
+    urgency: "Emergency",
+    distanceKm: 4.2,
+    areaLabel: "Kaloor, Kochi",
+    isRead: true,
+    createdAtUtc: new Date().toISOString(),
+    responseStatus: "Pending",
+  }),
+);
+
+export const acceptNotificationSuccessHandler = http.patch("/api/v1/notifications/:id/accept", ({ params }) =>
+  HttpResponse.json({
+    notificationId: params.id,
+    responseStatus: "Accepted",
+    requesterMobileNumber: "9123456789",
+    locationCityArea: "Kaloor, Kochi",
+    latitude: 9.9312,
+    longitude: 76.2673,
+  }),
+);
+
+export const acceptNotificationNoLongerActiveHandler = http.patch("/api/v1/notifications/:id/accept", () =>
+  HttpResponse.json(
+    { title: "Unprocessable Entity", status: 422, detail: "This request is no longer active" },
+    { status: 422 },
+  ),
+);
+
+export const declineNotificationSuccessHandler = http.patch("/api/v1/notifications/:id/decline", ({ params }) =>
+  HttpResponse.json({
+    notificationId: params.id,
+    responseStatus: "Declined",
+  }),
+);
+
+export const getBloodRequestMatchStatusNoMatchesHandler = http.get(
+  "/api/v1/blood-requests/:id/matches",
+  ({ params }) =>
+    HttpResponse.json({
+      bloodRequestId: params.id,
+      status: "Matching",
+      searchRadiusKm: 10,
+      unitsRequired: 2,
+      unitsAccepted: 0,
+      expiresAtUtc: new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString(),
+      notifiedCount: 0,
+      viewedCount: 0,
+      acceptedCount: 0,
+      donors: [],
+    }),
+);
+
+export const getBloodRequestMatchStatusWithDonorsHandler = http.get(
+  "/api/v1/blood-requests/:id/matches",
+  ({ params }) =>
+    HttpResponse.json({
+      bloodRequestId: params.id,
+      status: "Matching",
+      searchRadiusKm: 10,
+      unitsRequired: 2,
+      unitsAccepted: 1,
+      expiresAtUtc: new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString(),
+      notifiedCount: 3,
+      viewedCount: 2,
+      acceptedCount: 1,
+      donors: [
+        { label: "Donor 1", isAccepted: false },
+        { label: "Ravi Kumar", mobileNumber: "9123456789", isAccepted: true },
+        { label: "Donor 3", isAccepted: false },
+      ],
+    }),
+);
+
+export const updateBloodRequestRadiusSuccessHandler = http.patch(
+  "/api/v1/blood-requests/:id/radius",
+  async ({ params, request }) => {
+    const body = (await request.json()) as { searchRadiusKm: number };
+    return HttpResponse.json({
+      bloodRequestId: params.id,
+      status: "Matching",
+      searchRadiusKm: body.searchRadiusKm,
+      unitsRequired: 2,
+      unitsAccepted: 0,
+      expiresAtUtc: new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString(),
+      notifiedCount: 0,
+      viewedCount: 0,
+      acceptedCount: 0,
+      donors: [],
+    });
+  },
+);
+
 export const handlers = [
   successHandler,
   verifySuccessHandler,
   createBloodRequestSuccessHandler,
   createFacilitySuccessHandler,
   getMyProfileSuccessHandler,
+  updateMyProfileSuccessHandler,
   getMyBloodRequestsEmptyHandler,
+  getMyNotificationsEmptyHandler,
+  markNotificationReadSuccessHandler,
+  acceptNotificationSuccessHandler,
+  declineNotificationSuccessHandler,
   nominatimReverseGeocodeHandler,
   registerIndividualSuccessHandler,
 ];

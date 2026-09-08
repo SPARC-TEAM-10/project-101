@@ -100,6 +100,10 @@ app.UseCors(ServiceCollectionExtensions.FrontendCorsPolicy);
 app.UseAuthentication();
 app.UseAuthorization();
 
+// Must come after UseAuthorization (needs HttpContext.User populated) and before MapControllers
+// so every authenticated request updates presence (CHH-34) regardless of which endpoint it hits.
+app.UseMiddleware<Chh.Api.Middleware.ActivityTrackingMiddleware>();
+
 // Liveness probe. Anonymous by design — it is infrastructure, not an API resource, so it is not
 // part of contracts/chh-api.v1.yaml and carries no /api/v1 prefix. Excludes "external"-tagged
 // checks (e.g. Fast2SmsWalletHealthCheck) — an orchestrator restarting this container over an
