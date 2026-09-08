@@ -24,7 +24,9 @@ export interface FacilityDto {
   contacts: CreateFacilityContactRequest[];
   verificationStatus: "Pending" | "Verified" | "Rejected";
   licenseDocumentUrl?: string | null;
+  rejectionReason?: string | null;
   createdAtUtc: string;
+  updatedAtUtc: string;
 }
 
 // ASSUMED SHAPE (CHH-78) — not yet in contracts/chh-api.v1.yaml; derived from the CHH-F03
@@ -38,6 +40,15 @@ export function createFacility(
     method: "POST",
     headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
     body: JSON.stringify(request),
+  });
+}
+
+// Matches contracts/chh-api.v1.yaml's GET /facilities/me (CHH-28). [Authorize(Roles = "Hospital,Ngo")]
+// on the backend — callers with any other role get a 401/403, handled the same as any other
+// apiFetch error by the caller (useFacilityDashboard).
+export function getMyFacility(accessToken: string | undefined): Promise<FacilityDto> {
+  return apiFetch<FacilityDto>("/facilities/me", {
+    headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
   });
 }
 
