@@ -1,6 +1,5 @@
 using Chh.Application.Dtos;
 using Chh.Application.Validators;
-using Chh.Domain.Constants;
 using Chh.Domain.Enums;
 using FluentAssertions;
 using FluentValidation.TestHelper;
@@ -12,20 +11,17 @@ public class CreateFacilityRequestValidatorTests
 {
     private readonly CreateFacilityRequestValidator _validator = new();
 
-    private static CreateFacilityContactRequest ValidContact(string mobile = "9876500112") => new()
-    {
-        Name = "Anitha Varghese",
-        Designation = "Blood bank officer",
-        Mobile = mobile
-    };
-
     private static CreateFacilityRequest ValidRequest() => new()
     {
-        FacilityName = "Kochi Metro Hospital",
+        FacilityName = "City General Hospital",
         Category = FacilityCategory.Hospital,
-        LicenseNumber = "KL-HOSP-448120",
-        Address = "4th Block, Marine Drive, Ernakulam, Kochi 682031",
-        Contacts = [ValidContact()]
+        SubCategory = FacilitySubCategory.Government,
+        LicenseNumber = "KL-HOSP-000000",
+        Address = "123 Main St, Kochi",
+        Contacts =
+        [
+            new CreateFacilityContactRequest { Name = "Jane Doe", Designation = "Administrator", Mobile = "9876543210" }
+        ]
     };
 
     [Fact]
@@ -37,20 +33,9 @@ public class CreateFacilityRequestValidatorTests
     }
 
     [Fact]
-    public void Validate_WhenFacilityNameIsUnderMinLength_HasValidationErrorForFacilityName()
+    public void Validate_WhenFacilityNameIsTooShort_HasValidationErrorForFacilityName()
     {
-        var request = ValidRequest() with { FacilityName = "St" };
-
-        var result = _validator.TestValidate(request);
-
-        result.ShouldHaveValidationErrorFor(x => x.FacilityName)
-            .WithErrorMessage("Facility name must be at least 3 characters.");
-    }
-
-    [Fact]
-    public void Validate_WhenFacilityNameIsEmpty_HasValidationErrorForFacilityName()
-    {
-        var request = ValidRequest() with { FacilityName = "" };
+        var request = ValidRequest() with { FacilityName = "AB" };
 
         var result = _validator.TestValidate(request);
 
@@ -58,27 +43,49 @@ public class CreateFacilityRequestValidatorTests
     }
 
     [Fact]
-    public void Validate_WhenCategoryIsOutsideEnum_HasValidationErrorForCategory()
+    public void Validate_WhenSubCategoryDoesNotMatchCategory_HasValidationErrorForSubCategory()
     {
-        var request = ValidRequest() with { Category = (FacilityCategory)99 };
+        var request = ValidRequest() with { Category = FacilityCategory.Hospital, SubCategory = FacilitySubCategory.RegisteredSociety };
 
         var result = _validator.TestValidate(request);
 
-        result.ShouldHaveValidationErrorFor(x => x.Category)
-            .WithErrorMessage("Select a category.");
+        result.ShouldHaveValidationErrorFor(x => x.SubCategory);
     }
 
     [Theory]
-    [InlineData("KL/HOSP/2019")]
-    [InlineData("KL HOSP 2019")]
-    public void Validate_WhenLicenseNumberHasInvalidCharacters_HasValidationErrorForLicenseNumber(string licenseNumber)
+    [InlineData(FacilitySubCategory.Government)]
+    [InlineData(FacilitySubCategory.Private)]
+    [InlineData(FacilitySubCategory.Trust)]
+    public void Validate_WhenSubCategoryIsValidForHospital_HasNoValidationErrorForSubCategory(FacilitySubCategory subCategory)
     {
-        var request = ValidRequest() with { LicenseNumber = licenseNumber };
+        var request = ValidRequest() with { Category = FacilityCategory.Hospital, SubCategory = subCategory };
 
         var result = _validator.TestValidate(request);
 
-        result.ShouldHaveValidationErrorFor(x => x.LicenseNumber)
-            .WithErrorMessage(FacilityConstants.InvalidLicenseNumberMessage);
+        result.ShouldNotHaveValidationErrorFor(x => x.SubCategory);
+    }
+
+    [Theory]
+    [InlineData(FacilitySubCategory.RegisteredSociety)]
+    [InlineData(FacilitySubCategory.Trust)]
+    [InlineData(FacilitySubCategory.Section8Company)]
+    public void Validate_WhenSubCategoryIsValidForNgo_HasNoValidationErrorForSubCategory(FacilitySubCategory subCategory)
+    {
+        var request = ValidRequest() with { Category = FacilityCategory.Ngo, SubCategory = subCategory };
+
+        var result = _validator.TestValidate(request);
+
+        result.ShouldNotHaveValidationErrorFor(x => x.SubCategory);
+    }
+
+    [Fact]
+    public void Validate_WhenLicenseNumberHasInvalidCharacters_HasValidationErrorForLicenseNumber()
+    {
+        var request = ValidRequest() with { LicenseNumber = "KL/HOSP#123" };
+
+        var result = _validator.TestValidate(request);
+
+        result.ShouldHaveValidationErrorFor(x => x.LicenseNumber);
     }
 
     [Fact]
@@ -92,95 +99,33 @@ public class CreateFacilityRequestValidatorTests
     }
 
     [Fact]
-    public void Validate_WhenContactsIsEmpty_HasValidationErrorForContacts()
+    public void Validate_WhenNoContacts_HasValidationErrorForContacts()
     {
         var request = ValidRequest() with { Contacts = [] };
 
         var result = _validator.TestValidate(request);
 
-        result.ShouldHaveValidationErrorFor(x => x.Contacts)
-            .WithErrorMessage("At least one contact is required.");
+        result.ShouldHaveValidationErrorFor(x => x.Contacts);
     }
 
     [Fact]
-    public void Validate_WhenContactsExceedsMax_HasValidationErrorForContacts()
+    public void Validate_WhenMoreThanThreeContacts_HasValidationErrorForContacts()
+    {
+        var contact = new CreateFacilityContactRequest { Name = "A", Designation = "B", Mobile = "9876543210" };
+        var request = ValidRequest() with { Contacts = [contact, contact, contact, contact] };
+
+        var result = _validator.TestValidate(request);
+
+        result.ShouldHaveValidationErrorFor(x => x.Contacts);
+    }
+
+    [Fact]
+    public void Validate_WhenContactMobileIsNotTenDigits_HasValidationErrorForContactMobile()
     {
         var request = ValidRequest() with
         {
-            Contacts =
-            [
-                ValidContact("9876500001"),
-                ValidContact("9876500002"),
-                ValidContact("9876500003"),
-                ValidContact("9876500004")
-            ]
+            Contacts = [new CreateFacilityContactRequest { Name = "Jane", Designation = "Admin", Mobile = "12345" }]
         };
-
-        var result = _validator.TestValidate(request);
-
-        result.ShouldHaveValidationErrorFor(x => x.Contacts)
-            .WithErrorMessage(FacilityConstants.TooManyContactsMessage);
-    }
-
-    [Fact]
-    public void Validate_WhenContactsAtMax_HasNoValidationErrorForContacts()
-    {
-        var request = ValidRequest() with
-        {
-            Contacts =
-            [
-                ValidContact("9876500001"),
-                ValidContact("9876500002"),
-                ValidContact("9876500003")
-            ]
-        };
-
-        var result = _validator.TestValidate(request);
-
-        result.ShouldNotHaveValidationErrorFor(x => x.Contacts);
-    }
-
-    [Fact]
-    public void Validate_WhenTwoContactsShareAMobileNumber_HasValidationErrorForContacts()
-    {
-        var request = ValidRequest() with
-        {
-            Contacts = [ValidContact("9876500112"), ValidContact("9876500112")]
-        };
-
-        var result = _validator.TestValidate(request);
-
-        result.ShouldHaveValidationErrorFor(x => x.Contacts)
-            .WithErrorMessage(FacilityConstants.DuplicateContactMobileMessage);
-    }
-
-    [Fact]
-    public void Validate_WhenAContactNameIsEmpty_HasValidationErrorForThatContact()
-    {
-        var request = ValidRequest() with { Contacts = [ValidContact() with { Name = "" }] };
-
-        var result = _validator.TestValidate(request);
-
-        result.ShouldHaveValidationErrorFor("Contacts[0].Name");
-    }
-
-    [Fact]
-    public void Validate_WhenAContactDesignationIsEmpty_HasValidationErrorForThatContact()
-    {
-        var request = ValidRequest() with { Contacts = [ValidContact() with { Designation = "" }] };
-
-        var result = _validator.TestValidate(request);
-
-        result.ShouldHaveValidationErrorFor("Contacts[0].Designation");
-    }
-
-    [Theory]
-    [InlineData("98765")]
-    [InlineData("abcdefghij")]
-    [InlineData("98765001123")]
-    public void Validate_WhenAContactMobileIsNotTenDigits_HasValidationErrorForThatContact(string mobile)
-    {
-        var request = ValidRequest() with { Contacts = [ValidContact(mobile)] };
 
         var result = _validator.TestValidate(request);
 

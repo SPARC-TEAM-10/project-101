@@ -1,3 +1,4 @@
+using Chh.Application.Abstractions;
 using Chh.Application.Contracts;
 using Chh.Application.Dtos;
 using Chh.Application.Services;
@@ -15,8 +16,6 @@ public class FacilityServiceTests
     private readonly Mock<IUnitOfWork> _unitOfWork = new();
     private readonly FacilityService _sut;
 
-    private const string CreatedByMobileNumber = "9876543210";
-
     public FacilityServiceTests()
     {
         _sut = new FacilityService(_facilityRepository.Object, _unitOfWork.Object);
@@ -24,63 +23,97 @@ public class FacilityServiceTests
 
     private static CreateFacilityRequest ValidRequest() => new()
     {
-        FacilityName = "Kochi Metro Hospital",
+        FacilityName = "City General Hospital",
         Category = FacilityCategory.Hospital,
-        LicenseNumber = "KL-HOSP-448120",
-        Address = "4th Block, Marine Drive, Ernakulam, Kochi 682031",
+        SubCategory = FacilitySubCategory.Government,
+        LicenseNumber = "KL-HOSP-000000",
+        Address = "123 Main St, Kochi",
         Contacts =
         [
-            new CreateFacilityContactRequest { Name = "Anitha Varghese", Designation = "Blood bank officer", Mobile = "9876500112" },
-            new CreateFacilityContactRequest { Name = "Rahul Nair", Designation = "Duty manager", Mobile = "9876500240" }
+            new CreateFacilityContactRequest { Name = "Jane Doe", Designation = "Administrator", Mobile = "9876543210" }
         ]
     };
 
     [Fact]
-    public async Task CreateAsync_WhenRequestIsValid_PersistsAndReturnsPendingStatus()
+    public async Task RegisterAsync_WhenLicenseNumberIsUnused_PersistsAndReturnsDto()
     {
-        var response = await _sut.CreateAsync(CreatedByMobileNumber, ValidRequest(), CancellationToken.None);
+        _facilityRepository
+            .Setup(r => r.GetByLicenseNumberAsync("KL-HOSP-000000", It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Facility?)null);
 
-        response.VerificationStatus.Should().Be(FacilityVerificationStatus.Pending);
-        response.FacilityName.Should().Be("Kochi Metro Hospital");
-        _facilityRepository.Verify(r => r.AddAsync(
-            It.Is<Facility>(f => f.CreatedByMobileNumber == CreatedByMobileNumber),
-            It.IsAny<CancellationToken>()), Times.Once);
+        var result = await _sut.RegisterAsync(ValidRequest(), CancellationToken.None);
+
+        result.FacilityName.Should().Be("City General Hospital");
+        result.Category.Should().Be(FacilityCategory.Hospital);
+        result.SubCategory.Should().Be(FacilitySubCategory.Government);
+        result.VerificationStatus.Should().Be(FacilityVerificationStatus.Pending);
+        result.Contacts.Should().ContainSingle(c => c.Mobile == "9876543210");
+        _facilityRepository.Verify(r => r.AddAsync(It.IsAny<Facility>(), It.IsAny<CancellationToken>()), Times.Once);
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
-    public async Task CreateAsync_DoesNotTrustClientForCreatedByMobileNumber()
+    public async Task RegisterAsync_WhenLicenseNumberAlreadyRegistered_ThrowsFacilityAlreadyRegisteredException()
     {
-        Facility? captured = null;
+        var existing = new Facility
+        {
+            FacilityName = "Existing Hospital",
+            Category = FacilityCategory.Hospital,
+            SubCategory = FacilitySubCategory.Private,
+            LicenseNumber = "KL-HOSP-000000",
+            Address = "Somewhere",
+            CreatedAtUtc = DateTimeOffset.UtcNow,
+            UpdatedAtUtc = DateTimeOffset.UtcNow
+        };
         _facilityRepository
-            .Setup(r => r.AddAsync(It.IsAny<Facility>(), It.IsAny<CancellationToken>()))
-            .Callback<Facility, CancellationToken>((f, _) => captured = f)
-            .Returns(Task.CompletedTask);
+            .Setup(r => r.GetByLicenseNumberAsync("KL-HOSP-000000", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existing);
 
-        await _sut.CreateAsync(CreatedByMobileNumber, ValidRequest(), CancellationToken.None);
+        var act = () => _sut.RegisterAsync(ValidRequest(), CancellationToken.None);
 
-        captured.Should().NotBeNull();
-        captured!.CreatedByMobileNumber.Should().Be(CreatedByMobileNumber);
+        await act.Should().ThrowAsync<FacilityAlreadyRegisteredException>();
+        _facilityRepository.Verify(r => r.AddAsync(It.IsAny<Facility>(), It.IsAny<CancellationToken>()), Times.Never);
+        _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
-    public async Task CreateAsync_PreservesContactOrder_FirstContactIsPrimary()
+    public async Task GetMyFacilityAsync_WhenMobileNumberMatchesAContact_ReturnsDto()
     {
-        var response = await _sut.CreateAsync(CreatedByMobileNumber, ValidRequest(), CancellationToken.None);
+        var facility = new Facility
+        {
+            FacilityName = "City General Hospital",
+            Category = FacilityCategory.Hospital,
+            SubCategory = FacilitySubCategory.Government,
+            LicenseNumber = "KL-HOSP-000000",
+            Address = "123 Main St, Kochi",
+            VerificationStatus = FacilityVerificationStatus.Pending,
+            CreatedAtUtc = DateTimeOffset.UtcNow,
+            UpdatedAtUtc = DateTimeOffset.UtcNow,
+            Contacts =
+            [
+                new FacilityContact { Name = "Jane Doe", Designation = "Administrator", Mobile = "9876543210", SortOrder = 0 }
+            ]
+        };
+        _facilityRepository
+            .Setup(r => r.GetByContactMobileNumberAsync("9876543210", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(facility);
 
-        response.Contacts.Should().HaveCount(2);
-        response.Contacts[0].Name.Should().Be("Anitha Varghese");
-        response.Contacts[1].Name.Should().Be("Rahul Nair");
+        var result = await _sut.GetMyFacilityAsync("9876543210", CancellationToken.None);
+
+        result.Should().NotBeNull();
+        result!.FacilityName.Should().Be("City General Hospital");
+        result.VerificationStatus.Should().Be(FacilityVerificationStatus.Pending);
     }
 
     [Fact]
-    public async Task CreateAsync_TrimsFacilityNameAndLicenseNumber()
+    public async Task GetMyFacilityAsync_WhenNoFacilityMatches_ReturnsNull()
     {
-        var request = ValidRequest() with { FacilityName = "  Kochi Metro Hospital  ", LicenseNumber = " KL-HOSP-448120 " };
+        _facilityRepository
+            .Setup(r => r.GetByContactMobileNumberAsync("9876543210", It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Facility?)null);
 
-        var response = await _sut.CreateAsync(CreatedByMobileNumber, request, CancellationToken.None);
+        var result = await _sut.GetMyFacilityAsync("9876543210", CancellationToken.None);
 
-        response.FacilityName.Should().Be("Kochi Metro Hospital");
-        response.LicenseNumber.Should().Be("KL-HOSP-448120");
+        result.Should().BeNull();
     }
 }

@@ -8,20 +8,20 @@ namespace Chh.Domain.Entities;
 public class FacilityContact
 {
     /// <summary>Surrogate primary key.</summary>
-    public Guid Id { get; internal set; } = Guid.NewGuid();
+    public Guid Id { get; set; } = Guid.NewGuid();
 
     /// <summary>Owning facility.</summary>
-    public Guid FacilityId { get; internal set; }
+    public Guid FacilityId { get; set; }
 
     /// <summary>Contact's full name (AC2 mandatory field).</summary>
-    public string Name { get; internal set; } = default!;
+    public string Name { get; set; } = default!;
 
     /// <summary>Contact's designation/role at the facility, e.g. "Blood bank officer" (AC2 mandatory field).</summary>
-    public string Designation { get; internal set; } = default!;
+    public string Designation { get; set; } = default!;
 
     /// <summary>Contact's 10-digit mobile number (AC2 mandatory field). Unique within the facility.</summary>
-    public string Mobile { get; internal set; } = default!;
+    public string Mobile { get; set; } = default!;
 
     /// <summary>1-based position among this facility's contacts — 1 is the primary contact.</summary>
-    public int SortOrder { get; internal set; }
+    public int SortOrder { get; set; }
 }

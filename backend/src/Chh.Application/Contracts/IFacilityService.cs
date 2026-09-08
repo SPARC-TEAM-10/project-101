@@ -2,14 +2,14 @@ using Chh.Application.Dtos;
 
 namespace Chh.Application.Contracts;
 
-/// <summary>Logic layer for facility registration (CHH-78/US-CHH-003-01).</summary>
+/// <summary>Logic layer for facility registration (CHH-78) — distinct from <see cref="IFacilityAdminService"/>'s moderation concern.</summary>
 public interface IFacilityService
 {
-    /// <summary>Creates a new facility registration in "Pending" status.</summary>
-    /// <param name="createdByMobileNumber">The authenticated creator's mobile number (from the JWT "sub" claim, never client-supplied).</param>
-    /// <param name="request">The validated facility registration details.</param>
+    /// <summary>Registers a new facility (hospital/blood-bank or NGO), pending System Admin verification.</summary>
+    /// <param name="request">The registration details.</param>
     /// <param name="ct">Cancellation token.</param>
-    Task<FacilityDto> CreateAsync(string createdByMobileNumber, CreateFacilityRequest request, CancellationToken ct);
+    /// <exception cref="Chh.Application.Abstractions.FacilityAlreadyRegisteredException">A facility already exists for this license number.</exception>
+    Task<FacilityDto> RegisterAsync(CreateFacilityRequest request, CancellationToken ct);
 
     /// <summary>
     /// Returns the facility owned by <paramref name="mobileNumber"/> (CHH-28's status dashboard),

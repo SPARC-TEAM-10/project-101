@@ -6,9 +6,11 @@ using Xunit;
 namespace Chh.Api.Tests.Controllers;
 
 /// <summary>
-/// Guards the global "api/v1/[controller]" route convention for <c>FacilitiesController</c>, and
-/// that the JWT Bearer scheme rejects an unauthenticated request rather than silently allowing it
-/// through — same shape as <see cref="BloodRequestsControllerRouteTests"/>.
+/// Guards the global "api/v1/[controller]" route convention for a controller whose action has no
+/// template of its own (<c>[HttpPost("")]</c>, not bare <c>[HttpPost]</c>) — see the comment on
+/// <c>FacilitiesController.RegisterAsync</c> for why the empty-string template is required. This
+/// is also the regression guard for the reported 404: before this ticket, no controller resolved
+/// this path at all.
 /// </summary>
 [Collection(ApiTestCollection.Name)]
 public class FacilitiesControllerRouteTests
@@ -27,16 +29,39 @@ public class FacilitiesControllerRouteTests
         var response = await client.PostAsync("/api/v1/facilities", content: null);
 
         response.StatusCode.Should().NotBe(HttpStatusCode.NotFound,
-            "the route convention must still resolve FacilitiesController to contracts/chh-api.v1.yaml's documented path");
+            "the route convention must resolve FacilitiesController to contracts/chh-api.v1.yaml's documented path");
     }
 
     [Fact]
-    public async Task PostFacilities_WithoutAuthorizationHeader_ReturnsUnauthorized()
+    public async Task PostFacilities_WithoutAuthorizationHeader_IsNotUnauthorized()
     {
         var client = _factory.CreateClient();
 
         var response = await client.PostAsync("/api/v1/facilities", content: null);
 
-        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        response.StatusCode.Should().NotBe(HttpStatusCode.Unauthorized,
+            "facility registration is [AllowAnonymous], matching IndividualsController's precedent");
+    }
+
+    [Fact]
+    public async Task GetFacilitiesMe_UsesContractPath_IsRouted()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.GetAsync("/api/v1/facilities/me");
+
+        response.StatusCode.Should().NotBe(HttpStatusCode.NotFound,
+            "the route convention must resolve FacilitiesController.GetMyFacilityAsync to contracts/chh-api.v1.yaml's documented /facilities/me path");
+    }
+
+    [Fact]
+    public async Task GetFacilitiesMe_WithoutAuthorizationHeader_IsUnauthorized()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.GetAsync("/api/v1/facilities/me");
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized,
+            "CHH-28's status dashboard is restricted to the Hospital/Ngo roles, unlike facility registration");
     }
 }

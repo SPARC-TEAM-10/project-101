@@ -9,11 +9,11 @@ public class FacilityConfiguration : IEntityTypeConfiguration<Facility>
 {
     private const int FacilityNameMaxLength = 200;
     private const int CategoryMaxLength = 50;
+    private const int SubCategoryMaxLength = 50;
     private const int LicenseNumberMaxLength = 100;
     private const int AddressMaxLength = 500;
     private const int VerificationStatusMaxLength = 50;
     private const int LicenseDocumentUrlMaxLength = 500;
-    private const int MobileNumberMaxLength = 10;
     private const int RejectionReasonMaxLength = 500;
 
     /// <summary>Configures the <c>Facility</c> table mapping.</summary>
@@ -34,6 +34,11 @@ public class FacilityConfiguration : IEntityTypeConfiguration<Facility>
             .HasMaxLength(CategoryMaxLength)
             .IsRequired();
 
+        builder.Property(e => e.SubCategory)
+            .HasConversion<string>()
+            .HasMaxLength(SubCategoryMaxLength)
+            .IsRequired();
+
         builder.Property(e => e.LicenseNumber)
             .HasMaxLength(LicenseNumberMaxLength)
             .IsRequired();
@@ -52,12 +57,6 @@ public class FacilityConfiguration : IEntityTypeConfiguration<Facility>
 
         builder.Property(e => e.RejectionReason)
             .HasMaxLength(RejectionReasonMaxLength);
-
-        builder.Property(e => e.CreatedByMobileNumber)
-            .HasMaxLength(MobileNumberMaxLength)
-            .IsRequired();
-        builder.HasIndex(e => e.CreatedByMobileNumber)
-            .HasDatabaseName("IX_Facility_CreatedByMobileNumber");
 
         builder.Property(e => e.CreatedAtUtc)
             .IsRequired();

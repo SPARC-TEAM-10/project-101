@@ -9,16 +9,17 @@ using Microsoft.AspNetCore.Mvc;
 namespace Chh.Api.Controllers;
 
 /// <summary>
-/// Facility registration (CHH-78/US-CHH-003-01) and status (CHH-28/US-CHH-003-03) endpoints, part
-/// of Epic CHH-77 — CHH-F03 Facility Verification. The "api/v1/facilities" route is applied
-/// globally in <c>Program.cs</c>.
+/// Facility registration (CHH-78) and status (CHH-28/US-CHH-003-03) endpoints, part of Epic
+/// CHH-77 — CHH-F03 Facility Verification. The "api/v1/facilities" route is applied globally in
+/// <c>Program.cs</c> — this class's own empty <see cref="RouteAttribute"/> only exists to satisfy
+/// <c>[ApiController]</c>'s "must be attribute-routed" check, which runs before
+/// <c>RoutePrefixConvention</c> supplies the real route (same reasoning as <c>IndividualsController</c>).
 /// </summary>
 [ApiController]
 [Route("")]
-[Authorize]
 public class FacilitiesController : ControllerBase
 {
-    private const string RouteName = "CreateFacility";
+    private const string RouteName = "RegisterFacility";
 
     private readonly IFacilityService _facilityService;
 
@@ -30,26 +31,25 @@ public class FacilitiesController : ControllerBase
     }
 
     /// <summary>
-    /// Registers a new facility in "Pending" status (AC1). Requires a valid JWT
-    /// (api-standards.md §5) — no Hospital/NGO-specific role check yet, since that role isn't
-    /// issued (see plan Open Questions). The creator's mobile number is taken from the token's
-    /// "sub" claim, never trusted from the request body.
+    /// Registers a new facility (hospital/blood-bank or NGO), pending System Admin verification.
     /// </summary>
-    /// <param name="request">The facility registration details.</param>
+    /// <param name="request">The registration details.</param>
     /// <param name="cancellationToken">Cancellation token forwarded through the service and repository layers.</param>
     [HttpPost(Name = RouteName)]
+    // Anonymous: registering IS what makes a mobile number resolve to the Hospital/Ngo role
+    // (CHH-10 matches on FacilityContact.Mobile) — gating this action behind that role would make
+    // a facility's first-ever registration impossible.
+    [AllowAnonymous]
     [ProducesResponseType(typeof(FacilityDto), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<ActionResult<FacilityDto>> CreateAsync(
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+    public async Task<ActionResult<FacilityDto>> RegisterAsync(
         [FromBody] CreateFacilityRequest request,
         CancellationToken cancellationToken)
     {
-        var createdByMobileNumber = User.FindFirstValue(ClaimTypes.MobilePhone)!;
-        var result = await _facilityService.CreateAsync(createdByMobileNumber, request, cancellationToken);
-
-        // Same CreatedAtRoute-pointing-back-at-itself simplification as BloodRequestsController —
-        // no GET /facilities/{id} exists yet (out of scope for this story).
+        var result = await _facilityService.RegisterAsync(request, cancellationToken);
+        // Same CreatedAtRoute-pointing-back-at-itself simplification as IndividualsController —
+        // no GET /facilities/{id} exists yet (out of scope for this ticket).
         return CreatedAtRoute(RouteName, new { id = result.Id }, result);
     }
 

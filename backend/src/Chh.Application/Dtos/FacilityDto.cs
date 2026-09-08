@@ -18,7 +18,10 @@ public record FacilityDto
     /// <summary>Hospital or NGO.</summary>
     public required FacilityCategory Category { get; init; }
 
-    /// <summary>Operating license number.</summary>
+    /// <summary>Finer classification within <see cref="Category"/> (CHH-78 follow-up).</summary>
+    public required FacilitySubCategory SubCategory { get; init; }
+
+    /// <summary>Alphanumeric + hyphens license number.</summary>
     public required string LicenseNumber { get; init; }
 
     /// <summary>Fixed address donors are routed to.</summary>

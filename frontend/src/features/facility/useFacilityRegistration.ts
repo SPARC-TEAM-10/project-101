@@ -10,10 +10,11 @@ import {
   MAX_CONTACTS,
   MIN_CONTACTS,
   type ContactFormValues,
+  type FacilityCategory,
   type FacilityDetailsFormValues,
 } from "../../lib/validation/facilitySchemas";
 
-export type FacilityRegistrationStep = "details" | "contacts" | "upload";
+export type FacilityRegistrationStep = "details" | "contacts";
 
 export interface FacilityFormError {
   status: number | null;
@@ -28,12 +29,6 @@ export interface FacilityRegistrationSubmitResult {
 
 type DetailsValues = Partial<FacilityDetailsFormValues>;
 
-const initialDetails: DetailsValues = {
-  facilityName: "",
-  licenseNumber: "",
-  address: "",
-};
-
 function emptyContact(): ContactFormValues {
   return { name: "", designation: "", mobile: "" };
 }
@@ -45,10 +40,14 @@ function toFacilityFormError(err: unknown): FacilityFormError {
   return { status: null, message: "Couldn't save the facility. Try again." };
 }
 
-export function useFacilityRegistration(accessToken?: string) {
+export function useFacilityRegistration(accessToken: string | undefined, category: FacilityCategory) {
   const [step, setStep] = useState<FacilityRegistrationStep>("details");
-  const [facilityId, setFacilityId] = useState<string | null>(null);
-  const [details, setDetails] = useState<DetailsValues>(initialDetails);
+  const [details, setDetails] = useState<DetailsValues>({
+    facilityName: "",
+    licenseNumber: "",
+    address: "",
+    category,
+  });
   const [detailsTouched, setDetailsTouched] = useState(false);
   const [contacts, setContacts] = useState<ContactFormValues[]>([emptyContact()]);
   const [contactsTouched, setContactsTouched] = useState(false);
@@ -88,7 +87,7 @@ export function useFacilityRegistration(accessToken?: string) {
   }
 
   function goBack() {
-    setStep((prev) => (prev === "upload" ? "contacts" : "details"));
+    setStep("details");
   }
 
   function addContact() {
@@ -113,8 +112,6 @@ export function useFacilityRegistration(accessToken?: string) {
     }
     try {
       const data = await mutation.mutateAsync();
-      setFacilityId(data.id);
-      setStep("upload");
       return { ok: true, data };
     } catch (err) {
       return { ok: false, error: toFacilityFormError(err) };
@@ -123,7 +120,6 @@ export function useFacilityRegistration(accessToken?: string) {
 
   return {
     step,
-    facilityId,
     details,
     setDetailsField,
     detailsErrors,

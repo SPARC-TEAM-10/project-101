@@ -53,6 +53,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IFacilityRepository, FacilityRepository>();
         services.AddScoped<IFacilityService, FacilityService>();
         services.AddScoped<IFacilityAdminService, FacilityAdminService>();
+        services.AddScoped<IFacilityService, FacilityService>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IMatchingEngineService, MatchingEngineService>();
         services.AddScoped<MatchDonorsJob>();

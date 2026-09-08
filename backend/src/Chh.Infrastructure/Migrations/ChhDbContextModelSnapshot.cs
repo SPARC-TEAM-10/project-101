@@ -63,6 +63,11 @@ namespace Chh.Infrastructure.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("character varying(10)");
 
+                    b.Property<string>("RequesterName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
                     b.Property<int>("SearchRadiusKm")
                         .HasColumnType("integer");
 
@@ -110,11 +115,6 @@ namespace Chh.Infrastructure.Migrations
                     b.Property<DateTimeOffset>("CreatedAtUtc")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("CreatedByMobileNumber")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("character varying(10)");
-
                     b.Property<string>("FacilityName")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -133,6 +133,11 @@ namespace Chh.Infrastructure.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
+                    b.Property<string>("SubCategory")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
                     b.Property<DateTimeOffset>("UpdatedAtUtc")
                         .HasColumnType("timestamp with time zone");
 
@@ -142,9 +147,6 @@ namespace Chh.Infrastructure.Migrations
                         .HasColumnType("character varying(50)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CreatedByMobileNumber")
-                        .HasDatabaseName("IX_Facility_CreatedByMobileNumber");
 
                     b.HasIndex("VerificationStatus", "CreatedAtUtc")
                         .HasDatabaseName("IX_Facility_VerificationStatus_CreatedAtUtc");
@@ -172,13 +174,13 @@ namespace Chh.Infrastructure.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("character varying(10)");
 
-                    b.Property<int>("SortOrder")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
