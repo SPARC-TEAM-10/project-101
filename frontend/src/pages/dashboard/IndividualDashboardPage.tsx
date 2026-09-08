@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthProvider";
 import type { BloodRequestDto } from "../../api/bloodRequestApi";
 import { useIndividualDashboard } from "../../features/dashboard/useIndividualDashboard";
+import { useNotifications } from "../../features/notifications/useNotifications";
 
 // "Home" and "My requests" both resolve on this same page (request history already lives here —
 // "My requests" jumps to that section) since there's no separate page for it yet. Events/
@@ -94,6 +95,7 @@ export function IndividualDashboardPage() {
   const navigate = useNavigate();
   const { session, clearSession } = useAuth();
   const { data, isLoading, isError } = useIndividualDashboard(session?.token);
+  const { unreadCount } = useNotifications(session?.token);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   function handleLogout() {
@@ -133,8 +135,11 @@ export function IndividualDashboardPage() {
 
         <div className="flex-1" />
 
-        <Link to="/notifications" aria-label="Notifications" className="flex h-[42px] w-[42px] items-center justify-center rounded-full text-ink-2 transition-colors hover:bg-sand-2 hover:text-ink">
+        <Link to="/notifications" aria-label="Notifications" className="relative flex h-[42px] w-[42px] items-center justify-center rounded-full text-ink-2 transition-colors hover:bg-sand-2 hover:text-ink">
           <BellIcon />
+          {unreadCount > 0 && (
+            <span className="absolute right-1.5 top-1.5 flex h-[9px] w-[9px] rounded-full bg-blood ring-2 ring-cream" aria-label={`${unreadCount} unread notifications`} />
+          )}
         </Link>
 
         {/* User menu (desktop) — carries Log out, matching the approved design's header
