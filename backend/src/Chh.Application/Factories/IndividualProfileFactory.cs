@@ -42,4 +42,29 @@ public static class IndividualProfileFactory
             CreatedAtUtc = createdAtUtc
         };
     }
+
+    /// <summary>
+    /// Applies a validated profile edit (CHH-F02 profile edit) to an existing, tracked
+    /// <paramref name="profile"/> in place — mutates the entity so EF Core persists the change on
+    /// <c>SaveChangesAsync</c>, rather than constructing a replacement. Re-derives
+    /// <see cref="IndividualProfile.IsReceiverOnly"/> from the updated health-screening flags,
+    /// same rule as <see cref="Create"/>.
+    /// </summary>
+    /// <param name="profile">The tracked profile to update.</param>
+    /// <param name="request">The validated update request.</param>
+    public static void ApplyUpdate(IndividualProfile profile, UpdateIndividualProfileRequest request)
+    {
+        profile.LocationCityArea = request.LocationCityArea.Trim();
+        profile.IsChronicIllness = request.IsChronicIllness;
+        profile.HasRecentSurgery = request.HasRecentSurgery;
+        profile.IsInfectiousDisease = request.IsInfectiousDisease;
+        profile.IsUnderweight = request.IsUnderweight;
+        profile.IsOtherIllness = request.IsOtherIllness;
+        profile.OtherIllnessDetails = request.IsOtherIllness ? request.OtherIllnessDetails?.Trim() : null;
+        profile.IsReceiverOnly = request.IsChronicIllness
+            || request.HasRecentSurgery
+            || request.IsInfectiousDisease
+            || request.IsUnderweight
+            || request.IsOtherIllness;
+    }
 }

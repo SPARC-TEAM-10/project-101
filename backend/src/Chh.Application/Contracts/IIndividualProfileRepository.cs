@@ -11,6 +11,15 @@ public interface IIndividualProfileRepository
     /// <param name="ct">Cancellation token.</param>
     Task<IndividualProfile?> GetByMobileNumberAsync(string mobileNumber, CancellationToken ct);
 
+    /// <summary>
+    /// Returns the individual profile for the given mobile number, tracked by the context so
+    /// mutations made to it are persisted on <c>SaveChangesAsync</c> (CHH-F02 profile edit) — or
+    /// <c>null</c> if none exists.
+    /// </summary>
+    /// <param name="mobileNumber">The mobile number to look up.</param>
+    /// <param name="ct">Cancellation token.</param>
+    Task<IndividualProfile?> GetTrackedByMobileNumberAsync(string mobileNumber, CancellationToken ct);
+
     /// <summary>Adds a new individual profile to the context. Does not call <c>SaveChangesAsync</c>.</summary>
     /// <param name="individualProfile">The individual profile to add.</param>
     /// <param name="ct">Cancellation token.</param>

@@ -3,8 +3,11 @@ using Chh.Domain.Enums;
 namespace Chh.Application.Dtos;
 
 /// <summary>
-/// Response body for <c>POST /api/v1/individuals</c>. Deliberately excludes email, DOB, and
-/// health-screening detail — PII the registration-confirmation response doesn't need to echo back.
+/// Response body for <c>POST /api/v1/individuals</c> and <c>GET/PATCH /api/v1/individuals/me</c>.
+/// Deliberately excludes email, DOB — PII the caller already knows and doesn't need echoed back.
+/// The raw health-screening flags ARE included (unlike at first write) so the caller's own
+/// profile-edit form (CHH-F02 profile edit) can pre-fill accurately instead of guessing from the
+/// derived <see cref="IsReceiverOnly"/> flag alone.
 /// </summary>
 public record IndividualProfileDto
 {
@@ -25,4 +28,22 @@ public record IndividualProfileDto
 
     /// <summary>UTC timestamp the profile was created.</summary>
     public required DateTimeOffset CreatedAtUtc { get; init; }
+
+    /// <summary>Health-screening flag (CHH-F02 profile edit — pre-fills the edit form).</summary>
+    public required bool IsChronicIllness { get; init; }
+
+    /// <summary>Health-screening flag (CHH-F02 profile edit — pre-fills the edit form).</summary>
+    public required bool HasRecentSurgery { get; init; }
+
+    /// <summary>Health-screening flag (CHH-F02 profile edit — pre-fills the edit form).</summary>
+    public required bool IsInfectiousDisease { get; init; }
+
+    /// <summary>Health-screening flag (CHH-F02 profile edit — pre-fills the edit form).</summary>
+    public required bool IsUnderweight { get; init; }
+
+    /// <summary>Health-screening flag (CHH-F02 profile edit — pre-fills the edit form).</summary>
+    public required bool IsOtherIllness { get; init; }
+
+    /// <summary>Free-text detail when <see cref="IsOtherIllness"/> is true.</summary>
+    public string? OtherIllnessDetails { get; init; }
 }
