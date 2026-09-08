@@ -64,4 +64,10 @@ public class BloodRequestRepository : IBloodRequestRepository
 
         return rowsAffected > 0;
     }
+
+    /// <inheritdoc />
+    public async Task<BloodRequest?> GetTrackedByIdAsync(Guid id, CancellationToken ct) =>
+        await _context.BloodRequests
+            .FirstOrDefaultAsync(r => r.Id == id, ct)
+            .ConfigureAwait(false);
 }
