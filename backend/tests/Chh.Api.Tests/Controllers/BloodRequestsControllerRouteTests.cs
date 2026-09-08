@@ -40,4 +40,67 @@ public class BloodRequestsControllerRouteTests
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
+
+    [Fact]
+    public async Task GetMyBloodRequests_UsesContractPath_IsRouted()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.GetAsync("/api/v1/blood-requests/mine");
+
+        response.StatusCode.Should().NotBe(HttpStatusCode.NotFound,
+            "the route convention must still resolve GetMyRequestsAsync to contracts/chh-api.v1.yaml's documented path");
+    }
+
+    [Fact]
+    public async Task GetMyBloodRequests_WithoutAuthorizationHeader_ReturnsUnauthorized()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.GetAsync("/api/v1/blood-requests/mine");
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task GetMatchStatus_UsesContractPath_IsRouted()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.GetAsync($"/api/v1/blood-requests/{Guid.NewGuid()}/matches");
+
+        response.StatusCode.Should().NotBe(HttpStatusCode.NotFound,
+            "the route convention must still resolve GetMatchStatusAsync to contracts/chh-api.v1.yaml's documented path");
+    }
+
+    [Fact]
+    public async Task GetMatchStatus_WithoutAuthorizationHeader_ReturnsUnauthorized()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.GetAsync($"/api/v1/blood-requests/{Guid.NewGuid()}/matches");
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task PatchRadius_UsesContractPath_IsRouted()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.PatchAsync($"/api/v1/blood-requests/{Guid.NewGuid()}/radius", content: null);
+
+        response.StatusCode.Should().NotBe(HttpStatusCode.NotFound,
+            "the route convention must still resolve UpdateRadiusAsync to contracts/chh-api.v1.yaml's documented path");
+    }
+
+    [Fact]
+    public async Task PatchRadius_WithoutAuthorizationHeader_ReturnsUnauthorized()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.PatchAsync($"/api/v1/blood-requests/{Guid.NewGuid()}/radius", content: null);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
 }

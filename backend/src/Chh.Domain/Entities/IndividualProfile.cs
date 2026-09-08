@@ -64,4 +64,40 @@ public class IndividualProfile
 
     /// <summary>UTC timestamp the profile was created.</summary>
     public DateTimeOffset CreatedAtUtc { get; internal set; }
+
+    /// <summary>
+    /// Grants the CHH-F07 Admin Command Center's <see cref="Chh.Domain.Constants.RoleConstants.SystemAdmin"/>
+    /// role on OTP verification (<c>OtpService.VerifyOtpAsync</c>). Defaults <c>false</c> — never
+    /// set from a self-service registration request; flipping it is an out-of-band operation
+    /// (direct DB access) until a proper admin-management endpoint exists.
+    /// </summary>
+    public bool IsAdmin { get; internal set; }
+
+    /// <summary>
+    /// Registered latitude, used for proximity donor matching (US-CHH-004-02/CHH-80 AC4) — never
+    /// live GPS. Nullable: the CHH-F02 registration flow doesn't collect coordinates yet, so
+    /// existing/new profiles start with none; a donor with no coordinates is excluded from
+    /// matching rather than treated as an error (documented Edge Case).
+    /// </summary>
+    public decimal? Latitude { get; internal set; }
+
+    /// <summary>Registered longitude — see <see cref="Latitude"/>.</summary>
+    public decimal? Longitude { get; internal set; }
+
+    /// <summary>
+    /// Account standing (US-CHH-004-02/CHH-80 AC3). A <see cref="Enums.AccountStatus.Suspended"/>
+    /// donor is excluded from proximity matching. Defaults to <see cref="Enums.AccountStatus.Active"/>.
+    /// </summary>
+    public AccountStatus AccountStatus { get; internal set; } = AccountStatus.Active;
+
+    /// <summary>
+    /// UTC timestamp of the most recent authenticated request from this mobile number (CHH-34
+    /// presence tracking), updated by <c>Chh.Api.Middleware.ActivityTrackingMiddleware</c>,
+    /// throttled to at most once per minute. Nullable: never set for a profile that hasn't made an
+    /// authenticated request since this field was introduced. Used by
+    /// <c>Chh.Application.Services.NotificationDispatchService</c> to decide whether a donor is
+    /// "currently active" in-app (recent value) or needs the SMS fallback (stale/null) — see
+    /// <c>Chh.Domain.Constants.PresenceConstants.ActiveWindow</c> for the threshold.
+    /// </summary>
+    public DateTimeOffset? LastActiveAtUtc { get; internal set; }
 }

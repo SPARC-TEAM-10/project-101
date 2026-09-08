@@ -1,17 +1,25 @@
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 
 import { LoadingOverlay } from "../../components/LoadingOverlay";
+import { RadiusMap } from "../../components/RadiusMap";
+import { DASHBOARD_ROUTE_BY_ROLE } from "../auth/RoleRedirectPage";
 import { useAuth } from "../../context/AuthProvider";
 import { useToast } from "../../context/ToastProvider";
+import { getMyProfile } from "../../api/individualApi";
+import { ApiError } from "../../api/httpClient";
 import { useCreateBloodRequest } from "../../features/bloodRequest/useCreateBloodRequest";
 import { BLOOD_GROUPS, URGENCY_LEVELS, type BloodGroup, type UrgencyLevel } from "../../lib/validation/bloodRequestSchemas";
 
-type ChipVariant = "clay" | "blood" | "amber" | "leaf";
+type ChipVariant = "clay" | "blood" | "urgent" | "leaf";
 
 const CHIP_SELECTED_CLASSES: Record<ChipVariant, string> = {
   clay: "border-clay bg-clay text-white",
   blood: "border-blood bg-blood text-white",
-  amber: "border-amber bg-amber text-white",
+  // A dedicated shade for "Urgent" (not the shared --amber token, which reads as a muted
+  // brownish-gold everywhere else it's used for warnings) — a clear traffic-light orange that's
+  // visually distinct from both Emergency's red and Standard's green.
+  urgent: "border-[#e07b1a] bg-[#e07b1a] text-white",
   leaf: "border-leaf bg-leaf text-white",
 };
 
@@ -46,40 +54,11 @@ function ChipButton({
 // a glance, matching the same signal convention as a traffic light.
 const URGENCY_VARIANTS: Record<UrgencyLevel, ChipVariant> = {
   Emergency: "blood",
-  Urgent: "amber",
+  Urgent: "urgent",
   Standard: "leaf",
 };
 
 const RADIUS_PRESETS_KM = [5, 10, 25, 50, 100];
-
-// Schematic radius preview, not a real interactive map — no maps/geocoding API key is
-// configured yet (backend/CLAUDE.md's Tech Stack row). Concentric rings are illustrative only;
-// they don't represent real-world scale. Replace with a real map once a provider is chosen.
-function RadiusPreview({ radiusKm, minRadiusKm, maxRadiusKm }: { radiusKm: number; minRadiusKm: number; maxRadiusKm: number }) {
-  const clamped = Math.min(Math.max(radiusKm, minRadiusKm), maxRadiusKm);
-  const fraction = (clamped - minRadiusKm) / (maxRadiusKm - minRadiusKm);
-  const size = 36 + fraction * 56;
-
-  return (
-    <div className="relative flex h-36 w-full items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-clay-tint to-sand-2">
-      <div
-        className="absolute rounded-full border-2 border-clay/40 bg-clay/10 transition-[width,height] duration-200"
-        style={{ width: `${size}%`, height: `${size}%` }}
-        aria-hidden="true"
-      />
-      <div
-        className="absolute rounded-full border-2 border-clay bg-clay-tint transition-[width,height] duration-200"
-        style={{ width: `${size * 0.55}%`, height: `${size * 0.55}%` }}
-        aria-hidden="true"
-      />
-      <div className="relative flex h-4 w-4 items-center justify-center rounded-full bg-blood ring-4 ring-white/70" aria-hidden="true" />
-      <span className="sr-only">Search radius preview: {radiusKm} kilometers</span>
-      <span className="absolute bottom-2.5 right-3 rounded-full bg-cream/90 px-2.5 py-1 text-xs font-semibold text-ink shadow-sm">
-        {radiusKm} km
-      </span>
-    </div>
-  );
-}
 
 function LocationStatus({
   status,
@@ -109,8 +88,19 @@ export function BloodRequestFormModal() {
   const navigate = useNavigate();
   const { session } = useAuth();
   const toast = useToast();
+
+  // Individual sessions have a registered profile to pre-fill "Your name" from; a Guest
+  // requester has none (404) and must type it themselves — the field stays editable either way.
+  const { data: profile } = useQuery({
+    queryKey: ["individual", "me", session?.token],
+    queryFn: () => getMyProfile(session!.token),
+    enabled: Boolean(session?.token),
+    retry: (failureCount, err) => (err instanceof ApiError && err.status === 404 ? false : failureCount < 2),
+  });
+
   const {
     values,
+    setRequesterName,
     setPatientName,
     setBloodGroup,
     setUnitsRequired,
@@ -125,7 +115,7 @@ export function BloodRequestFormModal() {
     submit,
     isPending,
     error,
-  } = useCreateBloodRequest(session?.token);
+  } = useCreateBloodRequest(session?.token, profile?.fullName);
 
   function close() {
     navigate("/");
@@ -136,7 +126,8 @@ export function BloodRequestFormModal() {
     const result = await submit();
     if (result.ok && result.data) {
       toast.success("Blood request created — notifying nearby donors.");
-      navigate("/", { state: { bloodRequestCreated: true, id: result.data.id } });
+      const dashboardRoute = session?.role ? DASHBOARD_ROUTE_BY_ROLE[session.role] : "/";
+      navigate(dashboardRoute, { state: { bloodRequestCreated: true, id: result.data.id } });
     } else if (result.error) {
       toast.error(result.error.message);
     }
@@ -187,6 +178,23 @@ export function BloodRequestFormModal() {
           noValidate
           className="modal-scroll flex flex-1 flex-col gap-5 overflow-y-auto px-6 py-5"
         >
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="requester-name" className="text-sm font-medium text-ink-2">
+              Your name
+            </label>
+            <input
+              id="requester-name"
+              type="text"
+              value={values.requesterName ?? ""}
+              onChange={(e) => setRequesterName(e.target.value)}
+              placeholder="So the donor knows who's asking"
+              className="h-12 rounded-sm border-[1.5px] border-line-strong bg-cream px-4 text-base outline-none transition-colors focus:border-clay"
+            />
+            {touched && fieldErrors.requesterName && (
+              <p className="text-xs text-error">{fieldErrors.requesterName[0]}</p>
+            )}
+          </div>
+
           <div className="flex flex-col gap-1.5">
             <label htmlFor="patient-name" className="text-sm font-medium text-ink-2">
               Patient name
@@ -366,7 +374,17 @@ export function BloodRequestFormModal() {
             {touched && fieldErrors.searchRadiusKm && (
               <p className="text-xs text-error">{fieldErrors.searchRadiusKm[0]}</p>
             )}
-            <RadiusPreview radiusKm={radius} minRadiusKm={minRadiusKm} maxRadiusKm={maxRadiusKm} />
+            {geolocation.coordinates ? (
+              <RadiusMap
+                latitude={geolocation.coordinates.latitude}
+                longitude={geolocation.coordinates.longitude}
+                radiusKm={radius}
+              />
+            ) : (
+              <div className="flex h-48 w-full items-center justify-center rounded-lg border border-dashed border-line-strong bg-sand-2 text-center text-xs text-ink-3">
+                Tap the location pin above to preview your radius on the map.
+              </div>
+            )}
           </div>
         </form>
 

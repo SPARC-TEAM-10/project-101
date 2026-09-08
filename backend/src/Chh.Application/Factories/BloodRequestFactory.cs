@@ -21,6 +21,7 @@ public static class BloodRequestFactory
         return new BloodRequest
         {
             RequesterMobileNumber = requesterMobileNumber,
+            RequesterName = request.RequesterName.Trim(),
             PatientName = request.PatientName.Trim(),
             BloodGroup = request.BloodGroup,
             UnitsRequired = request.UnitsRequired,

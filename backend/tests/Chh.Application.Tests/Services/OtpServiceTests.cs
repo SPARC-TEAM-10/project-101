@@ -19,6 +19,7 @@ public class OtpServiceTests
     private readonly Mock<IOtpRequestRepository> _otpRequestRepository = new();
     private readonly Mock<ISmsGatewayClient> _smsGatewayClient = new();
     private readonly Mock<IIndividualProfileRepository> _individualProfileRepository = new();
+    private readonly Mock<IFacilityRepository> _facilityRepository = new();
     private readonly Mock<IJwtTokenGenerator> _jwtTokenGenerator = new();
     private readonly Mock<IUnitOfWork> _unitOfWork = new();
     private readonly OtpService _sut;
@@ -30,6 +31,9 @@ public class OtpServiceTests
         _individualProfileRepository
             .Setup(r => r.GetByMobileNumberAsync(MobileNumber, It.IsAny<CancellationToken>()))
             .ReturnsAsync((IndividualProfile?)null);
+        _facilityRepository
+            .Setup(r => r.GetByContactMobileNumberAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Facility?)null);
         _jwtTokenGenerator
             .Setup(j => j.GenerateToken(MobileNumber, It.IsAny<string>()))
             .Returns(("fake-jwt", DateTimeOffset.UtcNow.AddHours(1)));
@@ -38,6 +42,7 @@ public class OtpServiceTests
             _otpRequestRepository.Object,
             _smsGatewayClient.Object,
             _individualProfileRepository.Object,
+            _facilityRepository.Object,
             _jwtTokenGenerator.Object,
             _unitOfWork.Object,
             Mock.Of<ILogger<OtpService>>());
@@ -127,6 +132,28 @@ public class OtpServiceTests
 
         response.Role.Should().Be(RoleConstants.Individual);
         _jwtTokenGenerator.Verify(j => j.GenerateToken(MobileNumber, RoleConstants.Individual), Times.Once);
+    }
+
+    [Fact]
+    public async Task VerifyOtpAsync_WhenIndividualProfileHasIsAdminFlagSet_IssuesTokenWithSystemAdminRole()
+    {
+        const string adminMobileNumber = "9999999999";
+        var otpRequest = OtpRequestFactory.Create(adminMobileNumber, HashOtpCode("123456"), DateTimeOffset.UtcNow);
+        _otpRequestRepository
+            .Setup(r => r.GetLatestTrackedByMobileNumberAsync(adminMobileNumber, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(otpRequest);
+        _individualProfileRepository
+            .Setup(r => r.GetByMobileNumberAsync(adminMobileNumber, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new IndividualProfile { IsAdmin = true });
+        _jwtTokenGenerator
+            .Setup(j => j.GenerateToken(adminMobileNumber, It.IsAny<string>()))
+            .Returns(("fake-admin-jwt", DateTimeOffset.UtcNow.AddHours(1)));
+
+        var response = await _sut.VerifyOtpAsync(
+            new OtpVerifyRequest { MobileNumber = adminMobileNumber, OtpCode = "123456" }, CancellationToken.None);
+
+        response.Role.Should().Be(RoleConstants.SystemAdmin);
+        _jwtTokenGenerator.Verify(j => j.GenerateToken(adminMobileNumber, RoleConstants.SystemAdmin), Times.Once);
     }
 
     [Fact]

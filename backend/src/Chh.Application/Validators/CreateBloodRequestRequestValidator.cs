@@ -16,6 +16,8 @@ namespace Chh.Application.Validators;
 /// </remarks>
 public class CreateBloodRequestRequestValidator : AbstractValidator<CreateBloodRequestRequest>
 {
+    private const int MinRequesterNameLength = 2;
+    private const int MaxRequesterNameLength = 100;
     private const int MinPatientNameLength = 2;
     private const int MaxPatientNameLength = 100;
     private const int MaxLocationCityAreaLength = 100;
@@ -23,6 +25,12 @@ public class CreateBloodRequestRequestValidator : AbstractValidator<CreateBloodR
     /// <summary>Configures the validation rules for <see cref="CreateBloodRequestRequest"/>.</summary>
     public CreateBloodRequestRequestValidator()
     {
+        RuleFor(x => x.RequesterName)
+            .NotEmpty().WithMessage("Please enter your name")
+            .Must(name => name.Trim().Length is >= MinRequesterNameLength and <= MaxRequesterNameLength)
+            .WithMessage($"Your name must be between {MinRequesterNameLength} and {MaxRequesterNameLength} characters")
+            .When(x => !string.IsNullOrEmpty(x.RequesterName), ApplyConditionTo.CurrentValidator);
+
         RuleFor(x => x.PatientName)
             .NotEmpty().WithMessage("Please enter the patient's name")
             .Must(name => name.Trim().Length is >= MinPatientNameLength and <= MaxPatientNameLength)

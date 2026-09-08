@@ -19,6 +19,13 @@ public class BloodRequest
     /// </summary>
     public string RequesterMobileNumber { get; internal set; } = default!;
 
+    /// <summary>
+    /// The requester's own name — distinct from <see cref="PatientName"/> (the person needing
+    /// blood, which may not be the requester). Required for every requester, Guest or Individual,
+    /// since a Guest session has no registered profile to pull a name from.
+    /// </summary>
+    public string RequesterName { get; internal set; } = default!;
+
     /// <summary>Patient's name (AC1/AC4 mandatory field).</summary>
     public string PatientName { get; internal set; } = default!;
 
@@ -56,4 +63,13 @@ public class BloodRequest
 
     /// <summary>UTC timestamp the request auto-expires — <see cref="CreatedAtUtc"/> plus the 6-hour validity window.</summary>
     public DateTimeOffset ExpiresAtUtc { get; internal set; }
+
+    /// <summary>
+    /// Units accepted so far across all donors (CHH-35 AC1/Edge Case: "multiple donors accept
+    /// simultaneously" — units remaining must be tracked). Once this reaches <see cref="UnitsRequired"/>,
+    /// <see cref="Status"/> transitions to <see cref="BloodRequestStatus.Fulfilled"/>. Mutated only
+    /// via <c>Chh.Application.Services.DonorResponseService</c>'s atomic conditional update — never
+    /// read-then-write in application code, to stay race-safe under concurrent accepts.
+    /// </summary>
+    public int UnitsAccepted { get; internal set; }
 }

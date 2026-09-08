@@ -112,6 +112,14 @@ Module-specific additions to this checklist (e.g. "matches OpenAPI spec",
   all-AWS — chosen for Vercel's faster Vite/React deploy experience. Backend
   CORS must allow the Vercel origin(s); see `backend/CLAUDE.md` and
   `frontend/CLAUDE.md` for the per-side detail.
+- **2026-09-08 — CHH-73 interim SystemAdmin mechanism settled**: Two
+  independent fixes for the same PR review comments (hardcoded admin mobile
+  number → real mechanism) landed on the same branch — one adding
+  `IndividualProfile.IsAdmin`, the other a separate `AdminUser` table. Kept
+  `IndividualProfile.IsAdmin` (see `.claude/rules/api-standards.md` §5); the
+  `AdminUser` table/repository were removed. Routing (the global
+  `RoutePrefixConvention` + controller-naming coupling — see
+  `.claude/rules/api-standards.md` §1) was untouched by this decision.
 
 ## Non-goals / out of scope
 

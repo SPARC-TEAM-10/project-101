@@ -2,15 +2,19 @@ import { Navigate } from "react-router-dom";
 
 import { useAuth } from "../../context/AuthProvider";
 
-const DASHBOARD_ROUTE_BY_ROLE = {
+export const DASHBOARD_ROUTE_BY_ROLE = {
   Individual: "/dashboard/individual",
-  Guest: "/dashboard/guest",
+  // CHH-11: an unrecognized ("Guest") number goes to the New User/Guest choice screen first,
+  // not straight to the Guest Dashboard — that's one of the two choices offered there.
+  Guest: "/welcome",
+  Hospital: "/dashboard/facility",
+  Ngo: "/dashboard/facility",
   SystemAdmin: "/admin",
 } as const;
 
 // Brief "Verifying..." transition (CHH-10 UI Notes) between OTP verification and the
-// role-appropriate dashboard. Hospital/NGO aren't resolvable yet (see AuthProvider's Role
-// type); SystemAdmin (CHH-73, the CHH-F07 interim shortcut) routes to the Admin Command Center.
+// role-appropriate destination. SystemAdmin (CHH-73, the CHH-F07 interim shortcut) routes to
+// the Admin Command Center.
 export function RoleRedirectPage() {
   const { session } = useAuth();
 

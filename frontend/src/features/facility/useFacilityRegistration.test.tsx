@@ -16,28 +16,28 @@ function wrapper({ children }: { children: ReactNode }) {
 
 const validDetails = {
   facilityName: "Kochi Metro Hospital",
-  category: "Hospital" as const,
+  subCategory: "Government" as const,
   licenseNumber: "KL-HOSP-448120",
   address: "4th Block, Marine Drive, Ernakulam, Kochi 682031",
 };
 
 function fillDetails(result: { current: ReturnType<typeof useFacilityRegistration> }) {
   result.current.setDetailsField("facilityName", validDetails.facilityName);
-  result.current.setDetailsField("category", validDetails.category);
+  result.current.setDetailsField("subCategory", validDetails.subCategory);
   result.current.setDetailsField("licenseNumber", validDetails.licenseNumber);
   result.current.setDetailsField("address", validDetails.address);
 }
 
 describe("useFacilityRegistration", () => {
   it("starts on the details step with one empty contact", () => {
-    const { result } = renderHook(() => useFacilityRegistration("token"), { wrapper });
+    const { result } = renderHook(() => useFacilityRegistration("token", "Hospital"), { wrapper });
 
     expect(result.current.step).toBe("details");
     expect(result.current.contacts).toHaveLength(1);
   });
 
   it("does not advance to contacts when details are invalid (AC1)", () => {
-    const { result } = renderHook(() => useFacilityRegistration("token"), { wrapper });
+    const { result } = renderHook(() => useFacilityRegistration("token", "Hospital"), { wrapper });
 
     act(() => {
       result.current.goToContacts();
@@ -49,7 +49,7 @@ describe("useFacilityRegistration", () => {
   });
 
   it("advances to contacts once all details fields are valid (AC1)", () => {
-    const { result } = renderHook(() => useFacilityRegistration("token"), { wrapper });
+    const { result } = renderHook(() => useFacilityRegistration("token", "Hospital"), { wrapper });
 
     act(() => {
       fillDetails(result);
@@ -62,7 +62,7 @@ describe("useFacilityRegistration", () => {
   });
 
   it("respects the 1–3 contact bound when adding and removing (AC2)", () => {
-    const { result } = renderHook(() => useFacilityRegistration("token"), { wrapper });
+    const { result } = renderHook(() => useFacilityRegistration("token", "Hospital"), { wrapper });
 
     act(() => {
       result.current.addContact();
@@ -80,7 +80,7 @@ describe("useFacilityRegistration", () => {
   });
 
   it("flags a duplicate mobile number across contacts", () => {
-    const { result } = renderHook(() => useFacilityRegistration("token"), { wrapper });
+    const { result } = renderHook(() => useFacilityRegistration("token", "Hospital"), { wrapper });
 
     act(() => {
       result.current.addContact();
@@ -92,7 +92,7 @@ describe("useFacilityRegistration", () => {
   });
 
   it("submits successfully once details and contacts are valid", async () => {
-    const { result } = renderHook(() => useFacilityRegistration("token"), { wrapper });
+    const { result } = renderHook(() => useFacilityRegistration("token", "Hospital"), { wrapper });
 
     act(() => {
       fillDetails(result);
@@ -113,7 +113,7 @@ describe("useFacilityRegistration", () => {
   });
 
   it("blocks submit and reports errors when a contact is incomplete", async () => {
-    const { result } = renderHook(() => useFacilityRegistration("token"), { wrapper });
+    const { result } = renderHook(() => useFacilityRegistration("token", "Hospital"), { wrapper });
 
     act(() => {
       fillDetails(result);
@@ -131,7 +131,7 @@ describe("useFacilityRegistration", () => {
 
   it("clears a prior submit error once a contact field is edited again", async () => {
     server.use(createFacilityValidationErrorHandler);
-    const { result } = renderHook(() => useFacilityRegistration("token"), { wrapper });
+    const { result } = renderHook(() => useFacilityRegistration("token", "Hospital"), { wrapper });
 
     act(() => {
       fillDetails(result);
@@ -154,7 +154,7 @@ describe("useFacilityRegistration", () => {
 
   it("surfaces a validation error from the API", async () => {
     server.use(createFacilityValidationErrorHandler);
-    const { result } = renderHook(() => useFacilityRegistration("token"), { wrapper });
+    const { result } = renderHook(() => useFacilityRegistration("token", "Hospital"), { wrapper });
 
     act(() => {
       fillDetails(result);

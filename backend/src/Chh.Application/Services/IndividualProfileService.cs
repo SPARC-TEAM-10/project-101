@@ -52,13 +52,44 @@ public class IndividualProfileService : IIndividualProfileService
         await _individualProfileRepository.AddAsync(profile, ct).ConfigureAwait(false);
         await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
 
-        return new IndividualProfileDto
-        {
-            Id = profile.Id,
-            FullName = profile.FullName,
-            BloodGroup = profile.BloodGroup,
-            IsReceiverOnly = profile.IsReceiverOnly,
-            CreatedAtUtc = profile.CreatedAtUtc
-        };
+        return ToDto(profile);
     }
+
+    /// <inheritdoc />
+    public async Task<IndividualProfileDto?> GetMyProfileAsync(string mobileNumber, CancellationToken ct)
+    {
+        var profile = await _individualProfileRepository.GetByMobileNumberAsync(mobileNumber, ct).ConfigureAwait(false);
+        return profile is null ? null : ToDto(profile);
+    }
+
+    /// <inheritdoc />
+    public async Task<IndividualProfileDto?> UpdateMyProfileAsync(string mobileNumber, UpdateIndividualProfileRequest request, CancellationToken ct)
+    {
+        var profile = await _individualProfileRepository.GetTrackedByMobileNumberAsync(mobileNumber, ct).ConfigureAwait(false);
+        if (profile is null)
+        {
+            return null;
+        }
+
+        IndividualProfileFactory.ApplyUpdate(profile, request);
+        await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
+
+        return ToDto(profile);
+    }
+
+    private static IndividualProfileDto ToDto(Chh.Domain.Entities.IndividualProfile profile) => new()
+    {
+        Id = profile.Id,
+        FullName = profile.FullName,
+        BloodGroup = profile.BloodGroup,
+        IsReceiverOnly = profile.IsReceiverOnly,
+        LocationCityArea = profile.LocationCityArea,
+        CreatedAtUtc = profile.CreatedAtUtc,
+        IsChronicIllness = profile.IsChronicIllness,
+        HasRecentSurgery = profile.HasRecentSurgery,
+        IsInfectiousDisease = profile.IsInfectiousDisease,
+        IsUnderweight = profile.IsUnderweight,
+        IsOtherIllness = profile.IsOtherIllness,
+        OtherIllnessDetails = profile.OtherIllnessDetails
+    };
 }

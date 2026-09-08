@@ -15,7 +15,7 @@ export function RequireAuth({ children, roles }: RequireAuthProps) {
     return <Navigate to="/login" replace />;
   }
 
-  // AC3 (CHH-10): a session past its 1-hour token lifetime is treated as logged-out.
+  // AC3 (CHH-10): a session past its 24-hour token lifetime is treated as logged-out.
   if (new Date(session.expiresAtUtc).getTime() <= Date.now()) {
     return <Navigate to="/login" replace />;
   }

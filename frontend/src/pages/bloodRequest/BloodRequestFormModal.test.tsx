@@ -46,6 +46,7 @@ describe("BloodRequestFormModal", () => {
     renderModal();
 
     expect(screen.getByRole("dialog")).toBeInTheDocument();
+    expect(screen.getByLabelText(/your name/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/patient name/i)).toBeInTheDocument();
     expect(screen.getByText("Blood group")).toBeInTheDocument();
     expect(screen.getByLabelText(/units required/i)).toBeInTheDocument();
