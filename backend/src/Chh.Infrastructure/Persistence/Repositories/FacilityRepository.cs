@@ -75,8 +75,8 @@ public class FacilityRepository : IFacilityRepository
 
         if (!string.IsNullOrWhiteSpace(request.Q))
         {
-            var pattern = $"%{request.Q.Trim()}%";
-            query = query.Where(f => EF.Functions.ILike(f.FacilityName, pattern) || EF.Functions.ILike(f.Address, pattern));
+            var term = request.Q.Trim().ToLowerInvariant();
+            query = query.Where(f => f.FacilityName.ToLower().Contains(term) || f.Address.ToLower().Contains(term));
         }
 
         if (request.Category is { } category)
