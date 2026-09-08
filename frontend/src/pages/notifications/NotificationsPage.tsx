@@ -1,8 +1,11 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useAuth } from "../../context/AuthProvider";
+import { useToast } from "../../context/ToastProvider";
 import { useNotifications } from "../../features/notifications/useNotifications";
-import type { DonorNotificationDto } from "../../api/notificationApi";
+import { ApiError } from "../../api/httpClient";
+import type { DonorNotificationDto, DonorResponseResultDto } from "../../api/notificationApi";
 
 // "Emergency" gets the same high-visibility red as the blood-request form's urgency chip — the
 // ticket's UI note calls for high-visibility styling specifically for Emergency notifications.
@@ -22,49 +25,144 @@ function timeAgo(isoDate: string): string {
   return new Date(isoDate).toLocaleDateString(undefined, { day: "numeric", month: "short" });
 }
 
-function NotificationRow({ notification, onMarkRead }: { notification: DonorNotificationDto; onMarkRead: (id: string) => void }) {
+function errorMessage(err: unknown, fallback: string): string {
+  if (err instanceof ApiError) {
+    return err.problem.detail ?? fallback;
+  }
+  return fallback;
+}
+
+// AC4 confirmation view — shown inline once a donor accepts, since this app has no separate
+// "Request Details" screen yet (design ref: "Request Details / Accept — Decline"). Shares the
+// requester's contact and the request's location, per the CHH-35 business rule.
+function AcceptedConfirmation({ result }: { result: DonorResponseResultDto }) {
   return (
-    <button
-      type="button"
-      onClick={() => !notification.isRead && onMarkRead(notification.id)}
-      className={`flex w-full flex-col gap-1.5 rounded-md border px-4 py-3.5 text-left transition-colors ${
-        notification.isRead ? "border-line bg-cream" : "border-clay-tint bg-clay-tint/40"
-      }`}
-    >
-      <div className="flex items-center gap-2">
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blood-tint text-[13px] font-extrabold text-blood-deep">
-          {notification.bloodGroup}
-        </span>
-        <div className="min-w-0 flex-1">
-          <div className="truncate text-[14.5px] font-semibold text-ink">
-            {notification.unitsRequired} unit{notification.unitsRequired === 1 ? "" : "s"} needed &middot; ~{notification.distanceKm.toFixed(1)}km away
-          </div>
-          <div className="text-[12.5px] text-ink-3">
-            {notification.areaLabel} &middot; {timeAgo(notification.createdAtUtc)}
-          </div>
-        </div>
-        {!notification.isRead && <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-clay" aria-label="Unread" />}
+    <div className="mt-2 flex flex-col gap-1.5 rounded-sm border border-go-line bg-go-tint p-3.5">
+      <div className="flex items-center gap-1.5 text-[13px] font-bold text-go-deep">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M20 6 9 17l-5-5" />
+        </svg>
+        You&apos;re confirmed to help
       </div>
-      <span
-        className={`inline-block w-fit rounded-full px-[10px] py-[3px] text-[11.5px] font-semibold ${
-          URGENCY_CLASSES[notification.urgency] ?? URGENCY_CLASSES.Standard
-        }`}
+      {result.requesterMobileNumber && (
+        <p className="text-[13px] text-ink">
+          Contact the requester: <a href={`tel:${result.requesterMobileNumber}`} className="font-semibold text-go-deep underline">{result.requesterMobileNumber}</a>
+        </p>
+      )}
+      {result.locationCityArea && <p className="text-[13px] text-ink">Location: {result.locationCityArea}</p>}
+    </div>
+  );
+}
+
+function NotificationRow({
+  notification,
+  lastResult,
+  onMarkRead,
+  onAccept,
+  onDecline,
+}: {
+  notification: DonorNotificationDto;
+  lastResult?: DonorResponseResultDto;
+  onMarkRead: (id: string) => void;
+  onAccept: (id: string) => void;
+  onDecline: (id: string) => void;
+}) {
+  const isPending = notification.responseStatus === "Pending";
+
+  return (
+    <div className={`flex w-full flex-col gap-2 rounded-md border px-4 py-3.5 ${notification.isRead ? "border-line bg-cream" : "border-clay-tint bg-clay-tint/40"}`}>
+      <button
+        type="button"
+        onClick={() => !notification.isRead && onMarkRead(notification.id)}
+        className="flex w-full flex-col gap-1.5 text-left"
       >
-        {notification.urgency}
-      </span>
-    </button>
+        <div className="flex items-center gap-2">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blood-tint text-[13px] font-extrabold text-blood-deep">
+            {notification.bloodGroup}
+          </span>
+          <div className="min-w-0 flex-1">
+            <div className="truncate text-[14.5px] font-semibold text-ink">
+              {notification.unitsRequired} unit{notification.unitsRequired === 1 ? "" : "s"} needed &middot; ~{notification.distanceKm.toFixed(1)}km away
+            </div>
+            <div className="text-[12.5px] text-ink-3">
+              {notification.areaLabel} &middot; {timeAgo(notification.createdAtUtc)}
+            </div>
+          </div>
+          {!notification.isRead && <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-clay" aria-label="Unread" />}
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span
+            className={`inline-block w-fit rounded-full px-[10px] py-[3px] text-[11.5px] font-semibold ${
+              URGENCY_CLASSES[notification.urgency] ?? URGENCY_CLASSES.Standard
+            }`}
+          >
+            {notification.urgency}
+          </span>
+          {notification.responseStatus === "Accepted" && (
+            <span className="inline-block w-fit rounded-full bg-leaf-tint px-[10px] py-[3px] text-[11.5px] font-semibold text-leaf">Accepted</span>
+          )}
+          {notification.responseStatus === "Declined" && (
+            <span className="inline-block w-fit rounded-full bg-sand-2 px-[10px] py-[3px] text-[11.5px] font-semibold text-ink-2">Declined</span>
+          )}
+        </div>
+      </button>
+
+      {isPending && (
+        <div className="flex flex-col gap-2 pt-1">
+          {/* Accept and Decline are not a symmetric pair (design/ui-standard.md) — Accept is
+              full-width b-accept (--go), Decline sits below as the smaller neutral b-secondary. */}
+          <button
+            type="button"
+            onClick={() => onAccept(notification.id)}
+            className="flex h-[54px] w-full items-center justify-center rounded-md bg-go text-[15px] font-semibold text-white transition-colors hover:bg-go-hover"
+          >
+            Accept
+          </button>
+          <button
+            type="button"
+            onClick={() => onDecline(notification.id)}
+            className="flex h-[50px] w-full items-center justify-center rounded-md border-[1.5px] border-line-strong text-[14px] font-semibold text-ink transition-colors hover:bg-sand-2"
+          >
+            Decline
+          </button>
+        </div>
+      )}
+
+      {notification.responseStatus === "Accepted" && lastResult && <AcceptedConfirmation result={lastResult} />}
+    </div>
   );
 }
 
 /**
- * Notification center (CHH-34). Lists the caller's own proximity alerts, newest first (AC3),
- * with a distinct "Unread" indicator and high-visibility styling for Emergency notifications
- * (ticket UI note). Deliberately never shows the patient's name or exact address (AC2).
+ * Notification center (CHH-34/CHH-35). Lists the caller's own proximity alerts, newest first
+ * (AC3), with a distinct "Unread" indicator and high-visibility styling for Emergency
+ * notifications (ticket UI note). Deliberately never shows the patient's name or exact address
+ * (AC2). Pending notifications get Accept/Decline actions (CHH-35 AC1/AC2); accepting shows the
+ * requester's contact and location inline (AC4).
  */
 export function NotificationsPage() {
   const navigate = useNavigate();
   const { session } = useAuth();
-  const { notifications, isLoading, isError, markRead } = useNotifications(session?.token);
+  const toast = useToast();
+  const { notifications, isLoading, isError, markRead, accept, decline } = useNotifications(session?.token);
+  const [confirmedResults, setConfirmedResults] = useState<Record<string, DonorResponseResultDto>>({});
+
+  async function handleAccept(id: string) {
+    try {
+      const result = await accept(id);
+      setConfirmedResults((prev) => ({ ...prev, [id]: result }));
+    } catch (err) {
+      toast.error(errorMessage(err, "Couldn't accept this request. Try again."));
+    }
+  }
+
+  async function handleDecline(id: string) {
+    try {
+      await decline(id);
+    } catch (err) {
+      toast.error(errorMessage(err, "Couldn't decline this request. Try again."));
+    }
+  }
 
   return (
     <div className="min-h-screen bg-sand font-sans text-ink">
@@ -109,7 +207,14 @@ export function NotificationsPage() {
         {!isLoading && notifications.length > 0 && (
           <div className="flex flex-col gap-2">
             {notifications.map((notification) => (
-              <NotificationRow key={notification.id} notification={notification} onMarkRead={markRead} />
+              <NotificationRow
+                key={notification.id}
+                notification={notification}
+                lastResult={confirmedResults[notification.id]}
+                onMarkRead={markRead}
+                onAccept={handleAccept}
+                onDecline={handleDecline}
+              />
             ))}
           </div>
         )}

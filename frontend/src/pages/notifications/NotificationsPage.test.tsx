@@ -5,8 +5,9 @@ import { describe, expect, it, vi } from "vitest";
 import { http, HttpResponse } from "msw";
 
 import { NotificationsPage } from "./NotificationsPage";
+import { ToastProvider } from "../../context/ToastProvider";
 import { server } from "../../../tests/setup";
-import { getMyNotificationsSuccessHandler } from "../../../tests/msw/handlers";
+import { getMyNotificationsSuccessHandler, acceptNotificationNoLongerActiveHandler } from "../../../tests/msw/handlers";
 
 const mockUseAuth = vi.fn();
 
@@ -25,16 +26,18 @@ function renderPage() {
     clearSession: vi.fn(),
   });
 
-  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
 
   return render(
     <QueryClientProvider client={queryClient}>
-      <MemoryRouter initialEntries={["/notifications"]}>
-        <Routes>
-          <Route path="/notifications" element={<NotificationsPage />} />
-          <Route path="/dashboard/individual" element={<div>Dashboard</div>} />
-        </Routes>
-      </MemoryRouter>
+      <ToastProvider>
+        <MemoryRouter initialEntries={["/notifications"]}>
+          <Routes>
+            <Route path="/notifications" element={<NotificationsPage />} />
+            <Route path="/dashboard/individual" element={<div>Dashboard</div>} />
+          </Routes>
+        </MemoryRouter>
+      </ToastProvider>
     </QueryClientProvider>,
   );
 }
@@ -46,7 +49,7 @@ describe("NotificationsPage", () => {
     expect(await screen.findByText("Nothing to read yet")).toBeInTheDocument();
   });
 
-  it("renders a notification with its blood group, urgency, and distance", async () => {
+  it("renders a notification with its blood group, urgency, distance, and Accept/Decline actions", async () => {
     server.use(getMyNotificationsSuccessHandler);
     renderPage();
 
@@ -54,6 +57,8 @@ describe("NotificationsPage", () => {
     expect(screen.getByText("Emergency")).toBeInTheDocument();
     expect(screen.getByText(/Kaloor, Kochi/)).toBeInTheDocument();
     expect(screen.getByLabelText("Unread")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Accept" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Decline" })).toBeInTheDocument();
   });
 
   it("marks a notification read when clicked", async () => {
@@ -70,6 +75,7 @@ describe("NotificationsPage", () => {
           areaLabel: "Kaloor, Kochi",
           isRead: true,
           createdAtUtc: new Date().toISOString(),
+          responseStatus: "Pending",
         }),
       ),
     );
@@ -79,5 +85,40 @@ describe("NotificationsPage", () => {
     fireEvent.click(row.closest("button")!);
 
     await waitFor(() => expect(screen.queryByLabelText("Unread")).not.toBeInTheDocument());
+  });
+
+  it("accepts a request and shows the requester's contact and location", async () => {
+    server.use(getMyNotificationsSuccessHandler);
+    renderPage();
+
+    fireEvent.click(await screen.findByRole("button", { name: "Accept" }));
+
+    expect(await screen.findByText("You're confirmed to help")).toBeInTheDocument();
+    expect(screen.getByText("9123456789")).toBeInTheDocument();
+    expect(screen.getByText(/Location: Kaloor, Kochi/)).toBeInTheDocument();
+    expect(screen.getByText("Accepted")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Accept" })).not.toBeInTheDocument();
+  });
+
+  it("shows an error toast when the request is no longer active", async () => {
+    server.use(getMyNotificationsSuccessHandler);
+    server.use(acceptNotificationNoLongerActiveHandler);
+    renderPage();
+
+    fireEvent.click(await screen.findByRole("button", { name: "Accept" }));
+
+    expect(await screen.findByText("This request is no longer active")).toBeInTheDocument();
+    // Still Pending — the failed accept must not flip the UI to Accepted.
+    expect(screen.getByRole("button", { name: "Accept" })).toBeInTheDocument();
+  });
+
+  it("declines a request and hides the Accept/Decline actions", async () => {
+    server.use(getMyNotificationsSuccessHandler);
+    renderPage();
+
+    fireEvent.click(await screen.findByRole("button", { name: "Decline" }));
+
+    expect(await screen.findByText("Declined")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Decline" })).not.toBeInTheDocument();
   });
 });
