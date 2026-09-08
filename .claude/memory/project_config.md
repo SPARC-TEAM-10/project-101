@@ -14,7 +14,7 @@ type: project
 | Feature Branch Prefix | feature/ |
 | Branch Naming Convention | feature/{jira-ticket-id}-{short-description} (bugfix/ for Bug tickets or `/dev` runs) |
 | Git Base Branch | develop |
-| Feature Branch | feature/individual-registration-date-location-ui (stacked on feature/CHH-78-facility-registration-fix — reuses its SelectField.tsx, not yet on develop) |
+| Feature Branch | feature/CHH-78-facility-backend |
 
 ## How to Apply
 

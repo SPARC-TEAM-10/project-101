@@ -147,6 +147,42 @@ export const createFacilityNetworkErrorHandler = http.post(FACILITIES_URL, () =>
   return HttpResponse.error();
 });
 
+// No MSW handler for POST /api/v1/facilities/:id/upload — @mswjs/interceptors hangs under jsdom
+// on any XHR request whose body is a FormData containing a Blob/File (see tests/fakeXhr.ts's doc
+// comment). facilityApi.uploadFacilityLicense is tested via that fake XHR instead.
+
+export const FACILITY_ME_URL = "/api/v1/facilities/me";
+
+const facilityMeBase = {
+  id: "22222222-2222-2222-2222-222222222222",
+  facilityName: "Kochi Metro Hospital",
+  category: "Hospital",
+  licenseNumber: "KL-HOSP-448120",
+  address: "Marine Drive, Ernakulam, Kochi",
+  contacts: [{ name: "Anitha Varghese", designation: "Blood bank officer", mobile: "9876500112" }],
+  licenseDocumentUrl: null,
+  createdAtUtc: "2026-09-05T00:00:00.000Z",
+  updatedAtUtc: "2026-09-07T00:00:00.000Z",
+};
+
+export const getMyFacilityPendingHandler = http.get(FACILITY_ME_URL, () =>
+  HttpResponse.json({ ...facilityMeBase, verificationStatus: "Pending", rejectionReason: null }),
+);
+
+export const getMyFacilityApprovedHandler = http.get(FACILITY_ME_URL, () =>
+  HttpResponse.json({ ...facilityMeBase, verificationStatus: "Verified", rejectionReason: null }),
+);
+
+export const getMyFacilityRejectedHandler = http.get(FACILITY_ME_URL, () =>
+  HttpResponse.json({
+    ...facilityMeBase,
+    verificationStatus: "Rejected",
+    rejectionReason: "The licence document expired on 31 March 2025. Upload a currently valid licence and we will review it again.",
+  }),
+);
+
+export const getMyFacilityNotFoundHandler = http.get(FACILITY_ME_URL, () => new HttpResponse(null, { status: 404 }));
+
 export const INDIVIDUALS_ME_URL = "/api/v1/individuals/me";
 
 export const getMyProfileSuccessHandler = http.get(INDIVIDUALS_ME_URL, () =>

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Chh.Infrastructure.Persistence.Configurations;
 
-/// <summary>EF Core fluent configuration for <see cref="Facility"/> (`.claude/rules/db-standards.md`, CHH-73).</summary>
+/// <summary>EF Core fluent configuration for <see cref="Facility"/> (`.claude/rules/db-standards.md`, CHH-73/CHH-78).</summary>
 public class FacilityConfiguration : IEntityTypeConfiguration<Facility>
 {
     private const int FacilityNameMaxLength = 200;
@@ -14,6 +14,7 @@ public class FacilityConfiguration : IEntityTypeConfiguration<Facility>
     private const int AddressMaxLength = 500;
     private const int VerificationStatusMaxLength = 50;
     private const int LicenseDocumentUrlMaxLength = 500;
+    private const int RejectionReasonMaxLength = 500;
 
     /// <summary>Configures the <c>Facility</c> table mapping.</summary>
     public void Configure(EntityTypeBuilder<Facility> builder)
@@ -53,6 +54,9 @@ public class FacilityConfiguration : IEntityTypeConfiguration<Facility>
 
         builder.Property(e => e.LicenseDocumentUrl)
             .HasMaxLength(LicenseDocumentUrlMaxLength);
+
+        builder.Property(e => e.RejectionReason)
+            .HasMaxLength(RejectionReasonMaxLength);
 
         builder.Property(e => e.CreatedAtUtc)
             .IsRequired();

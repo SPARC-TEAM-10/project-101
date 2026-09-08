@@ -263,6 +263,31 @@ paths:
                 $ref: "#/components/schemas/ProblemDetails"
         "401":
           description: Missing or invalid JWT.
+  /facilities/me:
+    get:
+      tags:
+        - Facilities
+      summary: Get the caller's own facility and its verification status
+      description: >
+        Returns the facility owned by the authenticated caller (CHH-28/
+        US-CHH-003-03, part of Epic CHH-77 — CHH-F03 Facility Verification),
+        resolved by matching the JWT's mobile number against a facility
+        contact — the same lookup used to grant the Hospital/Ngo role on
+        OTP verify (CHH-10). Restricted to the Hospital and Ngo roles.
+      operationId: getMyFacility
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: The caller's facility.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FacilityDto"
+        "401":
+          description: Missing or invalid JWT.
+        "404":
+          description: The caller's mobile number isn't a contact on any facility.
   /blood-requests/mine:
     get:
       tags:
@@ -422,6 +447,54 @@ paths:
                 $ref: "#/components/schemas/ProblemDetails"
         "409":
           description: A facility already exists for this licence number.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+  /facilities/{id}/upload:
+    post:
+      tags:
+        - Facilities
+      summary: Upload a facility's license document
+      description: >
+        Uploads (or replaces) a facility's license document (CHH-79/US-CHH-003-02),
+        stored in blob storage (`.claude/rules/db-standards.md` §3) — this
+        response's `licenseDocumentUrl` is what CHH-74's document-review
+        modal opens. `security: []`, same reasoning as `POST /facilities`:
+        the wizard uploads immediately after anonymous registration, before
+        any JWT role exists for the caller.
+      operationId: uploadFacilityLicenseDocument
+      security: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: The facility, with its updated licenseDocumentUrl.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FacilityDto"
+        "404":
+          description: No such facility.
+        "422":
+          description: The file's type isn't PDF/JPEG/PNG, it exceeds 5MB, or none was provided.
           content:
             application/problem+json:
               schema:
@@ -975,6 +1048,9 @@ components:
       enum: ["Government", "Private", "Trust", "RegisteredSociety", "Section8Company"]
     FacilityVerificationStatus:
       type: string
+      description: >
+        Only "Pending" is set on creation (CHH-78 AC1). "Verified"/"Rejected"
+        are set by the admin verification story (CHH-75).
       enum: ["Pending", "Verified", "Rejected"]
     CreateFacilityContactRequest:
       type: object
@@ -1049,6 +1125,7 @@ components:
         - contacts
         - verificationStatus
         - createdAtUtc
+        - updatedAtUtc
       properties:
         id:
           type: string
@@ -1073,10 +1150,24 @@ components:
           type: string
           nullable: true
           description: Blob storage reference; populated by CHH-74's upload path, null until then.
+        rejectionReason:
+          type: string
+          nullable: true
+          description: >
+            Admin's reason for rejection (CHH-28's status dashboard). Null
+            unless verificationStatus is "Rejected" — no reject-with-reason
+            endpoint exists yet (CHH-75), so this is currently only ever set
+            by a manual DB operation.
         createdAtUtc:
           type: string
           format: date-time
           description: Also serves as "Date of Registration" (CHH-73 AC1).
+        updatedAtUtc:
+          type: string
+          format: date-time
+          description: >
+            Doubles as the verification decision date on CHH-28's status
+            dashboard, since no separate reviewed-at field exists yet.
     PagedResponseOfFacilityDto:
       type: object
       description: >

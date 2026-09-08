@@ -11,6 +11,7 @@ import { RequesterMatchDashboardPage } from "./pages/bloodRequest/RequesterMatch
 import { FacilityRegistrationPage } from "./pages/facility/FacilityRegistrationPage";
 import { IndividualDashboardPage } from "./pages/dashboard/IndividualDashboardPage";
 import { GuestDashboardStubPage } from "./pages/dashboard/GuestDashboardStubPage";
+import { FacilityDashboardPage } from "./pages/dashboard/FacilityDashboardPage";
 import { ProfilePage } from "./pages/profile/ProfilePage";
 import { NotificationsPage } from "./pages/notifications/NotificationsPage";
 import { NewUserGuestDecisionPage } from "./pages/onboarding/NewUserGuestDecisionPage";
@@ -79,9 +80,18 @@ export const router = createBrowserRouter([
     ),
   },
   { path: "/guest", element: <GuestPlaceholderPage /> },
-  // Unguarded for now — Hospital/NGO role isn't issued yet, see AuthProvider.tsx and
-  // CHH-78's Implementation Plan §8 for the tracked follow-up to add a real RequireAuth gate.
+  // Intentionally unguarded: registering is what makes a mobile number resolve to the
+  // Hospital/Ngo role in the first place (CHH-10) — gating this page behind that role would
+  // make a facility's first-ever registration impossible.
   { path: "/facility/register", element: <FacilityRegistrationPage /> },
+  {
+    path: "/dashboard/facility",
+    element: (
+      <RequireAuth roles={["Hospital", "Ngo"]}>
+        <FacilityDashboardPage />
+      </RequireAuth>
+    ),
+  },
   {
     path: "/blood-requests/new",
     element: (

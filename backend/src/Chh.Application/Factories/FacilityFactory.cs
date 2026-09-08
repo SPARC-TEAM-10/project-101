@@ -24,11 +24,12 @@ public static class FacilityFactory
         VerificationStatus = FacilityVerificationStatus.Pending,
         CreatedAtUtc = createdAtUtc,
         UpdatedAtUtc = createdAtUtc,
-        Contacts = request.Contacts.Select(c => new FacilityContact
+        Contacts = request.Contacts.Select((c, index) => new FacilityContact
         {
             Name = c.Name.Trim(),
             Designation = c.Designation.Trim(),
-            Mobile = c.Mobile.Trim()
+            Mobile = c.Mobile.Trim(),
+            SortOrder = index
         }).ToList()
     };
 }
