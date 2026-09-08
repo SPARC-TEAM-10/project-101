@@ -26,4 +26,14 @@ public class Fast2SmsWhatsAppGatewayClient : ISmsGatewayClient
     /// <inheritdoc />
     public async Task SendOtpAsync(string mobileNumber, string otpCode, CancellationToken ct) =>
         await _templateClient.SendTemplateAsync(_otpMessageId, mobileNumber, new[] { otpCode }, ct).ConfigureAwait(false);
+
+    /// <inheritdoc />
+    /// <exception cref="NotSupportedException">
+    /// WhatsApp template messaging only supports pre-approved templates (like the OTP template
+    /// above) — there's no approved template for CHH-34's free-text notification copy yet. Set
+    /// <c>Fast2Sms:Channel</c> to <c>"sms"</c> to use <see cref="Fast2SmsGatewayClient"/> instead.
+    /// </exception>
+    public Task SendMessageAsync(string mobileNumber, string message, CancellationToken ct) =>
+        throw new NotSupportedException(
+            "Free-text messages aren't supported over the WhatsApp template channel — no approved template exists for this message. Use Fast2Sms:Channel=\"sms\" instead.");
 }

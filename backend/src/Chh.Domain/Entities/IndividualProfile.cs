@@ -89,4 +89,15 @@ public class IndividualProfile
     /// donor is excluded from proximity matching. Defaults to <see cref="Enums.AccountStatus.Active"/>.
     /// </summary>
     public AccountStatus AccountStatus { get; internal set; } = AccountStatus.Active;
+
+    /// <summary>
+    /// UTC timestamp of the most recent authenticated request from this mobile number (CHH-34
+    /// presence tracking), updated by <c>Chh.Api.Middleware.ActivityTrackingMiddleware</c>,
+    /// throttled to at most once per minute. Nullable: never set for a profile that hasn't made an
+    /// authenticated request since this field was introduced. Used by
+    /// <c>Chh.Application.Services.NotificationDispatchService</c> to decide whether a donor is
+    /// "currently active" in-app (recent value) or needs the SMS fallback (stale/null) — see
+    /// <c>Chh.Domain.Constants.PresenceConstants.ActiveWindow</c> for the threshold.
+    /// </summary>
+    public DateTimeOffset? LastActiveAtUtc { get; internal set; }
 }

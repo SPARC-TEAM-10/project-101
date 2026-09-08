@@ -4,12 +4,11 @@ namespace Chh.Domain.Entities;
 
 /// <summary>
 /// A registered hospital/blood-bank or NGO facility (CHH-F03/CHH-F07). Introduced by CHH-73 so
-/// the Admin Command Center has something to query — no creation flow exists yet (CHH-78 built
-/// only the frontend registration wizard, against mocks). Properties use plain public setters
-/// rather than a factory-enforced construction pattern (contrast <see cref="BloodRequest"/>):
-/// there is no invariant to protect yet since nothing in this repo constructs a `Facility` from
-/// user input. Revisit — likely a <c>FacilityFactory</c> with internal setters, matching the
-/// established pattern — once the backend counterpart to CHH-78 (facility registration) is built.
+/// the Admin Command Center has something to query; the creation flow (CHH-78) now persists
+/// through <c>FacilityFactory</c>/<c>FacilityService</c>. Properties still use plain public
+/// setters rather than a factory-enforced construction pattern (contrast <see cref="BloodRequest"/>) —
+/// <c>FacilityFactory</c> only ever sets these from an already-validated request, so there's no
+/// invariant left unprotected.
 /// </summary>
 public class Facility
 {
@@ -21,6 +20,9 @@ public class Facility
 
     /// <summary>Hospital/blood-bank or NGO.</summary>
     public FacilityCategory Category { get; set; }
+
+    /// <summary>Finer classification within <see cref="Category"/> (CHH-78 follow-up) — e.g. Government/Private/Trust for a hospital.</summary>
+    public FacilitySubCategory SubCategory { get; set; }
 
     /// <summary>Alphanumeric + hyphens license number (matches frontend validation, CHH-78).</summary>
     public string LicenseNumber { get; set; } = default!;
@@ -42,6 +44,14 @@ public class Facility
 
     /// <summary>UTC timestamp of the last update (e.g. a CHH-75 approve/reject transition).</summary>
     public DateTimeOffset UpdatedAtUtc { get; set; }
+
+    /// <summary>
+    /// Admin's reason for rejecting the facility (CHH-28's status dashboard shows this). Null unless
+    /// <see cref="VerificationStatus"/> is <see cref="FacilityVerificationStatus.Rejected"/> — no
+    /// reject-with-reason endpoint exists yet (CHH-75), so this is currently only ever set by a
+    /// manual DB operation.
+    /// </summary>
+    public string? RejectionReason { get; set; }
 
     /// <summary>Contact persons for this facility (CHH-78 AC2, 1–3 contacts).</summary>
     public ICollection<FacilityContact> Contacts { get; set; } = new List<FacilityContact>();

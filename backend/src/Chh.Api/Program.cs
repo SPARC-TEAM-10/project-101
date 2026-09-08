@@ -77,6 +77,19 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+// Serves uploaded facility license documents (CHH-79/CHH-74) back out from local disk — see
+// Chh.Infrastructure.Storage.FacilityDocumentStorageOptions for why this isn't real blob storage
+// yet. Anonymous by design: the URL itself (a GUID-named path) is the only access control, same
+// posture as any public blob-storage URL would have.
+var facilityDocumentRoot = Path.Combine(Directory.GetCurrentDirectory(),
+    app.Configuration["FacilityDocumentStorage:RootPath"] ?? "uploads/facility-documents");
+Directory.CreateDirectory(facilityDocumentRoot); // PhysicalFileProvider throws if the directory doesn't exist yet.
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(facilityDocumentRoot),
+    RequestPath = app.Configuration["FacilityDocumentStorage:UrlPrefix"] ?? "/uploads/facility-documents"
+});
+
 // Must run before auth/endpoint dispatch so the frontend's cross-origin requests (Vercel calling
 // this AWS-hosted API — root CLAUDE.md Decisions Log 2026-09-05) get the CORS headers they need.
 app.UseCors(ServiceCollectionExtensions.FrontendCorsPolicy);
@@ -86,6 +99,10 @@ app.UseCors(ServiceCollectionExtensions.FrontendCorsPolicy);
 // regardless — they carry [AllowAnonymous] (api-standards.md §5).
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Must come after UseAuthorization (needs HttpContext.User populated) and before MapControllers
+// so every authenticated request updates presence (CHH-34) regardless of which endpoint it hits.
+app.UseMiddleware<Chh.Api.Middleware.ActivityTrackingMiddleware>();
 
 // Liveness probe. Anonymous by design — it is infrastructure, not an API resource, so it is not
 // part of contracts/chh-api.v1.yaml and carries no /api/v1 prefix. Excludes "external"-tagged

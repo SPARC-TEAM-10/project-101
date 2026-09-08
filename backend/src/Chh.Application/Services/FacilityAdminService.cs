@@ -34,6 +34,7 @@ public class FacilityAdminService : IFacilityAdminService
             Id = f.Id,
             FacilityName = f.FacilityName,
             Category = f.Category,
+            SubCategory = f.SubCategory,
             LicenseNumber = f.LicenseNumber,
             Address = f.Address,
             Contacts = f.Contacts.Select(c => new FacilityContactDto
@@ -44,7 +45,9 @@ public class FacilityAdminService : IFacilityAdminService
             }).ToList(),
             VerificationStatus = f.VerificationStatus,
             LicenseDocumentUrl = f.LicenseDocumentUrl,
-            CreatedAtUtc = f.CreatedAtUtc
+            RejectionReason = f.RejectionReason,
+            CreatedAtUtc = f.CreatedAtUtc,
+            UpdatedAtUtc = f.UpdatedAtUtc
         }).ToList();
 
         return new PagedResponse<FacilityDto>

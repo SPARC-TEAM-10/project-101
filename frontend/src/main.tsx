@@ -6,6 +6,7 @@ import { RouterProvider } from "react-router-dom";
 import { AuthProvider } from "./context/AuthProvider";
 import { ToastProvider } from "./context/ToastProvider";
 import { router } from "./router";
+import "leaflet/dist/leaflet.css";
 import "./index.css";
 
 const queryClient = new QueryClient();

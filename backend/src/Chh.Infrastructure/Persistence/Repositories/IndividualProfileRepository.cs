@@ -25,6 +25,12 @@ public class IndividualProfileRepository : IIndividualProfileRepository
             .ConfigureAwait(false);
 
     /// <inheritdoc />
+    public async Task<IndividualProfile?> GetTrackedByMobileNumberAsync(string mobileNumber, CancellationToken ct) =>
+        await _context.IndividualProfiles
+            .FirstOrDefaultAsync(p => p.MobileNumber == mobileNumber, ct)
+            .ConfigureAwait(false);
+
+    /// <inheritdoc />
     public async Task AddAsync(IndividualProfile individualProfile, CancellationToken ct) =>
         await _context.IndividualProfiles.AddAsync(individualProfile, ct).ConfigureAwait(false);
 

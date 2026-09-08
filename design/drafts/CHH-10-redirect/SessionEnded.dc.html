@@ -1,0 +1,100 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --sand:#F6F0E5; --sand-2:#EFE7D9; --cream:#FDFAF4;
+      --line-strong:#D6C6AC;
+      --clay:#B06134; --blood:#D32F2F;
+      --ink:#392A1D; --ink-2:#6F5C46; --ink-3:#A08A70; --ink-off:#BFAE96;
+      --amber:#8F6A12; --amber-tint:#F7EDD4;
+      --font:"Plus Jakarta Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    }
+    *{box-sizing:border-box}
+    body{margin:0}
+    .screen{width:390px;height:844px;background:var(--sand);font-family:var(--font);color:var(--ink);
+      display:flex;flex-direction:column;position:relative;overflow:hidden}
+    .back{position:absolute;left:20px;top:20px;display:flex;gap:6px;align-items:center;
+      font-size:14px;font-weight:600;color:var(--ink-2)}
+    .back span{text-decoration:underline;text-underline-offset:2px}
+    .brand{padding:56px 28px 0;flex:none}
+    .mark{width:52px;height:52px;border-radius:999px;background:var(--blood);color:#fff;
+      display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+    .wordmark{font-size:14px;font-weight:700;color:var(--ink-2)}
+    .mid{flex:1;display:flex;flex-direction:column;justify-content:center;padding:0 28px}
+    h1{font-size:26px;font-weight:800;letter-spacing:-.025em;line-height:1.15;margin:0 0 8px}
+    .sub{font-size:14.5px;color:var(--ink-2);line-height:1.6;margin:0 0 24px;max-width:34ch}
+    .foot{flex:none;padding:0 28px 40px;text-align:center;font-size:12px;color:var(--ink-off)}
+
+    .alert{display:flex;gap:12px;align-items:flex-start;border-radius:12px;padding:12px 16px;
+      background:var(--amber-tint);color:var(--amber);margin-bottom:26px;max-width:460px}
+    .alert svg{flex:none;margin-top:1px}
+    .alert b{display:block;font-size:14px;font-weight:700;margin-bottom:2px}
+    .alert p{margin:0;font-size:13px;line-height:1.5;color:var(--ink-2)}
+
+    .field{display:flex;flex-direction:column;gap:8px;margin-bottom:20px;max-width:360px}
+    .inpwrap{position:relative;display:flex}
+    .inpwrap svg{position:absolute;left:15px;top:50%;transform:translateY(-50%);color:var(--ink-3)}
+    .inp{height:50px;width:100%;padding:0 16px 0 46px;border:1.5px solid var(--line-strong);
+      border-radius:12px;background:var(--cream);font-family:var(--font);font-size:16px;
+      color:var(--ink-off);display:flex;align-items:center}
+    .hint{font-size:12.5px;color:var(--ink-3);min-height:17px}
+    .btn{height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+      font-size:15px;font-weight:600;max-width:360px}
+    .b-disabled{background:var(--sand-2);color:var(--ink-off)}
+  </style>
+</helmet>
+
+<div class="screen">
+  <div class="back">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="m15 18-6-6 6-6"/>
+    </svg>
+    <span>Back</span>
+  </div>
+  <div class="brand">
+    <div class="mark">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M12 3.2c3.4 4 6 6.9 6 10a6 6 0 0 1-12 0c0-3.1 2.6-6 6-10Z"/>
+      </svg>
+    </div>
+    <div class="wordmark">Community Health Hub</div>
+  </div>
+  <div class="mid">
+    <div class="alert">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="9"/><path d="M12 7.5V12l3 2"/>
+      </svg>
+      <div>
+        <b>Your session has ended</b>
+        <p>Sessions stay active for 24 hours. Enter your mobile number to sign in again.</p>
+      </div>
+    </div>
+    <h1>Enter your mobile number</h1>
+    <p class="sub">We'll send a 6-digit code to verify it's you.</p>
+    <div class="field">
+      <div class="inpwrap">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M8 4.5H5.8A1.8 1.8 0 0 0 4 6.5c0 7.7 5.8 13.5 13.5 13.5a1.8 1.8 0 0 0 2-1.8V16l-4-1.5-2 2a13 13 0 0 1-5-5l2-2L8 4.5Z"/>
+        </svg>
+        <div class="inp">10-digit mobile number</div>
+      </div>
+      <div class="hint">Required</div>
+    </div>
+    <div class="btn b-disabled">Get OTP</div>
+  </div>
+  <div class="foot">By continuing you agree this device isn't shared for medical alerts.</div>
+</div>
+
+</x-dc>
+</body>
+</html>

@@ -1,13 +1,21 @@
-import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
+import { BrandPanel } from "./BrandPanel";
 import { useAuth } from "../context/AuthProvider";
 import { useToast } from "../context/ToastProvider";
+import { useFacilityLicenseUpload } from "../features/facility/useFacilityLicenseUpload";
 import { useFacilityRegistration } from "../features/facility/useFacilityRegistration";
-import { FACILITY_CATEGORIES, MAX_CONTACTS, type FacilityCategory } from "../lib/validation/facilitySchemas";
+import { ALLOWED_FILE_TYPES } from "../lib/validation/facilityUploadValidation";
+import { FACILITY_SUBCATEGORY_OPTIONS, MAX_CONTACTS, type FacilityCategory } from "../lib/validation/facilitySchemas";
+import { SelectField } from "./SelectField";
 
-const STEP_META: Record<"details" | "contacts", { no: string; widthPct: number; title: string }> = {
-  details: { no: "1", widthPct: 50, title: "Facility details" },
-  contacts: { no: "2", widthPct: 100, title: "Contacts" },
+const CATEGORY_LABELS: Record<FacilityCategory, string> = { Hospital: "Hospital", Ngo: "NGO" };
+
+const STEP_META: Record<"details" | "contacts" | "upload", { no: string; widthPct: number; title: string }> = {
+  details: { no: "1", widthPct: 33, title: "Facility details" },
+  contacts: { no: "2", widthPct: 66, title: "Contacts" },
+  upload: { no: "3", widthPct: 100, title: "Licence document" },
 };
 
 function FieldError({ message }: { message?: string }) {
@@ -29,10 +37,24 @@ function Hint({ children }: { children: React.ReactNode }) {
 
 export function FacilityWizard() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { session } = useAuth();
   const toast = useToast();
+
+  // RoleSelectionPage is the only entry point that sets this — a direct visit to
+  // /facility/register (no state) has nothing to register a category against, so send it back
+  // rather than re-asking the Hospital/NGO question here (that duplication was the reported bug).
+  const category = (location.state as { category?: FacilityCategory } | null)?.category;
+
+  useEffect(() => {
+    if (!category) {
+      navigate("/register", { replace: true });
+    }
+  }, [category, navigate]);
+
   const {
     step,
+    facilityId,
     details,
     setDetailsField,
     detailsErrors,
@@ -49,7 +71,17 @@ export function FacilityWizard() {
     isPending,
     error,
     submit,
-  } = useFacilityRegistration(session?.token);
+  } = useFacilityRegistration(session?.token, category ?? "Hospital");
+
+  const {
+    file,
+    status: uploadStatus,
+    progressPct,
+    errorMessage: uploadErrorMessage,
+    selectFile,
+    retry: retryUpload,
+    isUploaded,
+  } = useFacilityLicenseUpload(session?.token, facilityId);
 
   const meta = STEP_META[step];
   const showDetailsErrors = detailsTouched;
@@ -58,47 +90,69 @@ export function FacilityWizard() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const result = await submit();
-    if (result.ok) {
-      toast.success("Facility details saved. Licence upload coming soon.");
-    } else if (result.error) {
+    if (!result.ok && result.error) {
       toast.error(result.error.message);
     }
   }
 
-  return (
-    <div className="flex min-h-screen flex-col bg-sand font-sans text-ink">
-      <header className="flex h-[58px] flex-none items-center gap-2.5 border-b border-line bg-cream px-3 md:h-16 md:px-8">
-        <button
-          type="button"
-          onClick={() => navigate("/")}
-          aria-label="Back to home"
-          className="flex h-10 w-10 items-center justify-center rounded-full text-ink-2 transition-colors hover:bg-sand-2"
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M19 12H5M11 6l-6 6 6 6" />
-          </svg>
-        </button>
-        <b className="flex-1 text-center text-[15px] font-bold md:text-left md:text-base">Register facility</b>
-        <span className="hidden w-10 md:block" aria-hidden="true" />
-      </header>
+  function handleFileInputChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const selected = e.target.files?.[0];
+    if (selected) {
+      void selectFile(selected);
+    }
+    e.target.value = "";
+  }
 
-      <div className="flex flex-none justify-center border-b border-line bg-cream">
-        <div className="w-full max-w-2xl px-4 pb-3 pt-3.5 md:px-8">
-          <div className="mb-2 flex items-baseline justify-between">
-            <span className="text-sm font-bold">{meta.title}</span>
-            <span className="text-xs text-ink-3 [font-variant-numeric:tabular-nums]">Step {meta.no} of 2</span>
-          </div>
-          <div className="h-1.5 overflow-hidden rounded-full bg-sand-2">
-            <div
-              className="h-full rounded-full bg-clay transition-[width] duration-200"
-              style={{ width: `${meta.widthPct}%` }}
-            />
+  function handleSubmitForVerification() {
+    toast.success("Submitted for verification.");
+    navigate("/");
+  }
+
+  if (!category) {
+    return null;
+  }
+
+  return (
+    <div className="grid min-h-screen bg-sand font-sans text-ink md:grid-cols-[420px_1fr]">
+      <BrandPanel
+        heading="Verified once, visible always."
+        description="Facilities go live after a quick admin check — donors and requesters can only see and contact verified hospitals and NGOs."
+        className="md:sticky md:top-0 md:h-screen"
+      />
+
+      <div className="flex flex-1 flex-col">
+        <header className="flex h-[58px] flex-none items-center gap-2.5 border-b border-line bg-cream px-3 md:h-16 md:px-8">
+          <button
+            type="button"
+            onClick={() => navigate("/register")}
+            aria-label="Back to account type"
+            className="flex h-10 w-10 items-center justify-center rounded-full text-ink-2 transition-colors hover:bg-sand-2"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M19 12H5M11 6l-6 6 6 6" />
+            </svg>
+          </button>
+          <b className="flex-1 text-center text-[15px] font-bold md:text-left md:text-base">Register facility</b>
+          <span className="hidden w-10 md:block" aria-hidden="true" />
+        </header>
+
+        <div className="flex flex-none justify-center border-b border-line bg-cream">
+          <div className="w-full max-w-2xl px-4 pb-3 pt-3.5 md:px-8">
+            <div className="mb-2 flex items-baseline justify-between">
+              <span className="text-sm font-bold">{meta.title}</span>
+              <span className="text-xs text-ink-3 [font-variant-numeric:tabular-nums]">Step {meta.no} of 3</span>
+            </div>
+            <div className="h-1.5 overflow-hidden rounded-full bg-sand-2">
+              <div
+                className="h-full rounded-full bg-clay transition-[width] duration-200"
+                style={{ width: `${meta.widthPct}%` }}
+              />
+            </div>
           </div>
         </div>
-      </div>
 
-      <form onSubmit={handleSubmit} noValidate className="w-full max-w-2xl flex-1 self-center flex flex-col gap-5 px-4 py-5 md:px-8 md:py-8">
-        {step === "details" && (
+        <form onSubmit={handleSubmit} noValidate className="w-full max-w-2xl flex-1 self-center flex flex-col gap-5 px-4 py-5 md:px-8 md:py-8">
+          {step === "details" && (
           <>
             <p className="text-[13px] leading-relaxed text-ink-2">
               Tell us about the facility. You can come back to a saved draft at any time.
@@ -130,31 +184,29 @@ export function FacilityWizard() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="facility-category" className="text-sm font-semibold text-ink-2">
-                Category <i className="not-italic text-error">*</i>
+              <span className="text-sm font-semibold text-ink-2">Category</span>
+              <div className="flex h-[50px] items-center rounded-sm border-[1.5px] border-line bg-sand-2 px-4 text-base text-ink-2">
+                {CATEGORY_LABELS[category]}
+              </div>
+              <Hint>Chosen on the previous screen.</Hint>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="facility-subcategory" className="text-sm font-semibold text-ink-2">
+                Sub-category <i className="not-italic text-error">*</i>
               </label>
-              <select
-                id="facility-category"
-                value={details.category ?? ""}
-                onChange={(e) => setDetailsField("category", e.target.value as FacilityCategory)}
-                aria-invalid={showDetailsErrors && !!detailsErrors.category}
-                aria-describedby="facility-category-hint"
-                className={`h-[50px] rounded-sm border-[1.5px] bg-cream px-4 text-base outline-none transition-colors focus:border-clay ${
-                  showDetailsErrors && detailsErrors.category ? "border-error" : "border-line-strong"
-                }`}
-              >
-                <option value="" disabled>
-                  Select a category
-                </option>
-                {FACILITY_CATEGORIES.map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat}
-                  </option>
-                ))}
-              </select>
-              <span id="facility-category-hint">
-                {showDetailsErrors && detailsErrors.category ? (
-                  <FieldError message={detailsErrors.category[0]} />
+              <SelectField
+                id="facility-subcategory"
+                value={details.subCategory ?? ""}
+                onChange={(value) => setDetailsField("subCategory", value)}
+                options={FACILITY_SUBCATEGORY_OPTIONS[category]}
+                placeholder="Select a sub-category"
+                invalid={showDetailsErrors && !!detailsErrors.subCategory}
+                describedBy="facility-subcategory-hint"
+              />
+              <span id="facility-subcategory-hint">
+                {showDetailsErrors && detailsErrors.subCategory ? (
+                  <FieldError message={detailsErrors.subCategory[0]} />
                 ) : (
                   <Hint>Required. This sets what your facility can publish.</Hint>
                 )}
@@ -170,7 +222,7 @@ export function FacilityWizard() {
                 type="text"
                 value={details.licenseNumber ?? ""}
                 onChange={(e) => setDetailsField("licenseNumber", e.target.value)}
-                placeholder="KL-HOSP-000000"
+                placeholder="As printed on your licence"
                 aria-invalid={showDetailsErrors && !!detailsErrors.licenseNumber}
                 aria-describedby="license-number-hint"
                 className={`h-[50px] rounded-sm border-[1.5px] bg-cream px-4 font-mono text-base outline-none transition-colors focus:border-clay ${
@@ -366,7 +418,123 @@ export function FacilityWizard() {
             </div>
           </>
         )}
-      </form>
+
+        {step === "upload" && (
+          <>
+            <p className="text-[13px] leading-relaxed text-ink-2">
+              An admin compares this document against the facility name and licence number you entered. Only admins can open it.
+            </p>
+
+            {(uploadStatus === "empty" || uploadStatus === "invalid") && (
+              <div className="flex flex-col items-center gap-2.5 rounded-md border-2 border-dashed border-line-strong bg-cream px-6 py-8 text-center">
+                <span className="flex h-14 w-14 items-center justify-center rounded-full bg-sand-2 text-ink-3">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M12 16V4M12 4 7.5 8.5M12 4l4.5 4.5" />
+                    <path d="M4 15v3.5A1.5 1.5 0 0 0 5.5 20h13a1.5 1.5 0 0 0 1.5-1.5V15" />
+                  </svg>
+                </span>
+                <b className="text-[15.5px] font-bold">Add your licence</b>
+                <span className="text-[12.5px] text-ink-3 [font-variant-numeric:tabular-nums]">PDF, JPG or PNG · up to 5 MB</span>
+                <label
+                  htmlFor="license-file-input"
+                  className="mt-1 flex h-11 cursor-pointer items-center justify-center rounded-sm border-[1.5px] border-line-strong bg-sand px-[18px] text-sm font-semibold text-ink transition-colors hover:border-clay hover:text-clay"
+                >
+                  Choose a file
+                </label>
+                <input
+                  id="license-file-input"
+                  type="file"
+                  accept={ALLOWED_FILE_TYPES.join(",")}
+                  onChange={handleFileInputChange}
+                  className="sr-only"
+                />
+                {uploadStatus === "invalid" && <FieldError message={uploadErrorMessage ?? undefined} />}
+              </div>
+            )}
+
+            {(uploadStatus === "uploading" || uploadStatus === "uploaded" || uploadStatus === "networkFailed") && file && (
+              <div
+                className={`flex gap-3.5 rounded-md border p-4 ${
+                  uploadStatus === "networkFailed" ? "border-error bg-error-tint" : uploadStatus === "uploaded" ? "border-leaf bg-leaf-tint" : "border-line bg-cream"
+                }`}
+              >
+                <span className="flex h-12 w-10 flex-none items-center justify-center rounded-sm border border-line bg-sand text-ink-3">
+                  <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M14 3H7a1.5 1.5 0 0 0-1.5 1.5v15A1.5 1.5 0 0 0 7 21h10a1.5 1.5 0 0 0 1.5-1.5V7.5Z" />
+                    <path d="M14 3v4.5h4.5" />
+                  </svg>
+                </span>
+                <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+                  <div className="flex items-baseline gap-2.5">
+                    <b className="truncate text-[13.5px] font-bold">{file.name}</b>
+                    <span className="flex-none text-xs text-ink-3 [font-variant-numeric:tabular-nums]">
+                      {(file.size / (1024 * 1024)).toFixed(1)} MB
+                    </span>
+                  </div>
+                  {uploadStatus !== "uploaded" && (
+                    <div
+                      role="progressbar"
+                      aria-label="Upload progress"
+                      aria-valuenow={progressPct}
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      className="h-1.5 overflow-hidden rounded-full bg-sand-2"
+                    >
+                      <div
+                        className={`h-full rounded-full transition-[width] duration-200 ${uploadStatus === "networkFailed" ? "bg-error" : "bg-clay"}`}
+                        style={{ width: `${progressPct}%` }}
+                      />
+                    </div>
+                  )}
+                  <span
+                    className={`text-xs [font-variant-numeric:tabular-nums] ${
+                      uploadStatus === "networkFailed" ? "text-error" : uploadStatus === "uploaded" ? "font-semibold text-leaf" : "text-ink-2"
+                    }`}
+                  >
+                    {uploadStatus === "uploading" && `Uploading — ${progressPct}%`}
+                    {uploadStatus === "uploaded" && "Uploaded"}
+                    {uploadStatus === "networkFailed" && (uploadErrorMessage ?? "Upload failed.")}
+                  </span>
+                  {uploadStatus === "networkFailed" && (
+                    <button
+                      type="button"
+                      onClick={() => void retryUpload()}
+                      className="flex h-9 w-fit items-center gap-1.5 rounded-sm border-[1.5px] border-line-strong px-3.5 text-[13px] font-semibold text-ink transition-colors hover:bg-sand-2"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <path d="M20 11a8 8 0 1 0-2.3 6.3" />
+                        <path d="M20 5v6h-6" />
+                      </svg>
+                      Retry upload
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+
+            <div className="flex items-center justify-between pt-2">
+              <button
+                type="button"
+                onClick={goBack}
+                className="flex h-12 items-center justify-center rounded-md border-[1.5px] border-line-strong px-5 text-[15px] font-semibold text-ink transition-colors hover:bg-sand-2"
+              >
+                Back
+              </button>
+              <button
+                type="button"
+                onClick={handleSubmitForVerification}
+                disabled={!isUploaded}
+                className={`flex h-12 items-center justify-center gap-2 rounded-md px-6 text-[15px] font-semibold transition-colors ${
+                  isUploaded ? "bg-clay text-white hover:bg-clay-hover" : "cursor-not-allowed bg-sand-2 text-ink-off"
+                }`}
+              >
+                Submit for verification
+              </button>
+            </div>
+          </>
+        )}
+        </form>
+      </div>
     </div>
   );
 }

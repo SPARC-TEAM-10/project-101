@@ -8,6 +8,7 @@ namespace Chh.Infrastructure.Persistence.Configurations;
 public class BloodRequestConfiguration : IEntityTypeConfiguration<BloodRequest>
 {
     private const int MobileNumberMaxLength = 10;
+    private const int RequesterNameMaxLength = 100;
     private const int PatientNameMaxLength = 100;
     private const int BloodGroupMaxLength = 50;
     private const int LocationMaxLength = 100;
@@ -28,6 +29,10 @@ public class BloodRequestConfiguration : IEntityTypeConfiguration<BloodRequest>
             .IsRequired();
         builder.HasIndex(e => e.RequesterMobileNumber)
             .HasDatabaseName("IX_BloodRequest_RequesterMobileNumber");
+
+        builder.Property(e => e.RequesterName)
+            .HasMaxLength(RequesterNameMaxLength)
+            .IsRequired();
 
         builder.Property(e => e.PatientName)
             .HasMaxLength(PatientNameMaxLength)
@@ -76,5 +81,9 @@ public class BloodRequestConfiguration : IEntityTypeConfiguration<BloodRequest>
         // after now" — not exercised by this story, but cheap to add alongside the table.
         builder.HasIndex(e => new { e.Status, e.ExpiresAtUtc })
             .HasDatabaseName("IX_BloodRequest_Status_ExpiresAtUtc");
+
+        builder.Property(e => e.UnitsAccepted)
+            .HasDefaultValue(0)
+            .IsRequired();
     }
 }
