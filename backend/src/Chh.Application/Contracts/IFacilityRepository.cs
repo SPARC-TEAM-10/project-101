@@ -27,4 +27,17 @@ public interface IFacilityRepository
     /// <param name="mobileNumber">10-digit mobile number to match against <see cref="FacilityContact.Mobile"/>.</param>
     /// <param name="ct">Cancellation token.</param>
     Task<Facility?> GetByContactMobileNumberAsync(string mobileNumber, CancellationToken ct);
+
+    /// <summary>
+    /// Returns the facility registered under <paramref name="licenseNumber"/> (read-only,
+    /// untracked), or <c>null</c> if none exists (CHH-78 duplicate-registration check).
+    /// </summary>
+    /// <param name="licenseNumber">License number to match against <see cref="Facility.LicenseNumber"/>.</param>
+    /// <param name="ct">Cancellation token.</param>
+    Task<Facility?> GetByLicenseNumberAsync(string licenseNumber, CancellationToken ct);
+
+    /// <summary>Adds a new facility (with its contacts) to the context. Does not call <c>SaveChangesAsync</c>.</summary>
+    /// <param name="facility">The facility to add.</param>
+    /// <param name="ct">Cancellation token.</param>
+    Task AddAsync(Facility facility, CancellationToken ct);
 }

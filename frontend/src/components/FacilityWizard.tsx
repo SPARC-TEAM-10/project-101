@@ -1,9 +1,14 @@
-import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
+import { BrandPanel } from "./BrandPanel";
 import { useAuth } from "../context/AuthProvider";
 import { useToast } from "../context/ToastProvider";
 import { useFacilityRegistration } from "../features/facility/useFacilityRegistration";
-import { FACILITY_CATEGORIES, MAX_CONTACTS, type FacilityCategory } from "../lib/validation/facilitySchemas";
+import { FACILITY_SUBCATEGORY_OPTIONS, MAX_CONTACTS, type FacilityCategory } from "../lib/validation/facilitySchemas";
+import { SelectField } from "./SelectField";
+
+const CATEGORY_LABELS: Record<FacilityCategory, string> = { Hospital: "Hospital", Ngo: "NGO" };
 
 const STEP_META: Record<"details" | "contacts", { no: string; widthPct: number; title: string }> = {
   details: { no: "1", widthPct: 50, title: "Facility details" },
@@ -29,8 +34,21 @@ function Hint({ children }: { children: React.ReactNode }) {
 
 export function FacilityWizard() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { session } = useAuth();
   const toast = useToast();
+
+  // RoleSelectionPage is the only entry point that sets this — a direct visit to
+  // /facility/register (no state) has nothing to register a category against, so send it back
+  // rather than re-asking the Hospital/NGO question here (that duplication was the reported bug).
+  const category = (location.state as { category?: FacilityCategory } | null)?.category;
+
+  useEffect(() => {
+    if (!category) {
+      navigate("/register", { replace: true });
+    }
+  }, [category, navigate]);
+
   const {
     step,
     details,
@@ -49,7 +67,7 @@ export function FacilityWizard() {
     isPending,
     error,
     submit,
-  } = useFacilityRegistration(session?.token);
+  } = useFacilityRegistration(session?.token, category ?? "Hospital");
 
   const meta = STEP_META[step];
   const showDetailsErrors = detailsTouched;
@@ -65,40 +83,51 @@ export function FacilityWizard() {
     }
   }
 
-  return (
-    <div className="flex min-h-screen flex-col bg-sand font-sans text-ink">
-      <header className="flex h-[58px] flex-none items-center gap-2.5 border-b border-line bg-cream px-3 md:h-16 md:px-8">
-        <button
-          type="button"
-          onClick={() => navigate("/")}
-          aria-label="Back to home"
-          className="flex h-10 w-10 items-center justify-center rounded-full text-ink-2 transition-colors hover:bg-sand-2"
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M19 12H5M11 6l-6 6 6 6" />
-          </svg>
-        </button>
-        <b className="flex-1 text-center text-[15px] font-bold md:text-left md:text-base">Register facility</b>
-        <span className="hidden w-10 md:block" aria-hidden="true" />
-      </header>
+  if (!category) {
+    return null;
+  }
 
-      <div className="flex flex-none justify-center border-b border-line bg-cream">
-        <div className="w-full max-w-2xl px-4 pb-3 pt-3.5 md:px-8">
-          <div className="mb-2 flex items-baseline justify-between">
-            <span className="text-sm font-bold">{meta.title}</span>
-            <span className="text-xs text-ink-3 [font-variant-numeric:tabular-nums]">Step {meta.no} of 2</span>
-          </div>
-          <div className="h-1.5 overflow-hidden rounded-full bg-sand-2">
-            <div
-              className="h-full rounded-full bg-clay transition-[width] duration-200"
-              style={{ width: `${meta.widthPct}%` }}
-            />
+  return (
+    <div className="grid min-h-screen bg-sand font-sans text-ink md:grid-cols-[420px_1fr]">
+      <BrandPanel
+        heading="Verified once, visible always."
+        description="Facilities go live after a quick admin check — donors and requesters can only see and contact verified hospitals and NGOs."
+        className="md:sticky md:top-0 md:h-screen"
+      />
+
+      <div className="flex flex-1 flex-col">
+        <header className="flex h-[58px] flex-none items-center gap-2.5 border-b border-line bg-cream px-3 md:h-16 md:px-8">
+          <button
+            type="button"
+            onClick={() => navigate("/register")}
+            aria-label="Back to account type"
+            className="flex h-10 w-10 items-center justify-center rounded-full text-ink-2 transition-colors hover:bg-sand-2"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M19 12H5M11 6l-6 6 6 6" />
+            </svg>
+          </button>
+          <b className="flex-1 text-center text-[15px] font-bold md:text-left md:text-base">Register facility</b>
+          <span className="hidden w-10 md:block" aria-hidden="true" />
+        </header>
+
+        <div className="flex flex-none justify-center border-b border-line bg-cream">
+          <div className="w-full max-w-2xl px-4 pb-3 pt-3.5 md:px-8">
+            <div className="mb-2 flex items-baseline justify-between">
+              <span className="text-sm font-bold">{meta.title}</span>
+              <span className="text-xs text-ink-3 [font-variant-numeric:tabular-nums]">Step {meta.no} of 2</span>
+            </div>
+            <div className="h-1.5 overflow-hidden rounded-full bg-sand-2">
+              <div
+                className="h-full rounded-full bg-clay transition-[width] duration-200"
+                style={{ width: `${meta.widthPct}%` }}
+              />
+            </div>
           </div>
         </div>
-      </div>
 
-      <form onSubmit={handleSubmit} noValidate className="w-full max-w-2xl flex-1 self-center flex flex-col gap-5 px-4 py-5 md:px-8 md:py-8">
-        {step === "details" && (
+        <form onSubmit={handleSubmit} noValidate className="w-full max-w-2xl flex-1 self-center flex flex-col gap-5 px-4 py-5 md:px-8 md:py-8">
+          {step === "details" && (
           <>
             <p className="text-[13px] leading-relaxed text-ink-2">
               Tell us about the facility. You can come back to a saved draft at any time.
@@ -130,31 +159,29 @@ export function FacilityWizard() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="facility-category" className="text-sm font-semibold text-ink-2">
-                Category <i className="not-italic text-error">*</i>
+              <span className="text-sm font-semibold text-ink-2">Category</span>
+              <div className="flex h-[50px] items-center rounded-sm border-[1.5px] border-line bg-sand-2 px-4 text-base text-ink-2">
+                {CATEGORY_LABELS[category]}
+              </div>
+              <Hint>Chosen on the previous screen.</Hint>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="facility-subcategory" className="text-sm font-semibold text-ink-2">
+                Sub-category <i className="not-italic text-error">*</i>
               </label>
-              <select
-                id="facility-category"
-                value={details.category ?? ""}
-                onChange={(e) => setDetailsField("category", e.target.value as FacilityCategory)}
-                aria-invalid={showDetailsErrors && !!detailsErrors.category}
-                aria-describedby="facility-category-hint"
-                className={`h-[50px] rounded-sm border-[1.5px] bg-cream px-4 text-base outline-none transition-colors focus:border-clay ${
-                  showDetailsErrors && detailsErrors.category ? "border-error" : "border-line-strong"
-                }`}
-              >
-                <option value="" disabled>
-                  Select a category
-                </option>
-                {FACILITY_CATEGORIES.map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat}
-                  </option>
-                ))}
-              </select>
-              <span id="facility-category-hint">
-                {showDetailsErrors && detailsErrors.category ? (
-                  <FieldError message={detailsErrors.category[0]} />
+              <SelectField
+                id="facility-subcategory"
+                value={details.subCategory ?? ""}
+                onChange={(value) => setDetailsField("subCategory", value)}
+                options={FACILITY_SUBCATEGORY_OPTIONS[category]}
+                placeholder="Select a sub-category"
+                invalid={showDetailsErrors && !!detailsErrors.subCategory}
+                describedBy="facility-subcategory-hint"
+              />
+              <span id="facility-subcategory-hint">
+                {showDetailsErrors && detailsErrors.subCategory ? (
+                  <FieldError message={detailsErrors.subCategory[0]} />
                 ) : (
                   <Hint>Required. This sets what your facility can publish.</Hint>
                 )}
@@ -170,7 +197,7 @@ export function FacilityWizard() {
                 type="text"
                 value={details.licenseNumber ?? ""}
                 onChange={(e) => setDetailsField("licenseNumber", e.target.value)}
-                placeholder="KL-HOSP-000000"
+                placeholder="As printed on your licence"
                 aria-invalid={showDetailsErrors && !!detailsErrors.licenseNumber}
                 aria-describedby="license-number-hint"
                 className={`h-[50px] rounded-sm border-[1.5px] bg-cream px-4 font-mono text-base outline-none transition-colors focus:border-clay ${
@@ -366,7 +393,8 @@ export function FacilityWizard() {
             </div>
           </>
         )}
-      </form>
+        </form>
+      </div>
     </div>
   );
 }
