@@ -12,6 +12,8 @@ export interface CreateBloodRequestRequest {
   urgency: UrgencyLevel;
 }
 
+export type BloodRequestStatus = "Matching" | "Expired" | "Fulfilled";
+
 export interface BloodRequestDto {
   id: string;
   patientName: string;
@@ -20,9 +22,28 @@ export interface BloodRequestDto {
   locationCityArea: string;
   searchRadiusKm: number;
   urgency: UrgencyLevel;
-  status: "Matching" | "Expired";
+  status: BloodRequestStatus;
   createdAtUtc: string;
   expiresAtUtc: string;
+}
+
+export interface DonorStatusDto {
+  label: string;
+  mobileNumber?: string;
+  isAccepted: boolean;
+}
+
+export interface BloodRequestMatchStatusDto {
+  bloodRequestId: string;
+  status: BloodRequestStatus;
+  searchRadiusKm: number;
+  unitsRequired: number;
+  unitsAccepted: number;
+  expiresAtUtc: string;
+  notifiedCount: number;
+  viewedCount: number;
+  acceptedCount: number;
+  donors: DonorStatusDto[];
 }
 
 export interface PagedResponse<T> {
@@ -53,5 +74,26 @@ export function getMyBloodRequests(
 ): Promise<PagedResponse<BloodRequestDto>> {
   return apiFetch<PagedResponse<BloodRequestDto>>(`/blood-requests/mine?page=${page}&pageSize=${pageSize}`, {
     headers: { Authorization: `Bearer ${accessToken}` },
+  });
+}
+
+// [Authorize]-protected (CHH-36 AC1/AC2) — the caller's own request's match/response status.
+export function getBloodRequestMatchStatus(accessToken: string, id: string): Promise<BloodRequestMatchStatusDto> {
+  return apiFetch<BloodRequestMatchStatusDto>(`/blood-requests/${id}/matches`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+}
+
+// [Authorize]-protected (CHH-36 AC4) — expands the caller's own request's search radius and
+// re-triggers matching. 422 if the request is no longer Matching, or the new radius isn't larger.
+export function updateBloodRequestRadius(
+  accessToken: string,
+  id: string,
+  searchRadiusKm: number,
+): Promise<BloodRequestMatchStatusDto> {
+  return apiFetch<BloodRequestMatchStatusDto>(`/blood-requests/${id}/radius`, {
+    method: "PATCH",
+    headers: { Authorization: `Bearer ${accessToken}` },
+    body: JSON.stringify({ searchRadiusKm }),
   });
 }

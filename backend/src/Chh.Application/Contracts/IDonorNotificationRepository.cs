@@ -1,3 +1,4 @@
+using Chh.Application.Dtos;
 using Chh.Domain.Entities;
 
 namespace Chh.Application.Contracts;
@@ -38,4 +39,13 @@ public interface IDonorNotificationRepository
     /// <param name="donorProfileId">The authenticated caller's <c>IndividualProfile</c> id.</param>
     /// <param name="ct">Cancellation token.</param>
     Task<DonorNotification?> GetTrackedByIdForDonorAsync(Guid id, Guid donorProfileId, CancellationToken ct);
+
+    /// <summary>
+    /// Returns every notification for the given blood request, joined with each donor's identity,
+    /// in stable match order (oldest first — CHH-36's "Donor 1, Donor 2, ..." anonymized labels).
+    /// Read-only — <c>AsNoTracking()</c> (api-standards.md §6).
+    /// </summary>
+    /// <param name="bloodRequestId">The blood request to look up matches for.</param>
+    /// <param name="ct">Cancellation token.</param>
+    Task<IReadOnlyList<DonorNotificationWithDonorInfo>> GetWithDonorInfoByBloodRequestIdAsync(Guid bloodRequestId, CancellationToken ct);
 }

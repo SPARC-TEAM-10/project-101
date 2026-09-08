@@ -7,6 +7,7 @@ import { OtpVerificationPage } from "./pages/auth/OtpVerificationPage";
 import { RoleRedirectPage } from "./pages/auth/RoleRedirectPage";
 import { GuestPlaceholderPage } from "./pages/GuestPlaceholderPage";
 import { BloodRequestFormModal } from "./pages/bloodRequest/BloodRequestFormModal";
+import { RequesterMatchDashboardPage } from "./pages/bloodRequest/RequesterMatchDashboardPage";
 import { FacilityRegistrationPage } from "./pages/facility/FacilityRegistrationPage";
 import { IndividualDashboardPage } from "./pages/dashboard/IndividualDashboardPage";
 import { GuestDashboardStubPage } from "./pages/dashboard/GuestDashboardStubPage";
@@ -86,6 +87,17 @@ export const router = createBrowserRouter([
     element: (
       <RequireAuth>
         <BloodRequestFormModal />
+      </RequireAuth>
+    ),
+  },
+  {
+    // Unrestricted role (both Guest and Individual can create a blood request and need to view
+    // its match status — CHH-36's guest-vs-registered donor-list visibility rule is applied
+    // server-side, not gated at the route).
+    path: "/blood-requests/:id/matches",
+    element: (
+      <RequireAuth>
+        <RequesterMatchDashboardPage />
       </RequireAuth>
     ),
   },

@@ -302,6 +302,63 @@ export const declineNotificationSuccessHandler = http.patch("/api/v1/notificatio
   }),
 );
 
+export const getBloodRequestMatchStatusNoMatchesHandler = http.get(
+  "/api/v1/blood-requests/:id/matches",
+  ({ params }) =>
+    HttpResponse.json({
+      bloodRequestId: params.id,
+      status: "Matching",
+      searchRadiusKm: 10,
+      unitsRequired: 2,
+      unitsAccepted: 0,
+      expiresAtUtc: new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString(),
+      notifiedCount: 0,
+      viewedCount: 0,
+      acceptedCount: 0,
+      donors: [],
+    }),
+);
+
+export const getBloodRequestMatchStatusWithDonorsHandler = http.get(
+  "/api/v1/blood-requests/:id/matches",
+  ({ params }) =>
+    HttpResponse.json({
+      bloodRequestId: params.id,
+      status: "Matching",
+      searchRadiusKm: 10,
+      unitsRequired: 2,
+      unitsAccepted: 1,
+      expiresAtUtc: new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString(),
+      notifiedCount: 3,
+      viewedCount: 2,
+      acceptedCount: 1,
+      donors: [
+        { label: "Donor 1", isAccepted: false },
+        { label: "Ravi Kumar", mobileNumber: "9123456789", isAccepted: true },
+        { label: "Donor 3", isAccepted: false },
+      ],
+    }),
+);
+
+export const updateBloodRequestRadiusSuccessHandler = http.patch(
+  "/api/v1/blood-requests/:id/radius",
+  async ({ params, request }) => {
+    const body = (await request.json()) as { searchRadiusKm: number };
+    return HttpResponse.json({
+      bloodRequestId: params.id,
+      status: "Matching",
+      searchRadiusKm: body.searchRadiusKm,
+      unitsRequired: 2,
+      unitsAccepted: 0,
+      expiresAtUtc: new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString(),
+      notifiedCount: 0,
+      viewedCount: 0,
+      acceptedCount: 0,
+      donors: [],
+    });
+  },
+);
+
 export const handlers = [
   successHandler,
   verifySuccessHandler,

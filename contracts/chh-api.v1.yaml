@@ -261,6 +261,87 @@ paths:
                 $ref: "#/components/schemas/PagedResponseOfBloodRequestDto"
         "401":
           description: Missing or invalid JWT.
+  /blood-requests/{id}/matches:
+    get:
+      tags:
+        - BloodRequests
+      summary: Get my own request's match/response status
+      description: >
+        Returns the caller's own request's match/response status (CHH-36
+        AC1/AC2/AC3). 404 if it doesn't exist or wasn't created by this
+        caller. Donor identity is redacted until a donor accepts, per the
+        guest-vs-registered visibility rule: a Guest caller's `donors` list
+        contains only Accepted donors; a registered caller's list contains
+        every matched donor, anonymized as "Donor 1", "Donor 2", ... until
+        accepted. `notifiedCount == 0` while `status` is still "Matching"
+        is the AC3 "no eligible donors found" signal.
+      operationId: getBloodRequestMatchStatus
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: The request's match/response status.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BloodRequestMatchStatusDto"
+        "401":
+          description: Missing or invalid JWT.
+        "404":
+          description: No such request for this caller.
+  /blood-requests/{id}/radius:
+    patch:
+      tags:
+        - BloodRequests
+      summary: Increase my own request's search radius
+      description: >
+        Expands the caller's own request's search radius and re-triggers
+        the matching engine (CHH-36 AC4). Existing matches are unaffected —
+        CHH-34's duplicate-prevention means only newly-in-range donors get
+        a fresh notification. 404 if it doesn't exist or wasn't created by
+        this caller. 422 if the request is no longer "Matching" (already
+        fulfilled or expired — Edge Case) or the new radius isn't larger
+        than the current one.
+      operationId: updateBloodRequestRadius
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateBloodRequestRadiusRequest"
+      responses:
+        "200":
+          description: The updated match/response status.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BloodRequestMatchStatusDto"
+        "401":
+          description: Missing or invalid JWT.
+        "404":
+          description: No such request for this caller.
+        "422":
+          description: The request is no longer Matching, or the new radius isn't larger than the current one.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
   /notifications/mine:
     get:
       tags:
@@ -646,9 +727,10 @@ components:
     BloodRequestStatus:
       type: string
       description: >
-        Only "Matching" is set on creation (AC1). "Expired" is set by the
-        donor-matching/notification stories later in this epic (CHH-34+).
-      enum: ["Matching", "Expired"]
+        Only "Matching" is set on creation (AC1). "Fulfilled" is set once
+        enough donors accept to cover unitsRequired (CHH-35 AC1/Edge Case).
+        "Expired" is set once the 6-hour validity window elapses.
+      enum: ["Matching", "Expired", "Fulfilled"]
     CreateBloodRequestRequest:
       type: object
       required:
@@ -832,6 +914,79 @@ components:
           type: integer
         pageSize:
           type: integer
+    UpdateBloodRequestRadiusRequest:
+      type: object
+      required:
+        - searchRadiusKm
+      properties:
+        searchRadiusKm:
+          type: integer
+          description: Must be larger than the request's current radius, up to 100km.
+    DonorStatusDto:
+      type: object
+      description: >
+        Shaped per the donor-list visibility rule (CHH-36 Business Rules):
+        identity is redacted behind label until the donor accepts.
+      required:
+        - label
+        - isAccepted
+      properties:
+        label:
+          type: string
+          description: >
+            "Donor 1"/"Donor 2"/... for a still-pending match (registered
+            requester view only), or the donor's real full name once
+            isAccepted is true.
+        mobileNumber:
+          type: string
+          nullable: true
+          description: Populated only when isAccepted is true.
+        isAccepted:
+          type: boolean
+    BloodRequestMatchStatusDto:
+      type: object
+      description: >
+        notifiedCount == 0 while status is still "Matching" is the AC3 "no
+        eligible donors found" signal — there's no separate flag for it.
+      required:
+        - bloodRequestId
+        - status
+        - searchRadiusKm
+        - unitsRequired
+        - unitsAccepted
+        - expiresAtUtc
+        - notifiedCount
+        - viewedCount
+        - acceptedCount
+        - donors
+      properties:
+        bloodRequestId:
+          type: string
+          format: uuid
+        status:
+          $ref: "#/components/schemas/BloodRequestStatus"
+        searchRadiusKm:
+          type: integer
+        unitsRequired:
+          type: integer
+        unitsAccepted:
+          type: integer
+        expiresAtUtc:
+          type: string
+          format: date-time
+        notifiedCount:
+          type: integer
+          description: AC1 "Notifications Sent".
+        viewedCount:
+          type: integer
+          description: AC1 "Viewed".
+        acceptedCount:
+          type: integer
+          description: AC1 "Accepted".
+        donors:
+          type: array
+          items:
+            $ref: "#/components/schemas/DonorStatusDto"
     DonorNotificationDto:
       type: object
       description: >

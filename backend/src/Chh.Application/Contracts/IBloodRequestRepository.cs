@@ -44,4 +44,13 @@ public interface IBloodRequestRepository
     /// <param name="ct">Cancellation token.</param>
     /// <returns><c>true</c> if the accept was recorded; <c>false</c> if the request is no longer active (expired, already fulfilled, or the last unit was just taken by another donor).</returns>
     Task<bool> TryAcceptUnitAsync(Guid bloodRequestId, DateTimeOffset nowUtc, CancellationToken ct);
+
+    /// <summary>
+    /// Returns the blood request for the given id, tracked by the context so mutations made to it
+    /// (CHH-36 AC4 radius expansion) are persisted on <c>SaveChangesAsync</c> — or <c>null</c> if
+    /// none exists.
+    /// </summary>
+    /// <param name="id">The blood request id.</param>
+    /// <param name="ct">Cancellation token.</param>
+    Task<BloodRequest?> GetTrackedByIdAsync(Guid id, CancellationToken ct);
 }
