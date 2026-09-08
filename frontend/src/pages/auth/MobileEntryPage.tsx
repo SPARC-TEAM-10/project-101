@@ -1,7 +1,37 @@
 import { useNavigate } from "react-router-dom";
 
-import { AuthSplitLayout } from "../../components/AuthSplitLayout";
+import { BrandPanel, type BrandPanelFeature } from "../../components/BrandPanel";
 import { useOtpRequest } from "../../features/auth/useOtpRequest";
+
+const LOGIN_FEATURES: BrandPanelFeature[] = [
+  {
+    label: "See live donor locations",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M12 21s7-5.4 7-11a7 7 0 1 0-14 0c0 5.6 7 11 7 11Z" />
+        <circle cx="12" cy="10" r="2.6" />
+      </svg>
+    ),
+  },
+  {
+    label: "Get notified for nearby requests",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M18 15.5V10a6 6 0 1 0-12 0v5.5L4.5 18h15L18 15.5Z" />
+        <path d="M10 18a2 2 0 0 0 4 0" />
+      </svg>
+    ),
+  },
+  {
+    label: "Sign in in seconds, no password",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="8.5" />
+        <path d="M12 7.5V12l3 1.8" />
+      </svg>
+    ),
+  },
+];
 
 export function MobileEntryPage() {
   const navigate = useNavigate();
@@ -28,8 +58,13 @@ export function MobileEntryPage() {
   const ctaEnabled = isValid && !isPending;
 
   return (
-    <AuthSplitLayout imageSrc="/images/auth-mobile-entry.png" imageAlt="">
-    <div className="relative flex min-h-screen flex-col bg-sand font-sans text-ink">
+    <div className="grid min-h-screen bg-sand font-sans text-ink md:grid-cols-[minmax(0,40%)_1fr]">
+    <BrandPanel
+      heading="Every login gets you closer to a donor."
+      description="Sign in with your phone to see donors nearby, track requests, and manage your profile."
+      features={LOGIN_FEATURES}
+    />
+    <div className="relative flex min-h-screen flex-col">
       <a
         href="/"
         onClick={(e) => {
@@ -141,6 +176,6 @@ export function MobileEntryPage() {
         By continuing you agree this device isn&apos;t shared for medical alerts.
       </div>
     </div>
-    </AuthSplitLayout>
+    </div>
   );
 }

@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 
-import { AuthSplitLayout } from "../../components/AuthSplitLayout";
+import { BrandPanel } from "../../components/BrandPanel";
 
 // "Welcome" choice screen (CHH-11) — shown when role === "Guest", i.e. a verified mobile
 // number with no completed registration (backend's RoleConstants.cs definition maps exactly
@@ -9,8 +9,19 @@ export function NewUserGuestDecisionPage() {
   const navigate = useNavigate();
 
   return (
-    <AuthSplitLayout imageSrc="/images/auth-otp-verify.png" imageAlt="">
-      <div className="flex min-h-screen flex-col bg-sand font-sans text-ink">
+    <div className="grid min-h-screen bg-sand font-sans text-ink md:grid-cols-[minmax(0,40%)_1fr]">
+      <BrandPanel
+        heading="Not in our records yet — no problem."
+        description="Create an account for full access, or continue as a guest if this is urgent."
+        icon={
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <circle cx="9" cy="8.5" r="3.2" />
+            <path d="M3.2 19.5a5.8 5.8 0 0 1 11.6 0" />
+            <path d="M16 5.6a3.2 3.2 0 0 1 0 5.9M17.5 14.4a5.8 5.8 0 0 1 3.3 5.1" />
+          </svg>
+        }
+      />
+      <div className="flex min-h-screen flex-col">
         <div className="flex flex-1 items-center justify-center px-7">
         <div className="w-full max-w-[420px]">
         <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-clay-tint text-clay-deep">
@@ -62,6 +73,6 @@ export function NewUserGuestDecisionPage() {
         </div>
         </div>
       </div>
-    </AuthSplitLayout>
+    </div>
   );
 }

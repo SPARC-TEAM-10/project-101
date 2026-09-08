@@ -52,8 +52,8 @@ const TODAY = new Date().toISOString().slice(0, 10);
 //
 // Layout mirrors the two design canvas artboards: Registration.dc.html (mobile — single-column
 // scroll, appbar title) and RegistrationWeb{Enabled,Disabled}.dc.html (web — "Almost there." panel
-// on the left, a 2-column field grid on the right). Split at `md:`, same breakpoint AuthSplitLayout
-// uses for its own left/right split.
+// on the left, a 2-column field grid on the right). Split at `md:`, same breakpoint every other
+// auth/onboarding screen's BrandPanel split uses.
 export function RegisterStubPage() {
   const navigate = useNavigate();
   const { session, setSession } = useAuth();
