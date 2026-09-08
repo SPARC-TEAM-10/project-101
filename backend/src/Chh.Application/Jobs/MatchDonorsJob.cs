@@ -6,26 +6,31 @@ namespace Chh.Application.Jobs;
 /// <summary>
 /// Hangfire background job that runs the matching engine for a newly created blood request
 /// (US-CHH-004-02/CHH-80), enqueued fire-and-forget by <see cref="Services.BloodRequestService"/>
-/// so the creating endpoint returns immediately (api-standards.md §6 NFR). Only logs the match
-/// result — push/SMS dispatch and per-donor persistence are CHH-34's scope, not this job's.
+/// so the creating endpoint returns immediately (api-standards.md §6 NFR). Also dispatches a
+/// per-donor notification for each match (CHH-34) — in-app always, plus SMS for donors who aren't
+/// currently active in-app.
 /// </summary>
 public class MatchDonorsJob
 {
     private readonly IBloodRequestRepository _bloodRequestRepository;
     private readonly IMatchingEngineService _matchingEngineService;
+    private readonly INotificationDispatchService _notificationDispatchService;
     private readonly ILogger<MatchDonorsJob> _logger;
 
     /// <summary>Creates the job with its dependencies.</summary>
     /// <param name="bloodRequestRepository">Loads the blood request to match against.</param>
     /// <param name="matchingEngineService">Computes the eligible donor list.</param>
+    /// <param name="notificationDispatchService">Notifies each matched donor (CHH-34).</param>
     /// <param name="logger">Logs the match outcome.</param>
     public MatchDonorsJob(
         IBloodRequestRepository bloodRequestRepository,
         IMatchingEngineService matchingEngineService,
+        INotificationDispatchService notificationDispatchService,
         ILogger<MatchDonorsJob> logger)
     {
         _bloodRequestRepository = bloodRequestRepository;
         _matchingEngineService = matchingEngineService;
+        _notificationDispatchService = notificationDispatchService;
         _logger = logger;
     }
 
@@ -55,5 +60,10 @@ public class MatchDonorsJob
         _logger.LogInformation(
             "MatchDonorsJob: BloodRequest {BloodRequestId} matched {DonorCount} eligible donor(s) within {SearchRadiusKm}km.",
             bloodRequestId, matches.Count, bloodRequest.SearchRadiusKm);
+
+        if (matches.Count > 0)
+        {
+            await _notificationDispatchService.DispatchAsync(bloodRequest, matches, ct).ConfigureAwait(false);
+        }
     }
 }

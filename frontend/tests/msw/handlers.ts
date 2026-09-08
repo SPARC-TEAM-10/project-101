@@ -260,6 +260,47 @@ export const registerIndividualConflictHandler = http.post(INDIVIDUALS_URL, () =
   );
 });
 
+export const NOTIFICATIONS_MINE_URL = "/api/v1/notifications/mine";
+
+export const getMyNotificationsEmptyHandler = http.get(NOTIFICATIONS_MINE_URL, () =>
+  HttpResponse.json({ items: [], totalCount: 0, page: 1, pageSize: 20 }),
+);
+
+export const getMyNotificationsSuccessHandler = http.get(NOTIFICATIONS_MINE_URL, () =>
+  HttpResponse.json({
+    items: [
+      {
+        id: "44444444-4444-4444-4444-444444444444",
+        bloodRequestId: "11111111-1111-1111-1111-111111111111",
+        bloodGroup: "O+",
+        unitsRequired: 2,
+        urgency: "Emergency",
+        distanceKm: 4.2,
+        areaLabel: "Kaloor, Kochi",
+        isRead: false,
+        createdAtUtc: new Date().toISOString(),
+      },
+    ],
+    totalCount: 1,
+    page: 1,
+    pageSize: 20,
+  }),
+);
+
+export const markNotificationReadSuccessHandler = http.patch("/api/v1/notifications/:id/read", () =>
+  HttpResponse.json({
+    id: "44444444-4444-4444-4444-444444444444",
+    bloodRequestId: "11111111-1111-1111-1111-111111111111",
+    bloodGroup: "O+",
+    unitsRequired: 2,
+    urgency: "Emergency",
+    distanceKm: 4.2,
+    areaLabel: "Kaloor, Kochi",
+    isRead: true,
+    createdAtUtc: new Date().toISOString(),
+  }),
+);
+
 export const handlers = [
   successHandler,
   verifySuccessHandler,
@@ -268,6 +309,8 @@ export const handlers = [
   getMyProfileSuccessHandler,
   updateMyProfileSuccessHandler,
   getMyBloodRequestsEmptyHandler,
+  getMyNotificationsEmptyHandler,
+  markNotificationReadSuccessHandler,
   nominatimReverseGeocodeHandler,
   registerIndividualSuccessHandler,
 ];

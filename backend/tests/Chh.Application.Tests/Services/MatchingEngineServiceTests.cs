@@ -42,7 +42,8 @@ public class MatchingEngineServiceTests
         decimal? latitude,
         decimal? longitude,
         AccountStatus accountStatus = AccountStatus.Active,
-        bool isReceiverOnly = false) => new()
+        bool isReceiverOnly = false,
+        DateTimeOffset? lastActiveAtUtc = null) => new()
     {
         MobileNumber = "9000000000",
         FullName = "Donor",
@@ -55,7 +56,8 @@ public class MatchingEngineServiceTests
         Longitude = longitude,
         AccountStatus = accountStatus,
         IsReceiverOnly = isReceiverOnly,
-        CreatedAtUtc = DateTimeOffset.UtcNow
+        CreatedAtUtc = DateTimeOffset.UtcNow,
+        LastActiveAtUtc = lastActiveAtUtc
     };
 
     private void SetupCandidates(params IndividualProfile[] candidates) =>
@@ -165,5 +167,16 @@ public class MatchingEngineServiceTests
 
         result.Should().HaveCount(2);
         result.Should().BeInAscendingOrder(m => m.DistanceKm);
+    }
+
+    [Fact]
+    public async Task FindEligibleDonorsAsync_CopiesLastActiveAtUtcOntoMatch()
+    {
+        var lastActive = DateTimeOffset.UtcNow.AddMinutes(-1);
+        SetupCandidates(MakeDonor(BloodGroup.OPositive, RequestLatitude, RequestLongitude, lastActiveAtUtc: lastActive));
+
+        var result = await _sut.FindEligibleDonorsAsync(MakeRequest(BloodGroup.OPositive, 20), CancellationToken.None);
+
+        result.Should().ContainSingle().Which.LastActiveAtUtc.Should().Be(lastActive);
     }
 }
