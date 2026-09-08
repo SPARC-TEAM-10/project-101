@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
+import { BrandPanel } from "./BrandPanel";
 import { useAuth } from "../context/AuthProvider";
 import { useToast } from "../context/ToastProvider";
 import { useFacilityRegistration } from "../features/facility/useFacilityRegistration";
@@ -87,39 +88,46 @@ export function FacilityWizard() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-sand font-sans text-ink">
-      <header className="flex h-[58px] flex-none items-center gap-2.5 border-b border-line bg-cream px-3 md:h-16 md:px-8">
-        <button
-          type="button"
-          onClick={() => navigate("/register")}
-          aria-label="Back to account type"
-          className="flex h-10 w-10 items-center justify-center rounded-full text-ink-2 transition-colors hover:bg-sand-2"
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M19 12H5M11 6l-6 6 6 6" />
-          </svg>
-        </button>
-        <b className="flex-1 text-center text-[15px] font-bold md:text-left md:text-base">Register facility</b>
-        <span className="hidden w-10 md:block" aria-hidden="true" />
-      </header>
+    <div className="grid min-h-screen bg-sand font-sans text-ink md:grid-cols-[420px_1fr]">
+      <BrandPanel
+        heading="Verified once, visible always."
+        description="Facilities go live after a quick admin check — donors and requesters can only see and contact verified hospitals and NGOs."
+        className="md:sticky md:top-0 md:h-screen"
+      />
 
-      <div className="flex flex-none justify-center border-b border-line bg-cream">
-        <div className="w-full max-w-2xl px-4 pb-3 pt-3.5 md:px-8">
-          <div className="mb-2 flex items-baseline justify-between">
-            <span className="text-sm font-bold">{meta.title}</span>
-            <span className="text-xs text-ink-3 [font-variant-numeric:tabular-nums]">Step {meta.no} of 2</span>
-          </div>
-          <div className="h-1.5 overflow-hidden rounded-full bg-sand-2">
-            <div
-              className="h-full rounded-full bg-clay transition-[width] duration-200"
-              style={{ width: `${meta.widthPct}%` }}
-            />
+      <div className="flex flex-1 flex-col">
+        <header className="flex h-[58px] flex-none items-center gap-2.5 border-b border-line bg-cream px-3 md:h-16 md:px-8">
+          <button
+            type="button"
+            onClick={() => navigate("/register")}
+            aria-label="Back to account type"
+            className="flex h-10 w-10 items-center justify-center rounded-full text-ink-2 transition-colors hover:bg-sand-2"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M19 12H5M11 6l-6 6 6 6" />
+            </svg>
+          </button>
+          <b className="flex-1 text-center text-[15px] font-bold md:text-left md:text-base">Register facility</b>
+          <span className="hidden w-10 md:block" aria-hidden="true" />
+        </header>
+
+        <div className="flex flex-none justify-center border-b border-line bg-cream">
+          <div className="w-full max-w-2xl px-4 pb-3 pt-3.5 md:px-8">
+            <div className="mb-2 flex items-baseline justify-between">
+              <span className="text-sm font-bold">{meta.title}</span>
+              <span className="text-xs text-ink-3 [font-variant-numeric:tabular-nums]">Step {meta.no} of 2</span>
+            </div>
+            <div className="h-1.5 overflow-hidden rounded-full bg-sand-2">
+              <div
+                className="h-full rounded-full bg-clay transition-[width] duration-200"
+                style={{ width: `${meta.widthPct}%` }}
+              />
+            </div>
           </div>
         </div>
-      </div>
 
-      <form onSubmit={handleSubmit} noValidate className="w-full max-w-2xl flex-1 self-center flex flex-col gap-5 px-4 py-5 md:px-8 md:py-8">
-        {step === "details" && (
+        <form onSubmit={handleSubmit} noValidate className="w-full max-w-2xl flex-1 self-center flex flex-col gap-5 px-4 py-5 md:px-8 md:py-8">
+          {step === "details" && (
           <>
             <p className="text-[13px] leading-relaxed text-ink-2">
               Tell us about the facility. You can come back to a saved draft at any time.
@@ -385,7 +393,8 @@ export function FacilityWizard() {
             </div>
           </>
         )}
-      </form>
+        </form>
+      </div>
     </div>
   );
 }
