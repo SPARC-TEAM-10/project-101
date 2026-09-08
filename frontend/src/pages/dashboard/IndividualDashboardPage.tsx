@@ -5,12 +5,13 @@ import { useAuth } from "../../context/AuthProvider";
 import type { BloodRequestDto } from "../../api/bloodRequestApi";
 import { useIndividualDashboard } from "../../features/dashboard/useIndividualDashboard";
 
-// "Home" is the only nav item with a real destination — My requests/Events/Emergency services
-// don't have their own pages yet (request history already lives on this dashboard; Events is
-// CHH-37, Emergency services hub is CHH-68 — neither has a frontend route yet).
+// "Home" and "My requests" both resolve on this same page (request history already lives here —
+// "My requests" jumps to that section) since there's no separate page for it yet. Events/
+// Emergency services stay disabled: CHH-37 and CHH-68 exist as Jira epics but neither has a
+// frontend route yet — an enabled link with nowhere real to go would be worse than being honest.
 const NAV_ITEMS = [
   { label: "Home", to: "/dashboard/individual", enabled: true },
-  { label: "My requests", to: "/dashboard/individual", enabled: false },
+  { label: "My requests", to: "/dashboard/individual#your-requests", enabled: true },
   { label: "Events", to: "/dashboard/individual", enabled: false },
   { label: "Emergency services", to: "/dashboard/individual", enabled: false },
 ] as const;
@@ -132,9 +133,9 @@ export function IndividualDashboardPage() {
 
         <div className="flex-1" />
 
-        <button type="button" aria-label="Notifications" title="Coming soon" className="flex h-[42px] w-[42px] items-center justify-center rounded-full text-ink-2 transition-colors hover:bg-sand-2 hover:text-ink">
+        <Link to="/notifications" aria-label="Notifications" className="flex h-[42px] w-[42px] items-center justify-center rounded-full text-ink-2 transition-colors hover:bg-sand-2 hover:text-ink">
           <BellIcon />
-        </button>
+        </Link>
 
         {/* User menu (desktop) — carries Log out, matching the approved design's header
             placement, instead of a full-width button at the bottom of the page. */}
@@ -233,7 +234,7 @@ export function IndividualDashboardPage() {
             </section>
           )}
 
-          <section>
+          <section id="your-requests" className="scroll-mt-20">
             <h2 className="mb-2 text-[17px] font-bold tracking-tight">Your requests</h2>
             {isLoading ? (
               <div className="rounded-sm border border-line bg-cream px-4 py-6 text-center text-sm text-ink-2">Loading…</div>

@@ -11,6 +11,7 @@ import { FacilityRegistrationPage } from "./pages/facility/FacilityRegistrationP
 import { IndividualDashboardPage } from "./pages/dashboard/IndividualDashboardPage";
 import { GuestDashboardStubPage } from "./pages/dashboard/GuestDashboardStubPage";
 import { ProfilePage } from "./pages/profile/ProfilePage";
+import { NotificationsPage } from "./pages/notifications/NotificationsPage";
 import { NewUserGuestDecisionPage } from "./pages/onboarding/NewUserGuestDecisionPage";
 import { RoleSelectionPage } from "./pages/onboarding/RoleSelectionPage";
 import { RegisterStubPage } from "./pages/onboarding/RegisterStubPage";
@@ -33,6 +34,14 @@ export const router = createBrowserRouter([
     element: (
       <RequireAuth roles={["Individual"]}>
         <ProfilePage />
+      </RequireAuth>
+    ),
+  },
+  {
+    path: "/notifications",
+    element: (
+      <RequireAuth roles={["Individual"]}>
+        <NotificationsPage />
       </RequireAuth>
     ),
   },
