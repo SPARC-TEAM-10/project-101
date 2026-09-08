@@ -23,6 +23,7 @@ export interface IndividualProfileDto {
   fullName: string;
   bloodGroup: BloodGroup;
   isReceiverOnly: boolean;
+  locationCityArea: string;
   createdAtUtc: string;
 }
 
@@ -32,5 +33,15 @@ export function registerIndividual(request: CreateIndividualProfileRequest): Pro
   return apiFetch<IndividualProfileDto>("/individuals", {
     method: "POST",
     body: JSON.stringify(request),
+  });
+}
+
+// [Authorize]-protected (CHH-81 Individual Dashboard). 404 if the caller hasn't completed
+// registration yet — surfaced to callers as an ApiError with status 404, not thrown as a
+// generic Error, so the dashboard can show a "complete your profile" prompt instead of an
+// error toast.
+export function getMyProfile(accessToken: string): Promise<IndividualProfileDto> {
+  return apiFetch<IndividualProfileDto>("/individuals/me", {
+    headers: { Authorization: `Bearer ${accessToken}` },
   });
 }

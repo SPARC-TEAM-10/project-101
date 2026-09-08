@@ -153,6 +153,29 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/ProblemDetails"
+  /individuals/me:
+    get:
+      tags:
+        - Individuals
+      summary: Get my own individual profile
+      description: >
+        Returns the authenticated caller's own profile (CHH-81 Individual
+        Dashboard). 404 if the JWT's mobile number hasn't completed
+        registration yet.
+      operationId: getMyIndividualProfile
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: The caller's profile.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IndividualProfileDto"
+        "401":
+          description: Missing or invalid JWT.
+        "404":
+          description: No individual profile exists for this mobile number yet.
   /blood-requests:
     post:
       tags:
@@ -197,6 +220,41 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/ProblemDetails"
+        "401":
+          description: Missing or invalid JWT.
+  /blood-requests/mine:
+    get:
+      tags:
+        - BloodRequests
+      summary: List my own blood requests
+      description: >
+        Returns the authenticated caller's own blood requests, newest first
+        (CHH-81 Individual Dashboard). An empty result is a normal `200`
+        with an empty `items` array.
+      operationId: listMyBloodRequests
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        "200":
+          description: Page of the caller's own blood requests.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PagedResponseOfBloodRequestDto"
         "401":
           description: Missing or invalid JWT.
   /admin/facilities/pending:
@@ -404,6 +462,7 @@ components:
         - fullName
         - bloodGroup
         - isReceiverOnly
+        - locationCityArea
         - createdAtUtc
       properties:
         id:
@@ -418,6 +477,9 @@ components:
           description: >
             True if any health-restriction flag was set — excluded from
             donor search, can still request blood (PRD §7 CHH-F02 AC2).
+        locationCityArea:
+          type: string
+          description: Registered city/area (CHH-81 dashboard profile summary).
         createdAtUtc:
           type: string
           format: date-time
@@ -588,6 +650,25 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/FacilityDto"
+        totalCount:
+          type: integer
+        page:
+          type: integer
+        pageSize:
+          type: integer
+    PagedResponseOfBloodRequestDto:
+      type: object
+      description: Generic paging envelope (DOTNET-RULES §12) — see PagedResponseOfFacilityDto.
+      required:
+        - items
+        - totalCount
+        - page
+        - pageSize
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/BloodRequestDto"
         totalCount:
           type: integer
         page:

@@ -49,4 +49,21 @@ public class BloodRequestsController : ControllerBase
         // no GET /blood-requests/{id} exists yet (out of scope for this story).
         return CreatedAtRoute(RouteName, new { id = result.Id }, result);
     }
+
+    /// <summary>Returns the authenticated caller's own blood requests, newest first (CHH-81 Individual Dashboard).</summary>
+    /// <param name="page">1-based page number (default 1).</param>
+    /// <param name="pageSize">Items per page (default 20, max 100).</param>
+    /// <param name="cancellationToken">Cancellation token forwarded through the service and repository layers.</param>
+    [HttpGet("mine")]
+    [ProducesResponseType(typeof(PagedResponse<BloodRequestDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<ActionResult<PagedResponse<BloodRequestDto>>> GetMyRequestsAsync(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        CancellationToken cancellationToken = default)
+    {
+        var requesterMobileNumber = User.FindFirstValue(ClaimTypes.MobilePhone)!;
+        var result = await _bloodRequestService.GetMyRequestsAsync(requesterMobileNumber, page, pageSize, cancellationToken);
+        return Ok(result);
+    }
 }

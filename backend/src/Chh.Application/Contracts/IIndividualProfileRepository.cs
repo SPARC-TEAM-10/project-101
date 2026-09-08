@@ -1,4 +1,5 @@
 using Chh.Domain.Entities;
+using Chh.Domain.Enums;
 
 namespace Chh.Application.Contracts;
 
@@ -14,4 +15,14 @@ public interface IIndividualProfileRepository
     /// <param name="individualProfile">The individual profile to add.</param>
     /// <param name="ct">Cancellation token.</param>
     Task AddAsync(IndividualProfile individualProfile, CancellationToken ct);
+
+    /// <summary>
+    /// Returns candidate donors (read-only, untracked) for proximity matching
+    /// (US-CHH-004-02/CHH-80): active, not receiver-only, with a registered blood group in
+    /// <paramref name="bloodGroups"/> and non-null registered coordinates. Distance filtering
+    /// against a specific request's radius happens in <see cref="IMatchingEngineService"/>, not here.
+    /// </summary>
+    /// <param name="bloodGroups">The compatible donor blood groups to match against.</param>
+    /// <param name="ct">Cancellation token.</param>
+    Task<IReadOnlyList<IndividualProfile>> GetActiveDonorsByBloodGroupsAsync(IReadOnlySet<BloodGroup> bloodGroups, CancellationToken ct);
 }

@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 
 import { LoadingOverlay } from "../../components/LoadingOverlay";
+import { DASHBOARD_ROUTE_BY_ROLE } from "../auth/RoleRedirectPage";
 import { useAuth } from "../../context/AuthProvider";
 import { useToast } from "../../context/ToastProvider";
 import { useCreateBloodRequest } from "../../features/bloodRequest/useCreateBloodRequest";
@@ -136,7 +137,8 @@ export function BloodRequestFormModal() {
     const result = await submit();
     if (result.ok && result.data) {
       toast.success("Blood request created — notifying nearby donors.");
-      navigate("/", { state: { bloodRequestCreated: true, id: result.data.id } });
+      const dashboardRoute = session?.role ? DASHBOARD_ROUTE_BY_ROLE[session.role] : "/";
+      navigate(dashboardRoute, { state: { bloodRequestCreated: true, id: result.data.id } });
     } else if (result.error) {
       toast.error(result.error.message);
     }
