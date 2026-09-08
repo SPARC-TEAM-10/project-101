@@ -2,6 +2,7 @@ import { apiFetch } from "./httpClient";
 import type { BloodGroup, UrgencyLevel } from "../lib/validation/bloodRequestSchemas";
 
 export interface CreateBloodRequestRequest {
+  requesterName: string;
   patientName: string;
   bloodGroup: BloodGroup;
   unitsRequired: number;
@@ -14,6 +15,7 @@ export interface CreateBloodRequestRequest {
 
 export interface BloodRequestDto {
   id: string;
+  requesterName: string;
   patientName: string;
   bloodGroup: BloodGroup;
   unitsRequired: number;
