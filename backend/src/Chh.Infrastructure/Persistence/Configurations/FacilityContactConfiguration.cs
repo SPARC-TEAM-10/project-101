@@ -34,5 +34,9 @@ public class FacilityContactConfiguration : IEntityTypeConfiguration<FacilityCon
 
         builder.HasIndex(e => e.FacilityId)
             .HasDatabaseName("IX_FacilityContact_FacilityId");
+
+        // Backs CHH-10's OTP-verify role lookup: "which facility does this mobile number belong to".
+        builder.HasIndex(e => e.Mobile)
+            .HasDatabaseName("IX_FacilityContact_Mobile");
     }
 }
