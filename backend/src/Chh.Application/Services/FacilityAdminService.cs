@@ -44,7 +44,9 @@ public class FacilityAdminService : IFacilityAdminService
             }).ToList(),
             VerificationStatus = f.VerificationStatus,
             LicenseDocumentUrl = f.LicenseDocumentUrl,
-            CreatedAtUtc = f.CreatedAtUtc
+            RejectionReason = f.RejectionReason,
+            CreatedAtUtc = f.CreatedAtUtc,
+            UpdatedAtUtc = f.UpdatedAtUtc
         }).ToList();
 
         return new PagedResponse<FacilityDto>

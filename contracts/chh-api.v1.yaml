@@ -271,6 +271,31 @@ paths:
                 $ref: "#/components/schemas/ProblemDetails"
         "401":
           description: Missing or invalid JWT.
+  /facilities/me:
+    get:
+      tags:
+        - Facilities
+      summary: Get the caller's own facility and its verification status
+      description: >
+        Returns the facility owned by the authenticated caller (CHH-28/
+        US-CHH-003-03, part of Epic CHH-77 — CHH-F03 Facility Verification),
+        resolved by matching the JWT's mobile number against a facility
+        contact — the same lookup used to grant the Hospital/Ngo role on
+        OTP verify (CHH-10). Restricted to the Hospital and Ngo roles.
+      operationId: getMyFacility
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: The caller's facility.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FacilityDto"
+        "401":
+          description: Missing or invalid JWT.
+        "404":
+          description: The caller's mobile number isn't a contact on any facility.
   /blood-requests/mine:
     get:
       tags:
@@ -707,6 +732,7 @@ components:
         - contacts
         - verificationStatus
         - createdAtUtc
+        - updatedAtUtc
       properties:
         id:
           type: string
@@ -729,10 +755,24 @@ components:
           type: string
           nullable: true
           description: Blob storage reference; populated by CHH-74's upload path, null until then.
+        rejectionReason:
+          type: string
+          nullable: true
+          description: >
+            Admin's reason for rejection (CHH-28's status dashboard). Null
+            unless verificationStatus is "Rejected" — no reject-with-reason
+            endpoint exists yet (CHH-75), so this is currently only ever set
+            by a manual DB operation.
         createdAtUtc:
           type: string
           format: date-time
           description: Also serves as "Date of Registration" (CHH-73 AC1).
+        updatedAtUtc:
+          type: string
+          format: date-time
+          description: >
+            Doubles as the verification decision date on CHH-28's status
+            dashboard, since no separate reviewed-at field exists yet.
     PagedResponseOfFacilityDto:
       type: object
       description: >

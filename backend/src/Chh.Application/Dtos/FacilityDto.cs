@@ -33,6 +33,12 @@ public record FacilityDto
     /// <summary>Blob storage reference for the uploaded license document; null until CHH-74's upload path populates it.</summary>
     public string? LicenseDocumentUrl { get; init; }
 
+    /// <summary>Admin's reason for rejection; null unless <see cref="VerificationStatus"/> is "Rejected" (CHH-28).</summary>
+    public string? RejectionReason { get; init; }
+
     /// <summary>UTC timestamp the facility record was created — also serves as "Date of Registration" (CHH-73 AC1).</summary>
     public required DateTimeOffset CreatedAtUtc { get; init; }
+
+    /// <summary>UTC timestamp of the last update — doubles as the verification decision date on CHH-28's status dashboard.</summary>
+    public required DateTimeOffset UpdatedAtUtc { get; init; }
 }

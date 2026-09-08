@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Chh.Infrastructure.Migrations
 {
     [DbContext(typeof(ChhDbContext))]
-    [Migration("20260908090000_AddFacilityCreationColumns")]
-    partial class AddFacilityCreationColumns
+    [Migration("20260908110500_AddFacilityRejectionReason")]
+    partial class AddFacilityRejectionReason
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -131,6 +131,10 @@ namespace Chh.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<string>("RejectionReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.Property<DateTimeOffset>("UpdatedAtUtc")
                         .HasColumnType("timestamp with time zone");

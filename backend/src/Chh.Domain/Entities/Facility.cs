@@ -55,6 +55,14 @@ public class Facility
     /// <summary>UTC timestamp of the last update (e.g. a CHH-75 approve/reject transition). Set to <see cref="CreatedAtUtc"/> on creation.</summary>
     public DateTimeOffset UpdatedAtUtc { get; internal set; }
 
+    /// <summary>
+    /// Admin's reason for rejecting the facility (CHH-28's status dashboard shows this). Null unless
+    /// <see cref="VerificationStatus"/> is <see cref="FacilityVerificationStatus.Rejected"/> — no
+    /// reject-with-reason endpoint exists yet (CHH-75), so this is currently only ever set by a
+    /// manual DB operation, same as <see cref="IndividualProfile.IsAdmin"/> until its own ticket lands.
+    /// </summary>
+    public string? RejectionReason { get; internal set; }
+
     /// <summary>Contacts for this facility — 1 to 3, the first (lowest <see cref="FacilityContact.SortOrder"/>) is primary (CHH-78 AC2).</summary>
     public ICollection<FacilityContact> Contacts { get; internal set; } = new List<FacilityContact>();
 }

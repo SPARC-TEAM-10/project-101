@@ -14,6 +14,7 @@ public class FacilityConfiguration : IEntityTypeConfiguration<Facility>
     private const int VerificationStatusMaxLength = 50;
     private const int LicenseDocumentUrlMaxLength = 500;
     private const int MobileNumberMaxLength = 10;
+    private const int RejectionReasonMaxLength = 500;
 
     /// <summary>Configures the <c>Facility</c> table mapping.</summary>
     public void Configure(EntityTypeBuilder<Facility> builder)
@@ -48,6 +49,9 @@ public class FacilityConfiguration : IEntityTypeConfiguration<Facility>
 
         builder.Property(e => e.LicenseDocumentUrl)
             .HasMaxLength(LicenseDocumentUrlMaxLength);
+
+        builder.Property(e => e.RejectionReason)
+            .HasMaxLength(RejectionReasonMaxLength);
 
         builder.Property(e => e.CreatedByMobileNumber)
             .HasMaxLength(MobileNumberMaxLength)

@@ -46,7 +46,45 @@ public class FacilityService : IFacilityService
                 .ToList(),
             VerificationStatus = facility.VerificationStatus,
             LicenseDocumentUrl = facility.LicenseDocumentUrl,
-            CreatedAtUtc = facility.CreatedAtUtc
+            RejectionReason = facility.RejectionReason,
+            CreatedAtUtc = facility.CreatedAtUtc,
+            UpdatedAtUtc = facility.UpdatedAtUtc
+        };
+    }
+
+    /// <inheritdoc />
+    public async Task<FacilityDto?> GetMyFacilityAsync(string mobileNumber, CancellationToken ct)
+    {
+        var facility = await _facilityRepository
+            .GetByContactMobileNumberAsync(mobileNumber, ct)
+            .ConfigureAwait(false);
+
+        if (facility is null)
+        {
+            return null;
+        }
+
+        return new FacilityDto
+        {
+            Id = facility.Id,
+            FacilityName = facility.FacilityName,
+            Category = facility.Category,
+            LicenseNumber = facility.LicenseNumber,
+            Address = facility.Address,
+            Contacts = facility.Contacts
+                .OrderBy(c => c.SortOrder)
+                .Select(c => new FacilityContactDto
+                {
+                    Name = c.Name,
+                    Designation = c.Designation,
+                    Mobile = c.Mobile
+                })
+                .ToList(),
+            VerificationStatus = facility.VerificationStatus,
+            LicenseDocumentUrl = facility.LicenseDocumentUrl,
+            RejectionReason = facility.RejectionReason,
+            CreatedAtUtc = facility.CreatedAtUtc,
+            UpdatedAtUtc = facility.UpdatedAtUtc
         };
     }
 }
