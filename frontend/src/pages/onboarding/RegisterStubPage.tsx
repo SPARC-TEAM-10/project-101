@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 
+import { BrandPanel } from "../../components/BrandPanel";
 import { DateField } from "../../components/DateField";
 import { LoadingOverlay } from "../../components/LoadingOverlay";
 import { SelectField } from "../../components/SelectField";
@@ -103,21 +104,11 @@ export function RegisterStubPage() {
 
       {/* Left panel — desktop only (RegistrationWeb*.dc.html's ".left"), sticky so it stays in
           view while the form scrolls. */}
-      <div className="relative hidden flex-col overflow-hidden bg-clay-deep px-12 py-14 text-white md:sticky md:top-0 md:flex md:h-screen">
-        <div aria-hidden="true" className="pointer-events-none absolute -bottom-[70px] -right-[70px] h-[220px] w-[220px] rounded-full bg-white/5" />
-        <div className="relative mb-8 flex h-10 w-10 items-center justify-center rounded-full bg-white/[.18]">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <path d="M12 3.2c3.4 4 6 6.9 6 10a6 6 0 0 1-12 0c0-3.1 2.6-6 6-10Z" />
-          </svg>
-        </div>
-        <h2 className="relative mb-3.5 max-w-[13ch] text-[28px] font-extrabold leading-[1.22] tracking-tight">
-          Almost there.
-        </h2>
-        <p className="relative max-w-[28ch] text-sm leading-relaxed text-white/80">
-          Your health screening decides your eligibility — donate, request, or both. You can update it any time from
-          your profile.
-        </p>
-      </div>
+      <BrandPanel
+        heading="Almost there."
+        description="Your health screening decides your eligibility — donate, request, or both. You can update it any time from your profile."
+        className="md:sticky md:top-0 md:h-screen"
+      />
 
       {/* Right column */}
       <div className="flex flex-1 flex-col">
