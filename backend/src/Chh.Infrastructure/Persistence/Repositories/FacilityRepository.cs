@@ -1,4 +1,5 @@
 using Chh.Application.Contracts;
+using Chh.Application.Dtos;
 using Chh.Domain.Entities;
 using Chh.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -62,5 +63,41 @@ public class FacilityRepository : IFacilityRepository
         await _context.Facilities
             .Include(f => f.Contacts)
             .FirstOrDefaultAsync(f => f.Id == id, ct)
+            .ConfigureAwait(false);
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<Facility>> SearchAsync(SearchFacilitiesRequest request, CancellationToken ct)
+    {
+        var query = _context.Facilities
+            .AsNoTracking()
+            .Include(f => f.Contacts)
+            .Where(f => f.VerificationStatus == FacilityVerificationStatus.Verified);
+
+        if (!string.IsNullOrWhiteSpace(request.Q))
+        {
+            var pattern = $"%{request.Q.Trim()}%";
+            query = query.Where(f => EF.Functions.ILike(f.FacilityName, pattern) || EF.Functions.ILike(f.Address, pattern));
+        }
+
+        if (request.Category is { } category)
+        {
+            query = query.Where(f => f.Category == category);
+        }
+
+        // Unpaged — a distance sort (Service layer) must run over the full filtered set before
+        // paging is applied, otherwise proximity order would be wrong at page boundaries. Dataset
+        // is small enough for this per the CHH-F06 Technical Design's Performance Considerations.
+        return await query
+            .OrderBy(f => f.CreatedAtUtc)
+            .ToListAsync(ct)
+            .ConfigureAwait(false);
+    }
+
+    /// <inheritdoc />
+    public async Task<Facility?> GetVerifiedByIdAsync(Guid id, CancellationToken ct) =>
+        await _context.Facilities
+            .AsNoTracking()
+            .Include(f => f.Contacts)
+            .FirstOrDefaultAsync(f => f.Id == id && f.VerificationStatus == FacilityVerificationStatus.Verified, ct)
             .ConfigureAwait(false);
 }

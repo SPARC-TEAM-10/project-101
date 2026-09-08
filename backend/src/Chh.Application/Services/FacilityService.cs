@@ -3,6 +3,7 @@ using Chh.Application.Contracts;
 using Chh.Application.Dtos;
 using Chh.Application.Factories;
 using Chh.Domain.Constants;
+using Chh.Domain.Utilities;
 
 namespace Chh.Application.Services;
 
@@ -96,6 +97,68 @@ public class FacilityService : IFacilityService
 
         return ToDto(facility);
     }
+
+    /// <inheritdoc />
+    public async Task<PagedResponse<PublicFacilityDto>> SearchAsync(SearchFacilitiesRequest request, CancellationToken ct)
+    {
+        var facilities = await _facilityRepository.SearchAsync(request, ct).ConfigureAwait(false);
+
+        IReadOnlyList<Domain.Entities.Facility> ordered = facilities;
+        if (request.Latitude is { } callerLatitude && request.Longitude is { } callerLongitude)
+        {
+            ordered = facilities
+                .OrderBy(f => f.Latitude is null || f.Longitude is null)
+                .ThenBy(f => f.Latitude is null || f.Longitude is null
+                    ? (decimal?)null
+                    : HaversineDistanceCalculator.CalculateDistanceKm(callerLatitude, callerLongitude, f.Latitude!.Value, f.Longitude!.Value))
+                .ToList();
+        }
+
+        var totalCount = ordered.Count;
+        var page = ordered
+            .Skip((request.Page - 1) * request.PageSize)
+            .Take(request.PageSize)
+            .Select(f => ToPublicDto(f, request.Latitude, request.Longitude))
+            .ToList();
+
+        return new PagedResponse<PublicFacilityDto>
+        {
+            Items = page,
+            TotalCount = totalCount,
+            Page = request.Page,
+            PageSize = request.PageSize
+        };
+    }
+
+    /// <inheritdoc />
+    public async Task<PublicFacilityDto?> GetPublicDetailAsync(Guid id, CancellationToken ct)
+    {
+        var facility = await _facilityRepository.GetVerifiedByIdAsync(id, ct).ConfigureAwait(false);
+        return facility is null ? null : ToPublicDto(facility, latitude: null, longitude: null);
+    }
+
+    private static PublicFacilityDto ToPublicDto(Domain.Entities.Facility facility, decimal? latitude, decimal? longitude) => new()
+    {
+        Id = facility.Id,
+        FacilityName = facility.FacilityName,
+        Category = facility.Category,
+        SubCategory = facility.SubCategory,
+        Address = facility.Address,
+        Latitude = facility.Latitude,
+        Longitude = facility.Longitude,
+        Contacts = facility.Contacts
+            .OrderBy(c => c.SortOrder)
+            .Select(c => new FacilityContactDto
+            {
+                Name = c.Name,
+                Designation = c.Designation,
+                Mobile = c.Mobile
+            })
+            .ToList(),
+        DistanceKm = latitude is not null && longitude is not null && facility.Latitude is not null && facility.Longitude is not null
+            ? HaversineDistanceCalculator.CalculateDistanceKm(latitude.Value, longitude.Value, facility.Latitude.Value, facility.Longitude.Value)
+            : null
+    };
 
     private static FacilityDto ToDto(Domain.Entities.Facility facility) => new()
     {
