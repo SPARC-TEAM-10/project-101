@@ -7,11 +7,16 @@ export const DASHBOARD_ROUTE_BY_ROLE = {
   // CHH-11: an unrecognized ("Guest") number goes to the New User/Guest choice screen first,
   // not straight to the Guest Dashboard — that's one of the two choices offered there.
   Guest: "/welcome",
+  // TEMPORARY: CHH-28's real facility status dashboard (/dashboard/facility) lives on a separate
+  // unmerged branch (feature/CHH-78-facility-backend) — routing here to /events/new instead of a
+  // 404 until that merges. Update this once it does.
+  Hospital: "/events/new",
+  Ngo: "/events/new",
 } as const;
 
 // Brief "Verifying..." transition (CHH-10 UI Notes) between OTP verification and the
-// role-appropriate destination. Hospital/NGO/Admin aren't resolvable yet (see AuthProvider's
-// Role type) so only Individual/Guest are routed here.
+// role-appropriate destination. SystemAdmin has no frontend surface yet (see AuthProvider's
+// Role type) so isn't routed here.
 export function RoleRedirectPage() {
   const { session } = useAuth();
 

@@ -1,8 +1,10 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
 
-// Matches backend/src/Chh.Domain/Constants/RoleConstants.cs — Hospital/NGO/Admin aren't
-// resolvable yet (no Facility/Admin entities exist), so those roles aren't issued.
-export type Role = "Individual" | "Guest";
+// Matches backend/src/Chh.Domain/Constants/RoleConstants.cs. Hospital/Ngo are issued by
+// OtpService.VerifyOtpAsync (CHH-10) via FacilityContact.Mobile matching — this type had drifted
+// stale (still only "Individual" | "Guest") until CHH-38 needed it for the event-creation route.
+// SystemAdmin has no dedicated frontend surface yet, so it's omitted here.
+export type Role = "Individual" | "Guest" | "Hospital" | "Ngo";
 
 export interface AuthSession {
   token: string;

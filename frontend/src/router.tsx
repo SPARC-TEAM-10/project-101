@@ -9,6 +9,7 @@ import { GuestPlaceholderPage } from "./pages/GuestPlaceholderPage";
 import { BloodRequestFormModal } from "./pages/bloodRequest/BloodRequestFormModal";
 import { RequesterMatchDashboardPage } from "./pages/bloodRequest/RequesterMatchDashboardPage";
 import { FacilityRegistrationPage } from "./pages/facility/FacilityRegistrationPage";
+import { CreateEventPage } from "./pages/events/CreateEventPage";
 import { IndividualDashboardPage } from "./pages/dashboard/IndividualDashboardPage";
 import { GuestDashboardStubPage } from "./pages/dashboard/GuestDashboardStubPage";
 import { ProfilePage } from "./pages/profile/ProfilePage";
@@ -79,8 +80,9 @@ export const router = createBrowserRouter([
     ),
   },
   { path: "/guest", element: <GuestPlaceholderPage /> },
-  // Unguarded for now — Hospital/NGO role isn't issued yet, see AuthProvider.tsx and
-  // CHH-78's Implementation Plan §8 for the tracked follow-up to add a real RequireAuth gate.
+  // Intentionally unguarded: registering is what makes a mobile number resolve to the
+  // Hospital/Ngo role in the first place (CHH-10) — gating this page behind that role would
+  // make a facility's first-ever registration impossible.
   { path: "/facility/register", element: <FacilityRegistrationPage /> },
   {
     path: "/blood-requests/new",
@@ -98,6 +100,16 @@ export const router = createBrowserRouter([
     element: (
       <RequireAuth>
         <RequesterMatchDashboardPage />
+      </RequireAuth>
+    ),
+  },
+  {
+    // Facility-verification gate is enforced server-side (403 if not Verified) — this route only
+    // checks the role, matching the pattern established for /dashboard/facility (CHH-28).
+    path: "/events/new",
+    element: (
+      <RequireAuth roles={["Hospital", "Ngo"]}>
+        <CreateEventPage />
       </RequireAuth>
     ),
   },
