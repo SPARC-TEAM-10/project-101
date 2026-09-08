@@ -34,6 +34,7 @@ public class FacilityAdminService : IFacilityAdminService
             Id = f.Id,
             FacilityName = f.FacilityName,
             Category = f.Category,
+            SubCategory = f.SubCategory,
             LicenseNumber = f.LicenseNumber,
             Address = f.Address,
             Contacts = f.Contacts.Select(c => new FacilityContactDto

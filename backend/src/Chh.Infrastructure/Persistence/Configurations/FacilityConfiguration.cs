@@ -9,6 +9,7 @@ public class FacilityConfiguration : IEntityTypeConfiguration<Facility>
 {
     private const int FacilityNameMaxLength = 200;
     private const int CategoryMaxLength = 50;
+    private const int SubCategoryMaxLength = 50;
     private const int LicenseNumberMaxLength = 100;
     private const int AddressMaxLength = 500;
     private const int VerificationStatusMaxLength = 50;
@@ -30,6 +31,11 @@ public class FacilityConfiguration : IEntityTypeConfiguration<Facility>
         builder.Property(e => e.Category)
             .HasConversion<string>()
             .HasMaxLength(CategoryMaxLength)
+            .IsRequired();
+
+        builder.Property(e => e.SubCategory)
+            .HasConversion<string>()
+            .HasMaxLength(SubCategoryMaxLength)
             .IsRequired();
 
         builder.Property(e => e.LicenseNumber)

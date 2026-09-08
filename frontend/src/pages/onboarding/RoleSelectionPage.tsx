@@ -57,7 +57,7 @@ export function RoleSelectionPage() {
 
           <button
             type="button"
-            onClick={() => navigate("/facility/register")}
+            onClick={() => navigate("/facility/register", { state: { category: "Hospital" } })}
             className="flex items-start gap-3.5 rounded-md border border-line bg-cream p-4 text-left shadow-[var(--e1)]"
           >
             <span className="flex h-11 w-11 flex-none items-center justify-center rounded-md bg-clay-tint text-clay-deep">
@@ -84,7 +84,7 @@ export function RoleSelectionPage() {
 
           <button
             type="button"
-            onClick={() => navigate("/facility/register")}
+            onClick={() => navigate("/facility/register", { state: { category: "Ngo" } })}
             className="flex items-start gap-3.5 rounded-md border border-line bg-cream p-4 text-left shadow-[var(--e1)]"
           >
             <span className="flex h-11 w-11 flex-none items-center justify-center rounded-md bg-clay-tint text-clay-deep">

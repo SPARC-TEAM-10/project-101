@@ -52,6 +52,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IBloodRequestService, BloodRequestService>();
         services.AddScoped<IFacilityRepository, FacilityRepository>();
         services.AddScoped<IFacilityAdminService, FacilityAdminService>();
+        services.AddScoped<IFacilityService, FacilityService>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IMatchingEngineService, MatchingEngineService>();
         services.AddScoped<MatchDonorsJob>();

@@ -1,9 +1,13 @@
-import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { useAuth } from "../context/AuthProvider";
 import { useToast } from "../context/ToastProvider";
 import { useFacilityRegistration } from "../features/facility/useFacilityRegistration";
-import { FACILITY_CATEGORIES, MAX_CONTACTS, type FacilityCategory } from "../lib/validation/facilitySchemas";
+import { FACILITY_SUBCATEGORY_OPTIONS, MAX_CONTACTS, type FacilityCategory } from "../lib/validation/facilitySchemas";
+import { SelectField } from "./SelectField";
+
+const CATEGORY_LABELS: Record<FacilityCategory, string> = { Hospital: "Hospital", Ngo: "NGO" };
 
 const STEP_META: Record<"details" | "contacts", { no: string; widthPct: number; title: string }> = {
   details: { no: "1", widthPct: 50, title: "Facility details" },
@@ -29,8 +33,21 @@ function Hint({ children }: { children: React.ReactNode }) {
 
 export function FacilityWizard() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { session } = useAuth();
   const toast = useToast();
+
+  // RoleSelectionPage is the only entry point that sets this — a direct visit to
+  // /facility/register (no state) has nothing to register a category against, so send it back
+  // rather than re-asking the Hospital/NGO question here (that duplication was the reported bug).
+  const category = (location.state as { category?: FacilityCategory } | null)?.category;
+
+  useEffect(() => {
+    if (!category) {
+      navigate("/register", { replace: true });
+    }
+  }, [category, navigate]);
+
   const {
     step,
     details,
@@ -49,7 +66,7 @@ export function FacilityWizard() {
     isPending,
     error,
     submit,
-  } = useFacilityRegistration(session?.token);
+  } = useFacilityRegistration(session?.token, category ?? "Hospital");
 
   const meta = STEP_META[step];
   const showDetailsErrors = detailsTouched;
@@ -63,6 +80,10 @@ export function FacilityWizard() {
     } else if (result.error) {
       toast.error(result.error.message);
     }
+  }
+
+  if (!category) {
+    return null;
   }
 
   return (
@@ -130,31 +151,29 @@ export function FacilityWizard() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="facility-category" className="text-sm font-semibold text-ink-2">
-                Category <i className="not-italic text-error">*</i>
+              <span className="text-sm font-semibold text-ink-2">Category</span>
+              <div className="flex h-[50px] items-center rounded-sm border-[1.5px] border-line bg-sand-2 px-4 text-base text-ink-2">
+                {CATEGORY_LABELS[category]}
+              </div>
+              <Hint>Chosen on the previous screen.</Hint>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="facility-subcategory" className="text-sm font-semibold text-ink-2">
+                Sub-category <i className="not-italic text-error">*</i>
               </label>
-              <select
-                id="facility-category"
-                value={details.category ?? ""}
-                onChange={(e) => setDetailsField("category", e.target.value as FacilityCategory)}
-                aria-invalid={showDetailsErrors && !!detailsErrors.category}
-                aria-describedby="facility-category-hint"
-                className={`h-[50px] rounded-sm border-[1.5px] bg-cream px-4 text-base outline-none transition-colors focus:border-clay ${
-                  showDetailsErrors && detailsErrors.category ? "border-error" : "border-line-strong"
-                }`}
-              >
-                <option value="" disabled>
-                  Select a category
-                </option>
-                {FACILITY_CATEGORIES.map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat}
-                  </option>
-                ))}
-              </select>
-              <span id="facility-category-hint">
-                {showDetailsErrors && detailsErrors.category ? (
-                  <FieldError message={detailsErrors.category[0]} />
+              <SelectField
+                id="facility-subcategory"
+                value={details.subCategory ?? ""}
+                onChange={(value) => setDetailsField("subCategory", value)}
+                options={FACILITY_SUBCATEGORY_OPTIONS[category]}
+                placeholder="Select a sub-category"
+                invalid={showDetailsErrors && !!detailsErrors.subCategory}
+                describedBy="facility-subcategory-hint"
+              />
+              <span id="facility-subcategory-hint">
+                {showDetailsErrors && detailsErrors.subCategory ? (
+                  <FieldError message={detailsErrors.subCategory[0]} />
                 ) : (
                   <Hint>Required. This sets what your facility can publish.</Hint>
                 )}

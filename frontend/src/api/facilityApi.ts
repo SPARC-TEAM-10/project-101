@@ -1,5 +1,5 @@
 import { apiFetch } from "./httpClient";
-import type { FacilityCategory } from "../lib/validation/facilitySchemas";
+import type { FacilityCategory, FacilitySubCategory } from "../lib/validation/facilitySchemas";
 
 export interface CreateFacilityContactRequest {
   name: string;
@@ -10,6 +10,7 @@ export interface CreateFacilityContactRequest {
 export interface CreateFacilityRequest {
   facilityName: string;
   category: FacilityCategory;
+  subCategory: FacilitySubCategory;
   licenseNumber: string;
   address: string;
   contacts: CreateFacilityContactRequest[];
@@ -19,6 +20,7 @@ export interface FacilityDto {
   id: string;
   facilityName: string;
   category: FacilityCategory;
+  subCategory: FacilitySubCategory;
   licenseNumber: string;
   address: string;
   contacts: CreateFacilityContactRequest[];
@@ -26,9 +28,8 @@ export interface FacilityDto {
   createdAtUtc: string;
 }
 
-// ASSUMED SHAPE (CHH-78) — not yet in contracts/chh-api.v1.yaml; derived from the CHH-F03
-// Data Dictionary and task breakdown. Flagged for backend contract sign-off (see plan §4/§11).
-// No [Authorize] gate assumed yet — Hospital/NGO role isn't issued (see AuthProvider.tsx).
+// Matches contracts/chh-api.v1.yaml's POST /facilities (CHH-78). No [Authorize] gate — Hospital/NGO
+// role isn't issued yet (see AuthProvider.tsx), matching individualApi.ts's registerIndividual precedent.
 export function createFacility(
   accessToken: string | undefined,
   request: CreateFacilityRequest,
