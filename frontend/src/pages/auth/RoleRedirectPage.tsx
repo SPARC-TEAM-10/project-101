@@ -2,7 +2,7 @@ import { Navigate } from "react-router-dom";
 
 import { useAuth } from "../../context/AuthProvider";
 
-const DASHBOARD_ROUTE_BY_ROLE = {
+export const DASHBOARD_ROUTE_BY_ROLE = {
   Individual: "/dashboard/individual",
   Guest: "/dashboard/guest",
 } as const;

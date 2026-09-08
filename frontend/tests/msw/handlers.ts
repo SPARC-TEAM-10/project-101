@@ -146,6 +146,49 @@ export const createFacilityNetworkErrorHandler = http.post(FACILITIES_URL, () =>
   return HttpResponse.error();
 });
 
+export const INDIVIDUALS_ME_URL = "/api/v1/individuals/me";
+
+export const getMyProfileSuccessHandler = http.get(INDIVIDUALS_ME_URL, () =>
+  HttpResponse.json({
+    id: "33333333-3333-3333-3333-333333333333",
+    fullName: "Ananya Nair",
+    bloodGroup: "O+",
+    isReceiverOnly: false,
+    locationCityArea: "Kaloor, Kochi",
+    createdAtUtc: "2026-08-01T00:00:00.000Z",
+  }),
+);
+
+export const getMyProfileNotFoundHandler = http.get(INDIVIDUALS_ME_URL, () => new HttpResponse(null, { status: 404 }));
+
+export const BLOOD_REQUESTS_MINE_URL = "/api/v1/blood-requests/mine";
+
+export const getMyBloodRequestsEmptyHandler = http.get(BLOOD_REQUESTS_MINE_URL, () =>
+  HttpResponse.json({ items: [], totalCount: 0, page: 1, pageSize: 20 }),
+);
+
+export const getMyBloodRequestsSuccessHandler = http.get(BLOOD_REQUESTS_MINE_URL, () =>
+  HttpResponse.json({
+    items: [
+      {
+        id: "11111111-1111-1111-1111-111111111111",
+        patientName: "John Doe",
+        bloodGroup: "O+",
+        unitsRequired: 2,
+        locationCityArea: "Kaloor, Kochi",
+        searchRadiusKm: 10,
+        urgency: "Emergency",
+        status: "Matching",
+        createdAtUtc: new Date().toISOString(),
+        expiresAtUtc: new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString(),
+      },
+    ],
+    totalCount: 1,
+    page: 1,
+    pageSize: 20,
+  }),
+);
+
 export const nominatimReverseGeocodeHandler = http.get(
   "https://nominatim.openstreetmap.org/reverse",
   () => HttpResponse.json({ address: { city: "Kochi", postcode: "682017" } }),
@@ -156,5 +199,7 @@ export const handlers = [
   verifySuccessHandler,
   createBloodRequestSuccessHandler,
   createFacilitySuccessHandler,
+  getMyProfileSuccessHandler,
+  getMyBloodRequestsEmptyHandler,
   nominatimReverseGeocodeHandler,
 ];

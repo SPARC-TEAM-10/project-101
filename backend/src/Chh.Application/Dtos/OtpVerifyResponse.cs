@@ -15,7 +15,7 @@ public record OtpVerifyResponse
     /// </summary>
     public required string AccessToken { get; init; }
 
-    /// <summary>UTC expiry of <see cref="AccessToken"/> (1 hour from issuance per CHH-F01 AC3).</summary>
+    /// <summary>UTC expiry of <see cref="AccessToken"/> (24 hours from issuance — see <c>JwtOptions.AccessTokenLifetimeMinutes</c>).</summary>
     public required DateTimeOffset TokenExpiresAtUtc { get; init; }
 
     /// <summary>

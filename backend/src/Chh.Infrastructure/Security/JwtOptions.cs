@@ -15,7 +15,11 @@ public class JwtOptions
     /// <summary>Token audience ("aud" claim).</summary>
     public string Audience { get; set; } = default!;
 
-    /// <summary>Access token lifetime in minutes (1 hour per CHH-F01 AC3).</summary>
+    /// <summary>
+    /// Access token lifetime in minutes. 1440 (24 hours) — widened from the original 1-hour
+    /// CHH-F01 AC3 value by explicit product decision (2026-09-07) so a session survives a full
+    /// day of use; see the frontend's persisted-session change in the same change (AuthProvider.tsx).
+    /// </summary>
     public int AccessTokenLifetimeMinutes { get; set; }
 
     /// <summary>
