@@ -29,6 +29,7 @@ public class BloodRequestServiceTests
 
     private static CreateBloodRequestRequest ValidRequest() => new()
     {
+        RequesterName = "Jane Requester",
         PatientName = "John Doe",
         BloodGroup = BloodGroup.OPositive,
         UnitsRequired = 2,

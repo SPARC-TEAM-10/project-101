@@ -547,6 +547,7 @@ components:
     CreateBloodRequestRequest:
       type: object
       required:
+        - requesterName
         - patientName
         - bloodGroup
         - unitsRequired
@@ -556,6 +557,14 @@ components:
         - searchRadiusKm
         - urgency
       properties:
+        requesterName:
+          type: string
+          description: >
+            The requester's own name — distinct from patientName (the person
+            needing blood, who may not be the requester). Required for every
+            requester, Guest or Individual: a Guest session has no registered
+            profile to pull a name from, so the backend always requires it
+            explicitly rather than looking it up.
         patientName:
           type: string
           description: 2–100 characters after trimming.
@@ -595,6 +604,7 @@ components:
       type: object
       required:
         - id
+        - requesterName
         - patientName
         - bloodGroup
         - unitsRequired
@@ -608,6 +618,8 @@ components:
         id:
           type: string
           format: uuid
+        requesterName:
+          type: string
         patientName:
           type: string
         bloodGroup:

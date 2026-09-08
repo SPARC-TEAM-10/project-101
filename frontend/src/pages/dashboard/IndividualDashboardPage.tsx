@@ -1,8 +1,20 @@
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 import { useAuth } from "../../context/AuthProvider";
 import type { BloodRequestDto } from "../../api/bloodRequestApi";
 import { useIndividualDashboard } from "../../features/dashboard/useIndividualDashboard";
+
+// "Home" and "My requests" both resolve on this same page (request history already lives here —
+// "My requests" jumps to that section) since there's no separate page for it yet. Events/
+// Emergency services stay disabled: CHH-37 and CHH-68 exist as Jira epics but neither has a
+// frontend route yet — an enabled link with nowhere real to go would be worse than being honest.
+const NAV_ITEMS = [
+  { label: "Home", to: "/dashboard/individual", enabled: true },
+  { label: "My requests", to: "/dashboard/individual#your-requests", enabled: true },
+  { label: "Events", to: "/dashboard/individual", enabled: false },
+  { label: "Emergency services", to: "/dashboard/individual", enabled: false },
+] as const;
 
 const STATUS_PILL_CLASSES: Record<string, string> = {
   Matching: "bg-amber-tint text-amber",
@@ -82,6 +94,7 @@ export function IndividualDashboardPage() {
   const navigate = useNavigate();
   const { session, clearSession } = useAuth();
   const { data, isLoading, isError } = useIndividualDashboard(session?.token);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   function handleLogout() {
     clearSession();
@@ -90,15 +103,77 @@ export function IndividualDashboardPage() {
 
   return (
     <div className="min-h-screen bg-sand font-sans text-ink">
-      <div className="flex h-[58px] items-center gap-3 border-b border-line bg-cream px-4 lg:px-8">
+      <div className="flex h-[58px] items-center gap-3 border-b border-line bg-cream px-4 lg:h-[72px] lg:px-8">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" className="text-blood" aria-hidden="true">
           <path d="M12 3.2c3.4 4 6 6.9 6 10a6 6 0 0 1-12 0c0-3.1 2.6-6 6-10Z" />
         </svg>
         <b className="text-[15px] font-extrabold tracking-tight">Community Health Hub</b>
+
+        <nav className="ml-6 hidden gap-1 lg:flex">
+          {NAV_ITEMS.map((item) =>
+            item.enabled ? (
+              <Link
+                key={item.label}
+                to={item.to}
+                className="rounded-sm px-3.5 py-2 text-sm font-semibold text-clay-deep transition-colors hover:bg-sand-2"
+              >
+                {item.label}
+              </Link>
+            ) : (
+              <span
+                key={item.label}
+                title="Coming soon"
+                className="cursor-not-allowed rounded-sm px-3.5 py-2 text-sm font-semibold text-ink-3"
+              >
+                {item.label}
+              </span>
+            ),
+          )}
+        </nav>
+
         <div className="flex-1" />
-        <button type="button" aria-label="Notifications" className="flex h-[42px] w-[42px] items-center justify-center rounded-full text-ink-2 transition-colors hover:bg-sand-2 hover:text-ink">
+
+        <Link to="/notifications" aria-label="Notifications" className="flex h-[42px] w-[42px] items-center justify-center rounded-full text-ink-2 transition-colors hover:bg-sand-2 hover:text-ink">
           <BellIcon />
-        </button>
+        </Link>
+
+        {/* User menu (desktop) — carries Log out, matching the approved design's header
+            placement, instead of a full-width button at the bottom of the page. */}
+        <div className="relative ml-1 hidden lg:block">
+          <button
+            type="button"
+            onClick={() => setUserMenuOpen((open) => !open)}
+            className="flex items-center gap-2.5 rounded-full border border-line bg-cream py-1.5 pl-1.5 pr-3 transition-colors hover:bg-sand-2"
+          >
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-clay-tint text-xs font-extrabold text-clay-deep">
+              {data.profile?.fullName.charAt(0).toUpperCase() ?? "?"}
+            </div>
+            <span className="text-left leading-tight">
+              <span className="block text-[13.5px] font-bold">{data.profile?.fullName ?? "Your account"}</span>
+              <span className="block text-xs text-ink-3">
+                {data.profile ? `${data.profile.bloodGroup} · ${data.profile.locationCityArea}` : ""}
+              </span>
+            </span>
+          </button>
+          {userMenuOpen && (
+            <div className="absolute right-0 top-full z-10 mt-2 w-44 overflow-hidden rounded-md border border-line bg-cream shadow-md">
+              <Link
+                to="/profile"
+                onClick={() => setUserMenuOpen(false)}
+                className="block px-4 py-2.5 text-sm text-ink hover:bg-sand-2"
+              >
+                View profile
+              </Link>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="block w-full px-4 py-2.5 text-left text-sm text-error hover:bg-sand-2"
+              >
+                Log out
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="mx-auto flex max-w-5xl flex-col gap-5 px-4 py-5 lg:grid lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start lg:gap-6 lg:px-8 lg:py-8">
@@ -159,7 +234,7 @@ export function IndividualDashboardPage() {
             </section>
           )}
 
-          <section>
+          <section id="your-requests" className="scroll-mt-20">
             <h2 className="mb-2 text-[17px] font-bold tracking-tight">Your requests</h2>
             {isLoading ? (
               <div className="rounded-sm border border-line bg-cream px-4 py-6 text-center text-sm text-ink-2">Loading…</div>
@@ -198,6 +273,11 @@ export function IndividualDashboardPage() {
             ) : (
               <p className="text-sm text-ink-2">Complete your profile to see it here.</p>
             )}
+            {data.profile && (
+              <Link to="/profile" className="mt-3 inline-block border-t border-line pt-3 text-[13px] font-semibold text-clay hover:text-clay-hover">
+                Edit profile
+              </Link>
+            )}
           </div>
 
           <EmptyState
@@ -212,13 +292,6 @@ export function IndividualDashboardPage() {
           />
 
           <EmptyState
-            icon={<BellIcon />}
-            title="Nothing to read yet"
-            description="Requests matching your blood group and area will land here, and on the bell above."
-            arrivesWith="Arrives with proximity alerts · CHH-34"
-          />
-
-          <EmptyState
             icon={
               <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <rect x="3" y="5" width="18" height="16" rx="2.5" />
@@ -230,10 +303,12 @@ export function IndividualDashboardPage() {
             arrivesWith="Arrives with events · CHH-37"
           />
 
+          {/* Desktop moves Log out into the header user menu above — this stays mobile-only,
+              matching the approved mobile design's full-width bottom button. */}
           <button
             type="button"
             onClick={handleLogout}
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-md border-[1.5px] border-line-strong bg-transparent text-[15px] font-semibold text-ink transition-colors hover:bg-sand-2"
+            className="flex h-12 w-full items-center justify-center gap-2 rounded-md border-[1.5px] border-line-strong bg-transparent text-[15px] font-semibold text-ink transition-colors hover:bg-sand-2 lg:hidden"
           >
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.9} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M15 17l5-5-5-5M20 12H9M12 20H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h6" />

@@ -11,6 +11,11 @@ export const MAX_SEARCH_RADIUS_KM = 100;
 
 // Mirrors CreateBloodRequestRequestValidator (backend) — see CHH-33/US-CHH-004-01 AC2/AC3/AC4.
 export const createBloodRequestSchema = z.object({
+  requesterName: z
+    .string()
+    .trim()
+    .min(2, "Please enter your name")
+    .max(100, "Your name must be between 2 and 100 characters"),
   patientName: z
     .string()
     .trim()
