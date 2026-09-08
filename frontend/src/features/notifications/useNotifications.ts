@@ -1,6 +1,13 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { getMyNotifications, markNotificationRead, type DonorNotificationDto } from "../../api/notificationApi";
+import {
+  getMyNotifications,
+  markNotificationRead,
+  acceptNotification,
+  declineNotification,
+  type DonorNotificationDto,
+  type DonorResponseResultDto,
+} from "../../api/notificationApi";
 import type { PagedResponse } from "../../api/bloodRequestApi";
 
 // 30s poll — CHH-34's "real-time" intent without a websocket; short enough that a new proximity
@@ -13,8 +20,8 @@ function queryKey(accessToken: string | undefined) {
 
 /**
  * Fetches the caller's own notifications (CHH-34), polling for near-real-time updates, and
- * exposes a mark-read mutation that updates the cache optimistically-on-success (no need to
- * refetch the whole list just to flip one row's isRead).
+ * exposes mark-read/accept/decline mutations (CHH-35) that patch the cache in place — no need to
+ * refetch the whole list just to flip one row's status.
  */
 export function useNotifications(accessToken: string | undefined) {
   const queryClient = useQueryClient();
@@ -29,14 +36,30 @@ export function useNotifications(accessToken: string | undefined) {
   const notifications = query.data?.items ?? [];
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
+  function patchNotification(id: string, patch: Partial<DonorNotificationDto>) {
+    queryClient.setQueryData<PagedResponse<DonorNotificationDto>>(queryKey(accessToken), (prev) =>
+      prev ? { ...prev, items: prev.items.map((n) => (n.id === id ? { ...n, ...patch } : n)) } : prev,
+    );
+  }
+
   async function markRead(id: string) {
     if (!accessToken) return;
     const updated = await markNotificationRead(accessToken, id);
-    queryClient.setQueryData<PagedResponse<DonorNotificationDto>>(queryKey(accessToken), (prev) =>
-      prev
-        ? { ...prev, items: prev.items.map((n) => (n.id === updated.id ? updated : n)) }
-        : prev,
-    );
+    patchNotification(id, updated);
+  }
+
+  async function accept(id: string): Promise<DonorResponseResultDto> {
+    if (!accessToken) throw new Error("Not authenticated");
+    const result = await acceptNotification(accessToken, id);
+    patchNotification(id, { responseStatus: result.responseStatus });
+    return result;
+  }
+
+  async function decline(id: string): Promise<DonorResponseResultDto> {
+    if (!accessToken) throw new Error("Not authenticated");
+    const result = await declineNotification(accessToken, id);
+    patchNotification(id, { responseStatus: result.responseStatus });
+    return result;
   }
 
   return {
@@ -45,5 +68,7 @@ export function useNotifications(accessToken: string | undefined) {
     isLoading: query.isLoading,
     isError: query.isError,
     markRead,
+    accept,
+    decline,
   };
 }

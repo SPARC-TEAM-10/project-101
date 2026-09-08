@@ -279,6 +279,7 @@ export const getMyNotificationsSuccessHandler = http.get(NOTIFICATIONS_MINE_URL,
         areaLabel: "Kaloor, Kochi",
         isRead: false,
         createdAtUtc: new Date().toISOString(),
+        responseStatus: "Pending",
       },
     ],
     totalCount: 1,
@@ -298,6 +299,32 @@ export const markNotificationReadSuccessHandler = http.patch("/api/v1/notificati
     areaLabel: "Kaloor, Kochi",
     isRead: true,
     createdAtUtc: new Date().toISOString(),
+    responseStatus: "Pending",
+  }),
+);
+
+export const acceptNotificationSuccessHandler = http.patch("/api/v1/notifications/:id/accept", ({ params }) =>
+  HttpResponse.json({
+    notificationId: params.id,
+    responseStatus: "Accepted",
+    requesterMobileNumber: "9123456789",
+    locationCityArea: "Kaloor, Kochi",
+    latitude: 9.9312,
+    longitude: 76.2673,
+  }),
+);
+
+export const acceptNotificationNoLongerActiveHandler = http.patch("/api/v1/notifications/:id/accept", () =>
+  HttpResponse.json(
+    { title: "Unprocessable Entity", status: 422, detail: "This request is no longer active" },
+    { status: 422 },
+  ),
+);
+
+export const declineNotificationSuccessHandler = http.patch("/api/v1/notifications/:id/decline", ({ params }) =>
+  HttpResponse.json({
+    notificationId: params.id,
+    responseStatus: "Declined",
   }),
 );
 
@@ -311,6 +338,8 @@ export const handlers = [
   getMyBloodRequestsEmptyHandler,
   getMyNotificationsEmptyHandler,
   markNotificationReadSuccessHandler,
+  acceptNotificationSuccessHandler,
+  declineNotificationSuccessHandler,
   nominatimReverseGeocodeHandler,
   registerIndividualSuccessHandler,
 ];

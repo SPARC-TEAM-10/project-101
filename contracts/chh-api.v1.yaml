@@ -362,6 +362,90 @@ paths:
           description: Missing or invalid JWT.
         "404":
           description: No such notification for this donor.
+  /notifications/{id}/accept:
+    patch:
+      tags:
+        - Notifications
+      summary: Accept the matched blood request behind one of my own notifications
+      description: >
+        Accepts the matched blood request (CHH-35/US-CHH-004-04 AC1). 404 if
+        the notification doesn't exist, belongs to a different donor, or the
+        caller hasn't registered an individual profile yet. 409 if the donor
+        already responded. 422 ("This request is no longer active") if the
+        request has since been fulfilled or expired, or its last remaining
+        unit was just taken by another donor (AC3 / Edge Case). On success,
+        the response carries the requester's contact info and the request's
+        location (AC4).
+      operationId: acceptNotification
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: The recorded acceptance, with the confirmation-view contact/location details.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DonorResponseResultDto"
+        "401":
+          description: Missing or invalid JWT.
+        "404":
+          description: No such notification for this donor.
+        "409":
+          description: The donor already responded to this notification.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "422":
+          description: The request is no longer active.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+  /notifications/{id}/decline:
+    patch:
+      tags:
+        - Notifications
+      summary: Decline the matched blood request behind one of my own notifications
+      description: >
+        Declines the matched blood request (CHH-35/US-CHH-004-04 AC2). 404 if
+        the notification doesn't exist, belongs to a different donor, or the
+        caller hasn't registered an individual profile yet. 409 if the donor
+        already responded.
+      operationId: declineNotification
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: The recorded decline.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DonorResponseResultDto"
+        "401":
+          description: Missing or invalid JWT.
+        "404":
+          description: No such notification for this donor.
+        "409":
+          description: The donor already responded to this notification.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
   /admin/facilities/pending:
     get:
       tags:
@@ -850,6 +934,7 @@ components:
         - areaLabel
         - isRead
         - createdAtUtc
+        - responseStatus
       properties:
         id:
           type: string
@@ -874,6 +959,39 @@ components:
         createdAtUtc:
           type: string
           format: date-time
+        responseStatus:
+          $ref: "#/components/schemas/DonorResponseStatus"
+    DonorResponseStatus:
+      type: string
+      description: A donor's response to their own DonorNotification (CHH-35).
+      enum: ["Pending", "Accepted", "Declined"]
+    DonorResponseResultDto:
+      type: object
+      description: >
+        The contact/location fields (AC4's "confirmation view") are only
+        populated when responseStatus is "Accepted" — a decline has nothing
+        to confirm.
+      required:
+        - notificationId
+        - responseStatus
+      properties:
+        notificationId:
+          type: string
+          format: uuid
+        responseStatus:
+          $ref: "#/components/schemas/DonorResponseStatus"
+        requesterMobileNumber:
+          type: string
+          nullable: true
+        locationCityArea:
+          type: string
+          nullable: true
+        latitude:
+          type: number
+          nullable: true
+        longitude:
+          type: number
+          nullable: true
     PagedResponseOfDonorNotificationDto:
       type: object
       description: Generic paging envelope (DOTNET-RULES §12) — see PagedResponseOfFacilityDto.

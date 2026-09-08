@@ -56,4 +56,46 @@ public class NotificationsControllerRouteTests
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
+
+    [Fact]
+    public async Task PatchAccept_UsesContractPath_IsRouted()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.PatchAsync($"/api/v1/notifications/{Guid.NewGuid()}/accept", content: null);
+
+        response.StatusCode.Should().NotBe(HttpStatusCode.NotFound,
+            "the route convention must still resolve AcceptAsync to contracts/chh-api.v1.yaml's documented path");
+    }
+
+    [Fact]
+    public async Task PatchAccept_WithoutAuthorizationHeader_ReturnsUnauthorized()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.PatchAsync($"/api/v1/notifications/{Guid.NewGuid()}/accept", content: null);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task PatchDecline_UsesContractPath_IsRouted()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.PatchAsync($"/api/v1/notifications/{Guid.NewGuid()}/decline", content: null);
+
+        response.StatusCode.Should().NotBe(HttpStatusCode.NotFound,
+            "the route convention must still resolve DeclineAsync to contracts/chh-api.v1.yaml's documented path");
+    }
+
+    [Fact]
+    public async Task PatchDecline_WithoutAuthorizationHeader_ReturnsUnauthorized()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.PatchAsync($"/api/v1/notifications/{Guid.NewGuid()}/decline", content: null);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
 }

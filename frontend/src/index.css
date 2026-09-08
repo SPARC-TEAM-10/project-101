@@ -50,6 +50,15 @@ html {
   --blood-tint: #fce9e7;
   --blood-line: #f5c6c2;
 
+  /* commitment — accept green (design/ui-standard.md "Green is the commitment, not the
+     confirmation" — never used for status/confirmation, only the Accept action itself) */
+  --go: #3f6b39;
+  --go-hover: #345a2f;
+  --go-active: #2a4a26;
+  --go-deep: #2f5629;
+  --go-tint: #e4efdd;
+  --go-line: #c3dab8;
+
   /* text */
   --ink: #392a1d;
   --ink-2: #6f5c46;

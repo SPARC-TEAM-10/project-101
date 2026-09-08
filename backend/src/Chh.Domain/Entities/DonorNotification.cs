@@ -51,4 +51,10 @@ public class DonorNotification
 
     /// <summary>UTC timestamp the notification was created.</summary>
     public DateTimeOffset CreatedAtUtc { get; internal set; }
+
+    /// <summary>The donor's response to this notification (CHH-35/US-CHH-004-04). Defaults to Pending.</summary>
+    public DonorResponseStatus ResponseStatus { get; internal set; } = DonorResponseStatus.Pending;
+
+    /// <summary>UTC timestamp the donor responded (accepted or declined). Null while still Pending.</summary>
+    public DateTimeOffset? RespondedAtUtc { get; internal set; }
 }

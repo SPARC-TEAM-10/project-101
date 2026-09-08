@@ -58,6 +58,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IDonorNotificationRepository, DonorNotificationRepository>();
         services.AddScoped<INotificationDispatchService, NotificationDispatchService>();
         services.AddScoped<INotificationService, NotificationService>();
+        services.AddScoped<IDonorResponseService, DonorResponseService>();
         services.AddScoped<MatchDonorsJob>();
 
         services.AddFast2Sms(configuration);
