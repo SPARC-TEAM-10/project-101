@@ -41,4 +41,12 @@ public class FacilityRepository : IFacilityRepository
 
         return (items, totalCount);
     }
+
+    /// <inheritdoc />
+    public async Task<Facility?> GetByContactMobileNumberAsync(string mobileNumber, CancellationToken ct) =>
+        await _context.Facilities
+            .AsNoTracking()
+            .Include(f => f.Contacts)
+            .FirstOrDefaultAsync(f => f.Contacts.Any(c => c.Mobile == mobileNumber), ct)
+            .ConfigureAwait(false);
 }

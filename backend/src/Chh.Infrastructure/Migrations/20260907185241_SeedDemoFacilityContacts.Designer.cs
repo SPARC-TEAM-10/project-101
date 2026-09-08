@@ -3,6 +3,7 @@ using System;
 using Chh.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Chh.Infrastructure.Migrations
 {
     [DbContext(typeof(ChhDbContext))]
-    partial class ChhDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260907185241_SeedDemoFacilityContacts")]
+    partial class SeedDemoFacilityContacts
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -110,11 +113,6 @@ namespace Chh.Infrastructure.Migrations
                     b.Property<DateTimeOffset>("CreatedAtUtc")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("CreatedByMobileNumber")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("character varying(10)");
-
                     b.Property<string>("FacilityName")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -138,9 +136,6 @@ namespace Chh.Infrastructure.Migrations
                         .HasColumnType("character varying(50)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CreatedByMobileNumber")
-                        .HasDatabaseName("IX_Facility_CreatedByMobileNumber");
 
                     b.HasIndex("VerificationStatus", "CreatedAtUtc")
                         .HasDatabaseName("IX_Facility_VerificationStatus_CreatedAtUtc");
@@ -168,9 +163,6 @@ namespace Chh.Infrastructure.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("character varying(10)");
 
-                    b.Property<int>("SortOrder")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -193,13 +185,6 @@ namespace Chh.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasDefaultValueSql("gen_random_uuid()");
-
-                    b.Property<string>("AccountStatus")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasDefaultValue("Active");
 
                     b.Property<string>("BloodGroup")
                         .IsRequired()
@@ -262,18 +247,10 @@ namespace Chh.Infrastructure.Migrations
                         .HasMaxLength(128)
                         .HasColumnType("character varying(128)");
 
-                    b.Property<decimal?>("Latitude")
-                        .HasPrecision(9, 6)
-                        .HasColumnType("numeric(9,6)");
-
                     b.Property<string>("LocationCityArea")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
-
-                    b.Property<decimal?>("Longitude")
-                        .HasPrecision(9, 6)
-                        .HasColumnType("numeric(9,6)");
 
                     b.Property<string>("MobileNumber")
                         .IsRequired()
