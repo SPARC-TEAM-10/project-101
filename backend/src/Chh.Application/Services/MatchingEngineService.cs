@@ -56,7 +56,8 @@ public class MatchingEngineService : IMatchingEngineService
             {
                 DonorProfileId = candidate.Id,
                 MobileNumber = candidate.MobileNumber,
-                DistanceKm = distanceKm
+                DistanceKm = distanceKm,
+                LastActiveAtUtc = candidate.LastActiveAtUtc
             });
         }
 

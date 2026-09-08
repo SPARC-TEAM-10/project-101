@@ -14,12 +14,17 @@ public class MatchDonorsJobTests
 {
     private readonly Mock<IBloodRequestRepository> _bloodRequestRepository = new();
     private readonly Mock<IMatchingEngineService> _matchingEngineService = new();
+    private readonly Mock<INotificationDispatchService> _notificationDispatchService = new();
     private readonly Mock<ILogger<MatchDonorsJob>> _logger = new();
     private readonly MatchDonorsJob _sut;
 
     public MatchDonorsJobTests()
     {
-        _sut = new MatchDonorsJob(_bloodRequestRepository.Object, _matchingEngineService.Object, _logger.Object);
+        _sut = new MatchDonorsJob(
+            _bloodRequestRepository.Object,
+            _matchingEngineService.Object,
+            _notificationDispatchService.Object,
+            _logger.Object);
     }
 
     private static BloodRequest MakeRequest(DateTimeOffset expiresAtUtc) => new()
@@ -50,6 +55,27 @@ public class MatchDonorsJobTests
         await _sut.RunAsync(request.Id, CancellationToken.None);
 
         _matchingEngineService.Verify(m => m.FindEligibleDonorsAsync(request, It.IsAny<CancellationToken>()), Times.Once);
+        _notificationDispatchService.Verify(
+            d => d.DispatchAsync(It.IsAny<BloodRequest>(), It.IsAny<IReadOnlyList<MatchedDonorResult>>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task RunAsync_WithMatches_DispatchesNotifications()
+    {
+        var request = MakeRequest(DateTimeOffset.UtcNow.AddHours(5));
+        var matches = new List<MatchedDonorResult>
+        {
+            new() { DonorProfileId = Guid.NewGuid(), MobileNumber = "9000000001", DistanceKm = 3.2m }
+        };
+        _bloodRequestRepository.Setup(r => r.GetByIdAsync(request.Id, It.IsAny<CancellationToken>())).ReturnsAsync(request);
+        _matchingEngineService
+            .Setup(m => m.FindEligibleDonorsAsync(request, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(matches);
+
+        await _sut.RunAsync(request.Id, CancellationToken.None);
+
+        _notificationDispatchService.Verify(d => d.DispatchAsync(request, matches, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -62,6 +88,9 @@ public class MatchDonorsJobTests
 
         await act.Should().NotThrowAsync();
         _matchingEngineService.Verify(m => m.FindEligibleDonorsAsync(It.IsAny<BloodRequest>(), It.IsAny<CancellationToken>()), Times.Never);
+        _notificationDispatchService.Verify(
+            d => d.DispatchAsync(It.IsAny<BloodRequest>(), It.IsAny<IReadOnlyList<MatchedDonorResult>>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
