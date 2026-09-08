@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useAuth } from "../../context/AuthProvider";
-import { EMERGENCY_SEARCH_CATEGORIES, type EmergencySearchCategory, type PublicFacilityDto } from "../../api/facilityApi";
+import { EMERGENCY_SEARCH_CATEGORIES, type PublicFacilityDto } from "../../api/facilityApi";
 import { useFacilitySearch } from "../../features/emergency/useFacilitySearch";
 import { FacilityDetailModal } from "./FacilityDetailModal";
 
@@ -83,7 +83,7 @@ export function EmergencyHubPage() {
           >
             All
           </button>
-          {EMERGENCY_SEARCH_CATEGORIES.map((value: EmergencySearchCategory) => (
+          {EMERGENCY_SEARCH_CATEGORIES.map((value) => (
             <button
               key={value}
               type="button"

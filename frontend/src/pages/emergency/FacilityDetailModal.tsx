@@ -39,7 +39,7 @@ export function FacilityDetailModal({ facilityId, onClose }: { facilityId: strin
             <button
               type="button"
               onClick={onClose}
-              className="flex h-11 items-center justify-center rounded-md border-[1.5px] border-line-strong text-[14px] font-semibold text-ink transition-colors hover:bg-sand-2"
+              className="flex h-11 w-full items-center justify-center rounded-md border-[1.5px] border-line-strong text-[14px] font-semibold text-ink transition-colors hover:bg-sand-2"
             >
               Close
             </button>
@@ -60,7 +60,7 @@ export function FacilityDetailModal({ facilityId, onClose }: { facilityId: strin
                 href={mapUrl(facility.latitude, facility.longitude)}
                 target="_blank"
                 rel="noreferrer"
-                className="flex h-11 items-center justify-center rounded-md border-[1.5px] border-line-strong text-[14px] font-semibold text-clay-deep transition-colors hover:bg-sand-2"
+                className="flex h-11 w-full items-center justify-center rounded-md border-[1.5px] border-line-strong text-[14px] font-semibold text-clay-deep transition-colors hover:bg-sand-2"
               >
                 View on Map
               </a>
@@ -77,6 +77,7 @@ export function FacilityDetailModal({ facilityId, onClose }: { facilityId: strin
                     </div>
                     <a
                       href={`tel:${contact.mobile}`}
+                      aria-label={`Call ${contact.name}`}
                       className="shrink-0 rounded-full bg-leaf-tint px-3 py-1.5 text-[13px] font-semibold text-leaf"
                     >
                       Call
