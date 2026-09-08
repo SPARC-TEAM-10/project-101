@@ -3,6 +3,7 @@ using System;
 using Chh.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Chh.Infrastructure.Migrations
 {
     [DbContext(typeof(ChhDbContext))]
-    partial class ChhDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260908050027_AddFacilitySubCategory")]
+    partial class AddFacilitySubCategory
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -63,11 +66,6 @@ namespace Chh.Infrastructure.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("character varying(10)");
 
-                    b.Property<string>("RequesterName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
                     b.Property<int>("SearchRadiusKm")
                         .HasColumnType("integer");
 
@@ -75,11 +73,6 @@ namespace Chh.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
-
-                    b.Property<int>("UnitsAccepted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(0);
 
                     b.Property<int>("UnitsRequired")
                         .HasColumnType("integer");
@@ -98,76 +91,6 @@ namespace Chh.Infrastructure.Migrations
                         .HasDatabaseName("IX_BloodRequest_Status_ExpiresAtUtc");
 
                     b.ToTable("BloodRequest", (string)null);
-                });
-
-            modelBuilder.Entity("Chh.Domain.Entities.DonorNotification", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasDefaultValueSql("gen_random_uuid()");
-
-                    b.Property<string>("AreaLabel")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<string>("BloodGroup")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<Guid>("BloodRequestId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset>("CreatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<decimal>("DistanceKm")
-                        .HasPrecision(9, 3)
-                        .HasColumnType("numeric(9,3)");
-
-                    b.Property<Guid>("DonorProfileId")
-                        .HasColumnType("uuid");
-
-                    b.Property<bool>("IsRead")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false);
-
-                    b.Property<DateTimeOffset?>("RespondedAtUtc")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("ResponseStatus")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasDefaultValue("Pending");
-
-                    b.Property<bool>("SmsSent")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false);
-
-                    b.Property<int>("UnitsRequired")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Urgency")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BloodRequestId", "DonorProfileId")
-                        .IsUnique()
-                        .HasDatabaseName("IX_DonorNotification_BloodRequestId_DonorProfileId");
-
-                    b.HasIndex("DonorProfileId", "CreatedAtUtc")
-                        .HasDatabaseName("IX_DonorNotification_DonorProfileId_CreatedAtUtc");
-
-                    b.ToTable("DonorNotification", (string)null);
                 });
 
             modelBuilder.Entity("Chh.Domain.Entities.Facility", b =>
@@ -335,9 +258,6 @@ namespace Chh.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(128)
                         .HasColumnType("character varying(128)");
-
-                    b.Property<DateTimeOffset?>("LastActiveAtUtc")
-                        .HasColumnType("timestamp with time zone");
 
                     b.Property<decimal?>("Latitude")
                         .HasPrecision(9, 6)

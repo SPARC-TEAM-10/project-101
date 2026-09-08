@@ -5,6 +5,14 @@ namespace Chh.Application.Dtos;
 /// <summary>Request body for <c>POST /api/v1/blood-requests</c> (CHH-33/US-CHH-004-01).</summary>
 public record CreateBloodRequestRequest
 {
+    /// <summary>
+    /// The requester's own name — distinct from <see cref="PatientName"/>. Required for a Guest
+    /// requester (no registered profile to pull a name from); an Individual's frontend can
+    /// pre-fill it from their profile, but the backend always requires it explicitly rather than
+    /// looking it up, so the contract is the same for both roles.
+    /// </summary>
+    public required string RequesterName { get; init; }
+
     /// <summary>Patient's name.</summary>
     public required string PatientName { get; init; }
 

@@ -121,6 +121,7 @@ export const createFacilitySuccessHandler = http.post(FACILITIES_URL, async ({ r
       id: "22222222-2222-2222-2222-222222222222",
       facilityName: body.facilityName,
       category: body.category,
+      subCategory: body.subCategory,
       licenseNumber: body.licenseNumber,
       address: body.address,
       contacts: body.contacts,

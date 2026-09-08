@@ -45,4 +45,15 @@ public class FacilityRepository : IFacilityRepository
             .Include(f => f.Contacts)
             .FirstOrDefaultAsync(f => f.Contacts.Any(c => c.Mobile == mobileNumber), ct)
             .ConfigureAwait(false);
+
+    /// <inheritdoc />
+    public async Task<Facility?> GetByLicenseNumberAsync(string licenseNumber, CancellationToken ct) =>
+        await _context.Facilities
+            .AsNoTracking()
+            .FirstOrDefaultAsync(f => f.LicenseNumber == licenseNumber, ct)
+            .ConfigureAwait(false);
+
+    /// <inheritdoc />
+    public async Task AddAsync(Facility facility, CancellationToken ct) =>
+        await _context.Facilities.AddAsync(facility, ct).ConfigureAwait(false);
 }

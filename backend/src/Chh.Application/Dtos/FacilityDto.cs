@@ -14,6 +14,9 @@ public record FacilityDto
     /// <summary>Hospital/blood-bank or NGO.</summary>
     public required FacilityCategory Category { get; init; }
 
+    /// <summary>Finer classification within <see cref="Category"/> (CHH-78 follow-up).</summary>
+    public required FacilitySubCategory SubCategory { get; init; }
+
     /// <summary>Alphanumeric + hyphens license number.</summary>
     public required string LicenseNumber { get; init; }
 

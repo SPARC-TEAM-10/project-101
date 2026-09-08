@@ -32,9 +32,10 @@ function renderPage() {
   return render(
     <QueryClientProvider client={queryClient}>
       <ToastProvider>
-        <MemoryRouter initialEntries={["/facility/register"]}>
+        <MemoryRouter initialEntries={[{ pathname: "/facility/register", state: { category: "Hospital" } }]}>
           <Routes>
             <Route path="/facility/register" element={<FacilityRegistrationPage />} />
+            <Route path="/register" element={<div>Role Selection</div>} />
             <Route path="/" element={<div>Home</div>} />
           </Routes>
         </MemoryRouter>
@@ -45,7 +46,8 @@ function renderPage() {
 
 function fillDetailsStep() {
   fireEvent.change(screen.getByLabelText(/facility name/i), { target: { value: "Kochi Metro Hospital" } });
-  fireEvent.change(screen.getByLabelText(/category/i), { target: { value: "Hospital" } });
+  fireEvent.click(screen.getByLabelText(/sub-category/i));
+  fireEvent.click(screen.getByRole("option", { name: "Government" }));
   fireEvent.change(screen.getByLabelText(/licence number/i), { target: { value: "KL-HOSP-448120" } });
   fireEvent.change(screen.getByLabelText(/address/i), {
     target: { value: "4th Block, Marine Drive, Ernakulam, Kochi 682031" },
@@ -59,9 +61,41 @@ describe("FacilityRegistrationPage", () => {
 
     expect(screen.getByText("Facility details")).toBeInTheDocument();
     expect(screen.getByLabelText(/facility name/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/category/i)).toBeInTheDocument();
+    expect(screen.getByText("Category")).toBeInTheDocument();
+    expect(screen.getByText("Hospital")).toBeInTheDocument();
+    expect(screen.getByLabelText(/sub-category/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/licence number/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/address/i)).toBeInTheDocument();
+  });
+
+  it("the header back button returns to /register (Role Selection), not the landing page", () => {
+    renderPage();
+
+    fireEvent.click(screen.getByLabelText(/back to account type/i));
+
+    expect(screen.getByText("Role Selection")).toBeInTheDocument();
+  });
+
+  it("redirects to /register when no category was chosen (direct visit, no route state)", () => {
+    mockUseAuth.mockReturnValue({ session: null, setSession: vi.fn(), clearSession: vi.fn() });
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+    });
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <ToastProvider>
+          <MemoryRouter initialEntries={["/facility/register"]}>
+            <Routes>
+              <Route path="/facility/register" element={<FacilityRegistrationPage />} />
+              <Route path="/register" element={<div>Role Selection</div>} />
+            </Routes>
+          </MemoryRouter>
+        </ToastProvider>
+      </QueryClientProvider>,
+    );
+
+    expect(screen.getByText("Role Selection")).toBeInTheDocument();
   });
 
   it("shows validation hints and stays on Step 1 when Continue is clicked with an empty form", () => {

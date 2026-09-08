@@ -20,6 +20,8 @@ tags:
     description: >
       Per-donor notifications for matched blood requests (CHH-34/US-CHH-004-03,
       CHH-F04, Epic CHH-25).
+  - name: Facilities
+    description: Facility (hospital/blood-bank or NGO) self-registration (CHH-F03/CHH-78)
   - name: Admin
     description: >
       System Admin moderation endpoints (CHH-F07 Admin Command Center, Epic
@@ -373,6 +375,53 @@ paths:
           description: No such request for this caller.
         "422":
           description: The request is no longer Matching, or the new radius isn't larger than the current one.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+  /facilities:
+    post:
+      tags:
+        - Facilities
+      summary: Register a facility
+      description: >
+        Creates a facility (hospital/blood-bank or NGO), pending System Admin
+        verification (CHH-F03/CHH-78): name, category, sub-category, licence
+        number, address, and 1–3 contacts. No JWT role is issued for
+        Hospital/NGO yet (see CHH-F07's interim-admin note), so this is
+        `security: []` like individual registration — creates an addressable
+        resource, so a successful call returns `201 Created` with a
+        `Location` header (`.claude/rules/api-standards.md` §1/§2).
+      operationId: registerFacility
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateFacilityRequest"
+      responses:
+        "201":
+          description: Facility created.
+          headers:
+            Location:
+              schema:
+                type: string
+              description: URI of the created facility.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FacilityDto"
+        "422":
+          description: >
+            Request malformed (field-level validation) — including a
+            sub-category that doesn't belong to the selected category.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "409":
+          description: A facility already exists for this licence number.
           content:
             application/problem+json:
               schema:
@@ -820,6 +869,7 @@ components:
     CreateBloodRequestRequest:
       type: object
       required:
+        - requesterName
         - patientName
         - bloodGroup
         - unitsRequired
@@ -829,6 +879,14 @@ components:
         - searchRadiusKm
         - urgency
       properties:
+        requesterName:
+          type: string
+          description: >
+            The requester's own name — distinct from patientName (the person
+            needing blood, who may not be the requester). Required for every
+            requester, Guest or Individual: a Guest session has no registered
+            profile to pull a name from, so the backend always requires it
+            explicitly rather than looking it up.
         patientName:
           type: string
           description: 2–100 characters after trimming.
@@ -868,6 +926,7 @@ components:
       type: object
       required:
         - id
+        - requesterName
         - patientName
         - bloodGroup
         - unitsRequired
@@ -881,6 +940,8 @@ components:
         id:
           type: string
           format: uuid
+        requesterName:
+          type: string
         patientName:
           type: string
         bloodGroup:
@@ -905,9 +966,63 @@ components:
     FacilityCategory:
       type: string
       enum: ["Hospital", "Ngo"]
+    FacilitySubCategory:
+      type: string
+      description: >
+        Finer classification within FacilityCategory (CHH-78 follow-up).
+        Hospital may pick Government/Private/Trust; Ngo may pick
+        RegisteredSociety/Trust/Section8Company — Trust is valid for either.
+      enum: ["Government", "Private", "Trust", "RegisteredSociety", "Section8Company"]
     FacilityVerificationStatus:
       type: string
       enum: ["Pending", "Verified", "Rejected"]
+    CreateFacilityContactRequest:
+      type: object
+      required:
+        - name
+        - designation
+        - mobile
+      properties:
+        name:
+          type: string
+        designation:
+          type: string
+        mobile:
+          type: string
+          pattern: "^[0-9]{10}$"
+    CreateFacilityRequest:
+      type: object
+      required:
+        - facilityName
+        - category
+        - subCategory
+        - licenseNumber
+        - address
+        - contacts
+      properties:
+        facilityName:
+          type: string
+          description: Registered name, at least 3 characters after trimming.
+          example: "City General Hospital"
+        category:
+          $ref: "#/components/schemas/FacilityCategory"
+        subCategory:
+          $ref: "#/components/schemas/FacilitySubCategory"
+          description: Must be one of the sub-categories valid for the selected category.
+        licenseNumber:
+          type: string
+          description: Letters, numbers and hyphens only, as printed on the licence.
+          pattern: "^[A-Za-z0-9-]+$"
+        address:
+          type: string
+          description: Free text — building, street, area, city, PIN code.
+        contacts:
+          type: array
+          description: 1–3 contacts.
+          minItems: 1
+          maxItems: 3
+          items:
+            $ref: "#/components/schemas/CreateFacilityContactRequest"
     FacilityContactDto:
       type: object
       required:
@@ -928,6 +1043,7 @@ components:
         - id
         - facilityName
         - category
+        - subCategory
         - licenseNumber
         - address
         - contacts
@@ -941,6 +1057,8 @@ components:
           type: string
         category:
           $ref: "#/components/schemas/FacilityCategory"
+        subCategory:
+          $ref: "#/components/schemas/FacilitySubCategory"
         licenseNumber:
           type: string
         address:

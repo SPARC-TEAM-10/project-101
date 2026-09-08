@@ -1,10 +1,13 @@
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 
 import { LoadingOverlay } from "../../components/LoadingOverlay";
 import { RadiusMap } from "../../components/RadiusMap";
 import { DASHBOARD_ROUTE_BY_ROLE } from "../auth/RoleRedirectPage";
 import { useAuth } from "../../context/AuthProvider";
 import { useToast } from "../../context/ToastProvider";
+import { getMyProfile } from "../../api/individualApi";
+import { ApiError } from "../../api/httpClient";
 import { useCreateBloodRequest } from "../../features/bloodRequest/useCreateBloodRequest";
 import { BLOOD_GROUPS, URGENCY_LEVELS, type BloodGroup, type UrgencyLevel } from "../../lib/validation/bloodRequestSchemas";
 
@@ -85,8 +88,19 @@ export function BloodRequestFormModal() {
   const navigate = useNavigate();
   const { session } = useAuth();
   const toast = useToast();
+
+  // Individual sessions have a registered profile to pre-fill "Your name" from; a Guest
+  // requester has none (404) and must type it themselves — the field stays editable either way.
+  const { data: profile } = useQuery({
+    queryKey: ["individual", "me", session?.token],
+    queryFn: () => getMyProfile(session!.token),
+    enabled: Boolean(session?.token),
+    retry: (failureCount, err) => (err instanceof ApiError && err.status === 404 ? false : failureCount < 2),
+  });
+
   const {
     values,
+    setRequesterName,
     setPatientName,
     setBloodGroup,
     setUnitsRequired,
@@ -101,7 +115,7 @@ export function BloodRequestFormModal() {
     submit,
     isPending,
     error,
-  } = useCreateBloodRequest(session?.token);
+  } = useCreateBloodRequest(session?.token, profile?.fullName);
 
   function close() {
     navigate("/");
@@ -164,6 +178,23 @@ export function BloodRequestFormModal() {
           noValidate
           className="modal-scroll flex flex-1 flex-col gap-5 overflow-y-auto px-6 py-5"
         >
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="requester-name" className="text-sm font-medium text-ink-2">
+              Your name
+            </label>
+            <input
+              id="requester-name"
+              type="text"
+              value={values.requesterName ?? ""}
+              onChange={(e) => setRequesterName(e.target.value)}
+              placeholder="So the donor knows who's asking"
+              className="h-12 rounded-sm border-[1.5px] border-line-strong bg-cream px-4 text-base outline-none transition-colors focus:border-clay"
+            />
+            {touched && fieldErrors.requesterName && (
+              <p className="text-xs text-error">{fieldErrors.requesterName[0]}</p>
+            )}
+          </div>
+
           <div className="flex flex-col gap-1.5">
             <label htmlFor="patient-name" className="text-sm font-medium text-ink-2">
               Patient name

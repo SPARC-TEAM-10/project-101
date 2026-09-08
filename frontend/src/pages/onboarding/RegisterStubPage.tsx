@@ -1,12 +1,18 @@
 import { useNavigate } from "react-router-dom";
 
+import { BrandPanel } from "../../components/BrandPanel";
+import { DateField } from "../../components/DateField";
 import { LoadingOverlay } from "../../components/LoadingOverlay";
+import { SelectField } from "../../components/SelectField";
 import { useAuth } from "../../context/AuthProvider";
 import { useToast } from "../../context/ToastProvider";
 import { getMobileNumberFromToken } from "../../lib/authToken";
 import { useIndividualRegistration } from "../../features/individual/useIndividualRegistration";
 import { BLOOD_GROUPS, type BloodGroup } from "../../lib/validation/bloodRequestSchemas";
 import { GENDERS, MAX_OTHER_ILLNESS_LENGTH, type Gender } from "../../lib/validation/individualSchemas";
+
+const BLOOD_GROUP_OPTIONS = BLOOD_GROUPS.map((group) => ({ value: group, label: group }));
+const GENDER_OPTIONS = GENDERS.map((gender) => ({ value: gender, label: gender }));
 
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
@@ -46,8 +52,8 @@ const TODAY = new Date().toISOString().slice(0, 10);
 //
 // Layout mirrors the two design canvas artboards: Registration.dc.html (mobile — single-column
 // scroll, appbar title) and RegistrationWeb{Enabled,Disabled}.dc.html (web — "Almost there." panel
-// on the left, a 2-column field grid on the right). Split at `md:`, same breakpoint AuthSplitLayout
-// uses for its own left/right split.
+// on the left, a 2-column field grid on the right). Split at `md:`, same breakpoint every other
+// auth/onboarding screen's BrandPanel split uses.
 export function RegisterStubPage() {
   const navigate = useNavigate();
   const { session, setSession } = useAuth();
@@ -93,26 +99,16 @@ export function RegisterStubPage() {
   const otherIllnessLength = (values.otherIllnessDetails ?? "").length;
 
   return (
-    <div className="flex min-h-screen flex-col bg-sand font-sans text-ink md:grid md:grid-cols-[380px_1fr]">
+    <div className="flex min-h-screen flex-col bg-sand font-sans text-ink md:grid md:grid-cols-[420px_1fr]">
       {isPending && <LoadingOverlay message="Creating your account…" />}
 
       {/* Left panel — desktop only (RegistrationWeb*.dc.html's ".left"), sticky so it stays in
           view while the form scrolls. */}
-      <div className="relative hidden flex-col overflow-hidden bg-clay-deep px-12 py-14 text-white md:sticky md:top-0 md:flex md:h-screen">
-        <div aria-hidden="true" className="pointer-events-none absolute -bottom-[70px] -right-[70px] h-[220px] w-[220px] rounded-full bg-white/5" />
-        <div className="relative mb-8 flex h-10 w-10 items-center justify-center rounded-full bg-white/[.18]">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <path d="M12 3.2c3.4 4 6 6.9 6 10a6 6 0 0 1-12 0c0-3.1 2.6-6 6-10Z" />
-          </svg>
-        </div>
-        <h2 className="relative mb-3.5 max-w-[13ch] text-[28px] font-extrabold leading-[1.22] tracking-tight">
-          Almost there.
-        </h2>
-        <p className="relative max-w-[28ch] text-sm leading-relaxed text-white/80">
-          Your health screening decides your eligibility — donate, request, or both. You can update it any time from
-          your profile.
-        </p>
-      </div>
+      <BrandPanel
+        heading="Almost there."
+        description="Your health screening decides your eligibility — donate, request, or both. You can update it any time from your profile."
+        className="md:sticky md:top-0 md:h-screen"
+      />
 
       {/* Right column */}
       <div className="flex flex-1 flex-col">
@@ -134,16 +130,16 @@ export function RegisterStubPage() {
         <form
           onSubmit={handleSubmit}
           noValidate
-          className="mx-auto flex w-full max-w-[680px] flex-1 flex-col gap-5 px-4 py-5 md:px-10 md:py-14"
+          className="mx-auto flex w-full max-w-[680px] flex-1 flex-col gap-5 px-4 py-5 md:gap-0 md:px-10 md:py-14"
         >
           <div className="hidden md:block">
             <h1 className="mb-1.5 text-[26px] font-extrabold tracking-tight">Create your account</h1>
-            <p className="mb-2 text-[14.5px] text-ink-2">Tell us a little about yourself.</p>
+            <p className="mb-7 text-[14.5px] text-ink-2">Tell us a little about yourself.</p>
           </div>
 
-          <h2 className="text-[11px] font-extrabold uppercase tracking-wide text-ink-3">Personal details</h2>
+          <h2 className="text-[11px] font-extrabold uppercase tracking-wide text-ink-3 md:mb-3.5">Personal details</h2>
 
-          <div className="grid grid-cols-1 gap-x-4 gap-y-5 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="flex flex-col gap-1.5">
               <label htmlFor="full-name" className="text-sm font-semibold text-ink-2">
                 Full name <i className="not-italic text-error">*</i>
@@ -184,68 +180,47 @@ export function RegisterStubPage() {
               <label htmlFor="blood-group" className="text-sm font-semibold text-ink-2">
                 Blood group <i className="not-italic text-error">*</i>
               </label>
-              <select
+              <SelectField
                 id="blood-group"
                 value={values.bloodGroup ?? ""}
-                onChange={(e) => setBloodGroup(e.target.value as BloodGroup)}
-                aria-invalid={touched && !!fieldErrors.bloodGroup}
-                className={`h-[50px] rounded-sm border-[1.5px] bg-cream px-4 text-base outline-none transition-colors focus:border-clay ${
-                  touched && fieldErrors.bloodGroup ? "border-error" : "border-line-strong"
-                }`}
-              >
-                <option value="" disabled>
-                  Select blood group
-                </option>
-                {BLOOD_GROUPS.map((group) => (
-                  <option key={group} value={group}>
-                    {group}
-                  </option>
-                ))}
-              </select>
-              {touched && <FieldError message={fieldErrors.bloodGroup?.[0]} />}
+                onChange={(v) => setBloodGroup(v as BloodGroup)}
+                options={BLOOD_GROUP_OPTIONS}
+                placeholder="Select blood group"
+                invalid={touched && !!fieldErrors.bloodGroup}
+                describedBy="blood-group-hint"
+              />
+              <span id="blood-group-hint">{touched && <FieldError message={fieldErrors.bloodGroup?.[0]} />}</span>
             </div>
 
             <div className="flex flex-col gap-1.5">
               <label htmlFor="date-of-birth" className="text-sm font-semibold text-ink-2">
                 Date of birth <i className="not-italic text-error">*</i>
               </label>
-              <input
+              <DateField
                 id="date-of-birth"
-                type="date"
                 max={TODAY}
                 value={values.dateOfBirth ?? ""}
-                onChange={(e) => setDateOfBirth(e.target.value)}
-                aria-invalid={touched && !!fieldErrors.dateOfBirth}
-                className={`h-[50px] rounded-sm border-[1.5px] bg-cream px-4 text-base outline-none transition-colors focus:border-clay ${
-                  touched && fieldErrors.dateOfBirth ? "border-error" : "border-line-strong"
-                }`}
+                onChange={setDateOfBirth}
+                invalid={touched && !!fieldErrors.dateOfBirth}
+                describedBy="date-of-birth-hint"
               />
-              {touched && <FieldError message={fieldErrors.dateOfBirth?.[0]} />}
+              <span id="date-of-birth-hint">{touched && <FieldError message={fieldErrors.dateOfBirth?.[0]} />}</span>
             </div>
 
             <div className="flex flex-col gap-1.5">
               <label htmlFor="gender" className="text-sm font-semibold text-ink-2">
                 Gender <i className="not-italic text-error">*</i>
               </label>
-              <select
+              <SelectField
                 id="gender"
                 value={values.gender ?? ""}
-                onChange={(e) => setGender(e.target.value as Gender)}
-                aria-invalid={touched && !!fieldErrors.gender}
-                className={`h-[50px] rounded-sm border-[1.5px] bg-cream px-4 text-base outline-none transition-colors focus:border-clay ${
-                  touched && fieldErrors.gender ? "border-error" : "border-line-strong"
-                }`}
-              >
-                <option value="" disabled>
-                  Select gender
-                </option>
-                {GENDERS.map((gender) => (
-                  <option key={gender} value={gender}>
-                    {gender}
-                  </option>
-                ))}
-              </select>
-              {touched && <FieldError message={fieldErrors.gender?.[0]} />}
+                onChange={(v) => setGender(v as Gender)}
+                options={GENDER_OPTIONS}
+                placeholder="Select gender"
+                invalid={touched && !!fieldErrors.gender}
+                describedBy="gender-hint"
+              />
+              <span id="gender-hint">{touched && <FieldError message={fieldErrors.gender?.[0]} />}</span>
             </div>
 
             <div className="flex flex-col gap-1.5">
@@ -275,9 +250,9 @@ export function RegisterStubPage() {
                   title="Use current location"
                   className="absolute right-1.5 top-1.5 flex h-9 w-9 items-center justify-center rounded-sm text-clay transition-colors hover:bg-clay-tint disabled:opacity-60"
                 >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.9} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <circle cx="12" cy="12" r="3" />
-                    <path d="M12 3v3M12 18v3M3 12h3M18 12h3" />
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7Z" />
+                    <circle cx="12" cy="9" r="2.5" />
                   </svg>
                 </button>
               </div>
@@ -294,7 +269,7 @@ export function RegisterStubPage() {
             </div>
           </div>
 
-          <h2 className="mt-2 text-[11px] font-extrabold uppercase tracking-wide text-ink-3">Health screening</h2>
+          <h2 className="mt-2 text-[11px] font-extrabold uppercase tracking-wide text-ink-3 md:mt-7 md:mb-3.5">Health screening</h2>
 
           <div className="grid grid-cols-1 gap-2 md:grid-cols-2 md:gap-2.5">
             <label className="flex items-start gap-3 rounded-sm border-[1.5px] border-line bg-cream p-3.5">
@@ -345,7 +320,7 @@ export function RegisterStubPage() {
           </div>
 
           {values.isOtherIllness && (
-            <div className="flex flex-col gap-1.5">
+            <div className="flex flex-col gap-1.5 md:mt-3.5">
               <label htmlFor="other-illness" className="text-sm font-semibold text-ink-2">
                 Specify other illness <i className="not-italic text-error">*</i>
               </label>
@@ -368,7 +343,7 @@ export function RegisterStubPage() {
           )}
 
           {isReceiverOnly ? (
-            <div className="flex gap-2.5 rounded-sm bg-clay-tint p-3.5 text-ink">
+            <div className="flex gap-2.5 rounded-sm bg-clay-tint p-3.5 text-ink md:mt-4">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" className="flex-none" aria-hidden="true">
                 <circle cx="12" cy="12" r="8.5" />
                 <path d="M12 11v5.5M12 7.9v.1" />
@@ -381,7 +356,7 @@ export function RegisterStubPage() {
               </div>
             </div>
           ) : (
-            <div className="flex gap-2.5 rounded-sm bg-leaf-tint p-3.5 text-ink">
+            <div className="flex gap-2.5 rounded-sm bg-leaf-tint p-3.5 text-ink md:mt-4">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" className="flex-none text-leaf" aria-hidden="true">
                 <circle cx="12" cy="12" r="8.5" />
                 <path d="M8.4 12.3 11 15l4.6-5.4" />
@@ -396,12 +371,12 @@ export function RegisterStubPage() {
           )}
 
           {error && (
-            <div className="rounded-sm border border-error bg-error-tint px-4 py-3 text-sm text-error">
+            <div className="rounded-sm border border-error bg-error-tint px-4 py-3 text-sm text-error md:mt-4">
               {error.message}
             </div>
           )}
 
-          <div className="pt-2 md:pt-3">
+          <div className="pt-2 md:mt-7 md:pt-0">
             <button
               type="submit"
               disabled={isPending}

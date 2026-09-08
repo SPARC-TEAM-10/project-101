@@ -39,6 +39,7 @@ function mockGeolocationDenied() {
 }
 
 const validValues = {
+  requesterName: "Jane Requester",
   patientName: "John Doe",
   bloodGroup: "O+" as const,
   unitsRequired: 2,
@@ -63,6 +64,7 @@ describe("useCreateBloodRequest", () => {
     const { result } = renderHook(() => useCreateBloodRequest("token"), { wrapper });
 
     act(() => {
+      result.current.setRequesterName(validValues.requesterName);
       result.current.setPatientName(validValues.patientName);
       result.current.setBloodGroup(validValues.bloodGroup);
       result.current.setUnitsRequired(validValues.unitsRequired);
@@ -78,6 +80,7 @@ describe("useCreateBloodRequest", () => {
     const { result } = renderHook(() => useCreateBloodRequest("token"), { wrapper });
 
     act(() => {
+      result.current.setRequesterName(validValues.requesterName);
       result.current.setPatientName(validValues.patientName);
       result.current.setBloodGroup(validValues.bloodGroup);
       result.current.setUnitsRequired(validValues.unitsRequired);
@@ -99,6 +102,7 @@ describe("useCreateBloodRequest", () => {
     const { result } = renderHook(() => useCreateBloodRequest("token"), { wrapper });
 
     act(() => {
+      result.current.setRequesterName(validValues.requesterName);
       result.current.setPatientName(validValues.patientName);
       result.current.setBloodGroup(validValues.bloodGroup);
       result.current.setUnitsRequired(validValues.unitsRequired);
@@ -122,6 +126,7 @@ describe("useCreateBloodRequest", () => {
     const { result } = renderHook(() => useCreateBloodRequest("token"), { wrapper });
 
     act(() => {
+      result.current.setRequesterName(validValues.requesterName);
       result.current.setPatientName(validValues.patientName);
       result.current.setBloodGroup(validValues.bloodGroup);
       result.current.setUnitsRequired(validValues.unitsRequired);

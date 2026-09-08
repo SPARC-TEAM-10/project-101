@@ -50,6 +50,7 @@ public class BloodRequestService : IBloodRequestService
         return new BloodRequestDto
         {
             Id = bloodRequest.Id,
+            RequesterName = bloodRequest.RequesterName,
             PatientName = bloodRequest.PatientName,
             BloodGroup = bloodRequest.BloodGroup,
             UnitsRequired = bloodRequest.UnitsRequired,
@@ -77,6 +78,7 @@ public class BloodRequestService : IBloodRequestService
         var items = requests.Select(r => new BloodRequestDto
         {
             Id = r.Id,
+            RequesterName = r.RequesterName,
             PatientName = r.PatientName,
             BloodGroup = r.BloodGroup,
             UnitsRequired = r.UnitsRequired,
