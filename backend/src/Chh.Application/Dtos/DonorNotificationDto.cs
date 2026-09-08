@@ -35,4 +35,7 @@ public record DonorNotificationDto
 
     /// <summary>UTC timestamp the notification was created.</summary>
     public required DateTimeOffset CreatedAtUtc { get; init; }
+
+    /// <summary>The donor's response so far (CHH-35) — lets the client hide Accept/Decline once already responded.</summary>
+    public required DonorResponseStatus ResponseStatus { get; init; }
 }

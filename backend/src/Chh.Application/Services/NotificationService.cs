@@ -92,6 +92,7 @@ public class NotificationService : INotificationService
         DistanceKm = notification.DistanceKm,
         AreaLabel = notification.AreaLabel,
         IsRead = notification.IsRead,
-        CreatedAtUtc = notification.CreatedAtUtc
+        CreatedAtUtc = notification.CreatedAtUtc,
+        ResponseStatus = notification.ResponseStatus
     };
 }

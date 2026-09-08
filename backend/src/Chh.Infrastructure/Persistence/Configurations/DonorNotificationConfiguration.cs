@@ -10,6 +10,7 @@ public class DonorNotificationConfiguration : IEntityTypeConfiguration<DonorNoti
     private const int BloodGroupMaxLength = 50;
     private const int UrgencyMaxLength = 50;
     private const int AreaLabelMaxLength = 100;
+    private const int ResponseStatusMaxLength = 50;
 
     /// <summary>Configures the <c>DonorNotification</c> table mapping.</summary>
     public void Configure(EntityTypeBuilder<DonorNotification> builder)
@@ -67,5 +68,13 @@ public class DonorNotificationConfiguration : IEntityTypeConfiguration<DonorNoti
 
         builder.Property(e => e.CreatedAtUtc)
             .IsRequired();
+
+        builder.Property(e => e.ResponseStatus)
+            .HasConversion<string>()
+            .HasMaxLength(ResponseStatusMaxLength)
+            .HasDefaultValue(Chh.Domain.Enums.DonorResponseStatus.Pending)
+            .IsRequired();
+
+        builder.Property(e => e.RespondedAtUtc);
     }
 }

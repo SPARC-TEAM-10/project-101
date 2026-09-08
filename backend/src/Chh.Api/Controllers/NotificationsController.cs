@@ -16,12 +16,15 @@ namespace Chh.Api.Controllers;
 public class NotificationsController : ControllerBase
 {
     private readonly INotificationService _notificationService;
+    private readonly IDonorResponseService _donorResponseService;
 
-    /// <summary>Creates the controller with its service dependency.</summary>
+    /// <summary>Creates the controller with its service dependencies.</summary>
     /// <param name="notificationService">Logic layer for reading and updating the caller's own notifications.</param>
-    public NotificationsController(INotificationService notificationService)
+    /// <param name="donorResponseService">Logic layer for accepting/declining a matched request (CHH-35).</param>
+    public NotificationsController(INotificationService notificationService, IDonorResponseService donorResponseService)
     {
         _notificationService = notificationService;
+        _donorResponseService = donorResponseService;
     }
 
     /// <summary>Returns the authenticated caller's own notifications, newest first (AC3).</summary>
@@ -55,6 +58,46 @@ public class NotificationsController : ControllerBase
     {
         var mobileNumber = User.FindFirstValue(ClaimTypes.MobilePhone)!;
         var result = await _notificationService.MarkReadAsync(mobileNumber, id, cancellationToken);
+        return result is null ? NotFound() : Ok(result);
+    }
+
+    /// <summary>
+    /// Accepts the matched blood request behind this notification (CHH-35 AC1). 404 if it doesn't
+    /// exist, belongs to a different donor, or the caller hasn't registered an individual profile
+    /// yet; 409 if already responded; 422 ("This request is no longer active") if the request has
+    /// since been fulfilled or expired, or its last remaining unit was just taken (AC3/Edge Case).
+    /// </summary>
+    /// <param name="id">The notification being responded to.</param>
+    /// <param name="cancellationToken">Cancellation token forwarded through the service and repository layers.</param>
+    [HttpPatch("{id:guid}/accept")]
+    [ProducesResponseType(typeof(DonorResponseResultDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+    public async Task<ActionResult<DonorResponseResultDto>> AcceptAsync(Guid id, CancellationToken cancellationToken)
+    {
+        var mobileNumber = User.FindFirstValue(ClaimTypes.MobilePhone)!;
+        var result = await _donorResponseService.AcceptAsync(mobileNumber, id, cancellationToken);
+        return result is null ? NotFound() : Ok(result);
+    }
+
+    /// <summary>
+    /// Declines the matched blood request behind this notification (CHH-35 AC2). 404 if it doesn't
+    /// exist, belongs to a different donor, or the caller hasn't registered an individual profile
+    /// yet; 409 if already responded.
+    /// </summary>
+    /// <param name="id">The notification being responded to.</param>
+    /// <param name="cancellationToken">Cancellation token forwarded through the service and repository layers.</param>
+    [HttpPatch("{id:guid}/decline")]
+    [ProducesResponseType(typeof(DonorResponseResultDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<ActionResult<DonorResponseResultDto>> DeclineAsync(Guid id, CancellationToken cancellationToken)
+    {
+        var mobileNumber = User.FindFirstValue(ClaimTypes.MobilePhone)!;
+        var result = await _donorResponseService.DeclineAsync(mobileNumber, id, cancellationToken);
         return result is null ? NotFound() : Ok(result);
     }
 }
