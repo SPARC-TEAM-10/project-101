@@ -14,6 +14,7 @@ public class CreateBloodRequestRequestValidatorTests
 
     private static CreateBloodRequestRequest ValidRequest() => new()
     {
+        RequesterName = "Jane Requester",
         PatientName = "John Doe",
         BloodGroup = BloodGroup.OPositive,
         UnitsRequired = 2,
@@ -82,6 +83,26 @@ public class CreateBloodRequestRequestValidatorTests
         var result = _validator.TestValidate(request);
 
         result.ShouldHaveValidationErrorFor(x => x.UnitsRequired);
+    }
+
+    [Fact]
+    public void Validate_WhenRequesterNameIsEmpty_HasValidationErrorForRequesterName()
+    {
+        var request = ValidRequest() with { RequesterName = "" };
+
+        var result = _validator.TestValidate(request);
+
+        result.ShouldHaveValidationErrorFor(x => x.RequesterName);
+    }
+
+    [Fact]
+    public void Validate_WhenRequesterNameIsTooShort_HasValidationErrorForRequesterName()
+    {
+        var request = ValidRequest() with { RequesterName = "A" };
+
+        var result = _validator.TestValidate(request);
+
+        result.ShouldHaveValidationErrorFor(x => x.RequesterName);
     }
 
     [Fact(DisplayName = "TC-CHH-F04-12: Validate_WhenPatientNameIsEmpty_HasValidationErrorForPatientName")]

@@ -2,6 +2,30 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Themed scrollbar, applied app-wide — replaces the default OS/browser gray scrollbar with the
+   project's own palette so it doesn't look like an untouched browser default. Firefox reads the
+   `scrollbar-color`/`scrollbar-width` properties on `html`; WebKit/Chromium need the ::-webkit-*
+   pseudo-elements, which only ever match on `html`/`body`/an explicit overflow container. */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) var(--sand);
+}
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--sand);
+}
+::-webkit-scrollbar-thumb {
+  background-color: var(--line-strong);
+  border-radius: var(--r-full);
+  border: 2px solid var(--sand);
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--ink-3);
+}
+
 :root {
   /* surfaces */
   --sand: #f6f0e5;
@@ -25,6 +49,15 @@
   --blood-deep: #9e1b18;
   --blood-tint: #fce9e7;
   --blood-line: #f5c6c2;
+
+  /* commitment — accept green (design/ui-standard.md "Green is the commitment, not the
+     confirmation" — never used for status/confirmation, only the Accept action itself) */
+  --go: #3f6b39;
+  --go-hover: #345a2f;
+  --go-active: #2a4a26;
+  --go-deep: #2f5629;
+  --go-tint: #e4efdd;
+  --go-line: #c3dab8;
 
   /* text */
   --ink: #392a1d;
@@ -216,11 +249,26 @@ input[type="number"] {
 }
 
 /* Custom range slider (blood request search radius) — track/thumb styling isn't reachable via
-   Tailwind utility classes alone since browsers require the vendor-prefixed pseudo-elements. */
+   Tailwind utility classes alone since browsers require the vendor-prefixed pseudo-elements.
+   `::-webkit-slider-runnable-track` must be reset explicitly — setting `background` on the
+   input itself only paints its box, not the native track pseudo-element. Without this reset,
+   Chromium on Windows 11 renders its own Fluent-style pill track and accent-colored thumb dot
+   on top of/behind the author styling, producing a doubled, oversized-pill look. */
 input[type="range"].radius-slider {
   -webkit-appearance: none;
   appearance: none;
-  height: 6px;
+  accent-color: var(--blood);
+  display: block;
+  width: 100%;
+  height: 22px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+}
+input[type="range"].radius-slider::-webkit-slider-runnable-track {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 8px;
   border-radius: var(--r-full);
   background: linear-gradient(to right, var(--blood) 0%, var(--blood) var(--fill, 0%), var(--line) var(--fill, 0%), var(--line) 100%);
 }
@@ -229,6 +277,11 @@ input[type="range"].radius-slider::-webkit-slider-thumb {
   appearance: none;
   width: 22px;
   height: 22px;
+  /* Chromium centers a webkit thumb on its track using (thumb height - track height) / 2 as the
+     implicit offset — but only when this margin is set explicitly; left unset, some Chromium
+     builds (seen on Windows 11) render the thumb flush with the track's top edge instead of
+     centered on it. */
+  margin-top: -7px;
   border-radius: 50%;
   background: var(--blood);
   border: 3px solid var(--cream);
@@ -245,9 +298,15 @@ input[type="range"].radius-slider::-moz-range-thumb {
   cursor: pointer;
 }
 input[type="range"].radius-slider::-moz-range-track {
-  height: 6px;
+  width: 100%;
+  height: 8px;
   border-radius: var(--r-full);
-  background: transparent;
+  background: var(--line);
+}
+input[type="range"].radius-slider::-moz-range-progress {
+  height: 8px;
+  border-radius: var(--r-full);
+  background: var(--blood);
 }
 
 /* Thin, brand-colored scrollbar for the blood-request modal's scrollable body. */

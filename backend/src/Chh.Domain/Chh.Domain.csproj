@@ -13,6 +13,9 @@
          internal-set property initializers instead of a long positional constructor — entities
          stay plain property bags, construction logic stays out of Chh.Domain. -->
     <InternalsVisibleTo Include="Chh.Application" />
+    <!-- Lets tests construct entity state the public factories deliberately don't expose (e.g.
+         IndividualProfile.IsAdmin, which no factory sets — see its own doc comment for why). -->
+    <InternalsVisibleTo Include="Chh.Application.Tests" />
   </ItemGroup>
 
 </Project>

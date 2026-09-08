@@ -119,7 +119,7 @@ Connect in **Claude Code → Settings → Connectors** before running `/task`.
 | Config / Env | `appsettings.json` + `IOptions<T>` + env vars |
 | Auth | JWT Bearer, OTP-first (mobile number + 6-digit OTP) — no enterprise SSO; see CHH-F01 |
 | HTTP Client | `IHttpClientFactory` typed clients (SMS gateway, push notification, maps) |
-| SMS Gateway | **Open question (PRD §11/§Questions)** — Twilio or Firebase suggested, not yet decided. Do not hardcode a provider; go through a typed `ISmsGatewayClient` so the choice is swappable. |
+| SMS Gateway | **Fast2SMS** (decided 2026-09-07, superseding the earlier Twilio/Firebase open question) — `IWhatsAppTemplateClient` over Fast2SMS's WhatsApp Message API is the live channel (`Fast2Sms:Channel = "whatsapp"`); the plain SMS channel is implemented but blocked pending TRAI DLT registration. `ISmsGatewayClient` stays the swappable abstraction — `AddFast2Sms` in `ServiceCollectionExtensions` picks the channel from config, falling back to a logging-only client in dev when no API key is set. |
 | Push Notifications | Firebase Cloud Messaging (per PRD §11) |
 | Maps / Geo API | Google Maps or Mapbox (per PRD §11) — venue GPS pins, radius filtering |
 | Testing | xUnit + Moq + FluentAssertions + WebApplicationFactory |

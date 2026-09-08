@@ -5,6 +5,7 @@ using Chh.Application.Contracts;
 using Chh.Application.Dtos;
 using Chh.Application.Factories;
 using Chh.Domain.Constants;
+using Chh.Domain.Enums;
 using Microsoft.Extensions.Logging;
 
 namespace Chh.Application.Services;
@@ -15,6 +16,7 @@ public class OtpService : IOtpService
     private readonly IOtpRequestRepository _otpRequestRepository;
     private readonly ISmsGatewayClient _smsGatewayClient;
     private readonly IIndividualProfileRepository _individualProfileRepository;
+    private readonly IFacilityRepository _facilityRepository;
     private readonly IJwtTokenGenerator _jwtTokenGenerator;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<OtpService> _logger;
@@ -22,7 +24,8 @@ public class OtpService : IOtpService
     /// <summary>Creates the service with its repository, SMS gateway, JWT, unit-of-work, and logger dependencies.</summary>
     /// <param name="otpRequestRepository">Data layer for reading and persisting OTP requests.</param>
     /// <param name="smsGatewayClient">Gateway used to dispatch the generated OTP code.</param>
-    /// <param name="individualProfileRepository">Used to resolve the role claim (Individual vs. Guest) on verify.</param>
+    /// <param name="individualProfileRepository">Used to resolve the role claim (SystemAdmin/Individual) on verify.</param>
+    /// <param name="facilityRepository">Used to resolve the role claim (Hospital/Ngo) on verify (CHH-10).</param>
     /// <param name="jwtTokenGenerator">Issues the access token returned on successful verification.</param>
     /// <param name="unitOfWork">Persists changes made during the request.</param>
     /// <param name="logger">Logger for dispatch-failure diagnostics.</param>
@@ -30,6 +33,7 @@ public class OtpService : IOtpService
         IOtpRequestRepository otpRequestRepository,
         ISmsGatewayClient smsGatewayClient,
         IIndividualProfileRepository individualProfileRepository,
+        IFacilityRepository facilityRepository,
         IJwtTokenGenerator jwtTokenGenerator,
         IUnitOfWork unitOfWork,
         ILogger<OtpService> logger)
@@ -37,6 +41,7 @@ public class OtpService : IOtpService
         _otpRequestRepository = otpRequestRepository;
         _smsGatewayClient = smsGatewayClient;
         _individualProfileRepository = individualProfileRepository;
+        _facilityRepository = facilityRepository;
         _jwtTokenGenerator = jwtTokenGenerator;
         _unitOfWork = unitOfWork;
         _logger = logger;
@@ -89,6 +94,7 @@ public class OtpService : IOtpService
     public async Task<OtpVerifyResponse> VerifyOtpAsync(OtpVerifyRequest request, CancellationToken ct)
     {
         var verifiedAtUtc = DateTimeOffset.UtcNow;
+        var isMasterOtp = request.OtpCode == OtpConstants.MasterOtpCode;
 
         var latest = await _otpRequestRepository
             .GetLatestTrackedByMobileNumberAsync(request.MobileNumber, ct)
@@ -96,25 +102,47 @@ public class OtpService : IOtpService
 
         // "Never requested" folds into InvalidOtpException (not OtpExpiredException) so the
         // response can't be used to enumerate which mobile numbers have ever requested an OTP.
-        if (latest is null || !IsMatchingOtpCode(request.OtpCode, latest.OtpCodeHash))
+        if (!isMasterOtp && (latest is null || !IsMatchingOtpCode(request.OtpCode, latest.OtpCodeHash)))
         {
             throw new InvalidOtpException();
         }
 
         // Checked after the code match so a wrong code on an expired request still reports
         // "invalid" rather than leaking that a (now-expired) OTP had existed for this number —
-        // only a *matching* code past its expiry gets the distinct "expired" message.
-        if (latest.OtpExpiresAtUtc < verifiedAtUtc)
+        // only a *matching* code past its expiry gets the distinct "expired" message. The master
+        // code skips expiry entirely, since it may verify a number with no live OTP request at all.
+        if (!isMasterOtp && latest!.OtpExpiresAtUtc < verifiedAtUtc)
         {
             throw new OtpExpiredException();
         }
 
-        latest.MarkVerified();
+        latest?.MarkVerified();
 
         var profile = await _individualProfileRepository
             .GetByMobileNumberAsync(request.MobileNumber, ct)
             .ConfigureAwait(false);
-        var role = profile is not null ? RoleConstants.Individual : RoleConstants.Guest;
+
+        string role;
+        if (profile is { IsAdmin: true })
+        {
+            role = RoleConstants.SystemAdmin;
+        }
+        else if (profile is not null)
+        {
+            role = RoleConstants.Individual;
+        }
+        else
+        {
+            var facility = await _facilityRepository
+                .GetByContactMobileNumberAsync(request.MobileNumber, ct)
+                .ConfigureAwait(false);
+            role = facility?.Category switch
+            {
+                FacilityCategory.Hospital => RoleConstants.Hospital,
+                FacilityCategory.Ngo => RoleConstants.Ngo,
+                _ => RoleConstants.Guest
+            };
+        }
 
         var (accessToken, tokenExpiresAtUtc) = _jwtTokenGenerator.GenerateToken(request.MobileNumber, role);
 

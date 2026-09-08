@@ -11,7 +11,7 @@ import {
   type CreateBloodRequestFormValues,
   type UrgencyLevel,
 } from "../../lib/validation/bloodRequestSchemas";
-import { useGeolocation } from "./useGeolocation";
+import { useGeolocation } from "../shared/useGeolocation";
 
 export interface BloodRequestFormError {
   status: number | null;
@@ -24,12 +24,15 @@ export interface BloodRequestSubmitResult {
   error?: BloodRequestFormError;
 }
 
-const initialValues: Partial<CreateBloodRequestFormValues> = {
-  patientName: "",
-  locationCityArea: "",
-  unitsRequired: 1,
-  searchRadiusKm: 10,
-};
+function initialValues(defaultRequesterName?: string): Partial<CreateBloodRequestFormValues> {
+  return {
+    requesterName: defaultRequesterName ?? "",
+    patientName: "",
+    locationCityArea: "",
+    unitsRequired: 1,
+    searchRadiusKm: 10,
+  };
+}
 
 function toBloodRequestFormError(err: unknown): BloodRequestFormError {
   if (err instanceof ApiError) {
@@ -38,8 +41,8 @@ function toBloodRequestFormError(err: unknown): BloodRequestFormError {
   return { status: null, message: "Couldn't submit the request. Try again." };
 }
 
-export function useCreateBloodRequest(accessToken: string | undefined) {
-  const [values, setValues] = useState<Partial<CreateBloodRequestFormValues>>(initialValues);
+export function useCreateBloodRequest(accessToken: string | undefined, defaultRequesterName?: string) {
+  const [values, setValues] = useState<Partial<CreateBloodRequestFormValues>>(() => initialValues(defaultRequesterName));
   const [touched, setTouched] = useState(false);
   const geolocation = useGeolocation();
 
@@ -70,6 +73,16 @@ export function useCreateBloodRequest(accessToken: string | undefined) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [geolocation.addressLabel]);
+
+  // An Individual's profile name loads asynchronously (after this hook's initial state is
+  // already set), so the constructor-time default above can't catch it — only backfill while
+  // the field is still untouched/empty, so this never clobbers what a Guest requester typed.
+  useEffect(() => {
+    if (defaultRequesterName) {
+      setValues((prev) => (prev.requesterName ? prev : { ...prev, requesterName: defaultRequesterName }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [defaultRequesterName]);
 
   function setField<K extends keyof CreateBloodRequestFormValues>(key: K, value: CreateBloodRequestFormValues[K]) {
     setValues((prev) => ({ ...prev, [key]: value }));
@@ -102,6 +115,7 @@ export function useCreateBloodRequest(accessToken: string | undefined) {
 
   return {
     values,
+    setRequesterName: (v: string) => setField("requesterName", v),
     setPatientName: (v: string) => setField("patientName", v),
     setBloodGroup: (v: BloodGroup) => setField("bloodGroup", v),
     setUnitsRequired: (v: number) => setField("unitsRequired", v),
