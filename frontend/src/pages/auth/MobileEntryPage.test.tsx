@@ -29,13 +29,13 @@ function renderPage() {
 }
 
 describe("MobileEntryPage", () => {
-  it("renders with the Get OTP button disabled on empty input", () => {
+  it("TC-CHH-F01-15: renders with the Get OTP button disabled on empty input", () => {
     renderPage();
 
     expect(screen.getByRole("button", { name: /get otp/i })).toBeDisabled();
   });
 
-  it("keeps the button disabled and shows a hint for fewer than 10 digits", async () => {
+  it("TC-CHH-F01-16: keeps the button disabled and shows a hint for fewer than 10 digits", async () => {
     const user = userEvent.setup();
     renderPage();
 
@@ -49,7 +49,7 @@ describe("MobileEntryPage", () => {
     ).toBeInTheDocument();
   });
 
-  it("keeps the button disabled for non-numeric input", async () => {
+  it("TC-CHH-F01-17: keeps the button disabled for non-numeric input", async () => {
     const user = userEvent.setup();
     renderPage();
 
@@ -60,7 +60,7 @@ describe("MobileEntryPage", () => {
     expect(screen.getByRole("button", { name: /get otp/i })).toBeDisabled();
   });
 
-  it("enables the button once a valid 10-digit number is entered", async () => {
+  it("TC-CHH-F01-18: enables the button once a valid 10-digit number is entered", async () => {
     const user = userEvent.setup();
     renderPage();
 
@@ -69,7 +69,7 @@ describe("MobileEntryPage", () => {
     expect(screen.getByRole("button", { name: /get otp/i })).toBeEnabled();
   });
 
-  it("navigates to /otp-verify with the response state on success", async () => {
+  it("TC-CHH-F01-19: navigates to /otp-verify with the response state on success", async () => {
     const user = userEvent.setup();
     renderPage();
 
@@ -79,7 +79,7 @@ describe("MobileEntryPage", () => {
     expect(await screen.findByText("OTP Verify Screen")).toBeInTheDocument();
   });
 
-  it("shows an inline hint and re-enables the button on a 422 response", async () => {
+  it("TC-CHH-F01-20: shows an inline hint and re-enables the button on a 422 response", async () => {
     server.use(validationErrorHandler);
     const user = userEvent.setup();
     renderPage();
@@ -95,7 +95,7 @@ describe("MobileEntryPage", () => {
     expect(screen.getByRole("button", { name: /get otp/i })).toBeEnabled();
   });
 
-  it("shows an inline error banner and re-enables the button on a 429 response", async () => {
+  it("TC-CHH-F01-21: shows an inline error banner and re-enables the button on a 429 response", async () => {
     server.use(cooldownErrorHandler);
     const user = userEvent.setup();
     renderPage();
@@ -110,7 +110,7 @@ describe("MobileEntryPage", () => {
     expect(screen.getByLabelText(/mobile number/i)).toHaveValue("9876543210");
   });
 
-  it("shows a retry error banner and retains input on a 502 response", async () => {
+  it("TC-CHH-F01-22: shows a retry error banner and retains input on a 502 response", async () => {
     server.use(gatewayErrorHandler);
     const user = userEvent.setup();
     renderPage();
@@ -122,7 +122,7 @@ describe("MobileEntryPage", () => {
     expect(screen.getByLabelText(/mobile number/i)).toHaveValue("9876543210");
   });
 
-  it("has an accessible label reachable via keyboard for the mobile number input", () => {
+  it("TC-CHH-F01-23: has an accessible label reachable via keyboard for the mobile number input", () => {
     renderPage();
     const input = screen.getByLabelText(/mobile number/i);
     expect(input).toBeVisible();

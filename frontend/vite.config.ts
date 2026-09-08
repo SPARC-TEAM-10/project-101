@@ -8,6 +8,10 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: ["./tests/setup.ts"],
     globals: true,
+    reporters: ["default", "json"],
+    outputFile: {
+      json: "./test-results/frontend-results.json",
+    },
     coverage: {
       provider: "v8",
       reporter: ["text", "html"],

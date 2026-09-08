@@ -45,7 +45,7 @@ public class BloodRequestServiceTests
         Urgency = UrgencyLevel.Emergency
     };
 
-    [Fact]
+    [Fact(DisplayName = "TC-CHH-F04-03: CreateAsync_WhenRequestIsValid_PersistsAndReturnsMatchingStatus")]
     public async Task CreateAsync_WhenRequestIsValid_PersistsAndReturnsMatchingStatus()
     {
         var response = await _sut.CreateAsync(RequesterMobileNumber, ValidRequest(), CancellationToken.None);
@@ -58,7 +58,7 @@ public class BloodRequestServiceTests
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
-    [Fact]
+    [Fact(DisplayName = "TC-CHH-F04-04: CreateAsync_SetsExpiryToSixHoursAfterCreation")]
     public async Task CreateAsync_SetsExpiryToSixHoursAfterCreation()
     {
         var response = await _sut.CreateAsync(RequesterMobileNumber, ValidRequest(), CancellationToken.None);
@@ -66,7 +66,7 @@ public class BloodRequestServiceTests
         (response.ExpiresAtUtc - response.CreatedAtUtc).Should().Be(TimeSpan.FromHours(6));
     }
 
-    [Fact]
+    [Fact(DisplayName = "TC-CHH-F04-05: CreateAsync_DoesNotTrustClientForRequesterMobileNumber")]
     public async Task CreateAsync_DoesNotTrustClientForRequesterMobileNumber()
     {
         BloodRequest? captured = null;
