@@ -146,6 +146,10 @@ export const createFacilityNetworkErrorHandler = http.post(FACILITIES_URL, () =>
   return HttpResponse.error();
 });
 
+// No MSW handler for POST /api/v1/facilities/:id/upload — @mswjs/interceptors hangs under jsdom
+// on any XHR request whose body is a FormData containing a Blob/File (see tests/fakeXhr.ts's doc
+// comment). facilityApi.uploadFacilityLicense is tested via that fake XHR instead.
+
 export const INDIVIDUALS_ME_URL = "/api/v1/individuals/me";
 
 export const getMyProfileSuccessHandler = http.get(INDIVIDUALS_ME_URL, () =>

@@ -13,7 +13,7 @@ import {
   type FacilityDetailsFormValues,
 } from "../../lib/validation/facilitySchemas";
 
-export type FacilityRegistrationStep = "details" | "contacts";
+export type FacilityRegistrationStep = "details" | "contacts" | "upload";
 
 export interface FacilityFormError {
   status: number | null;
@@ -47,6 +47,7 @@ function toFacilityFormError(err: unknown): FacilityFormError {
 
 export function useFacilityRegistration(accessToken?: string) {
   const [step, setStep] = useState<FacilityRegistrationStep>("details");
+  const [facilityId, setFacilityId] = useState<string | null>(null);
   const [details, setDetails] = useState<DetailsValues>(initialDetails);
   const [detailsTouched, setDetailsTouched] = useState(false);
   const [contacts, setContacts] = useState<ContactFormValues[]>([emptyContact()]);
@@ -87,7 +88,7 @@ export function useFacilityRegistration(accessToken?: string) {
   }
 
   function goBack() {
-    setStep("details");
+    setStep((prev) => (prev === "upload" ? "contacts" : "details"));
   }
 
   function addContact() {
@@ -112,6 +113,8 @@ export function useFacilityRegistration(accessToken?: string) {
     }
     try {
       const data = await mutation.mutateAsync();
+      setFacilityId(data.id);
+      setStep("upload");
       return { ok: true, data };
     } catch (err) {
       return { ok: false, error: toFacilityFormError(err) };
@@ -120,6 +123,7 @@ export function useFacilityRegistration(accessToken?: string) {
 
   return {
     step,
+    facilityId,
     details,
     setDetailsField,
     detailsErrors,
