@@ -65,6 +65,17 @@ export const verifySuccessHandler = http.post(OTP_VERIFY_URL, async ({ request }
   });
 });
 
+export const verifySuccessGuestRoleHandler = http.post(OTP_VERIFY_URL, async ({ request }) => {
+  const body = (await request.json()) as { mobileNumber: string };
+  return HttpResponse.json({
+    maskedMobileNumber: `********${body.mobileNumber.slice(-2)}`,
+    verifiedAtUtc: "2026-09-06T10:00:00.000Z",
+    accessToken: "test-access-token-guest",
+    tokenExpiresAtUtc: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+    role: "Guest",
+  });
+});
+
 export const verifyInvalidOtpHandler = http.post(OTP_VERIFY_URL, () => {
   return HttpResponse.json(
     {

@@ -6,9 +6,16 @@ import { describe, expect, it } from "vitest";
 import { http, HttpResponse } from "msw";
 
 import { OtpVerificationPage } from "./OtpVerificationPage";
+import { RoleRedirectPage } from "./RoleRedirectPage";
+import { NewUserGuestDecisionPage } from "../onboarding/NewUserGuestDecisionPage";
 import { AuthProvider } from "../../context/AuthProvider";
 import { server } from "../../../tests/setup";
-import { OTP_REQUEST_URL, gatewayErrorHandler, verifyInvalidOtpHandler } from "../../../tests/msw/handlers";
+import {
+  OTP_REQUEST_URL,
+  gatewayErrorHandler,
+  verifyInvalidOtpHandler,
+  verifySuccessGuestRoleHandler,
+} from "../../../tests/msw/handlers";
 
 const FAR_FUTURE = new Date(Date.now() + 5 * 60 * 1000).toISOString();
 
@@ -24,6 +31,30 @@ function renderAt(state: unknown) {
             <Route path="/otp-verify" element={<OtpVerificationPage />} />
             <Route path="/login" element={<div>Mobile Entry Screen</div>} />
             <Route path="/redirecting" element={<div>Redirecting Screen</div>} />
+          </Routes>
+        </MemoryRouter>
+      </AuthProvider>
+    </QueryClientProvider>,
+  );
+}
+
+// TC-CHH-F01-14's AC spans three pages (OTP verify -> role redirect -> onboarding choice), so
+// this renders the real downstream pages instead of the stub divs `renderAt` uses elsewhere in
+// this file — that's the only way to exercise the actual redirect chain, not just this page.
+function renderFullFlow(state: unknown) {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+  });
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <MemoryRouter initialEntries={[{ pathname: "/otp-verify", state }]}>
+          <Routes>
+            <Route path="/otp-verify" element={<OtpVerificationPage />} />
+            <Route path="/redirecting" element={<RoleRedirectPage />} />
+            <Route path="/welcome" element={<NewUserGuestDecisionPage />} />
+            <Route path="/register" element={<div>Register Screen</div>} />
+            <Route path="/dashboard/guest" element={<div>Guest Dashboard Screen</div>} />
           </Routes>
         </MemoryRouter>
       </AuthProvider>
@@ -167,5 +198,17 @@ describe("OtpVerificationPage", () => {
     await user.click(screen.getByRole("button", { name: /change number/i }));
 
     expect(screen.getByText("Mobile Entry Screen")).toBeInTheDocument();
+  });
+
+  it("TC-CHH-F01-14: an unrecognized number's Guest OTP verification lands on the onboarding screen with both options", async () => {
+    server.use(verifySuccessGuestRoleHandler);
+    const user = userEvent.setup();
+    renderFullFlow(validState);
+
+    await typeCode(user, "427159");
+
+    expect(await screen.findByText("Welcome")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /create account/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /emergency guest access/i })).toBeInTheDocument();
   });
 });

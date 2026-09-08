@@ -50,13 +50,13 @@ describe("RoleRedirectPage", () => {
     expect(screen.getByText("Welcome Screen")).toBeInTheDocument();
   });
 
-  it("redirects to /dashboard/facility for a Hospital role (CHH-28)", () => {
+  it("TC-CHH-F01-10: redirects to /dashboard/facility for a Hospital role (CHH-28)", () => {
     renderWithSession({ token: "t", role: "Hospital", expiresAtUtc: "2099-01-01T00:00:00.000Z" });
 
     expect(screen.getByText("Facility Dashboard")).toBeInTheDocument();
   });
 
-  it("redirects to /dashboard/facility for an Ngo role (CHH-28)", () => {
+  it("TC-CHH-F01-11: redirects to /dashboard/facility for an Ngo role (CHH-28)", () => {
     renderWithSession({ token: "t", role: "Ngo", expiresAtUtc: "2099-01-01T00:00:00.000Z" });
 
     expect(screen.getByText("Facility Dashboard")).toBeInTheDocument();
