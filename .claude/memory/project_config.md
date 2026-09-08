@@ -15,6 +15,7 @@ type: project
 | Branch Naming Convention | feature/{jira-ticket-id}-{short-description} (bugfix/ for Bug tickets or `/dev` runs) |
 | Git Base Branch | develop |
 | Feature Branch | feature/CHH-78-facility-backend |
+| QA Execution Report Root Page ID | 5860950052 |
 
 ## How to Apply
 
@@ -25,3 +26,4 @@ type: project
 - **Branch Naming Convention** — the full pattern for feature branch names
 - **Git Base Branch** — used by the Git Branch Skill as the branch-from target when creating feature branches; confirmed to exist locally and on `origin` (github.com/SPARC-TEAM-10/project-101). Corrected 2026-09-07 from `main` to `develop` — actual practice is gitflow-style (features branch off and merge into `develop`; `develop` periodically merges into `main`, e.g. PR #14). The stale `main` value would have branched off code missing everything already on `develop`.
 - **Feature Branch** — the active feature branch for the current task; written by the Git Branch Skill after branch creation; read by the PR Agent and Unittest Agent. Overwritten each time the Git Branch Skill runs for a new task.
+- **QA Execution Report Root Page ID** — Confluence page ID of the "QA Execution Reports" folder (sibling of "Test Case Design"/"Automation Mapping" under "QA Test & Validation"), id `5860950052`; resolved and cached by the QA Execution Agent on its first-ever run (2026-09-08) so `ExecutionReportRootUrl` never needs to be asked for again. Read by the QA Execution Agent to resolve/create feature-wise report folders under it.
