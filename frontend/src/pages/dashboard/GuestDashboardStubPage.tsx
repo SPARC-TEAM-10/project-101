@@ -34,9 +34,9 @@ function LogoutIcon() {
 }
 
 // Guest Dashboard (CHH-11 AC2) — limited permissions: Search Emergency Hub and Request Blood
-// only (PRD §4 Role & Permission Matrix). "Search Emergency Hub" stays disabled until CHH-68
-// (Emergency Services Hub) ships its frontend — not built yet, tracked as a separate ticket.
-// Header/tile-grid layout matches IndividualDashboardPage and FacilityDashboardPage (same
+// only (PRD §4 Role & Permission Matrix). "Search Emergency Hub" now routes to /emergency
+// (CHH-83/Epic CHH-68). Header/tile-grid layout matches IndividualDashboardPage and
+// FacilityDashboardPage (same
 // blood-drop header bar, same feature-tile pattern as the Facility dashboard's locked tiles) so
 // a guest session doesn't look like a different, unfinished app. Log out lives in the header
 // (not a bottom button) since a guest session has nothing below the fold to push it down to.
@@ -86,7 +86,7 @@ export function GuestDashboardStubPage() {
       ),
       title: "Search Emergency Hub",
       description: "Find nearby hospitals, blood banks, and NGOs offering emergency services.",
-      locked: true,
+      onClick: () => navigate("/emergency"),
     },
   ];
 

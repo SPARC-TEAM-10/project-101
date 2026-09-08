@@ -7,14 +7,14 @@ import { useIndividualDashboard } from "../../features/dashboard/useIndividualDa
 import { useNotifications } from "../../features/notifications/useNotifications";
 
 // "Home" and "My requests" both resolve on this same page (request history already lives here —
-// "My requests" jumps to that section) since there's no separate page for it yet. Events/
-// Emergency services stay disabled: CHH-37 and CHH-68 exist as Jira epics but neither has a
-// frontend route yet — an enabled link with nowhere real to go would be worse than being honest.
+// "My requests" jumps to that section) since there's no separate page for it yet. Events stays
+// disabled: CHH-37 is still just a Jira epic with no frontend route. Emergency services now
+// routes to /emergency (CHH-83/Epic CHH-68).
 const NAV_ITEMS = [
   { label: "Home", to: "/dashboard/individual", enabled: true },
   { label: "My requests", to: "/dashboard/individual#your-requests", enabled: true },
   { label: "Events", to: "/dashboard/individual", enabled: false },
-  { label: "Emergency services", to: "/dashboard/individual", enabled: false },
+  { label: "Emergency services", to: "/emergency", enabled: true },
 ] as const;
 
 const STATUS_PILL_CLASSES: Record<string, string> = {
