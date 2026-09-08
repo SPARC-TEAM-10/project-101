@@ -445,7 +445,14 @@ export function FacilityWizard() {
                     </span>
                   </div>
                   {uploadStatus !== "uploaded" && (
-                    <div className={`h-1.5 overflow-hidden rounded-full bg-sand-2 ${uploadStatus === "networkFailed" ? "" : ""}`}>
+                    <div
+                      role="progressbar"
+                      aria-label="Upload progress"
+                      aria-valuenow={progressPct}
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      className="h-1.5 overflow-hidden rounded-full bg-sand-2"
+                    >
                       <div
                         className={`h-full rounded-full transition-[width] duration-200 ${uploadStatus === "networkFailed" ? "bg-error" : "bg-clay"}`}
                         style={{ width: `${progressPct}%` }}
