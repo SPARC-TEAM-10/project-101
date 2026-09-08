@@ -42,7 +42,7 @@ public class IndividualProfileServiceTests
     private static OtpRequest VerifiedOtpRequest() =>
         OtpRequestFactory.Create(MobileNumber, "hash", DateTimeOffset.UtcNow.AddMinutes(-1));
 
-    [Fact]
+    [Fact(DisplayName = "TC-CHH-F02-02: RegisterAsync_WhenMobileNumberIsVerifiedAndUnregistered_PersistsAndReturnsDto")]
     public async Task RegisterAsync_WhenMobileNumberIsVerifiedAndUnregistered_PersistsAndReturnsDto()
     {
         var verifiedOtp = VerifiedOtpRequest();
@@ -62,7 +62,7 @@ public class IndividualProfileServiceTests
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
-    [Fact]
+    [Fact(DisplayName = "TC-CHH-F02-03: RegisterAsync_WhenAnyHealthFlagIsSet_MarksProfileAsReceiverOnly")]
     public async Task RegisterAsync_WhenAnyHealthFlagIsSet_MarksProfileAsReceiverOnly()
     {
         var verifiedOtp = VerifiedOtpRequest();
@@ -79,7 +79,7 @@ public class IndividualProfileServiceTests
         result.IsReceiverOnly.Should().BeTrue();
     }
 
-    [Fact]
+    [Fact(DisplayName = "TC-CHH-F02-04: RegisterAsync_WhenMobileNumberHasNoOtpRequest_ThrowsMobileNumberNotVerifiedException")]
     public async Task RegisterAsync_WhenMobileNumberHasNoOtpRequest_ThrowsMobileNumberNotVerifiedException()
     {
         _otpRequestRepository
@@ -92,7 +92,7 @@ public class IndividualProfileServiceTests
         _individualProfileRepository.Verify(r => r.AddAsync(It.IsAny<IndividualProfile>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
-    [Fact]
+    [Fact(DisplayName = "TC-CHH-F02-05: RegisterAsync_WhenOtpWasRequestedButNotVerified_ThrowsMobileNumberNotVerifiedException")]
     public async Task RegisterAsync_WhenOtpWasRequestedButNotVerified_ThrowsMobileNumberNotVerifiedException()
     {
         _otpRequestRepository
@@ -104,7 +104,7 @@ public class IndividualProfileServiceTests
         await act.Should().ThrowAsync<MobileNumberNotVerifiedException>();
     }
 
-    [Fact]
+    [Fact(DisplayName = "TC-CHH-F02-06: RegisterAsync_WhenProfileAlreadyExistsForMobileNumber_ThrowsIndividualAlreadyRegisteredException")]
     public async Task RegisterAsync_WhenProfileAlreadyExistsForMobileNumber_ThrowsIndividualAlreadyRegisteredException()
     {
         var verifiedOtp = VerifiedOtpRequest();

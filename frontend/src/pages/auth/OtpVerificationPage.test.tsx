@@ -49,13 +49,13 @@ async function typeCode(user: ReturnType<typeof userEvent.setup>, code: string) 
 }
 
 describe("OtpVerificationPage", () => {
-  it("redirects to /login when no router state is present", () => {
+  it("TC-CHH-F01-35: redirects to /login when no router state is present", () => {
     renderAt(undefined);
 
     expect(screen.getByText("Mobile Entry Screen")).toBeInTheDocument();
   });
 
-  it("renders 6 empty digit boxes and the masked number", () => {
+  it("TC-CHH-F01-36: renders 6 empty digit boxes and the masked number", () => {
     renderAt(validState);
 
     for (let i = 1; i <= 6; i++) {
@@ -64,7 +64,7 @@ describe("OtpVerificationPage", () => {
     expect(screen.getByText("********10")).toBeInTheDocument();
   });
 
-  it("auto-advances focus as digits are typed", async () => {
+  it("TC-CHH-F01-37: auto-advances focus as digits are typed", async () => {
     const user = userEvent.setup();
     renderAt(validState);
 
@@ -72,7 +72,7 @@ describe("OtpVerificationPage", () => {
     expect(screen.getByLabelText("Digit 2")).toHaveFocus();
   });
 
-  it("moves focus back on backspace from an empty box", async () => {
+  it("TC-CHH-F01-38: moves focus back on backspace from an empty box", async () => {
     const user = userEvent.setup();
     renderAt(validState);
 
@@ -81,7 +81,7 @@ describe("OtpVerificationPage", () => {
     expect(screen.getByLabelText("Digit 1")).toHaveFocus();
   });
 
-  it("keeps the Verify OTP button disabled until all 6 digits are entered", async () => {
+  it("TC-CHH-F01-39: keeps the Verify OTP button disabled until all 6 digits are entered", async () => {
     const user = userEvent.setup();
     renderAt(validState);
 
@@ -90,7 +90,7 @@ describe("OtpVerificationPage", () => {
     expect(screen.getByRole("button", { name: /verify otp/i })).toBeDisabled();
   });
 
-  it("auto-submits once all 6 digits are filled and navigates to /redirecting on success (AC1)", async () => {
+  it("TC-CHH-F01-40: auto-submits once all 6 digits are filled and navigates to /redirecting on success (AC1)", async () => {
     const user = userEvent.setup();
     renderAt(validState);
 
@@ -99,7 +99,7 @@ describe("OtpVerificationPage", () => {
     expect(await screen.findByText("Redirecting Screen")).toBeInTheDocument();
   });
 
-  it("on 422, clears all boxes, shows the AC2 message, and refocuses box 1", async () => {
+  it("TC-CHH-F01-41: on 422, clears all boxes, shows the AC2 message, and refocuses box 1", async () => {
     server.use(verifyInvalidOtpHandler);
     const user = userEvent.setup();
     renderAt(validState);
@@ -113,7 +113,7 @@ describe("OtpVerificationPage", () => {
     expect(screen.getByLabelText("Digit 1")).toHaveFocus();
   });
 
-  it("disables Resend while the timer is active and enables it once it elapses (AC3)", async () => {
+  it("TC-CHH-F01-42: disables Resend while the timer is active and enables it once it elapses (AC3)", async () => {
     renderAt(stateWithResendAt(new Date(Date.now() + 1000).toISOString()));
 
     expect(screen.getByText(/resend in/i)).toBeInTheDocument();
@@ -125,7 +125,7 @@ describe("OtpVerificationPage", () => {
     );
   });
 
-  it("clicking active Resend calls requestOtp again and resets the timer", async () => {
+  it("TC-CHH-F01-43: clicking active Resend calls requestOtp again and resets the timer", async () => {
     server.use(
       http.post(OTP_REQUEST_URL, () =>
         HttpResponse.json({
@@ -146,7 +146,7 @@ describe("OtpVerificationPage", () => {
     await waitFor(() => expect(screen.getByText(/resend in/i)).toBeInTheDocument());
   });
 
-  it("shows a resend error and keeps Resend usable if resend fails", async () => {
+  it("TC-CHH-F01-44: shows a resend error and keeps Resend usable if resend fails", async () => {
     server.use(gatewayErrorHandler);
     const user = userEvent.setup();
     renderAt(stateWithResendAt(new Date(Date.now() + 300).toISOString()));
@@ -160,7 +160,7 @@ describe("OtpVerificationPage", () => {
     expect(screen.getByRole("button", { name: /resend otp/i })).toBeInTheDocument();
   });
 
-  it('"Change Number" navigates to /login', async () => {
+  it('TC-CHH-F01-45: "Change Number" navigates to /login', async () => {
     const user = userEvent.setup();
     renderAt(validState);
 

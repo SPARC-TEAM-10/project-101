@@ -21,6 +21,8 @@ Example: `https://experionglobal.atlassian.net/browse/CHH-8`
 5. Code Review Agent reviews for quality, security, and standards compliance.
 6. Unittest Agent writes tests, verifies coverage thresholds, and hands off to the PR Agent.
 
+QA test-case execution happens separately, after this pipeline's PR is merged — it is run by a QA automation tester, not part of this flow. See root `CLAUDE.md` §"QA execution (post-merge)" and `.claude/agents/qa-execution-agent.md`.
+
 **Delegates to:** `.claude/agents/orchestrator.md`
 
 ---

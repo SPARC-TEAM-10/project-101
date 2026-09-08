@@ -52,14 +52,14 @@ describe("useCreateBloodRequest", () => {
     vi.restoreAllMocks();
   });
 
-  it("starts invalid with only the default radius set", () => {
+  it("TC-CHH-F04-23: starts invalid with only the default radius set", () => {
     const { result } = renderHook(() => useCreateBloodRequest("token"), { wrapper });
 
     expect(result.current.isValid).toBe(false);
     expect(result.current.values.searchRadiusKm).toBe(10);
   });
 
-  it("flags a radius below the minimum", () => {
+  it("TC-CHH-F04-24: flags a radius below the minimum", () => {
     const { result } = renderHook(() => useCreateBloodRequest("token"), { wrapper });
 
     act(() => {
@@ -74,7 +74,7 @@ describe("useCreateBloodRequest", () => {
     expect(result.current.fieldErrors.searchRadiusKm?.[0]).toBe("Minimum radius is 5km");
   });
 
-  it("submit is a no-op while location hasn't been detected yet — the Use current location button is a separate, explicit step", async () => {
+  it("TC-CHH-F04-25: submit is a no-op while location hasn't been detected yet — the Use current location button is a separate, explicit step", async () => {
     const { result } = renderHook(() => useCreateBloodRequest("token"), { wrapper });
 
     act(() => {
@@ -94,7 +94,7 @@ describe("useCreateBloodRequest", () => {
     expect(result.current.geolocation.status).toBe("idle");
   });
 
-  it("submits successfully once the form is valid and the location button has resolved coordinates", async () => {
+  it("TC-CHH-F04-26: submits successfully once the form is valid and the location button has resolved coordinates", async () => {
     mockGeolocationSuccess();
     const { result } = renderHook(() => useCreateBloodRequest("token"), { wrapper });
 
@@ -116,7 +116,7 @@ describe("useCreateBloodRequest", () => {
     expect(submitResult).toEqual({ ok: true, data: expect.objectContaining({ status: "Matching" }) });
   });
 
-  it("surfaces a validation error from the API", async () => {
+  it("TC-CHH-F04-27: surfaces a validation error from the API", async () => {
     server.use(createBloodRequestValidationErrorHandler);
     mockGeolocationSuccess();
     const { result } = renderHook(() => useCreateBloodRequest("token"), { wrapper });
@@ -138,7 +138,7 @@ describe("useCreateBloodRequest", () => {
     await waitFor(() => expect(result.current.error?.message).toBe("Minimum radius is 5km"));
   });
 
-  it("marks geolocation as denied when the user rejects the permission prompt", async () => {
+  it("TC-CHH-F04-28: marks geolocation as denied when the user rejects the permission prompt", async () => {
     mockGeolocationDenied();
     const { result } = renderHook(() => useCreateBloodRequest("token"), { wrapper });
 

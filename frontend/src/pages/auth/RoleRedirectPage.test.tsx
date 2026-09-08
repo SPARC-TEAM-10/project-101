@@ -31,19 +31,19 @@ function renderWithSession(session: AuthSession | null) {
 }
 
 describe("RoleRedirectPage", () => {
-  it("redirects to /login when there is no session", () => {
+  it("TC-CHH-F01-54: redirects to /login when there is no session", () => {
     renderWithSession(null);
 
     expect(screen.getByText("Login Screen")).toBeInTheDocument();
   });
 
-  it("redirects to /dashboard/individual for an Individual role", () => {
+  it("TC-CHH-F01-55: redirects to /dashboard/individual for an Individual role", () => {
     renderWithSession({ token: "t", role: "Individual", expiresAtUtc: "2099-01-01T00:00:00.000Z" });
 
     expect(screen.getByText("Individual Dashboard")).toBeInTheDocument();
   });
 
-  it("redirects to /dashboard/guest for a Guest role", () => {
+  it("TC-CHH-F01-56: redirects to /dashboard/guest for a Guest role", () => {
     renderWithSession({ token: "t", role: "Guest", expiresAtUtc: "2099-01-01T00:00:00.000Z" });
 
     expect(screen.getByText("Guest Dashboard")).toBeInTheDocument();

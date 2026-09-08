@@ -11,13 +11,13 @@ function wrapper({ children }: { children: ReactNode }) {
 }
 
 describe("AuthProvider / useAuth", () => {
-  it("starts with a null session", () => {
+  it("TC-CHH-F01-63: starts with a null session", () => {
     const { result } = renderHook(() => useAuth(), { wrapper });
 
     expect(result.current.session).toBeNull();
   });
 
-  it("setSession stores the session", () => {
+  it("TC-CHH-F01-64: setSession stores the session", () => {
     const { result } = renderHook(() => useAuth(), { wrapper });
 
     act(() => result.current.setSession({ token: "abc", role: "Individual", expiresAtUtc: FUTURE }));
@@ -25,7 +25,7 @@ describe("AuthProvider / useAuth", () => {
     expect(result.current.session).toEqual({ token: "abc", role: "Individual", expiresAtUtc: FUTURE });
   });
 
-  it("clearSession resets the session to null", () => {
+  it("TC-CHH-F01-65: clearSession resets the session to null", () => {
     const { result } = renderHook(() => useAuth(), { wrapper });
 
     act(() => result.current.setSession({ token: "abc", role: "Individual", expiresAtUtc: FUTURE }));
@@ -34,7 +34,7 @@ describe("AuthProvider / useAuth", () => {
     expect(result.current.session).toBeNull();
   });
 
-  it("throws when used outside an AuthProvider", () => {
+  it("TC-CHH-F01-66: throws when used outside an AuthProvider", () => {
     expect(() => renderHook(() => useAuth())).toThrow(
       "useAuth must be used within an AuthProvider",
     );

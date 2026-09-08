@@ -42,7 +42,7 @@ function renderModal() {
 }
 
 describe("BloodRequestFormModal", () => {
-  it("renders as a dialog with all mandatory fields and the submit button", () => {
+  it("TC-CHH-F04-16: renders as a dialog with all mandatory fields and the submit button", () => {
     renderModal();
 
     expect(screen.getByRole("dialog")).toBeInTheDocument();
@@ -54,14 +54,14 @@ describe("BloodRequestFormModal", () => {
     expect(screen.getByRole("button", { name: /notify donors/i })).toBeInTheDocument();
   });
 
-  it("renders a chip button per blood group instead of a dropdown", () => {
+  it("TC-CHH-F04-17: renders a chip button per blood group instead of a dropdown", () => {
     renderModal();
 
     expect(screen.getByRole("button", { name: "O+" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "AB-" })).toBeInTheDocument();
   });
 
-  it("selecting a blood group chip marks it pressed", () => {
+  it("TC-CHH-F04-18: selecting a blood group chip marks it pressed", () => {
     renderModal();
 
     const oPositive = screen.getByRole("button", { name: "O+" });
@@ -70,7 +70,7 @@ describe("BloodRequestFormModal", () => {
     expect(oPositive).toHaveAttribute("aria-pressed", "true");
   });
 
-  it("closes and navigates home when the close button is clicked", () => {
+  it("TC-CHH-F04-19: closes and navigates home when the close button is clicked", () => {
     renderModal();
 
     fireEvent.click(screen.getByRole("button", { name: /close/i }));
@@ -78,7 +78,7 @@ describe("BloodRequestFormModal", () => {
     expect(screen.getByText("Home")).toBeInTheDocument();
   });
 
-  it("updates the radius readout when the slider changes", () => {
+  it("TC-CHH-F04-20: updates the radius readout when the slider changes", () => {
     renderModal();
 
     fireEvent.change(screen.getByLabelText(/search radius in kilometers/i), { target: { value: "50" } });
@@ -87,13 +87,13 @@ describe("BloodRequestFormModal", () => {
     expect(screen.getAllByText("50 km").length).toBeGreaterThan(0);
   });
 
-  it("shows the Use current location button", () => {
+  it("TC-CHH-F04-21: shows the Use current location button", () => {
     renderModal();
 
     expect(screen.getByRole("button", { name: /use current location/i })).toBeInTheDocument();
   });
 
-  it("shows validation errors after a submit attempt with empty mandatory fields", async () => {
+  it("TC-CHH-F04-22: shows validation errors after a submit attempt with empty mandatory fields", async () => {
     renderModal();
 
     fireEvent.click(screen.getByRole("button", { name: /notify donors/i }));

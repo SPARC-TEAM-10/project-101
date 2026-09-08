@@ -46,7 +46,7 @@ public class OtpServiceTests
     private static string HashOtpCode(string otpCode) =>
         Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(otpCode))).ToLowerInvariant();
 
-    [Fact]
+    [Fact(DisplayName = "TC-CHH-F01-03: RequestOtpAsync_WhenNoPreviousOtpExists_DispatchesAndPersists")]
     public async Task RequestOtpAsync_WhenNoPreviousOtpExists_DispatchesAndPersists()
     {
         _otpRequestRepository
@@ -61,7 +61,7 @@ public class OtpServiceTests
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
-    [Fact]
+    [Fact(DisplayName = "TC-CHH-F01-04: RequestOtpAsync_WhenResendCooldownStillActive_ThrowsWithoutDispatchingOrPersisting")]
     public async Task RequestOtpAsync_WhenResendCooldownStillActive_ThrowsWithoutDispatchingOrPersisting()
     {
         var latest = OtpRequestFactory.Create(MobileNumber, HashOtpCode("111111"), DateTimeOffset.UtcNow);
@@ -76,7 +76,7 @@ public class OtpServiceTests
         _smsGatewayClient.Verify(s => s.SendOtpAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
-    [Fact]
+    [Fact(DisplayName = "TC-CHH-F01-05: RequestOtpAsync_WhenSmsGatewayFails_ThrowsOtpDispatchException")]
     public async Task RequestOtpAsync_WhenSmsGatewayFails_ThrowsOtpDispatchException()
     {
         _otpRequestRepository
@@ -92,7 +92,7 @@ public class OtpServiceTests
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
-    [Fact]
+    [Fact(DisplayName = "TC-CHH-F01-06: VerifyOtpAsync_WhenCodeMatchesAndUnexpired_MarksVerifiedAndReturnsTokenWithGuestRole")]
     public async Task VerifyOtpAsync_WhenCodeMatchesAndUnexpired_MarksVerifiedAndReturnsTokenWithGuestRole()
     {
         var otpRequest = OtpRequestFactory.Create(MobileNumber, HashOtpCode("123456"), DateTimeOffset.UtcNow);
@@ -111,7 +111,7 @@ public class OtpServiceTests
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
-    [Fact]
+    [Fact(DisplayName = "TC-CHH-F01-07: VerifyOtpAsync_WhenIndividualProfileExists_IssuesTokenWithIndividualRole")]
     public async Task VerifyOtpAsync_WhenIndividualProfileExists_IssuesTokenWithIndividualRole()
     {
         var otpRequest = OtpRequestFactory.Create(MobileNumber, HashOtpCode("123456"), DateTimeOffset.UtcNow);
@@ -129,7 +129,7 @@ public class OtpServiceTests
         _jwtTokenGenerator.Verify(j => j.GenerateToken(MobileNumber, RoleConstants.Individual), Times.Once);
     }
 
-    [Fact]
+    [Fact(DisplayName = "TC-CHH-F01-08: VerifyOtpAsync_WhenNoOtpWasEverRequested_ThrowsInvalidOtpException")]
     public async Task VerifyOtpAsync_WhenNoOtpWasEverRequested_ThrowsInvalidOtpException()
     {
         _otpRequestRepository
@@ -142,7 +142,7 @@ public class OtpServiceTests
         await act.Should().ThrowAsync<InvalidOtpException>();
     }
 
-    [Fact]
+    [Fact(DisplayName = "TC-CHH-F01-09: VerifyOtpAsync_WhenCodeMatchesButExpired_ThrowsOtpExpiredExceptionAndDoesNotPersist")]
     public async Task VerifyOtpAsync_WhenCodeMatchesButExpired_ThrowsOtpExpiredExceptionAndDoesNotPersist()
     {
         var otpRequest = OtpRequestFactory.Create(MobileNumber, HashOtpCode("123456"), DateTimeOffset.UtcNow.AddMinutes(-10));
@@ -158,7 +158,7 @@ public class OtpServiceTests
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
-    [Fact]
+    [Fact(DisplayName = "TC-CHH-F01-10: VerifyOtpAsync_WhenCodeIsWrongAndExpired_ThrowsInvalidOtpExceptionNotExpired")]
     public async Task VerifyOtpAsync_WhenCodeIsWrongAndExpired_ThrowsInvalidOtpExceptionNotExpired()
     {
         // A wrong code on an expired request must not reveal that a (now-expired) OTP had
@@ -175,7 +175,7 @@ public class OtpServiceTests
         await act.Should().ThrowAsync<InvalidOtpException>();
     }
 
-    [Fact]
+    [Fact(DisplayName = "TC-CHH-F01-11: VerifyOtpAsync_WhenCodeDoesNotMatch_ThrowsInvalidOtpExceptionAndDoesNotPersist")]
     public async Task VerifyOtpAsync_WhenCodeDoesNotMatch_ThrowsInvalidOtpExceptionAndDoesNotPersist()
     {
         var otpRequest = OtpRequestFactory.Create(MobileNumber, HashOtpCode("123456"), DateTimeOffset.UtcNow);
