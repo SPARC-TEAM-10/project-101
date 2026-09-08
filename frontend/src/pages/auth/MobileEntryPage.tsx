@@ -88,12 +88,13 @@ export function MobileEntryPage() {
       </div>
 
       <div className="flex flex-1 flex-col justify-center px-7">
+        <div className="md:mx-auto md:max-w-[360px]">
         <h1 className="mb-2 text-[26px] font-extrabold tracking-tight">Enter your mobile number</h1>
         <p className="mb-8 max-w-[30ch] text-[14.5px] leading-relaxed text-ink-2">
           We&apos;ll send a 6-digit code to verify it&apos;s you.
         </p>
 
-        <form onSubmit={handleSubmit} noValidate className="max-w-[360px]">
+        <form onSubmit={handleSubmit} noValidate>
           <div className="mb-5 flex flex-col gap-2">
             <label htmlFor="mobile-number" className="sr-only">
               Mobile number
@@ -170,6 +171,7 @@ export function MobileEntryPage() {
             {isPending ? "Sending…" : "Get OTP"}
           </button>
         </form>
+        </div>
       </div>
 
       <div className="px-7 pb-10 text-center text-xs text-ink-off">

@@ -49,7 +49,7 @@ export function RoleSelectionPage() {
           <div className="text-sm font-bold text-ink-2">Community Health Hub</div>
         </div>
 
-        <div className="flex flex-1 flex-col justify-center px-7 md:max-w-[588px] md:px-16">
+        <div className="flex flex-1 flex-col justify-center px-7 md:mx-auto md:max-w-[588px] md:px-16">
           <h1 className="mb-2 text-[26px] font-extrabold leading-[1.15] tracking-tight">Choose an account type</h1>
           <p className="mb-6 max-w-[34ch] text-[14.5px] leading-relaxed text-ink-2">
             This decides which details we ask for next.
