@@ -91,8 +91,8 @@ export function FacilityWizard() {
       <header className="flex h-[58px] flex-none items-center gap-2.5 border-b border-line bg-cream px-3 md:h-16 md:px-8">
         <button
           type="button"
-          onClick={() => navigate("/")}
-          aria-label="Back to home"
+          onClick={() => navigate("/register")}
+          aria-label="Back to account type"
           className="flex h-10 w-10 items-center justify-center rounded-full text-ink-2 transition-colors hover:bg-sand-2"
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

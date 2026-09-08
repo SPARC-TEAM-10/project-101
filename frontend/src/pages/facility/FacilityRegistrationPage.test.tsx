@@ -68,6 +68,14 @@ describe("FacilityRegistrationPage", () => {
     expect(screen.getByLabelText(/address/i)).toBeInTheDocument();
   });
 
+  it("the header back button returns to /register (Role Selection), not the landing page", () => {
+    renderPage();
+
+    fireEvent.click(screen.getByLabelText(/back to account type/i));
+
+    expect(screen.getByText("Role Selection")).toBeInTheDocument();
+  });
+
   it("redirects to /register when no category was chosen (direct visit, no route state)", () => {
     mockUseAuth.mockReturnValue({ session: null, setSession: vi.fn(), clearSession: vi.fn() });
     const queryClient = new QueryClient({
