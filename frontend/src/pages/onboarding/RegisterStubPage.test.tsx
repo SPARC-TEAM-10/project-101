@@ -51,7 +51,12 @@ function fillValidForm() {
   fireEvent.change(screen.getByLabelText(/full name/i), { target: { value: "Asha Menon" } });
   fireEvent.change(screen.getByLabelText(/email/i), { target: { value: "asha.menon@example.com" } });
   fireEvent.change(screen.getByLabelText(/blood group/i), { target: { value: "O+" } });
-  fireEvent.change(screen.getByLabelText(/date of birth/i), { target: { value: "2000-01-15" } });
+  fireEvent.click(screen.getByLabelText(/date of birth/i));
+  fireEvent.click(screen.getByLabelText(/^year$/i));
+  fireEvent.click(screen.getByRole("option", { name: "2000" }));
+  fireEvent.click(screen.getByLabelText(/^month$/i));
+  fireEvent.click(screen.getByRole("option", { name: "January" }));
+  fireEvent.click(screen.getByRole("button", { name: "15" }));
   fireEvent.change(screen.getByLabelText(/gender/i), { target: { value: "Female" } });
   fireEvent.change(screen.getByLabelText(/location \(city/i), { target: { value: "Kochi, Ernakulam" } });
 }

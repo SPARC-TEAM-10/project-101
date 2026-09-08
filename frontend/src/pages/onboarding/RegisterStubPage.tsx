@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 
+import { DateField } from "../../components/DateField";
 import { LoadingOverlay } from "../../components/LoadingOverlay";
 import { useAuth } from "../../context/AuthProvider";
 import { useToast } from "../../context/ToastProvider";
@@ -209,18 +210,15 @@ export function RegisterStubPage() {
               <label htmlFor="date-of-birth" className="text-sm font-semibold text-ink-2">
                 Date of birth <i className="not-italic text-error">*</i>
               </label>
-              <input
+              <DateField
                 id="date-of-birth"
-                type="date"
                 max={TODAY}
                 value={values.dateOfBirth ?? ""}
-                onChange={(e) => setDateOfBirth(e.target.value)}
-                aria-invalid={touched && !!fieldErrors.dateOfBirth}
-                className={`h-[50px] rounded-sm border-[1.5px] bg-cream px-4 text-base outline-none transition-colors focus:border-clay ${
-                  touched && fieldErrors.dateOfBirth ? "border-error" : "border-line-strong"
-                }`}
+                onChange={setDateOfBirth}
+                invalid={touched && !!fieldErrors.dateOfBirth}
+                describedBy="date-of-birth-hint"
               />
-              {touched && <FieldError message={fieldErrors.dateOfBirth?.[0]} />}
+              <span id="date-of-birth-hint">{touched && <FieldError message={fieldErrors.dateOfBirth?.[0]} />}</span>
             </div>
 
             <div className="flex flex-col gap-1.5">
@@ -275,9 +273,9 @@ export function RegisterStubPage() {
                   title="Use current location"
                   className="absolute right-1.5 top-1.5 flex h-9 w-9 items-center justify-center rounded-sm text-clay transition-colors hover:bg-clay-tint disabled:opacity-60"
                 >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.9} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <circle cx="12" cy="12" r="3" />
-                    <path d="M12 3v3M12 18v3M3 12h3M18 12h3" />
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7Z" />
+                    <circle cx="12" cy="9" r="2.5" />
                   </svg>
                 </button>
               </div>

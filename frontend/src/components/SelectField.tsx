@@ -14,6 +14,8 @@ interface SelectFieldProps<T extends string> {
   invalid?: boolean;
   describedBy?: string;
   disabled?: boolean;
+  /** For a standalone field with no paired <label for>, e.g. a compact picker inside a popover. */
+  ariaLabel?: string;
 }
 
 // Custom-styled listbox — a native <select>'s open dropdown is OS-rendered chrome that can't be
@@ -28,6 +30,7 @@ export function SelectField<T extends string>({
   invalid,
   describedBy,
   disabled,
+  ariaLabel,
 }: SelectFieldProps<T>) {
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
@@ -99,6 +102,7 @@ export function SelectField<T extends string>({
         aria-expanded={open}
         aria-invalid={invalid}
         aria-describedby={describedBy}
+        aria-label={ariaLabel}
         onClick={() => (open ? setOpen(false) : openList())}
         onKeyDown={handleButtonKeyDown}
         className={`flex h-[50px] w-full items-center justify-between rounded-sm border-[1.5px] bg-cream px-4 text-base outline-none transition-colors focus:border-clay ${
