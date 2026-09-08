@@ -10,18 +10,18 @@ using Xunit;
 namespace Chh.Api.Tests.Controllers;
 
 /// <summary>
-/// Guards <c>AdminController</c>'s route against `contracts/chh-api.v1.yaml`'s documented path,
-/// and that the <c>[Authorize(Roles = RoleConstants.SystemAdmin)]</c> gate actually rejects both
-/// an unauthenticated caller and one authenticated with a non-admin role (CHH-73).
+/// Guards <c>AdminUsersController</c>'s route (its absolute <see cref="Microsoft.AspNetCore.Mvc.RouteAttribute"/>
+/// override — see that class's doc comment for why) and its <c>[Authorize(Roles = SystemAdmin)]</c>
+/// gate (CHH-76).
 /// </summary>
 [Collection(ApiTestCollection.Name)]
-public class AdminControllerRouteTests
+public class AdminUsersControllerRouteTests
 {
     private readonly ApiWebApplicationFactory _factory;
 
     /// <summary>Creates the test class around the shared in-memory API host.</summary>
     /// <param name="factory">The shared API host fixture (see <see cref="ApiTestCollection"/>).</param>
-    public AdminControllerRouteTests(ApiWebApplicationFactory factory) => _factory = factory;
+    public AdminUsersControllerRouteTests(ApiWebApplicationFactory factory) => _factory = factory;
 
     private string IssueToken(string role)
     {
@@ -31,57 +31,46 @@ public class AdminControllerRouteTests
     }
 
     [Fact]
-    public async Task GetPendingFacilities_UsesContractPath_IsRouted()
+    public async Task SearchUsers_UsesContractPath_IsRouted()
     {
         var client = _factory.CreateClient();
 
-        var response = await client.GetAsync("/api/v1/admin/facilities/pending");
+        var response = await client.GetAsync("/api/v1/admin/users");
 
         response.StatusCode.Should().NotBe(HttpStatusCode.NotFound,
-            "the route convention must still resolve AdminController to contracts/chh-api.v1.yaml's documented path");
+            "the absolute [Route] override must resolve AdminUsersController to api/v1/admin/users");
     }
 
     [Fact]
-    public async Task GetPendingFacilities_WithoutAuthorizationHeader_ReturnsUnauthorized()
+    public async Task SearchUsers_WithoutAuthorizationHeader_ReturnsUnauthorized()
     {
         var client = _factory.CreateClient();
 
-        var response = await client.GetAsync("/api/v1/admin/facilities/pending");
+        var response = await client.GetAsync("/api/v1/admin/users");
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
     [Fact]
-    public async Task GetPendingFacilities_WithNonAdminRole_ReturnsForbidden()
+    public async Task SearchUsers_WithNonAdminRole_ReturnsForbidden()
     {
         var client = _factory.CreateClient();
         client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", IssueToken(RoleConstants.Individual));
 
-        var response = await client.GetAsync("/api/v1/admin/facilities/pending");
+        var response = await client.GetAsync("/api/v1/admin/users");
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
     [Fact]
-    public async Task ReviewFacility_UsesContractPath_IsRouted()
-    {
-        var client = _factory.CreateClient();
-
-        var response = await client.PatchAsync($"/api/v1/admin/facilities/{Guid.NewGuid()}/verification", content: null);
-
-        response.StatusCode.Should().NotBe(HttpStatusCode.NotFound,
-            "the route convention must resolve AdminController's review action to contracts/chh-api.v1.yaml's documented path");
-    }
-
-    [Fact]
-    public async Task ReviewFacility_WithNonAdminRole_ReturnsForbidden()
+    public async Task SuspendUser_WithNonAdminRole_ReturnsForbidden()
     {
         var client = _factory.CreateClient();
         client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", IssueToken(RoleConstants.Individual));
 
-        var response = await client.PatchAsync($"/api/v1/admin/facilities/{Guid.NewGuid()}/verification", content: null);
+        var response = await client.PatchAsync($"/api/v1/admin/users/{Guid.NewGuid()}/suspend", content: null);
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }

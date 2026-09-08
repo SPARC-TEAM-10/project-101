@@ -24,6 +24,7 @@ public static class IndividualProfileConfiguration
     private const int EncryptedDateMaxLength = 128;
     private const int EncryptedOtherIllnessDetailsMaxLength = 512;
     private const int AccountStatusMaxLength = 50;
+    private const int SuspensionReasonMaxLength = 500;
 
     /// <summary>Configures the <c>IndividualProfile</c> table mapping.</summary>
     /// <param name="builder">The entity type builder for <see cref="IndividualProfile"/>.</param>
@@ -125,5 +126,10 @@ public static class IndividualProfileConfiguration
             .HasMaxLength(AccountStatusMaxLength)
             .HasDefaultValue(Domain.Enums.AccountStatus.Active)
             .IsRequired();
+
+        // Admin's reason for suspension (CHH-76 AC1) — not PII/health data, unencrypted, same
+        // posture as Facility.RejectionReason.
+        builder.Property(e => e.SuspensionReason)
+            .HasMaxLength(SuspensionReasonMaxLength);
     }
 }

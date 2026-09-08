@@ -273,6 +273,7 @@ export const pendingFacilitiesSuccessHandler = http.get(ADMIN_PENDING_FACILITIES
       contacts: [{ name: "Anitha Kurian", designation: "Admin", mobile: "9876500111" }],
       verificationStatus: "Pending",
       licenseDocumentUrl: null,
+      rejectionReason: null,
       createdAtUtc: "2026-09-02T00:00:00.000Z",
     },
     {
@@ -283,7 +284,8 @@ export const pendingFacilitiesSuccessHandler = http.get(ADMIN_PENDING_FACILITIES
       address: "Thrissur",
       contacts: [{ name: "Rahul Menon", designation: "Coordinator", mobile: "9876500112" }],
       verificationStatus: "Pending",
-      licenseDocumentUrl: null,
+      licenseDocumentUrl: "https://blob.example/vayali-licence.pdf",
+      rejectionReason: null,
       createdAtUtc: "2026-09-02T00:00:00.000Z",
     },
   ];
@@ -310,6 +312,82 @@ export const pendingFacilitiesForbiddenHandler = http.get(ADMIN_PENDING_FACILITI
     { status: 403 },
   );
 });
+
+export const reviewFacilitySuccessHandler = http.patch(
+  "/api/v1/admin/facilities/:id/verification",
+  async ({ params, request }) => {
+    const body = (await request.json()) as { decision: "Approve" | "Reject"; rejectionReason: string | null };
+    return HttpResponse.json({
+      id: params.id,
+      facilityName: "Sreedhara Multispeciality",
+      category: "Hospital",
+      licenseNumber: "KL-HOSP-100200",
+      address: "Kaloor, Kochi",
+      contacts: [{ name: "Anitha Kurian", designation: "Admin", mobile: "9876500111" }],
+      verificationStatus: body.decision === "Approve" ? "Verified" : "Rejected",
+      licenseDocumentUrl: null,
+      rejectionReason: body.decision === "Reject" ? body.rejectionReason : null,
+      createdAtUtc: "2026-09-02T00:00:00.000Z",
+      updatedAtUtc: "2026-09-08T00:00:00.000Z",
+    });
+  },
+);
+
+export const reviewFacilityErrorHandler = http.patch("/api/v1/admin/facilities/:id/verification", () => {
+  return HttpResponse.error();
+});
+
+export const ADMIN_USERS_URL = "/api/v1/admin/users";
+
+export const searchAdminUsersSuccessHandler = http.get(ADMIN_USERS_URL, ({ request }) => {
+  const url = new URL(request.url);
+  const search = (url.searchParams.get("search") ?? "").toLowerCase();
+  const allUsers = [
+    {
+      id: "55555555-5555-5555-5555-555555555551",
+      mobileNumber: "9876500123",
+      fullName: "Ananya Nair",
+      bloodGroup: "O+",
+      accountStatus: "Active" as const,
+      suspensionReason: null,
+      createdAtUtc: "2026-08-01T00:00:00.000Z",
+    },
+    {
+      id: "55555555-5555-5555-5555-555555555552",
+      mobileNumber: "9876500456",
+      fullName: "Ravi Kumar",
+      bloodGroup: "B+",
+      accountStatus: "Suspended" as const,
+      suspensionReason: "Repeated no-shows after accepting requests",
+      createdAtUtc: "2026-07-15T00:00:00.000Z",
+    },
+  ];
+  const items = search
+    ? allUsers.filter((u) => u.mobileNumber.includes(search) || u.fullName.toLowerCase().includes(search))
+    : allUsers;
+  return HttpResponse.json({ items, totalCount: items.length, page: 1, pageSize: 20, totalPages: 1 });
+});
+
+export const searchAdminUsersEmptyHandler = http.get(ADMIN_USERS_URL, () =>
+  HttpResponse.json({ items: [], totalCount: 0, page: 1, pageSize: 20, totalPages: 0 }),
+);
+
+export const searchAdminUsersErrorHandler = http.get(ADMIN_USERS_URL, () => HttpResponse.error());
+
+export const suspendUserSuccessHandler = http.patch("/api/v1/admin/users/:id/suspend", async ({ params, request }) => {
+  const body = (await request.json()) as { reason: string };
+  return HttpResponse.json({
+    id: params.id,
+    mobileNumber: "9876500456",
+    fullName: "Ravi Kumar",
+    bloodGroup: "B+",
+    accountStatus: "Suspended",
+    suspensionReason: body.reason,
+    createdAtUtc: "2026-07-15T00:00:00.000Z",
+  });
+});
+
+export const suspendUserErrorHandler = http.patch("/api/v1/admin/users/:id/suspend", () => HttpResponse.error());
 
 export const INDIVIDUALS_URL = "/api/v1/individuals";
 
@@ -491,4 +569,7 @@ export const handlers = [
   nominatimReverseGeocodeHandler,
   pendingFacilitiesSuccessHandler,
   registerIndividualSuccessHandler,
+  reviewFacilitySuccessHandler,
+  searchAdminUsersSuccessHandler,
+  suspendUserSuccessHandler,
 ];

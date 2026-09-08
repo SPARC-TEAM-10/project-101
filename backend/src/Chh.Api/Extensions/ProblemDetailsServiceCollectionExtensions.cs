@@ -92,6 +92,19 @@ public static class ProblemDetailsServiceCollectionExtensions
                 {
                     Detail = ex.Message
                 });
+            // CHH-75: facility approve/reject domain exception mapping.
+            options.Map<FacilityAlreadyReviewedException>(ex =>
+                new StatusCodeProblemDetails(StatusCodes.Status409Conflict)
+                {
+                    Detail = ex.Message
+                });
+            // CHH-76: suspended-account domain exception mapping (login block AC2, and
+            // AccountStatusMiddleware's live-session invalidation AC1).
+            options.Map<AccountSuspendedException>(ex =>
+                new StatusCodeProblemDetails(StatusCodes.Status403Forbidden)
+                {
+                    Detail = ex.Message
+                });
             // Surfaces the per-field failure messages (not just the generic exception message) —
             // api-standards.md §7's documented ValidationProblemDetails(ex.Failures) shape.
             options.Map<ChhValidationException>(ex =>

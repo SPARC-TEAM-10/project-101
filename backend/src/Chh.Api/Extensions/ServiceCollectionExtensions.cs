@@ -53,6 +53,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IFacilityRepository, FacilityRepository>();
         services.AddScoped<IFacilityService, FacilityService>();
         services.AddScoped<IFacilityAdminService, FacilityAdminService>();
+        services.AddScoped<IUserAdminService, UserAdminService>();
         services.Configure<Chh.Infrastructure.Storage.FacilityDocumentStorageOptions>(
             configuration.GetSection(Chh.Infrastructure.Storage.FacilityDocumentStorageOptions.SectionName));
         services.AddScoped<IFacilityDocumentStorageService, Chh.Infrastructure.Storage.LocalDiskFacilityDocumentStorageService>();

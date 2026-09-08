@@ -2,6 +2,7 @@ import { useState } from "react";
 
 import { AdminShell } from "../../components/admin/AdminShell";
 import { CalendarIcon, ChevronLeftIcon, ChevronRightIcon, CloudOffIcon, FileIcon, FileWarnIcon, InboxIcon, RetryIcon } from "../../components/admin/icons";
+import { ReviewFacilityModal } from "../../components/admin/ReviewFacilityModal";
 import { useAuth } from "../../context/AuthProvider";
 import { DEFAULT_PAGE_SIZE, usePendingFacilities } from "../../features/admin/usePendingFacilities";
 import type { FacilityDto } from "../../api/adminApi";
@@ -35,8 +36,7 @@ function LicenceBadge({ licenseDocumentUrl }: { licenseDocumentUrl: string | nul
   );
 }
 
-function DesktopRow({ facility }: { facility: FacilityDto }) {
-  const missingDoc = !facility.licenseDocumentUrl;
+function DesktopRow({ facility, onReview }: { facility: FacilityDto; onReview: (facility: FacilityDto) => void }) {
   return (
     <tr className="border-b border-line last:border-0">
       <td className="h-[66px] px-4.5">
@@ -62,11 +62,8 @@ function DesktopRow({ facility }: { facility: FacilityDto }) {
       <td className="h-[66px] px-4.5 text-right">
         <button
           type="button"
-          disabled
-          title="Facility review ships in a later story (CHH-74/75)"
-          className={`h-9 cursor-not-allowed rounded-[10px] px-4 text-[13px] font-bold text-white opacity-60 ${
-            missingDoc ? "bg-sand-2 text-ink-off" : "bg-clay"
-          }`}
+          onClick={() => onReview(facility)}
+          className="h-9 rounded-[10px] bg-clay px-4 text-[13px] font-bold text-white transition-colors hover:bg-clay-hover"
         >
           Review
         </button>
@@ -75,7 +72,7 @@ function DesktopRow({ facility }: { facility: FacilityDto }) {
   );
 }
 
-function MobileCard({ facility }: { facility: FacilityDto }) {
+function MobileCard({ facility, onReview }: { facility: FacilityDto; onReview: (facility: FacilityDto) => void }) {
   return (
     <div className="flex flex-col gap-2.5 rounded-md border border-line bg-cream p-3.5 shadow-sm">
       <div className="flex items-start gap-2.5">
@@ -99,9 +96,8 @@ function MobileCard({ facility }: { facility: FacilityDto }) {
       </div>
       <button
         type="button"
-        disabled
-        title="Facility review ships in a later story (CHH-74/75)"
-        className="h-12 w-full cursor-not-allowed rounded-md bg-sand-2 text-[15px] font-bold text-ink-off opacity-70"
+        onClick={() => onReview(facility)}
+        className="h-12 w-full rounded-md bg-clay text-[15px] font-bold text-white transition-colors hover:bg-clay-hover"
       >
         Review registration
       </button>
@@ -114,6 +110,7 @@ function MobileCard({ facility }: { facility: FacilityDto }) {
 export function PendingVerificationsPage() {
   const { session } = useAuth();
   const [page, setPage] = useState(1);
+  const [reviewingFacility, setReviewingFacility] = useState<FacilityDto | null>(null);
   const { status, items, totalPages, totalCount, refetch } = usePendingFacilities(session?.token, page);
 
   return (
@@ -214,7 +211,7 @@ export function PendingVerificationsPage() {
                 </thead>
                 <tbody>
                   {items.map((facility) => (
-                    <DesktopRow key={facility.id} facility={facility} />
+                    <DesktopRow key={facility.id} facility={facility} onReview={setReviewingFacility} />
                   ))}
                 </tbody>
               </table>
@@ -228,7 +225,7 @@ export function PendingVerificationsPage() {
                   </span>
                 </div>
                 {items.map((facility) => (
-                  <MobileCard key={facility.id} facility={facility} />
+                  <MobileCard key={facility.id} facility={facility} onReview={setReviewingFacility} />
                 ))}
               </div>
             </>
@@ -271,6 +268,18 @@ export function PendingVerificationsPage() {
           with the reason you give.
         </p>
       </div>
+
+      {reviewingFacility && (
+        <ReviewFacilityModal
+          accessToken={session?.token}
+          facility={reviewingFacility}
+          onClose={() => setReviewingFacility(null)}
+          onReviewed={() => {
+            setReviewingFacility(null);
+            refetch();
+          }}
+        />
+      )}
     </AdminShell>
   );
 }

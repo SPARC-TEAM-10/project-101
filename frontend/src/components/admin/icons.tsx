@@ -105,3 +105,37 @@ export function ChevronRightIcon({ className }: IconProps) {
     </svg>
   );
 }
+
+export function CheckIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" width={14} height={14} className={className} {...BASE} strokeWidth={2.4} aria-hidden="true">
+      <path d="M5 12.5l4.5 4.5L19 7.5" />
+    </svg>
+  );
+}
+
+export function XIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" width={14} height={14} className={className} {...BASE} strokeWidth={2.2} aria-hidden="true">
+      <path d="M6 6l12 12M18 6 6 18" />
+    </svg>
+  );
+}
+
+export function SearchIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" width={16} height={16} className={className} {...BASE} strokeWidth={2} aria-hidden="true">
+      <circle cx="10.5" cy="10.5" r="6.5" />
+      <path d="m20 20-4.3-4.3" />
+    </svg>
+  );
+}
+
+export function BanIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" width={14} height={14} className={className} {...BASE} strokeWidth={2.2} aria-hidden="true">
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="m6.5 6.5 11 11" />
+    </svg>
+  );
+}

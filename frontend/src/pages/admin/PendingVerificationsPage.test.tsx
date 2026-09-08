@@ -8,6 +8,7 @@ import { server } from "../../../tests/setup";
 import {
   pendingFacilitiesEmptyHandler,
   pendingFacilitiesErrorHandler,
+  reviewFacilityErrorHandler,
 } from "../../../tests/msw/handlers";
 
 const mockUseAuth = vi.fn();
@@ -71,11 +72,61 @@ describe("PendingVerificationsPage", () => {
     await waitFor(() => expect(screen.getAllByText("Missing").length).toBeGreaterThan(0));
   });
 
-  it("disables the Users nav item and Verified/Rejected tabs", async () => {
+  it("links to the Users page and disables the Verified/Rejected tabs", async () => {
     renderPage();
 
     await waitFor(() => expect(screen.getAllByText("Sreedhara Multispeciality").length).toBeGreaterThan(0));
-    expect(screen.getAllByTitle(/ships in a later story/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole("link", { name: /users/i }).length).toBeGreaterThan(0);
+    expect(screen.getAllByTitle("Coming in a later story").length).toBeGreaterThan(0);
+  });
+
+  it("opens the review modal, shows the missing-document warning, and disables Approve", async () => {
+    renderPage();
+    await waitFor(() => expect(screen.getAllByText("Sreedhara Multispeciality").length).toBeGreaterThan(0));
+
+    fireEvent.click(screen.getAllByRole("button", { name: /^review/i })[0]);
+
+    await waitFor(() => expect(screen.getByText("Document missing")).toBeInTheDocument());
+    expect(screen.getByRole("button", { name: /approve/i })).toBeDisabled();
+  });
+
+  it("approves a facility with a document and closes the review modal", async () => {
+    renderPage();
+    await waitFor(() => expect(screen.getAllByText("Vayali Jeevan Trust").length).toBeGreaterThan(0));
+
+    const rows = screen.getAllByRole("button", { name: /^review/i });
+    fireEvent.click(rows[rows.length - 1]);
+
+    const approveButton = await screen.findByRole("button", { name: /approve/i });
+    expect(approveButton).not.toBeDisabled();
+    fireEvent.click(approveButton);
+
+    await waitFor(() => expect(screen.queryByRole("button", { name: /approve/i })).not.toBeInTheDocument());
+  });
+
+  it("requires a rejection reason before confirming a reject", async () => {
+    renderPage();
+    await waitFor(() => expect(screen.getAllByText("Sreedhara Multispeciality").length).toBeGreaterThan(0));
+
+    fireEvent.click(screen.getAllByRole("button", { name: /^review/i })[0]);
+    fireEvent.click(await screen.findByRole("button", { name: /^reject$/i }));
+
+    const confirmButton = screen.getByRole("button", { name: /confirm rejection/i });
+    expect(confirmButton).toBeDisabled();
+
+    fireEvent.change(screen.getByLabelText(/reason for rejection/i), { target: { value: "Licence expired" } });
+    expect(confirmButton).not.toBeDisabled();
+  });
+
+  it("shows an inline error when the review request fails", async () => {
+    server.use(reviewFacilityErrorHandler);
+    renderPage();
+    await waitFor(() => expect(screen.getAllByText("Sreedhara Multispeciality").length).toBeGreaterThan(0));
+
+    fireEvent.click(screen.getAllByRole("button", { name: /^review/i })[1]);
+    fireEvent.click(await screen.findByRole("button", { name: /approve/i }));
+
+    await waitFor(() => expect(screen.getByText(/couldn't submit the review/i)).toBeInTheDocument());
   });
 
   it("re-fetches when Try again is clicked after an error", async () => {
