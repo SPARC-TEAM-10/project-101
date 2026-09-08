@@ -2,12 +2,16 @@ import { useNavigate } from "react-router-dom";
 
 import { DateField } from "../../components/DateField";
 import { LoadingOverlay } from "../../components/LoadingOverlay";
+import { SelectField } from "../../components/SelectField";
 import { useAuth } from "../../context/AuthProvider";
 import { useToast } from "../../context/ToastProvider";
 import { getMobileNumberFromToken } from "../../lib/authToken";
 import { useIndividualRegistration } from "../../features/individual/useIndividualRegistration";
 import { BLOOD_GROUPS, type BloodGroup } from "../../lib/validation/bloodRequestSchemas";
 import { GENDERS, MAX_OTHER_ILLNESS_LENGTH, type Gender } from "../../lib/validation/individualSchemas";
+
+const BLOOD_GROUP_OPTIONS = BLOOD_GROUPS.map((group) => ({ value: group, label: group }));
+const GENDER_OPTIONS = GENDERS.map((gender) => ({ value: gender, label: gender }));
 
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
@@ -185,25 +189,16 @@ export function RegisterStubPage() {
               <label htmlFor="blood-group" className="text-sm font-semibold text-ink-2">
                 Blood group <i className="not-italic text-error">*</i>
               </label>
-              <select
+              <SelectField
                 id="blood-group"
                 value={values.bloodGroup ?? ""}
-                onChange={(e) => setBloodGroup(e.target.value as BloodGroup)}
-                aria-invalid={touched && !!fieldErrors.bloodGroup}
-                className={`h-[50px] rounded-sm border-[1.5px] bg-cream px-4 text-base outline-none transition-colors focus:border-clay ${
-                  touched && fieldErrors.bloodGroup ? "border-error" : "border-line-strong"
-                }`}
-              >
-                <option value="" disabled>
-                  Select blood group
-                </option>
-                {BLOOD_GROUPS.map((group) => (
-                  <option key={group} value={group}>
-                    {group}
-                  </option>
-                ))}
-              </select>
-              {touched && <FieldError message={fieldErrors.bloodGroup?.[0]} />}
+                onChange={(v) => setBloodGroup(v as BloodGroup)}
+                options={BLOOD_GROUP_OPTIONS}
+                placeholder="Select blood group"
+                invalid={touched && !!fieldErrors.bloodGroup}
+                describedBy="blood-group-hint"
+              />
+              <span id="blood-group-hint">{touched && <FieldError message={fieldErrors.bloodGroup?.[0]} />}</span>
             </div>
 
             <div className="flex flex-col gap-1.5">
@@ -225,25 +220,16 @@ export function RegisterStubPage() {
               <label htmlFor="gender" className="text-sm font-semibold text-ink-2">
                 Gender <i className="not-italic text-error">*</i>
               </label>
-              <select
+              <SelectField
                 id="gender"
                 value={values.gender ?? ""}
-                onChange={(e) => setGender(e.target.value as Gender)}
-                aria-invalid={touched && !!fieldErrors.gender}
-                className={`h-[50px] rounded-sm border-[1.5px] bg-cream px-4 text-base outline-none transition-colors focus:border-clay ${
-                  touched && fieldErrors.gender ? "border-error" : "border-line-strong"
-                }`}
-              >
-                <option value="" disabled>
-                  Select gender
-                </option>
-                {GENDERS.map((gender) => (
-                  <option key={gender} value={gender}>
-                    {gender}
-                  </option>
-                ))}
-              </select>
-              {touched && <FieldError message={fieldErrors.gender?.[0]} />}
+                onChange={(v) => setGender(v as Gender)}
+                options={GENDER_OPTIONS}
+                placeholder="Select gender"
+                invalid={touched && !!fieldErrors.gender}
+                describedBy="gender-hint"
+              />
+              <span id="gender-hint">{touched && <FieldError message={fieldErrors.gender?.[0]} />}</span>
             </div>
 
             <div className="flex flex-col gap-1.5">
