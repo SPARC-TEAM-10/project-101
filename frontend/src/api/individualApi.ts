@@ -25,6 +25,22 @@ export interface IndividualProfileDto {
   isReceiverOnly: boolean;
   locationCityArea: string;
   createdAtUtc: string;
+  isChronicIllness: boolean;
+  hasRecentSurgery: boolean;
+  isInfectiousDisease: boolean;
+  isUnderweight: boolean;
+  isOtherIllness: boolean;
+  otherIllnessDetails?: string;
+}
+
+export interface UpdateIndividualProfileRequest {
+  locationCityArea: string;
+  isChronicIllness: boolean;
+  hasRecentSurgery: boolean;
+  isInfectiousDisease: boolean;
+  isUnderweight: boolean;
+  isOtherIllness: boolean;
+  otherIllnessDetails?: string;
 }
 
 // CHH-F02 (contracts/chh-api.v1.yaml `POST /individuals`) — `security: []`: mobileNumber only
@@ -43,5 +59,17 @@ export function registerIndividual(request: CreateIndividualProfileRequest): Pro
 export function getMyProfile(accessToken: string): Promise<IndividualProfileDto> {
   return apiFetch<IndividualProfileDto>("/individuals/me", {
     headers: { Authorization: `Bearer ${accessToken}` },
+  });
+}
+
+// [Authorize]-protected (CHH-F02 profile edit). 404 if the caller hasn't completed registration.
+export function updateMyProfile(
+  accessToken: string,
+  request: UpdateIndividualProfileRequest,
+): Promise<IndividualProfileDto> {
+  return apiFetch<IndividualProfileDto>("/individuals/me", {
+    method: "PATCH",
+    headers: { Authorization: `Bearer ${accessToken}` },
+    body: JSON.stringify(request),
   });
 }
