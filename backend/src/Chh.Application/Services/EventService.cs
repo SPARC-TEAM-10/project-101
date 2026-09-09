@@ -2,15 +2,18 @@ using Chh.Application.Abstractions;
 using Chh.Application.Contracts;
 using Chh.Application.Dtos;
 using Chh.Application.Factories;
+using Chh.Application.Jobs;
 using Chh.Domain.Constants;
+using Chh.Domain.Entities;
 using Chh.Domain.Enums;
 using Chh.Domain.Utilities;
+using Hangfire;
 
 namespace Chh.Application.Services;
 
 /// <summary>
-/// Orchestrates event creation (CHH-38/US-CHH-005-01: verified-facility guard, persistence) and
-/// proximity discovery (CHH-39/US-CHH-005-02).
+/// Orchestrates event creation (CHH-38/US-CHH-005-01: verified-facility guard, persistence),
+/// proximity discovery (CHH-39/US-CHH-005-02), and edit/cancellation (CHH-41/US-CHH-005-04).
 /// </summary>
 public class EventService : IEventService
 {
@@ -19,25 +22,29 @@ public class EventService : IEventService
     private readonly IEventRsvpRepository _eventRsvpRepository;
     private readonly IIndividualProfileRepository _individualProfileRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IBackgroundJobClient _backgroundJobClient;
 
-    /// <summary>Creates the service with its repository and unit-of-work dependencies.</summary>
+    /// <summary>Creates the service with its repository, unit-of-work, and background-job dependencies.</summary>
     /// <param name="facilityRepository">Resolves the caller's own facility and its verification status (reuses CHH-10/CHH-28's lookup).</param>
     /// <param name="eventRepository">Data layer for persisting events and the atomic RSVP-count reserve/release (CHH-40).</param>
     /// <param name="eventRsvpRepository">Data layer for persisting individual RSVP rows (CHH-40).</param>
     /// <param name="individualProfileRepository">Resolves the caller's own <c>IndividualProfile.Id</c> from their mobile number (CHH-40).</param>
     /// <param name="unitOfWork">Persists changes made during the request.</param>
+    /// <param name="backgroundJobClient">Enqueues <see cref="NotifyEventChangeJob"/> after a notify-worthy edit or cancellation (CHH-41).</param>
     public EventService(
         IFacilityRepository facilityRepository,
         IEventRepository eventRepository,
         IEventRsvpRepository eventRsvpRepository,
         IIndividualProfileRepository individualProfileRepository,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        IBackgroundJobClient backgroundJobClient)
     {
         _facilityRepository = facilityRepository;
         _eventRepository = eventRepository;
         _eventRsvpRepository = eventRsvpRepository;
         _individualProfileRepository = individualProfileRepository;
         _unitOfWork = unitOfWork;
+        _backgroundJobClient = backgroundJobClient;
     }
 
     /// <inheritdoc />
@@ -58,27 +65,7 @@ public class EventService : IEventService
         await _eventRepository.AddAsync(calendarEvent, ct).ConfigureAwait(false);
         await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
 
-        return new EventDto
-        {
-            Id = calendarEvent.Id,
-            FacilityId = calendarEvent.FacilityId,
-            Title = calendarEvent.Title,
-            EventType = calendarEvent.EventType,
-            Description = calendarEvent.Description,
-            VenueName = calendarEvent.VenueName,
-            VenueAddress = calendarEvent.VenueAddress,
-            Latitude = calendarEvent.Latitude,
-            Longitude = calendarEvent.Longitude,
-            StartAtUtc = calendarEvent.StartAtUtc,
-            EndAtUtc = calendarEvent.EndAtUtc,
-            Capacity = calendarEvent.Capacity,
-            CoordinatorName = calendarEvent.CoordinatorName,
-            CoordinatorContact = calendarEvent.CoordinatorContact,
-            RsvpCutoffAtUtc = calendarEvent.RsvpCutoffAtUtc,
-            Status = calendarEvent.Status,
-            CreatedAtUtc = calendarEvent.CreatedAtUtc,
-            UpdatedAtUtc = calendarEvent.UpdatedAtUtc
-        };
+        return ToDto(calendarEvent);
     }
 
     /// <inheritdoc />
@@ -175,6 +162,7 @@ public class EventService : IEventService
             CoordinatorContact = calendarEvent.CoordinatorContact,
             RsvpCutoffAtUtc = calendarEvent.RsvpCutoffAtUtc,
             Status = calendarEvent.Status,
+            CancellationReason = calendarEvent.CancellationReason,
             DistanceKm = latitude is not null && longitude is not null
                 ? HaversineDistanceCalculator.CalculateDistanceKm(latitude.Value, longitude.Value, calendarEvent.Latitude, calendarEvent.Longitude)
                 : null,
@@ -282,4 +270,150 @@ public class EventService : IEventService
         var count = await _eventRsvpRepository.CountForEventAsync(eventId, ct).ConfigureAwait(false);
         return $"A{count + 1}";
     }
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<EventDto>> GetMineAsync(string callerMobileNumber, CancellationToken ct)
+    {
+        var facility = await _facilityRepository.GetByContactMobileNumberAsync(callerMobileNumber, ct).ConfigureAwait(false);
+        if (facility is null)
+        {
+            return Array.Empty<EventDto>();
+        }
+
+        var events = await _eventRepository.GetByFacilityAsync(facility.Id, ct).ConfigureAwait(false);
+        return events.Select(ToDto).ToList();
+    }
+
+    /// <inheritdoc />
+    public async Task<EventDto?> UpdateAsync(string callerMobileNumber, Guid eventId, UpdateEventRequest request, CancellationToken ct)
+    {
+        var calendarEvent = await _eventRepository.GetTrackedByIdAsync(eventId, ct).ConfigureAwait(false);
+        if (calendarEvent is null)
+        {
+            return null;
+        }
+
+        await EnsureCallerOwnsEventAsync(callerMobileNumber, calendarEvent, ct).ConfigureAwait(false);
+        EnsureEditable(calendarEvent);
+
+        var newStartAtUtc = request.StartAtUtc ?? calendarEvent.StartAtUtc;
+        var newEndAtUtc = request.EndAtUtc ?? calendarEvent.EndAtUtc;
+        if (newEndAtUtc <= newStartAtUtc)
+        {
+            throw new ChhValidationException(EventConstants.EndMustBeAfterStartMessage, new Dictionary<string, string[]>
+            {
+                ["endAtUtc"] = new[] { EventConstants.EndMustBeAfterStartMessage }
+            });
+        }
+
+        var newCapacity = request.Capacity ?? calendarEvent.Capacity;
+        if (newCapacity < calendarEvent.RsvpCount)
+        {
+            throw new CapacityBelowRsvpCountException();
+        }
+
+        // Only these fields are attendee-facing per EventEditWeb.dc.html's literal rule ("Venue,
+        // date, time and cancellation changes send a notification. Typo fixes to the description
+        // do not.") — title/description/coordinator/capacity/RSVP-cutoff changes don't notify.
+        var notifyWorthy =
+            (request.VenueName is not null && request.VenueName != calendarEvent.VenueName) ||
+            (request.VenueAddress is not null && request.VenueAddress != calendarEvent.VenueAddress) ||
+            (request.Latitude is not null && request.Latitude != calendarEvent.Latitude) ||
+            (request.Longitude is not null && request.Longitude != calendarEvent.Longitude) ||
+            (request.StartAtUtc is not null && request.StartAtUtc != calendarEvent.StartAtUtc) ||
+            (request.EndAtUtc is not null && request.EndAtUtc != calendarEvent.EndAtUtc);
+
+        if (request.Title is not null) calendarEvent.Title = request.Title.Trim();
+        if (request.EventType is not null) calendarEvent.EventType = request.EventType.Value;
+        if (request.Description is not null) calendarEvent.Description = request.Description.Trim();
+        if (request.VenueName is not null) calendarEvent.VenueName = request.VenueName.Trim();
+        if (request.VenueAddress is not null) calendarEvent.VenueAddress = request.VenueAddress.Trim();
+        if (request.Latitude is not null) calendarEvent.Latitude = request.Latitude.Value;
+        if (request.Longitude is not null) calendarEvent.Longitude = request.Longitude.Value;
+        calendarEvent.StartAtUtc = newStartAtUtc;
+        calendarEvent.EndAtUtc = newEndAtUtc;
+        calendarEvent.Capacity = newCapacity;
+        if (request.CoordinatorName is not null) calendarEvent.CoordinatorName = request.CoordinatorName.Trim();
+        if (request.CoordinatorContact is not null) calendarEvent.CoordinatorContact = request.CoordinatorContact.Trim();
+        if (request.RsvpCutoffAtUtc is not null) calendarEvent.RsvpCutoffAtUtc = request.RsvpCutoffAtUtc;
+        calendarEvent.UpdatedAtUtc = DateTimeOffset.UtcNow;
+
+        await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
+
+        if (notifyWorthy)
+        {
+            // Fire-and-forget: notification fan-out must not delay this response (api-standards.md §6 NFR).
+            _backgroundJobClient.Enqueue<NotifyEventChangeJob>(job => job.RunUpdatedAsync(calendarEvent.Id, CancellationToken.None));
+        }
+
+        return ToDto(calendarEvent);
+    }
+
+    /// <inheritdoc />
+    public async Task<EventDto?> CancelAsync(string callerMobileNumber, Guid eventId, CancelEventRequest request, CancellationToken ct)
+    {
+        var calendarEvent = await _eventRepository.GetTrackedByIdAsync(eventId, ct).ConfigureAwait(false);
+        if (calendarEvent is null)
+        {
+            return null;
+        }
+
+        await EnsureCallerOwnsEventAsync(callerMobileNumber, calendarEvent, ct).ConfigureAwait(false);
+        EnsureEditable(calendarEvent);
+
+        calendarEvent.Status = EventStatus.Cancelled;
+        calendarEvent.CancellationReason = request.Reason.Trim();
+        calendarEvent.UpdatedAtUtc = DateTimeOffset.UtcNow;
+
+        await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
+
+        _backgroundJobClient.Enqueue<NotifyEventChangeJob>(job => job.RunCancelledAsync(calendarEvent.Id, CancellationToken.None));
+
+        return ToDto(calendarEvent);
+    }
+
+    private async Task EnsureCallerOwnsEventAsync(string callerMobileNumber, Event calendarEvent, CancellationToken ct)
+    {
+        var facility = await _facilityRepository.GetByContactMobileNumberAsync(callerMobileNumber, ct).ConfigureAwait(false);
+        if (facility is null || facility.Id != calendarEvent.FacilityId)
+        {
+            throw new EventNotOwnedByCallerException();
+        }
+    }
+
+    private static void EnsureEditable(Event calendarEvent)
+    {
+        if (calendarEvent.Status == EventStatus.Cancelled)
+        {
+            throw new EventAlreadyCancelledException();
+        }
+
+        if (calendarEvent.StartAtUtc <= DateTimeOffset.UtcNow)
+        {
+            throw new EventAlreadyStartedException();
+        }
+    }
+
+    private static EventDto ToDto(Event calendarEvent) => new()
+    {
+        Id = calendarEvent.Id,
+        FacilityId = calendarEvent.FacilityId,
+        Title = calendarEvent.Title,
+        EventType = calendarEvent.EventType,
+        Description = calendarEvent.Description,
+        VenueName = calendarEvent.VenueName,
+        VenueAddress = calendarEvent.VenueAddress,
+        Latitude = calendarEvent.Latitude,
+        Longitude = calendarEvent.Longitude,
+        StartAtUtc = calendarEvent.StartAtUtc,
+        EndAtUtc = calendarEvent.EndAtUtc,
+        Capacity = calendarEvent.Capacity,
+        CoordinatorName = calendarEvent.CoordinatorName,
+        CoordinatorContact = calendarEvent.CoordinatorContact,
+        RsvpCutoffAtUtc = calendarEvent.RsvpCutoffAtUtc,
+        Status = calendarEvent.Status,
+        CreatedAtUtc = calendarEvent.CreatedAtUtc,
+        UpdatedAtUtc = calendarEvent.UpdatedAtUtc,
+        CancellationReason = calendarEvent.CancellationReason
+    };
 }

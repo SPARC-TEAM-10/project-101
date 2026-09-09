@@ -68,6 +68,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IEventRepository, EventRepository>();
         services.AddScoped<IEventRsvpRepository, EventRsvpRepository>();
         services.AddScoped<IEventService, EventService>();
+        services.AddScoped<IEventNotificationDispatchService, EventNotificationDispatchService>();
+        services.AddScoped<NotifyEventChangeJob>();
 
         services.AddFast2Sms(configuration);
         services.AddJwt(configuration);

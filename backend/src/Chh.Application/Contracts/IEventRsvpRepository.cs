@@ -38,4 +38,13 @@ public interface IEventRsvpRepository
     /// <param name="eventId">The event to count RSVPs for.</param>
     /// <param name="ct">Cancellation token.</param>
     Task<int> CountForEventAsync(Guid eventId, CancellationToken ct);
+
+    /// <summary>
+    /// Returns the mobile numbers of every individual with an active (<c>Going</c>) RSVP for the
+    /// event — CHH-41's SMS notification fan-out on a notify-worthy edit or cancellation.
+    /// Read-only — implementations must use <c>AsNoTracking()</c> (api-standards.md §6).
+    /// </summary>
+    /// <param name="eventId">The event whose attendees should be notified.</param>
+    /// <param name="ct">Cancellation token.</param>
+    Task<IReadOnlyList<string>> GetGoingMobileNumbersAsync(Guid eventId, CancellationToken ct);
 }

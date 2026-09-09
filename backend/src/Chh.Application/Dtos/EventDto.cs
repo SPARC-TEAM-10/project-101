@@ -23,4 +23,5 @@ public record EventDto
     public required EventStatus Status { get; init; }
     public required DateTimeOffset CreatedAtUtc { get; init; }
     public required DateTimeOffset UpdatedAtUtc { get; init; }
+    public string? CancellationReason { get; init; }
 }

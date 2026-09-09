@@ -61,4 +61,40 @@ public interface IEventService
     /// <param name="eventId">The event to cancel the RSVP for.</param>
     /// <param name="ct">Cancellation token.</param>
     Task<RsvpResponseDto?> CancelRsvpAsync(string mobileNumber, Guid eventId, CancellationToken ct);
+
+    /// <summary>
+    /// Returns every event (any status) belonging to the caller's own facility, most recent start
+    /// time first — the "my events" list backing CHH-41's manage-event entry point.
+    /// </summary>
+    /// <param name="callerMobileNumber">The authenticated caller's mobile number (from the JWT "sub" claim).</param>
+    /// <param name="ct">Cancellation token.</param>
+    Task<IReadOnlyList<EventDto>> GetMineAsync(string callerMobileNumber, CancellationToken ct);
+
+    /// <summary>
+    /// Partially updates the event, or <c>null</c> if no event exists with that id
+    /// (CHH-41/US-CHH-005-04 AC3). A venue or start/end time change enqueues an attendee
+    /// notification (AC3) — a description/title/coordinator/capacity-only change does not.
+    /// </summary>
+    /// <param name="callerMobileNumber">The authenticated caller's mobile number (from the JWT "sub" claim).</param>
+    /// <param name="eventId">The event to update.</param>
+    /// <param name="request">The partial update — unset properties leave the current value unchanged.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <exception cref="Chh.Application.Abstractions.EventNotOwnedByCallerException">The caller's facility doesn't own this event.</exception>
+    /// <exception cref="Chh.Application.Abstractions.EventAlreadyCancelledException">The event is already cancelled.</exception>
+    /// <exception cref="Chh.Application.Abstractions.EventAlreadyStartedException">The event's start time has already passed.</exception>
+    /// <exception cref="Chh.Application.Abstractions.CapacityBelowRsvpCountException">The requested capacity is below the current RSVP count.</exception>
+    Task<EventDto?> UpdateAsync(string callerMobileNumber, Guid eventId, UpdateEventRequest request, CancellationToken ct);
+
+    /// <summary>
+    /// Cancels the event and enqueues an attendee notification (AC1/AC2), or <c>null</c> if no
+    /// event exists with that id.
+    /// </summary>
+    /// <param name="callerMobileNumber">The authenticated caller's mobile number (from the JWT "sub" claim).</param>
+    /// <param name="eventId">The event to cancel.</param>
+    /// <param name="request">The mandatory cancellation reason, shown verbatim to attendees.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <exception cref="Chh.Application.Abstractions.EventNotOwnedByCallerException">The caller's facility doesn't own this event.</exception>
+    /// <exception cref="Chh.Application.Abstractions.EventAlreadyCancelledException">The event is already cancelled.</exception>
+    /// <exception cref="Chh.Application.Abstractions.EventAlreadyStartedException">The event's start time has already passed.</exception>
+    Task<EventDto?> CancelAsync(string callerMobileNumber, Guid eventId, CancelEventRequest request, CancellationToken ct);
 }
