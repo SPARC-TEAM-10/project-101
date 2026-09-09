@@ -46,4 +46,13 @@ public record IndividualProfileDto
 
     /// <summary>Free-text detail when <see cref="IsOtherIllness"/> is true.</summary>
     public string? OtherIllnessDetails { get; init; }
+
+    /// <summary>
+    /// Registered latitude for proximity donor matching (US-CHH-004-02/CHH-80, CHH-84); null if
+    /// the caller has never shared their location. Lets the profile-edit UI show sharing status.
+    /// </summary>
+    public decimal? Latitude { get; init; }
+
+    /// <summary>Registered longitude — see <see cref="Latitude"/>.</summary>
+    public decimal? Longitude { get; init; }
 }

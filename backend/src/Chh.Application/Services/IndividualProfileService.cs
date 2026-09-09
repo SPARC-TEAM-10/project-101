@@ -90,6 +90,8 @@ public class IndividualProfileService : IIndividualProfileService
         IsInfectiousDisease = profile.IsInfectiousDisease,
         IsUnderweight = profile.IsUnderweight,
         IsOtherIllness = profile.IsOtherIllness,
-        OtherIllnessDetails = profile.OtherIllnessDetails
+        OtherIllnessDetails = profile.OtherIllnessDetails,
+        Latitude = profile.Latitude,
+        Longitude = profile.Longitude
     };
 }
