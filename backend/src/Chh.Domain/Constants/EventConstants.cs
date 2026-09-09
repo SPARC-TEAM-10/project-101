@@ -1,0 +1,27 @@
+namespace Chh.Domain.Constants;
+
+/// <summary>Validation bounds and shared messages for event creation (CHH-38/US-CHH-005-01, spec §6.2).</summary>
+public static class EventConstants
+{
+    public const int MinTitleLength = 5;
+    public const int MaxTitleLength = 100;
+    public const int MinDescriptionLength = 20;
+    public const int MaxDescriptionLength = 1000;
+    public const int MinVenueNameLength = 3;
+    public const int MaxVenueNameLength = 100;
+    public const int MinVenueAddressLength = 10;
+    public const int MaxVenueAddressLength = 250;
+    public const int MinCapacity = 1;
+    public const int MaxCapacity = 1000;
+    public const int MinCoordinatorNameLength = 2;
+    public const int MaxCoordinatorNameLength = 50;
+
+    /// <summary>Minimum lead time between now and the event's start (spec §6.2's "Start Date/Time" rule).</summary>
+    public static readonly TimeSpan MinLeadTime = TimeSpan.FromHours(1);
+
+    public const string StartMustBeFutureMessage = "Event must start in the future.";
+    public const string EndMustBeAfterStartMessage = "End time must be after start time.";
+    public const string CapacityRangeMessage = "Capacity must be between 1 and 1,000.";
+    public const string RsvpCutoffMustPrecedeStartMessage = "RSVP cut-off must be before the event start time.";
+    public const string FacilityNotVerifiedMessage = "Only a verified facility can create events.";
+}

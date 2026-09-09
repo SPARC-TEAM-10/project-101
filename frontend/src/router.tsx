@@ -9,6 +9,7 @@ import { GuestPlaceholderPage } from "./pages/GuestPlaceholderPage";
 import { BloodRequestFormModal } from "./pages/bloodRequest/BloodRequestFormModal";
 import { RequesterMatchDashboardPage } from "./pages/bloodRequest/RequesterMatchDashboardPage";
 import { FacilityRegistrationPage } from "./pages/facility/FacilityRegistrationPage";
+import { CreateEventPage } from "./pages/events/CreateEventPage";
 import { IndividualDashboardPage } from "./pages/dashboard/IndividualDashboardPage";
 import { GuestDashboardStubPage } from "./pages/dashboard/GuestDashboardStubPage";
 import { PendingVerificationsPage } from "./pages/admin/PendingVerificationsPage";
@@ -126,6 +127,16 @@ export const router = createBrowserRouter([
     element: (
       <RequireAuth>
         <RequesterMatchDashboardPage />
+      </RequireAuth>
+    ),
+  },
+  {
+    // Facility-verification gate is enforced server-side (403 if not Verified) — this route only
+    // checks the role, matching the pattern established for /dashboard/facility (CHH-28).
+    path: "/events/new",
+    element: (
+      <RequireAuth roles={["Hospital", "Ngo"]}>
+        <CreateEventPage />
       </RequireAuth>
     ),
   },

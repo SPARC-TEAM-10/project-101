@@ -158,6 +158,45 @@ export const createFacilityNetworkErrorHandler = http.post(FACILITIES_URL, () =>
   return HttpResponse.error();
 });
 
+export const EVENTS_URL = "/api/v1/events";
+
+export const createEventSuccessHandler = http.post(EVENTS_URL, async ({ request }) => {
+  const body = (await request.json()) as Record<string, unknown>;
+  return HttpResponse.json(
+    {
+      id: "44444444-4444-4444-4444-444444444444",
+      facilityId: "22222222-2222-2222-2222-222222222222",
+      ...body,
+      status: "Published",
+      createdAtUtc: "2026-09-08T00:00:00.000Z",
+      updatedAtUtc: "2026-09-08T00:00:00.000Z",
+    },
+    { status: 201 },
+  );
+});
+
+export const createEventForbiddenHandler = http.post(EVENTS_URL, () => {
+  return HttpResponse.json(
+    {
+      title: "Forbidden",
+      status: 403,
+      detail: "Only a verified facility can create events.",
+    },
+    { status: 403 },
+  );
+});
+
+export const createEventValidationErrorHandler = http.post(EVENTS_URL, () => {
+  return HttpResponse.json(
+    {
+      title: "Validation failed",
+      status: 422,
+      detail: "Event must start in the future.",
+    },
+    { status: 422 },
+  );
+});
+
 // No MSW handler for POST /api/v1/facilities/:id/upload — @mswjs/interceptors hangs under jsdom
 // on any XHR request whose body is a FormData containing a Blob/File (see tests/fakeXhr.ts's doc
 // comment). facilityApi.uploadFacilityLicense is tested via that fake XHR instead.
@@ -266,6 +305,30 @@ export const getMyBloodRequestsSuccessHandler = http.get(BLOOD_REQUESTS_MINE_URL
 export const nominatimReverseGeocodeHandler = http.get(
   "https://nominatim.openstreetmap.org/reverse",
   () => HttpResponse.json({ address: { city: "Kochi", postcode: "682017" } }),
+);
+
+// Forward geocode (CHH-38's useVenueGeocoding) — default success so any test rendering
+// CreateEventPage doesn't need to mock this itself unless testing the notFound/error paths.
+export const nominatimForwardGeocodeHandler = http.get(
+  "https://nominatim.openstreetmap.org/search",
+  () => HttpResponse.json([{ lat: "9.996", lon: "76.299" }]),
+);
+
+export const nominatimForwardGeocodeNotFoundHandler = http.get(
+  "https://nominatim.openstreetmap.org/search",
+  () => HttpResponse.json([]),
+);
+
+// Leaflet's OSM tile requests (VenuePinMap/RadiusMap) — a 1x1 transparent PNG stands in for the
+// real tile so the map mounts cleanly under jsdom instead of erroring on an unhandled request.
+const TRANSPARENT_PNG_BASE64 =
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";
+export const osmTileHandler = http.get(
+  "https://:subdomain.tile.openstreetmap.org/:z/:x/:y.png",
+  () =>
+    new HttpResponse(Uint8Array.from(atob(TRANSPARENT_PNG_BASE64), (c) => c.charCodeAt(0)), {
+      headers: { "Content-Type": "image/png" },
+    }),
 );
 
 export const ADMIN_PENDING_FACILITIES_URL = "/api/v1/admin/facilities/pending";
@@ -578,6 +641,8 @@ export const handlers = [
   acceptNotificationSuccessHandler,
   declineNotificationSuccessHandler,
   nominatimReverseGeocodeHandler,
+  nominatimForwardGeocodeHandler,
+  osmTileHandler,
   pendingFacilitiesSuccessHandler,
   registerIndividualSuccessHandler,
   reviewFacilitySuccessHandler,

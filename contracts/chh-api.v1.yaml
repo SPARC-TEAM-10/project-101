@@ -25,6 +25,8 @@ tags:
       Facility (hospital/blood-bank, ambulance, or NGO) self-registration
       (CHH-F03/CHH-78), plus the public search/detail read surface for the
       CHH-F06 Emergency Services Hub (Epic CHH-68).
+  - name: Events
+    description: Community health events created by verified facilities (CHH-F05/CHH-38, Epic CHH-37)
   - name: Admin
     description: >
       System Admin moderation endpoints (CHH-F07 Admin Command Center, Epic
@@ -789,6 +791,60 @@ paths:
           description: Missing or invalid JWT.
         "403":
           description: Authenticated caller does not carry the SystemAdmin role.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+  /events:
+    post:
+      tags:
+        - Events
+      summary: Create a community health event
+      description: >
+        Creates a published event (CHH-38/US-CHH-005-01, part of Epic CHH-37 —
+        CHH-F05 Location-Aware Events) for the caller's own facility. Restricted
+        to the Hospital and Ngo roles, and further gated to only a `Verified`
+        facility (spec's Business Rule: "Events must be created by verified
+        facilities only") — an unverified caller gets `403`. Creates an
+        addressable resource, so a successful call returns `201 Created` with a
+        `Location` header (`.claude/rules/api-standards.md` §1/§2).
+      operationId: createEvent
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateEventRequest"
+      responses:
+        "201":
+          description: Event created and published.
+          headers:
+            Location:
+              schema:
+                type: string
+              description: URI of the created event.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventDto"
+        "422":
+          description: >
+            Request malformed (field-level validation) — see spec §6.2, e.g. a
+            title outside 5-100 characters, a start time not at least 1 hour in
+            the future, an end time before the start time, capacity outside
+            1-1,000, or an RSVP cut-off at or after the start time.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "401":
+          description: Missing or invalid JWT.
+        "403":
+          description: >
+            Authenticated caller does not carry the Hospital/Ngo role, or their
+            facility isn't yet Verified.
           content:
             application/problem+json:
               schema:
@@ -1792,3 +1848,131 @@ components:
           type: string
         instance:
           type: string
+    EventType:
+      type: string
+      description: The spec's fixed four community health event types.
+      enum: ["BloodDonationCamp", "HealthCamp", "AwarenessSession", "Other"]
+    CreateEventRequest:
+      type: object
+      required:
+        - title
+        - eventType
+        - description
+        - venueName
+        - venueAddress
+        - latitude
+        - longitude
+        - startAtUtc
+        - endAtUtc
+        - capacity
+        - coordinatorName
+        - coordinatorContact
+      properties:
+        title:
+          type: string
+          description: 5-100 characters after trimming.
+        eventType:
+          $ref: "#/components/schemas/EventType"
+        description:
+          type: string
+          description: 20-1,000 characters after trimming.
+        venueName:
+          type: string
+          description: 3-100 characters after trimming.
+        venueAddress:
+          type: string
+          description: 10-250 characters after trimming.
+        latitude:
+          type: number
+          description: Resolved from the venue address, or manually moved by the organizer.
+        longitude:
+          type: number
+        startAtUtc:
+          type: string
+          format: date-time
+          description: Must be at least 1 hour in the future.
+        endAtUtc:
+          type: string
+          format: date-time
+          description: Must be after startAtUtc.
+        capacity:
+          type: integer
+          description: 1-1,000.
+        coordinatorName:
+          type: string
+          description: 2-50 characters after trimming.
+        coordinatorContact:
+          type: string
+          description: 10 digits — shown to attendees on the event page.
+          pattern: "^[0-9]{10}$"
+        rsvpCutoffAtUtc:
+          type: string
+          format: date-time
+          nullable: true
+          description: Optional. When set, must be before startAtUtc.
+    EventDto:
+      type: object
+      required:
+        - id
+        - facilityId
+        - title
+        - eventType
+        - description
+        - venueName
+        - venueAddress
+        - latitude
+        - longitude
+        - startAtUtc
+        - endAtUtc
+        - capacity
+        - coordinatorName
+        - coordinatorContact
+        - status
+        - createdAtUtc
+        - updatedAtUtc
+      properties:
+        id:
+          type: string
+          format: uuid
+        facilityId:
+          type: string
+          format: uuid
+        title:
+          type: string
+        eventType:
+          $ref: "#/components/schemas/EventType"
+        description:
+          type: string
+        venueName:
+          type: string
+        venueAddress:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        startAtUtc:
+          type: string
+          format: date-time
+        endAtUtc:
+          type: string
+          format: date-time
+        capacity:
+          type: integer
+        coordinatorName:
+          type: string
+        coordinatorContact:
+          type: string
+        rsvpCutoffAtUtc:
+          type: string
+          format: date-time
+          nullable: true
+        status:
+          type: string
+          enum: ["Published", "Cancelled"]
+        createdAtUtc:
+          type: string
+          format: date-time
+        updatedAtUtc:
+          type: string
+          format: date-time
