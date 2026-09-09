@@ -25,6 +25,8 @@ tags:
       Facility (hospital/blood-bank, ambulance, or NGO) self-registration
       (CHH-F03/CHH-78), plus the public search/detail read surface for the
       CHH-F06 Emergency Services Hub (Epic CHH-68).
+  - name: Events
+    description: Community health events created by verified facilities (CHH-F05/CHH-38, Epic CHH-37)
   - name: Admin
     description: >
       System Admin moderation endpoints (CHH-F07 Admin Command Center, Epic
@@ -793,6 +795,351 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/ProblemDetails"
+  /events:
+    post:
+      tags:
+        - Events
+      summary: Create a community health event
+      description: >
+        Creates a published event (CHH-38/US-CHH-005-01, part of Epic CHH-37 —
+        CHH-F05 Location-Aware Events) for the caller's own facility. Restricted
+        to the Hospital and Ngo roles, and further gated to only a `Verified`
+        facility (spec's Business Rule: "Events must be created by verified
+        facilities only") — an unverified caller gets `403`. Creates an
+        addressable resource, so a successful call returns `201 Created` with a
+        `Location` header (`.claude/rules/api-standards.md` §1/§2).
+      operationId: createEvent
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateEventRequest"
+      responses:
+        "201":
+          description: Event created and published.
+          headers:
+            Location:
+              schema:
+                type: string
+              description: URI of the created event.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventDto"
+        "422":
+          description: >
+            Request malformed (field-level validation) — see spec §6.2, e.g. a
+            title outside 5-100 characters, a start time not at least 1 hour in
+            the future, an end time before the start time, capacity outside
+            1-1,000, or an RSVP cut-off at or after the start time.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "401":
+          description: Missing or invalid JWT.
+        "403":
+          description: >
+            Authenticated caller does not carry the Hospital/Ngo role, or their
+            facility isn't yet Verified.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+  /events/search:
+    get:
+      tags:
+        - Events
+      summary: Search for published events within a radius
+      description: >
+        Returns published, upcoming events within radiusKm of the given
+        coordinates, nearest-start-time first (CHH-39/US-CHH-005-02 AC1). Open
+        to any authenticated role. radiusKm is clamped to [5,100] server-side,
+        not rejected (AC3's literal "caps the radius at 100km"). An empty
+        result is a normal 200 with an empty array — the "No events found in
+        your area" message (AC2) is a frontend concern.
+      operationId: searchEvents
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: latitude
+          in: query
+          required: true
+          schema:
+            type: number
+        - name: longitude
+          in: query
+          required: true
+          schema:
+            type: number
+        - name: radiusKm
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: eventType
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/EventType"
+      responses:
+        "200":
+          description: Matching events, nearest start time first.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EventSummaryDto"
+        "401":
+          description: Missing or invalid JWT.
+  /events/{id}:
+    get:
+      tags:
+        - Events
+      summary: Get event detail
+      description: >
+        Returns the event detail view (CHH-40/US-CHH-005-03 detail page). Open
+        to any authenticated role. Includes the caller's own RSVP status when
+        they're an Individual who has RSVP'd — null otherwise. latitude/
+        longitude are optional; when both are supplied, distanceKm is
+        computed against them.
+      operationId: getEventById
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: latitude
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: longitude
+          in: query
+          required: false
+          schema:
+            type: number
+      responses:
+        "200":
+          description: The event detail.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventDetailDto"
+        "401":
+          description: Missing or invalid JWT.
+        "404":
+          description: No event exists with that id.
+    patch:
+      tags:
+        - Events
+      summary: Partially update an event
+      description: >
+        Partially updates the event (CHH-41/US-CHH-005-04 AC3) — unset
+        properties leave the current value unchanged. Restricted to the
+        Hospital/Ngo role, and only the organizing facility may edit its own
+        event (403 otherwise). A venue or start/end time change enqueues an
+        attendee SMS notification; a title/description/coordinator/capacity-
+        only change does not. 422 if the event already started, is already
+        cancelled, or the new capacity is below the current RSVP count.
+      operationId: updateEvent
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateEventRequest"
+      responses:
+        "200":
+          description: The updated event.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventDto"
+        "401":
+          description: Missing or invalid JWT.
+        "403":
+          description: Authenticated caller's facility does not own this event, or does not carry the Hospital/Ngo role.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "404":
+          description: No event exists with that id.
+        "422":
+          description: Event already started, already cancelled, or requested capacity is below the current RSVP count.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+  /events/{id}/cancel:
+    post:
+      tags:
+        - Events
+      summary: Cancel an event
+      description: >
+        Cancels the event and notifies its RSVP'd attendees by SMS
+        (CHH-41/US-CHH-005-04 AC1/AC2). Restricted to the Hospital/Ngo role,
+        and only the organizing facility may cancel its own event (403
+        otherwise). 422 if the event already started or is already cancelled.
+        Irreversible — a cancelled event cannot be reopened.
+      operationId: cancelEvent
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CancelEventRequest"
+      responses:
+        "200":
+          description: The cancelled event.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventDto"
+        "401":
+          description: Missing or invalid JWT.
+        "403":
+          description: Authenticated caller's facility does not own this event, or does not carry the Hospital/Ngo role.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "404":
+          description: No event exists with that id.
+        "422":
+          description: Event already started or already cancelled.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+  /events/mine:
+    get:
+      tags:
+        - Events
+      summary: List the caller's own facility's events
+      description: >
+        Returns every event (any status) belonging to the caller's own
+        facility, most recent start time first (CHH-41's manage-event entry
+        point). Restricted to the Hospital/Ngo role.
+      operationId: getMyEvents
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: The facility's events.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EventDto"
+        "401":
+          description: Missing or invalid JWT.
+        "403":
+          description: Authenticated caller does not carry the Hospital/Ngo role.
+  /events/{id}/rsvp:
+    post:
+      tags:
+        - Events
+      summary: RSVP to an event
+      description: >
+        RSVPs the caller to the event (CHH-40/US-CHH-005-03 AC1). Restricted
+        to the Individual role. Returns 422 if the event has no remaining
+        capacity (AC2 — "Event Full"), 409 if the caller already has an
+        active RSVP for this event (AC3).
+      operationId: rsvpToEvent
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: RSVP created (or reactivated after a prior cancellation).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RsvpResponseDto"
+        "401":
+          description: Missing or invalid JWT.
+        "403":
+          description: Authenticated caller does not carry the Individual role.
+        "404":
+          description: No event exists with that id.
+        "409":
+          description: Caller already has an active RSVP for this event.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "422":
+          description: Event has no remaining capacity.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+    delete:
+      tags:
+        - Events
+      summary: Cancel an RSVP
+      description: >
+        Cancels the caller's own active RSVP and releases the spot back to
+        the pool (CHH-40/US-CHH-005-03 Edge Case). Restricted to the
+        Individual role.
+      operationId: cancelEventRsvp
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: RSVP cancelled.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RsvpResponseDto"
+        "401":
+          description: Missing or invalid JWT.
+        "403":
+          description: Authenticated caller does not carry the Individual role.
+        "404":
+          description: No event exists with that id, or the caller has no active RSVP for it.
   /admin/facilities/{id}/verification:
     patch:
       tags:
@@ -1821,3 +2168,321 @@ components:
           type: string
         instance:
           type: string
+    EventType:
+      type: string
+      description: The spec's fixed four community health event types.
+      enum: ["BloodDonationCamp", "HealthCamp", "AwarenessSession", "Other"]
+    CreateEventRequest:
+      type: object
+      required:
+        - title
+        - eventType
+        - description
+        - venueName
+        - venueAddress
+        - latitude
+        - longitude
+        - startAtUtc
+        - endAtUtc
+        - capacity
+        - coordinatorName
+        - coordinatorContact
+      properties:
+        title:
+          type: string
+          description: 5-100 characters after trimming.
+        eventType:
+          $ref: "#/components/schemas/EventType"
+        description:
+          type: string
+          description: 20-1,000 characters after trimming.
+        venueName:
+          type: string
+          description: 3-100 characters after trimming.
+        venueAddress:
+          type: string
+          description: 10-250 characters after trimming.
+        latitude:
+          type: number
+          description: Resolved from the venue address, or manually moved by the organizer.
+        longitude:
+          type: number
+        startAtUtc:
+          type: string
+          format: date-time
+          description: Must be at least 1 hour in the future.
+        endAtUtc:
+          type: string
+          format: date-time
+          description: Must be after startAtUtc.
+        capacity:
+          type: integer
+          description: 1-1,000.
+        coordinatorName:
+          type: string
+          description: 2-50 characters after trimming.
+        coordinatorContact:
+          type: string
+          description: 10 digits — shown to attendees on the event page.
+          pattern: "^[0-9]{10}$"
+        rsvpCutoffAtUtc:
+          type: string
+          format: date-time
+          nullable: true
+          description: Optional. When set, must be before startAtUtc.
+    EventDto:
+      type: object
+      required:
+        - id
+        - facilityId
+        - title
+        - eventType
+        - description
+        - venueName
+        - venueAddress
+        - latitude
+        - longitude
+        - startAtUtc
+        - endAtUtc
+        - capacity
+        - coordinatorName
+        - coordinatorContact
+        - status
+        - createdAtUtc
+        - updatedAtUtc
+      properties:
+        id:
+          type: string
+          format: uuid
+        facilityId:
+          type: string
+          format: uuid
+        title:
+          type: string
+        eventType:
+          $ref: "#/components/schemas/EventType"
+        description:
+          type: string
+        venueName:
+          type: string
+        venueAddress:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        startAtUtc:
+          type: string
+          format: date-time
+        endAtUtc:
+          type: string
+          format: date-time
+        capacity:
+          type: integer
+        coordinatorName:
+          type: string
+        coordinatorContact:
+          type: string
+        rsvpCutoffAtUtc:
+          type: string
+          format: date-time
+          nullable: true
+        status:
+          type: string
+          enum: ["Published", "Cancelled"]
+        createdAtUtc:
+          type: string
+          format: date-time
+        updatedAtUtc:
+          type: string
+          format: date-time
+        cancellationReason:
+          type: string
+          nullable: true
+          description: Set only when status is "Cancelled" (CHH-41).
+    UpdateEventRequest:
+      type: object
+      description: Partial update for PATCH /events/{id} (CHH-41) — every property is optional.
+      properties:
+        title:
+          type: string
+        eventType:
+          $ref: "#/components/schemas/EventType"
+        description:
+          type: string
+        venueName:
+          type: string
+        venueAddress:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        startAtUtc:
+          type: string
+          format: date-time
+        endAtUtc:
+          type: string
+          format: date-time
+        capacity:
+          type: integer
+        coordinatorName:
+          type: string
+        coordinatorContact:
+          type: string
+        rsvpCutoffAtUtc:
+          type: string
+          format: date-time
+          nullable: true
+    CancelEventRequest:
+      type: object
+      description: Request body for POST /events/{id}/cancel (CHH-41).
+      required:
+        - reason
+      properties:
+        reason:
+          type: string
+          description: 10-300 characters after trimming. Shown verbatim to RSVP'd attendees.
+    EventSummaryDto:
+      type: object
+      description: Response item for GET /events/search (CHH-39).
+      required:
+        - id
+        - title
+        - eventType
+        - facilityName
+        - venueName
+        - latitude
+        - longitude
+        - startAtUtc
+        - endAtUtc
+        - distanceKm
+        - capacity
+        - spotsRemaining
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        eventType:
+          $ref: "#/components/schemas/EventType"
+        facilityName:
+          type: string
+        venueName:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        startAtUtc:
+          type: string
+          format: date-time
+        endAtUtc:
+          type: string
+          format: date-time
+        distanceKm:
+          type: number
+        capacity:
+          type: integer
+        spotsRemaining:
+          type: integer
+          description: capacity minus the event's active (non-cancelled) RSVP count.
+    EventDetailDto:
+      type: object
+      description: Response body for GET /events/{id} (CHH-40 detail page).
+      required:
+        - id
+        - title
+        - eventType
+        - description
+        - facilityName
+        - venueName
+        - venueAddress
+        - latitude
+        - longitude
+        - startAtUtc
+        - endAtUtc
+        - capacity
+        - spotsRemaining
+        - coordinatorName
+        - coordinatorContact
+        - status
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        eventType:
+          $ref: "#/components/schemas/EventType"
+        description:
+          type: string
+        facilityName:
+          type: string
+        venueName:
+          type: string
+        venueAddress:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        startAtUtc:
+          type: string
+          format: date-time
+        endAtUtc:
+          type: string
+          format: date-time
+        capacity:
+          type: integer
+        spotsRemaining:
+          type: integer
+        coordinatorName:
+          type: string
+        coordinatorContact:
+          type: string
+        rsvpCutoffAtUtc:
+          type: string
+          format: date-time
+          nullable: true
+        status:
+          type: string
+          enum: ["Published", "Cancelled"]
+        cancellationReason:
+          type: string
+          nullable: true
+          description: Set only when status is "Cancelled" (CHH-41). Shown verbatim to attendees.
+        distanceKm:
+          type: number
+          nullable: true
+          description: Only present when the caller supplied latitude/longitude query params.
+        myRsvpStatus:
+          type: string
+          enum: ["Going", "Cancelled"]
+          nullable: true
+          description: The caller's own RSVP status — null if they've never RSVP'd (or aren't an Individual).
+        myReferenceCode:
+          type: string
+          nullable: true
+          description: Present only alongside myRsvpStatus "Going".
+    RsvpResponseDto:
+      type: object
+      description: Response body for POST/DELETE /events/{id}/rsvp (CHH-40).
+      required:
+        - eventId
+        - status
+        - spotsRemaining
+      properties:
+        eventId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: ["Going", "Cancelled"]
+        referenceCode:
+          type: string
+          nullable: true
+          description: Present only alongside status "Going".
+        spotsRemaining:
+          type: integer

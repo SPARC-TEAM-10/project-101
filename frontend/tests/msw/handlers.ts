@@ -158,6 +158,191 @@ export const createFacilityNetworkErrorHandler = http.post(FACILITIES_URL, () =>
   return HttpResponse.error();
 });
 
+export const EVENTS_URL = "/api/v1/events";
+
+export const createEventSuccessHandler = http.post(EVENTS_URL, async ({ request }) => {
+  const body = (await request.json()) as Record<string, unknown>;
+  return HttpResponse.json(
+    {
+      id: "44444444-4444-4444-4444-444444444444",
+      facilityId: "22222222-2222-2222-2222-222222222222",
+      ...body,
+      status: "Published",
+      createdAtUtc: "2026-09-08T00:00:00.000Z",
+      updatedAtUtc: "2026-09-08T00:00:00.000Z",
+    },
+    { status: 201 },
+  );
+});
+
+export const createEventForbiddenHandler = http.post(EVENTS_URL, () => {
+  return HttpResponse.json(
+    {
+      title: "Forbidden",
+      status: 403,
+      detail: "Only a verified facility can create events.",
+    },
+    { status: 403 },
+  );
+});
+
+export const createEventValidationErrorHandler = http.post(EVENTS_URL, () => {
+  return HttpResponse.json(
+    {
+      title: "Validation failed",
+      status: 422,
+      detail: "Event must start in the future.",
+    },
+    { status: 422 },
+  );
+});
+
+export const EVENTS_SEARCH_URL = "/api/v1/events/search";
+
+const eventSummaryFixtures = [
+  {
+    id: "e1111111-1111-1111-1111-111111111111",
+    title: "Community blood drive — Kaloor",
+    eventType: "BloodDonationCamp",
+    facilityName: "Kochi Metro Hospital",
+    venueName: "Kaloor Community Hall",
+    latitude: 9.996,
+    longitude: 76.299,
+    startAtUtc: "2026-09-13T09:00:00.000Z",
+    endAtUtc: "2026-09-13T14:00:00.000Z",
+    distanceKm: 4.2,
+    capacity: 60,
+    spotsRemaining: 18,
+  },
+  {
+    id: "e2222222-2222-2222-2222-222222222222",
+    title: "Free health screening camp",
+    eventType: "HealthCamp",
+    facilityName: "Ernakulam NGO Collective",
+    venueName: "Palarivattom",
+    latitude: 10.02,
+    longitude: 76.31,
+    startAtUtc: "2026-09-14T10:00:00.000Z",
+    endAtUtc: "2026-09-14T16:00:00.000Z",
+    distanceKm: 9.1,
+    capacity: 40,
+    spotsRemaining: 22,
+  },
+];
+
+export const searchEventsSuccessHandler = http.get(EVENTS_SEARCH_URL, ({ request }) => {
+  const eventType = new URL(request.url).searchParams.get("eventType");
+  const items = eventType ? eventSummaryFixtures.filter((e) => e.eventType === eventType) : eventSummaryFixtures;
+  return HttpResponse.json(items);
+});
+
+export const searchEventsEmptyHandler = http.get(EVENTS_SEARCH_URL, () => HttpResponse.json([]));
+
+export const searchEventsErrorHandler = http.get(EVENTS_SEARCH_URL, () => HttpResponse.error());
+
+export const EVENT_DETAIL_ID = "e1111111-1111-1111-1111-111111111111";
+export const EVENT_DETAIL_URL = `/api/v1/events/${EVENT_DETAIL_ID}`;
+export const EVENT_RSVP_URL = `${EVENT_DETAIL_URL}/rsvp`;
+
+function eventDetailFixture(overrides: Record<string, unknown> = {}) {
+  return {
+    id: EVENT_DETAIL_ID,
+    title: "Community blood drive — Kaloor",
+    eventType: "BloodDonationCamp",
+    description: "Walk-in donors welcome. Bring a photo ID. Refreshments provided.",
+    facilityName: "Kochi Metro Hospital",
+    venueName: "Kaloor Community Hall",
+    venueAddress: "Stadium Link Road, Kaloor, Kochi 682017",
+    latitude: 9.996,
+    longitude: 76.299,
+    startAtUtc: "2026-09-13T09:00:00.000Z",
+    endAtUtc: "2026-09-13T14:00:00.000Z",
+    capacity: 60,
+    spotsRemaining: 18,
+    coordinatorName: "Dr Anitha Varghese",
+    coordinatorContact: "9000010023",
+    rsvpCutoffAtUtc: null,
+    status: "Published",
+    distanceKm: 4.2,
+    myRsvpStatus: null,
+    myReferenceCode: null,
+    ...overrides,
+  };
+}
+
+export const getEventNotGoingHandler = http.get(EVENT_DETAIL_URL, () => HttpResponse.json(eventDetailFixture()));
+
+export const getEventGoingHandler = http.get(EVENT_DETAIL_URL, () =>
+  HttpResponse.json(eventDetailFixture({ myRsvpStatus: "Going", myReferenceCode: "A24", spotsRemaining: 17 })),
+);
+
+export const getEventFullHandler = http.get(EVENT_DETAIL_URL, () => HttpResponse.json(eventDetailFixture({ spotsRemaining: 0 })));
+
+export const getEventNotFoundHandler = http.get(EVENT_DETAIL_URL, () => new HttpResponse(null, { status: 404 }));
+
+export const rsvpToEventSuccessHandler = http.post(EVENT_RSVP_URL, () =>
+  HttpResponse.json({ eventId: EVENT_DETAIL_ID, status: "Going", referenceCode: "A24", spotsRemaining: 17 }),
+);
+
+export const rsvpToEventFullHandler = http.post(EVENT_RSVP_URL, () =>
+  HttpResponse.json({ title: "Event full", status: 422, detail: "This event is full." }, { status: 422 }),
+);
+
+export const cancelEventRsvpSuccessHandler = http.delete(EVENT_RSVP_URL, () =>
+  HttpResponse.json({ eventId: EVENT_DETAIL_ID, status: "Cancelled", referenceCode: null, spotsRemaining: 18 }),
+);
+
+// --- CHH-41: manage/edit/cancel (GET /events/mine, PATCH /events/{id}, POST /events/{id}/cancel) ---
+
+export const EVENTS_MINE_URL = "/api/v1/events/mine";
+export const EVENT_CANCEL_URL = `${EVENT_DETAIL_URL}/cancel`;
+
+function myEventDtoFixture(overrides: Record<string, unknown> = {}) {
+  return {
+    id: EVENT_DETAIL_ID,
+    facilityId: "22222222-2222-2222-2222-222222222222",
+    title: "Community blood drive — Kaloor",
+    eventType: "BloodDonationCamp",
+    description: "Walk-in donors welcome. Bring a photo ID. Refreshments provided.",
+    venueName: "Kaloor Community Hall",
+    venueAddress: "Stadium Link Road, Kaloor, Kochi 682017",
+    latitude: 9.996,
+    longitude: 76.299,
+    startAtUtc: "2026-09-13T09:00:00.000Z",
+    endAtUtc: "2026-09-13T14:00:00.000Z",
+    capacity: 60,
+    coordinatorName: "Dr Anitha Varghese",
+    coordinatorContact: "9000010023",
+    rsvpCutoffAtUtc: null,
+    status: "Published",
+    createdAtUtc: "2026-09-04T10:00:00.000Z",
+    updatedAtUtc: "2026-09-04T10:00:00.000Z",
+    cancellationReason: null,
+    ...overrides,
+  };
+}
+
+export const getMyEventsSuccessHandler = http.get(EVENTS_MINE_URL, () => HttpResponse.json([myEventDtoFixture()]));
+
+export const getMyEventsEmptyHandler = http.get(EVENTS_MINE_URL, () => HttpResponse.json([]));
+
+export const updateEventSuccessHandler = http.patch(EVENT_DETAIL_URL, async ({ request }) => {
+  const body = (await request.json()) as Record<string, unknown>;
+  return HttpResponse.json(myEventDtoFixture(body));
+});
+
+export const cancelEventSuccessHandler = http.post(EVENT_CANCEL_URL, async ({ request }) => {
+  const body = (await request.json()) as { reason: string };
+  return HttpResponse.json(myEventDtoFixture({ status: "Cancelled", cancellationReason: body.reason }));
+});
+
+export const cancelEventAlreadyStartedHandler = http.post(EVENT_CANCEL_URL, () =>
+  HttpResponse.json(
+    { title: "Event already started", status: 422, detail: "This event has already started, so it can't be edited or cancelled." },
+    { status: 422 },
+  ),
+);
+
 // No MSW handler for POST /api/v1/facilities/:id/upload — @mswjs/interceptors hangs under jsdom
 // on any XHR request whose body is a FormData containing a Blob/File (see tests/fakeXhr.ts's doc
 // comment). facilityApi.uploadFacilityLicense is tested via that fake XHR instead.
@@ -266,6 +451,30 @@ export const getMyBloodRequestsSuccessHandler = http.get(BLOOD_REQUESTS_MINE_URL
 export const nominatimReverseGeocodeHandler = http.get(
   "https://nominatim.openstreetmap.org/reverse",
   () => HttpResponse.json({ address: { city: "Kochi", postcode: "682017" } }),
+);
+
+// Forward geocode (CHH-38's useVenueGeocoding) — default success so any test rendering
+// CreateEventPage doesn't need to mock this itself unless testing the notFound/error paths.
+export const nominatimForwardGeocodeHandler = http.get(
+  "https://nominatim.openstreetmap.org/search",
+  () => HttpResponse.json([{ lat: "9.996", lon: "76.299" }]),
+);
+
+export const nominatimForwardGeocodeNotFoundHandler = http.get(
+  "https://nominatim.openstreetmap.org/search",
+  () => HttpResponse.json([]),
+);
+
+// Leaflet's OSM tile requests (VenuePinMap/RadiusMap) — a 1x1 transparent PNG stands in for the
+// real tile so the map mounts cleanly under jsdom instead of erroring on an unhandled request.
+const TRANSPARENT_PNG_BASE64 =
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";
+export const osmTileHandler = http.get(
+  "https://:subdomain.tile.openstreetmap.org/:z/:x/:y.png",
+  () =>
+    new HttpResponse(Uint8Array.from(atob(TRANSPARENT_PNG_BASE64), (c) => c.charCodeAt(0)), {
+      headers: { "Content-Type": "image/png" },
+    }),
 );
 
 export const ADMIN_PENDING_FACILITIES_URL = "/api/v1/admin/facilities/pending";
@@ -578,9 +787,13 @@ export const handlers = [
   acceptNotificationSuccessHandler,
   declineNotificationSuccessHandler,
   nominatimReverseGeocodeHandler,
+  nominatimForwardGeocodeHandler,
+  osmTileHandler,
   pendingFacilitiesSuccessHandler,
   registerIndividualSuccessHandler,
   reviewFacilitySuccessHandler,
   searchAdminUsersSuccessHandler,
   suspendUserSuccessHandler,
+  searchEventsSuccessHandler,
+  getEventNotGoingHandler,
 ];
