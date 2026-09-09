@@ -37,6 +37,7 @@ function renderPage() {
         <Routes>
           <Route path="/dashboard/facility" element={<FacilityDashboardPage />} />
           <Route path="/login" element={<div>Login page</div>} />
+          <Route path="/events/new" element={<div>Create event page</div>} />
         </Routes>
       </MemoryRouter>
     </QueryClientProvider>,
@@ -82,6 +83,16 @@ describe("FacilityDashboardPage", () => {
 
     const tile = screen.getByRole("button", { name: /plan an event/i });
     expect(tile).toHaveAttribute("aria-disabled", "false");
+  });
+
+  it("navigates to /events/new when the unlocked 'Plan an event' tile is clicked (CHH-38)", async () => {
+    server.use(getMyFacilityApprovedHandler);
+    renderPage();
+
+    const tile = await screen.findByRole("button", { name: /plan an event/i });
+    fireEvent.click(tile);
+
+    expect(await screen.findByText("Create event page")).toBeInTheDocument();
   });
 
   it("shows the rejection reason and reviewed date when rejected", async () => {

@@ -103,6 +103,7 @@ interface FeatureTile {
   icon: React.ReactNode;
   title: string;
   description: string;
+  route?: string;
 }
 
 const FEATURE_TILES: FeatureTile[] = [
@@ -115,6 +116,7 @@ const FEATURE_TILES: FeatureTile[] = [
     ),
     title: "Plan an event",
     description: "Publish a donation camp or screening drive to donors nearby.",
+    route: "/events/new",
   },
   {
     icon: (
@@ -277,7 +279,7 @@ export function FacilityDashboardPage() {
             <button
               key={tile.title}
               type="button"
-              onClick={tryLocked}
+              onClick={() => (locked ? tryLocked() : tile.route && navigate(tile.route))}
               aria-disabled={locked}
               className={
                 locked
