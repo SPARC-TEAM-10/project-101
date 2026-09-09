@@ -29,22 +29,22 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo '[hook] File changed: run your linter/formatter here. Fill in .claude/settings.json with the real command once the stack is chosen, e.g.: npx eslint --fix $CLAUDE_FILE_PATH  or  ruff format $CLAUDE_FILE_PATH'"
+            "command": "case \"$CLAUDE_FILE_PATH\" in *frontend/*.ts|*frontend/*.tsx) [ -x frontend/node_modules/.bin/eslint ] && frontend/node_modules/.bin/eslint --fix \"$CLAUDE_FILE_PATH\"; true ;; *backend/*.cs) command -v dotnet >/dev/null 2>&1 && dotnet format backend/Chh.sln --include \"$CLAUDE_FILE_PATH\" --no-restore; true ;; esac"
           }
         ]
       }
     ],
     "PreToolUse": [
       {
-        "matcher": "mcp__atlassian__jira_transition_issue",
+        "matcher": "mcp__atlassian__transitionJiraIssue|mcp__atlassian__getTransitionsForJiraIssue|mcp__claude_ai_Atlassian__transitionJiraIssue|mcp__claude_ai_Atlassian__getTransitionsForJiraIssue|mcp__.*[Jj]ira[Ss]tatus.*|.*jira_transition_issue.*",
         "hooks": [
           {
             "type": "command",
-            "command": "echo '[hook] Ticket transition requested — this should gate transitions to Review/Done on tests passing. Currently inert (always allows). Once the stack is locked, replace this with a real check, e.g.: run the run-backend-tests / run-frontend-tests skill command for the module and exit non-zero (blocking the transition) on failure.'"
+            "command": "echo '[hook] BLOCKED: Jira status transitions are prohibited for this pipeline — root CLAUDE.md / .claude/agents/orchestrator.md Orchestrator Rule 10. The only permitted Jira write is a comment via gap-flag-skill (Owner:BA gaps); status transitions have no exception. If this is a legitimate manual transition, do it directly in the Jira UI instead of through the agent.' 1>&2; exit 2"
           }
         ]
       }
     ]
   },
-  "_comment": "Placeholder hooks. PostToolUse: once backend/frontend stacks are locked (see backend/CLAUDE.md, frontend/CLAUDE.md), replace the echo with a command that dispatches by path, e.g.: case \"$CLAUDE_FILE_PATH\" in backend/*) ruff format \"$CLAUDE_FILE_PATH\";; frontend/*) npx eslint --fix \"$CLAUDE_FILE_PATH\";; esac. PreToolUse: currently inert (exit 0 via echo) — wire it to actually run tests and exit non-zero to block the transition once test commands exist (see .claude/skills/run-backend-tests, run-frontend-tests). Keep both fast — PostToolUse runs on every file edit across every subagent."
+  "_comment": "PostToolUse lints the just-edited file by path: frontend/*.ts(x) via the frontend-local ESLint --fix (targeted rule fixes only), backend/*.cs via 'dotnet format --include' against backend/Chh.sln (assumes a prior restore; add 'dotnet restore' first if this ever runs on a clean checkout). Prettier was deliberately left OUT of the frontend branch — verified live that 'prettier --write' against this codebase's existing (wider-than-80-col) JSX style reflows ~75 lines from a single-line edit with no .prettierrc pinning the actual convention; add it back only after a .prettierrc matching the real style is committed. Both branches end in a bare 'true' so a lint/format failure is surfaced as output but never fails the hook itself. PreToolUse hard-blocks (exit 2) any Jira transition call, enforcing Orchestrator Rule 10 at the tool level instead of relying only on agents following the rule — matcher covers both the mcp__atlassian__* and legacy mcp__claude_ai_Atlassian__* tool names seen across this project's MCP server changes, plus a jira_transition_issue fallback. Test commands (dotnet test / npm run test) intentionally aren't wired into this PreToolUse hook, since Rule 10 disallows the transition outright regardless of test status."
 }
