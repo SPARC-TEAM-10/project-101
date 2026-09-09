@@ -1,10 +1,14 @@
 using Chh.Application.Abstractions;
 using Chh.Application.Contracts;
 using Chh.Application.Dtos;
+using Chh.Application.Jobs;
 using Chh.Application.Services;
 using Chh.Domain.Entities;
 using Chh.Domain.Enums;
 using FluentAssertions;
+using Hangfire;
+using Hangfire.Common;
+using Hangfire.States;
 using Moq;
 using Xunit;
 
@@ -17,6 +21,7 @@ public class EventServiceTests
     private readonly Mock<IEventRsvpRepository> _eventRsvpRepository = new();
     private readonly Mock<IIndividualProfileRepository> _individualProfileRepository = new();
     private readonly Mock<IUnitOfWork> _unitOfWork = new();
+    private readonly Mock<IBackgroundJobClient> _backgroundJobClient = new();
     private readonly EventService _sut;
 
     public EventServiceTests()
@@ -26,7 +31,8 @@ public class EventServiceTests
             _eventRepository.Object,
             _eventRsvpRepository.Object,
             _individualProfileRepository.Object,
-            _unitOfWork.Object);
+            _unitOfWork.Object,
+            _backgroundJobClient.Object);
     }
 
     private static readonly DateTimeOffset Start = DateTimeOffset.UtcNow.AddDays(2);
@@ -292,6 +298,26 @@ public class EventServiceTests
     }
 
     [Fact]
+    public async Task GetByIdAsync_IncludesCancellationReason_WhenEventIsCancelled()
+    {
+        var evt = NearbyEvent();
+        evt.Status = EventStatus.Cancelled;
+        evt.CancellationReason = "The hall is unavailable after storm damage.";
+        _eventRepository
+            .Setup(r => r.GetByIdWithFacilityNameAsync(evt.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new EventWithFacilityNameResult { Event = evt, FacilityName = "Kochi Metro Hospital" });
+        _individualProfileRepository
+            .Setup(r => r.GetByMobileNumberAsync(CallerMobileNumber, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IndividualProfile?)null);
+
+        var result = await _sut.GetByIdAsync(evt.Id, CallerMobileNumber, null, null, CancellationToken.None);
+
+        result.Should().NotBeNull();
+        result!.Status.Should().Be(EventStatus.Cancelled);
+        result.CancellationReason.Should().Be(evt.CancellationReason);
+    }
+
+    [Fact]
     public async Task RsvpAsync_ReturnsNull_WhenEventDoesNotExist()
     {
         _individualProfileRepository
@@ -437,5 +463,182 @@ public class EventServiceTests
         rsvp.CancelledAtUtc.Should().NotBeNull();
         _eventRepository.Verify(r => r.ReleaseSpotAsync(evt.Id, It.IsAny<CancellationToken>()), Times.Once);
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    // --- CHH-41/US-CHH-005-04: UpdateAsync, CancelAsync, GetMineAsync ---
+
+    private const string OwnerMobileNumber = "9876543210";
+    private const string OtherFacilityMobileNumber = "9000000002";
+
+    [Fact]
+    public async Task UpdateAsync_WhenCallerOwnsEvent_UpdatesFieldsAndReturnsDto()
+    {
+        var facility = VerifiedFacility();
+        var evt = NearbyEvent();
+        evt.FacilityId = facility.Id;
+        _facilityRepository.Setup(r => r.GetByContactMobileNumberAsync(OwnerMobileNumber, It.IsAny<CancellationToken>())).ReturnsAsync(facility);
+        _eventRepository.Setup(r => r.GetTrackedByIdAsync(evt.Id, It.IsAny<CancellationToken>())).ReturnsAsync(evt);
+
+        var request = new UpdateEventRequest { Title = "Updated title" };
+        var result = await _sut.UpdateAsync(OwnerMobileNumber, evt.Id, request, CancellationToken.None);
+
+        result.Should().NotBeNull();
+        result!.Title.Should().Be("Updated title");
+        _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task UpdateAsync_WhenCallerDoesNotOwnEvent_ThrowsEventNotOwnedByCallerException()
+    {
+        var callerFacility = VerifiedFacility();
+        var evt = NearbyEvent();
+        evt.FacilityId = Guid.NewGuid();
+        _facilityRepository.Setup(r => r.GetByContactMobileNumberAsync(OtherFacilityMobileNumber, It.IsAny<CancellationToken>())).ReturnsAsync(callerFacility);
+        _eventRepository.Setup(r => r.GetTrackedByIdAsync(evt.Id, It.IsAny<CancellationToken>())).ReturnsAsync(evt);
+
+        var act = () => _sut.UpdateAsync(OtherFacilityMobileNumber, evt.Id, new UpdateEventRequest(), CancellationToken.None);
+
+        await act.Should().ThrowAsync<EventNotOwnedByCallerException>();
+    }
+
+    [Fact]
+    public async Task UpdateAsync_WhenEventAlreadyStarted_ThrowsEventAlreadyStartedException()
+    {
+        var facility = VerifiedFacility();
+        var evt = NearbyEvent(startAtUtc: DateTimeOffset.UtcNow.AddHours(-1));
+        evt.FacilityId = facility.Id;
+        _facilityRepository.Setup(r => r.GetByContactMobileNumberAsync(OwnerMobileNumber, It.IsAny<CancellationToken>())).ReturnsAsync(facility);
+        _eventRepository.Setup(r => r.GetTrackedByIdAsync(evt.Id, It.IsAny<CancellationToken>())).ReturnsAsync(evt);
+
+        var act = () => _sut.UpdateAsync(OwnerMobileNumber, evt.Id, new UpdateEventRequest(), CancellationToken.None);
+
+        await act.Should().ThrowAsync<EventAlreadyStartedException>();
+    }
+
+    [Fact]
+    public async Task UpdateAsync_WhenEventAlreadyCancelled_ThrowsEventAlreadyCancelledException()
+    {
+        var facility = VerifiedFacility();
+        var evt = NearbyEvent();
+        evt.FacilityId = facility.Id;
+        evt.Status = EventStatus.Cancelled;
+        _facilityRepository.Setup(r => r.GetByContactMobileNumberAsync(OwnerMobileNumber, It.IsAny<CancellationToken>())).ReturnsAsync(facility);
+        _eventRepository.Setup(r => r.GetTrackedByIdAsync(evt.Id, It.IsAny<CancellationToken>())).ReturnsAsync(evt);
+
+        var act = () => _sut.UpdateAsync(OwnerMobileNumber, evt.Id, new UpdateEventRequest(), CancellationToken.None);
+
+        await act.Should().ThrowAsync<EventAlreadyCancelledException>();
+    }
+
+    [Fact]
+    public async Task UpdateAsync_WhenCapacityBelowCurrentRsvpCount_ThrowsCapacityBelowRsvpCountException()
+    {
+        var facility = VerifiedFacility();
+        var evt = NearbyEvent();
+        evt.FacilityId = facility.Id;
+        evt.RsvpCount = 10;
+        _facilityRepository.Setup(r => r.GetByContactMobileNumberAsync(OwnerMobileNumber, It.IsAny<CancellationToken>())).ReturnsAsync(facility);
+        _eventRepository.Setup(r => r.GetTrackedByIdAsync(evt.Id, It.IsAny<CancellationToken>())).ReturnsAsync(evt);
+
+        var request = new UpdateEventRequest { Capacity = 5 };
+        var act = () => _sut.UpdateAsync(OwnerMobileNumber, evt.Id, request, CancellationToken.None);
+
+        await act.Should().ThrowAsync<CapacityBelowRsvpCountException>();
+    }
+
+    [Fact]
+    public async Task UpdateAsync_WhenVenueChanges_EnqueuesNotifyEventChangeJob()
+    {
+        var facility = VerifiedFacility();
+        var evt = NearbyEvent();
+        evt.FacilityId = facility.Id;
+        _facilityRepository.Setup(r => r.GetByContactMobileNumberAsync(OwnerMobileNumber, It.IsAny<CancellationToken>())).ReturnsAsync(facility);
+        _eventRepository.Setup(r => r.GetTrackedByIdAsync(evt.Id, It.IsAny<CancellationToken>())).ReturnsAsync(evt);
+
+        var request = new UpdateEventRequest { VenueName = "New Hall" };
+        await _sut.UpdateAsync(OwnerMobileNumber, evt.Id, request, CancellationToken.None);
+
+        _backgroundJobClient.Verify(
+            c => c.Create(
+                It.Is<Job>(job => job.Type == typeof(NotifyEventChangeJob) && job.Method.Name == nameof(NotifyEventChangeJob.RunUpdatedAsync)),
+                It.IsAny<EnqueuedState>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task UpdateAsync_WhenOnlyDescriptionChanges_DoesNotEnqueueNotification()
+    {
+        var facility = VerifiedFacility();
+        var evt = NearbyEvent();
+        evt.FacilityId = facility.Id;
+        _facilityRepository.Setup(r => r.GetByContactMobileNumberAsync(OwnerMobileNumber, It.IsAny<CancellationToken>())).ReturnsAsync(facility);
+        _eventRepository.Setup(r => r.GetTrackedByIdAsync(evt.Id, It.IsAny<CancellationToken>())).ReturnsAsync(evt);
+
+        var request = new UpdateEventRequest { Description = "A completely rewritten but still valid description." };
+        await _sut.UpdateAsync(OwnerMobileNumber, evt.Id, request, CancellationToken.None);
+
+        _backgroundJobClient.Verify(
+            c => c.Create(It.IsAny<Job>(), It.IsAny<EnqueuedState>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task CancelAsync_WhenCallerOwnsEvent_CancelsAndEnqueuesNotification()
+    {
+        var facility = VerifiedFacility();
+        var evt = NearbyEvent();
+        evt.FacilityId = facility.Id;
+        _facilityRepository.Setup(r => r.GetByContactMobileNumberAsync(OwnerMobileNumber, It.IsAny<CancellationToken>())).ReturnsAsync(facility);
+        _eventRepository.Setup(r => r.GetTrackedByIdAsync(evt.Id, It.IsAny<CancellationToken>())).ReturnsAsync(evt);
+
+        var request = new CancelEventRequest { Reason = "The hall is unavailable after storm damage." };
+        var result = await _sut.CancelAsync(OwnerMobileNumber, evt.Id, request, CancellationToken.None);
+
+        result.Should().NotBeNull();
+        result!.Status.Should().Be(EventStatus.Cancelled);
+        result.CancellationReason.Should().Be(request.Reason);
+        _backgroundJobClient.Verify(
+            c => c.Create(
+                It.Is<Job>(job => job.Type == typeof(NotifyEventChangeJob) && job.Method.Name == nameof(NotifyEventChangeJob.RunCancelledAsync)),
+                It.IsAny<EnqueuedState>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task CancelAsync_WhenCallerDoesNotOwnEvent_ThrowsEventNotOwnedByCallerException()
+    {
+        var callerFacility = VerifiedFacility();
+        var evt = NearbyEvent();
+        evt.FacilityId = Guid.NewGuid();
+        _facilityRepository.Setup(r => r.GetByContactMobileNumberAsync(OtherFacilityMobileNumber, It.IsAny<CancellationToken>())).ReturnsAsync(callerFacility);
+        _eventRepository.Setup(r => r.GetTrackedByIdAsync(evt.Id, It.IsAny<CancellationToken>())).ReturnsAsync(evt);
+
+        var act = () => _sut.CancelAsync(OtherFacilityMobileNumber, evt.Id, new CancelEventRequest { Reason = "Reason enough." }, CancellationToken.None);
+
+        await act.Should().ThrowAsync<EventNotOwnedByCallerException>();
+    }
+
+    [Fact]
+    public async Task GetMineAsync_ReturnsCallersFacilityEvents()
+    {
+        var facility = VerifiedFacility();
+        var evt = NearbyEvent();
+        evt.FacilityId = facility.Id;
+        _facilityRepository.Setup(r => r.GetByContactMobileNumberAsync(OwnerMobileNumber, It.IsAny<CancellationToken>())).ReturnsAsync(facility);
+        _eventRepository.Setup(r => r.GetByFacilityAsync(facility.Id, It.IsAny<CancellationToken>())).ReturnsAsync(new[] { evt });
+
+        var result = await _sut.GetMineAsync(OwnerMobileNumber, CancellationToken.None);
+
+        result.Should().ContainSingle(e => e.Id == evt.Id);
+    }
+
+    [Fact]
+    public async Task GetMineAsync_WhenCallerHasNoFacility_ReturnsEmpty()
+    {
+        _facilityRepository.Setup(r => r.GetByContactMobileNumberAsync(OwnerMobileNumber, It.IsAny<CancellationToken>())).ReturnsAsync((Facility?)null);
+
+        var result = await _sut.GetMineAsync(OwnerMobileNumber, CancellationToken.None);
+
+        result.Should().BeEmpty();
     }
 }

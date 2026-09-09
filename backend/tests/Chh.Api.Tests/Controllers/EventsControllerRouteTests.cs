@@ -101,4 +101,56 @@ public class EventsControllerRouteTests
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
+
+    [Fact]
+    public async Task GetEventsMine_UsesContractPath_IsRouted()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.GetAsync("/api/v1/events/mine");
+
+        response.StatusCode.Should().NotBe(HttpStatusCode.NotFound,
+            "the route convention must resolve EventsController.GetMineAsync to contracts/chh-api.v1.yaml's documented /events/mine path");
+    }
+
+    [Fact]
+    public async Task GetEventsMine_WithoutAuthorizationHeader_IsUnauthorized()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.GetAsync("/api/v1/events/mine");
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task PatchEventById_WithoutAuthorizationHeader_IsUnauthorized()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.PatchAsync($"/api/v1/events/{Guid.NewGuid()}", content: null);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task PostEventCancel_UsesContractPath_IsRouted()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.PostAsync($"/api/v1/events/{Guid.NewGuid()}/cancel", content: null);
+
+        response.StatusCode.Should().NotBe(HttpStatusCode.NotFound,
+            "the route convention must resolve EventsController.CancelAsync to contracts/chh-api.v1.yaml's documented /events/{id}/cancel path");
+    }
+
+    [Fact]
+    public async Task PostEventCancel_WithoutAuthorizationHeader_IsUnauthorized()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.PostAsync($"/api/v1/events/{Guid.NewGuid()}/cancel", content: null);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
 }
