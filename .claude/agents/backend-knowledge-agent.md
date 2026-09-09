@@ -112,7 +112,7 @@ Perform steps 4–8 using the Confluence URLs/IDs found in Phase 1. Each step bu
     - `DomainKeywords`: all noun keywords extracted from the Jira story, AC, and Confluence findings
     - `GitBaseBranch`: use `BaseBranchOverride` if the Orchestrator passed it (e.g. `release/0.17.2` for a `/dev` task); otherwise read `gitBaseBranch` from `project_config.md`.
 
-    Wait for the Codebase Analysis Agent to return its output package (`CodebaseFindings`, `codebaseRef`).
+    Wait for the Codebase Analysis Agent to return its output package (`CodebaseFindings`, `codebaseRef`, `CacheMode`).
 
 ---
 
@@ -155,7 +155,7 @@ Structured context package containing:
 4. **Standards Summary** — specific rules from DOTNET-RULES that apply to this feature domain
 5. **FRD Findings** — functional requirements and business rules from the FRD page (if found)
 6. **Confluence Findings** — architecture decisions, API contracts, data schemas from HLD and LLD
-7. **Codebase Findings** — existing services, domain classes, and utilities in `backend/` that overlap with the task; conventions observed
+7. **Codebase Findings** — existing services, domain classes, and utilities in `backend/` that overlap with the task; conventions observed. Includes `CacheMode` (`"full"` | `"incremental"` | `"rebuilt"`) passed through unchanged from the Codebase Analysis Agent, so a reader can see whether findings came from a fresh scan or the `.claude/backend-symbol-map.md` cache
 8. **Gaps** — explicit list of anything not found that the Planning Agent may need to clarify with the user
 9. **Source References** — Confluence page IDs/URLs used
 10. **`hldPageId`** — Confluence page ID of the HLD found in step 7. `null` if not found. Passed to the Planning Agent and forwarded to the Confluence Publish Skill as `HldPageId`. The skill uses it as a scoped fallback (`ancestor = <hldPageId> AND title ~ "LLD"`) when `lldPageId` is null and the broader CQL search returns too many results.

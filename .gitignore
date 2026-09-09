@@ -6,3 +6,9 @@ design/drafts/**/*.html
 backend/publish/
 backend/**/bin/
 backend/**/obj/
+
+# Self-maintained pipeline caches — fully reconstructible, and committing
+# them creates merge conflicts between concurrent feature branches instead
+# of just triggering a rebuild (see backend-codebase-analysis-agent.md
+# Phase 1b/3b, and CLAUDE.md Decisions Log 2026-09-09/2026-09-10)
+.claude/backend-symbol-map.md
