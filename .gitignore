@@ -11,3 +11,7 @@ backend/**/obj/
 backend/**/TestResults/
 coverage-report/
 *.cobertura.xml
+
+# Frontend build/test/coverage artifacts
+frontend/dist/
+frontend/coverage/

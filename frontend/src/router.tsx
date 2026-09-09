@@ -19,6 +19,7 @@ import { NotificationsPage } from "./pages/notifications/NotificationsPage";
 import { NewUserGuestDecisionPage } from "./pages/onboarding/NewUserGuestDecisionPage";
 import { RoleSelectionPage } from "./pages/onboarding/RoleSelectionPage";
 import { RegisterStubPage } from "./pages/onboarding/RegisterStubPage";
+import { EmergencyHubPage } from "./pages/emergency/EmergencyHubPage";
 
 export const router = createBrowserRouter([
   { path: "/", element: <HomeRoute /> },
@@ -107,6 +108,16 @@ export const router = createBrowserRouter([
     element: (
       <RequireAuth roles={["Hospital", "Ngo"]}>
         <FacilityDashboardPage />
+      </RequireAuth>
+    ),
+  },
+  {
+    // Any authenticated role (matches the backend's [Authorize] with no Roles restriction on
+    // GET /facilities/search and GET /facilities/{id} — CHH-82/Epic CHH-68).
+    path: "/emergency",
+    element: (
+      <RequireAuth>
+        <EmergencyHubPage />
       </RequireAuth>
     ),
   },

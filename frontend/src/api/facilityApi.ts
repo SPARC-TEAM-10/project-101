@@ -1,6 +1,46 @@
 import { apiFetch, ApiError, type ProblemDetails } from "./httpClient";
 import type { FacilityCategory, FacilitySubCategory } from "../lib/validation/facilitySchemas";
 
+// Deliberately distinct from FacilityCategory (facilitySchemas.ts) — that one stays
+// registration-only and excludes "Ambulance": ambulance-operator self-registration is out of
+// scope for CHH-68 (see CHH-82's Decisions Log entry), so exposing it as a registration choice
+// would let a user do something the backend doesn't support yet. This is the Hub's read-only
+// search filter, where Ambulance is a valid category to search for.
+export const EMERGENCY_SEARCH_CATEGORIES = ["Hospital", "Ambulance", "Ngo"] as const;
+export type EmergencySearchCategory = (typeof EMERGENCY_SEARCH_CATEGORIES)[number];
+
+export interface SearchFacilitiesParams {
+  q?: string;
+  category?: EmergencySearchCategory;
+  latitude?: number;
+  longitude?: number;
+  page?: number;
+  pageSize?: number;
+}
+
+// Matches contracts/chh-api.v1.yaml's PublicFacilityDto (CHH-82/Epic CHH-68) — deliberately not
+// FacilityDto: excludes licenseNumber/licenseDocumentUrl/rejectionReason, which the backend never
+// sends back on this public read surface.
+export interface PublicFacilityDto {
+  id: string;
+  facilityName: string;
+  category: EmergencySearchCategory;
+  subCategory: FacilitySubCategory;
+  address: string;
+  latitude?: number | null;
+  longitude?: number | null;
+  contacts: CreateFacilityContactRequest[];
+  distanceKm?: number | null;
+}
+
+export interface PagedResponse<T> {
+  items: T[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
 export interface CreateFacilityContactRequest {
   name: string;
   designation: string;
@@ -101,5 +141,33 @@ export function uploadFacilityLicense(
     const formData = new FormData();
     formData.append("file", file);
     xhr.send(formData);
+  });
+}
+
+// Matches contracts/chh-api.v1.yaml's GET /facilities/search (CHH-82/US-CHH-001-01). [Authorize]
+// on the backend, no Roles restriction — any authenticated caller, including Guest.
+export function searchFacilities(
+  accessToken: string | undefined,
+  params: SearchFacilitiesParams,
+): Promise<PagedResponse<PublicFacilityDto>> {
+  const search = new URLSearchParams();
+  if (params.q) search.set("q", params.q);
+  if (params.category) search.set("category", params.category);
+  if (params.latitude !== undefined) search.set("latitude", String(params.latitude));
+  if (params.longitude !== undefined) search.set("longitude", String(params.longitude));
+  if (params.page !== undefined) search.set("page", String(params.page));
+  if (params.pageSize !== undefined) search.set("pageSize", String(params.pageSize));
+
+  const query = search.toString();
+  return apiFetch<PagedResponse<PublicFacilityDto>>(`/facilities/search${query ? `?${query}` : ""}`, {
+    headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+  });
+}
+
+// Matches contracts/chh-api.v1.yaml's GET /facilities/{id} (CHH-82/US-CHH-001-02). Same auth as
+// searchFacilities. 404 if the facility doesn't exist or isn't Verified.
+export function getFacilityById(accessToken: string | undefined, id: string): Promise<PublicFacilityDto> {
+  return apiFetch<PublicFacilityDto>(`/facilities/${id}`, {
+    headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
   });
 }
