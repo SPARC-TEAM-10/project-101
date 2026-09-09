@@ -7,6 +7,8 @@ attached_to: unittest-agent, coding-agent
 
 Pushes a branch to the remote and opens a pull request on GitHub using the `gh` CLI. **This skill must never be invoked before the developer has seen the full PR draft and replied `Approved` in the conversation.** This rule applies to every caller — Unittest Agent (main feature PR) and Coding Agent (shared repo PR).
 
+Bound by `.claude/rules/git-safety.md`: the `git push` below is always a plain push of `<BranchName>` (never `--force`/`--force-with-lease`, never to `<BaseBranch>`) — the PR itself, not this push, is what lands the branch onto `<BaseBranch>`, and only after a human merges it on GitHub.
+
 ---
 
 ## Universal Rules (apply to every caller)

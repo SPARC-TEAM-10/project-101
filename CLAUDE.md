@@ -143,6 +143,33 @@ Module-specific additions to this checklist (e.g. "matches OpenAPI spec",
   `AdminUser` table/repository were removed. Routing (the global
   `RoutePrefixConvention` + controller-naming coupling — see
   `.claude/rules/api-standards.md` §1) was untouched by this decision.
+- **2026-09-09 — Codebase-scan caching + pipeline drift check added**:
+  Codebase Analysis Agent now caches known Service/Repository/Controller
+  classes in `.claude/backend-symbol-map.md`, keyed to `codebaseRef`, and
+  only re-scans git-diffed files (falls back to a full scan if the map is
+  missing/stale or >25% of tracked files changed — never trusts cache for
+  anything the diff flags as changed). **Correction, same day:** the map is
+  git-ignored, not committed — it's a derived, disposable artifact, and
+  committing it would create merge conflicts between concurrent feature
+  branches instead of just triggering a cheap rebuild. Added a maintainer-run
+  `pipeline-regression-skill` plus `.claude/golden-tickets.md`
+  (CHH-8/35/38) to catch silent drift in agent `.md` files after edits —
+  advisory only, not part of the per-ticket workflow.
+- **2026-09-09 — Git safety guardrails added**: New `.claude/rules/git-safety.md`
+  forbids `--force` pushes, `reset --hard`, `clean -f`, force-deleting
+  branches, amending pushed commits, rebase, and `--no-verify` across the
+  whole pipeline (not just the coder), and restates that a reviewed GitHub
+  PR merge is the only path onto `gitBaseBranch`. Wired in via Orchestrator
+  Rule 13 and referenced from `backend-coding-agent.md`,
+  `frontend-coding-agent.md`, `pr-agent.md`, `git-branch-skill.md`, and
+  `github-pr-skill.md`.
+- **2026-09-09 — BA gap-flag flow added**: Prompted by CHH-43 (QR check-in
+  dropped from scope with no rationale recorded anywhere). Knowledge Agent
+  and Planning Agent now flag `Owner: BA` gaps/Open-Questions rows to the
+  ticket's Jira reporter via a new `gap-flag-skill` (Confluence footer
+  comment + Jira comment, always confirmed with the developer first) —
+  see Rule 10's narrow exception in `orchestrator.md`. Jira status
+  transitions and all other comment uses remain prohibited.
 - **2026-09-08 — CHH-68 Emergency Services Hub breakdown**: Split into
   backend ticket CHH-82 and frontend ticket CHH-83, extending the existing
   Facility domain (no new module/folder) — see the CHH-F06 Technical Design

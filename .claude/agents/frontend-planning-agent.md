@@ -286,9 +286,13 @@ List every test scenario the Unittest Agent must cover.
 
 ### 11. Open Questions
 
-| Question | Owner | Blocking? | Resolution Needed By |
-|---|---|---|---|
-| | | | |
+`Owner` is the trigger discriminator for the BA gap-flag flow (see Rule 10's exception in `orchestrator.md`, `gap-flag-skill`): `Owner: Developer` rows stay conversational; `Owner: BA` rows trigger `gap-flag-skill` with `RaisedByStage: "Planning Agent"`, `Side: "Frontend"`. Check `Flagged?` before re-invoking on plan revisions — only re-flag if the question's wording materially changed.
+
+| Question | Owner | Blocking? | Resolution Needed By | Flagged? |
+|---|---|---|---|---|
+| | | | | |
+
+`Flagged?` — `—` (Owner: Developer, no flag needed) \| `Not yet` (Owner: BA, not yet flagged) \| `<Confluence comment URL> / <Jira comment URL>` (flagged) \| `Confluence only` / `Jira only` (partial) \| `Skipped` (developer declined).
 
 ---
 
