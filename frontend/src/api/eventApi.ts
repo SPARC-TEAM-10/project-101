@@ -76,7 +76,7 @@ export function searchEvents(accessToken: string | undefined, params: SearchEven
   });
 }
 
-export type EventRsvpStatus = "Going" | "Cancelled";
+export type EventRsvpStatus = "Going" | "Cancelled" | "Attended";
 
 export interface EventDetailDto {
   id: string;
@@ -188,5 +188,32 @@ export function cancelEvent(accessToken: string | undefined, eventId: string, re
     method: "POST",
     headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
     body: JSON.stringify(request),
+  });
+}
+
+export interface EventParticipantDto {
+  rsvpId: string;
+  fullName: string;
+  maskedMobileNumber: string;
+  referenceCode: string;
+  status: EventRsvpStatus;
+  rsvpCreatedAtUtc: string;
+  attendedAtUtc?: string | null;
+  attendedByName?: string | null;
+}
+
+// Matches contracts/chh-api.v1.yaml's GET /events/{id}/rsvps (CHH-44). [Authorize(Roles = "Hospital,Ngo")]
+export function searchEventParticipants(accessToken: string | undefined, eventId: string, search: string): Promise<EventParticipantDto[]> {
+  const query = new URLSearchParams({ search });
+  return apiFetch<EventParticipantDto[]>(`/events/${eventId}/rsvps?${query.toString()}`, {
+    headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+  });
+}
+
+// Matches contracts/chh-api.v1.yaml's POST /events/{id}/rsvps/{rsvpId}/attend (CHH-44). [Authorize(Roles = "Hospital,Ngo")]
+export function markEventRsvpAttended(accessToken: string | undefined, eventId: string, rsvpId: string): Promise<EventParticipantDto> {
+  return apiFetch<EventParticipantDto>(`/events/${eventId}/rsvps/${rsvpId}/attend`, {
+    method: "POST",
+    headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
   });
 }
