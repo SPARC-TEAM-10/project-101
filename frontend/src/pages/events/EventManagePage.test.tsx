@@ -57,6 +57,7 @@ function renderPage() {
         <Routes>
           <Route path="/events/:id/manage" element={<EventManagePage />} />
           <Route path="/events/mine" element={<div>My events page</div>} />
+          <Route path="/events/:id/attendance" element={<div>Mark attendance page</div>} />
         </Routes>
       </MemoryRouter>
     </QueryClientProvider>,
@@ -71,6 +72,15 @@ describe("EventManagePage", () => {
     expect(await screen.findByDisplayValue("Community blood drive — Kaloor")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /save and notify attendees/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Cancel event" })).toBeEnabled();
+  });
+
+  it("navigates to the attendance page when Mark attendance is clicked (CHH-44)", async () => {
+    server.use(http.get(EVENT_DETAIL_URL, () => HttpResponse.json(eventDetailFixture())));
+    renderPage();
+
+    fireEvent.click(await screen.findByRole("button", { name: "Mark attendance" }));
+
+    expect(await screen.findByText("Mark attendance page")).toBeInTheDocument();
   });
 
   it("shows the blocked state once the event has started", async () => {
