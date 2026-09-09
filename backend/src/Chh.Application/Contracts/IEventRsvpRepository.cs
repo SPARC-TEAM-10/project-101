@@ -68,4 +68,14 @@ public interface IEventRsvpRepository
     /// <param name="search">Already-validated search term (name fragment or full mobile number).</param>
     /// <param name="ct">Cancellation token.</param>
     Task<IReadOnlyList<EventRsvpWithProfileResult>> SearchParticipantsAsync(Guid eventId, string search, CancellationToken ct);
+
+    /// <summary>
+    /// Returns every RSVP row for the event (any status), joined with that individual's
+    /// name/mobile — CHH-45's attendance analytics (summary counts, the filterable participant
+    /// list, and CSV export). Read-only — implementations must use <c>AsNoTracking()</c>
+    /// (api-standards.md §6).
+    /// </summary>
+    /// <param name="eventId">The event to load every RSVP for.</param>
+    /// <param name="ct">Cancellation token.</param>
+    Task<IReadOnlyList<EventRsvpWithProfileResult>> GetAllWithProfileAsync(Guid eventId, CancellationToken ct);
 }

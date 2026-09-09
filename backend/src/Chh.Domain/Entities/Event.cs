@@ -84,4 +84,12 @@ public class Event
     /// Null until <see cref="EventStatus.Cancelled"/>.
     /// </summary>
     public string? CancellationReason { get; internal set; }
+
+    /// <summary>
+    /// Count of individuals notified when this event was published (CHH-42/US-CHH-005-05) — set
+    /// once by <c>NotifyEventPublishedJob</c> via <c>IEventRepository.SetNotifiedCountAsync</c>,
+    /// never re-computed later. Feeds CHH-45's "notified → RSVP'd → attended" funnel
+    /// (EventAnalyticsWeb.dc.html). Zero until that job runs.
+    /// </summary>
+    public int NotifiedCount { get; internal set; }
 }

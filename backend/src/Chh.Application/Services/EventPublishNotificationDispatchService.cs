@@ -35,9 +35,10 @@ public class EventPublishNotificationDispatchService : IEventPublishNotification
     }
 
     /// <inheritdoc />
-    public async Task NotifyPublishedAsync(Event calendarEvent, CancellationToken ct)
+    public async Task<int> NotifyPublishedAsync(Event calendarEvent, CancellationToken ct)
     {
         var candidates = await _individualProfileRepository.GetActiveWithKnownLocationAsync(ct).ConfigureAwait(false);
+        var targetedCount = 0;
 
         foreach (var candidate in candidates)
         {
@@ -63,6 +64,8 @@ public class EventPublishNotificationDispatchService : IEventPublishNotification
                 continue;
             }
 
+            targetedCount++;
+
             try
             {
                 var message = BuildSmsMessage(calendarEvent, distanceKm);
@@ -80,6 +83,8 @@ public class EventPublishNotificationDispatchService : IEventPublishNotification
                     calendarEvent.Id, candidate.Id);
             }
         }
+
+        return targetedCount;
     }
 
     // Field order and phrasing match EventSmsPreview.dc.html's "New event in your region" example.

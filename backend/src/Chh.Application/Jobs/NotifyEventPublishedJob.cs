@@ -54,6 +54,7 @@ public class NotifyEventPublishedJob
             return;
         }
 
-        await _notificationDispatchService.NotifyPublishedAsync(calendarEvent, ct).ConfigureAwait(false);
+        var notifiedCount = await _notificationDispatchService.NotifyPublishedAsync(calendarEvent, ct).ConfigureAwait(false);
+        await _eventRepository.SetNotifiedCountAsync(eventId, notifiedCount, ct).ConfigureAwait(false);
     }
 }
