@@ -20,7 +20,7 @@ function wrapper({ children }: { children: ReactNode }) {
 }
 
 describe("useOtpRequest", () => {
-  it("starts with an empty, invalid, untouched state", () => {
+  it("TC-CHH-F01-24: starts with an empty, invalid, untouched state", () => {
     const { result } = renderHook(() => useOtpRequest(), { wrapper });
 
     expect(result.current.mobileNumber).toBe("");
@@ -30,7 +30,7 @@ describe("useOtpRequest", () => {
     expect(result.current.error).toBeNull();
   });
 
-  it("marks the number invalid for fewer than 10 digits", () => {
+  it("TC-CHH-F01-25: marks the number invalid for fewer than 10 digits", () => {
     const { result } = renderHook(() => useOtpRequest(), { wrapper });
 
     act(() => result.current.setMobileNumber("98765"));
@@ -38,7 +38,7 @@ describe("useOtpRequest", () => {
     expect(result.current.isValid).toBe(false);
   });
 
-  it("marks the number invalid when it contains non-numeric characters", () => {
+  it("TC-CHH-F01-26: marks the number invalid when it contains non-numeric characters", () => {
     const { result } = renderHook(() => useOtpRequest(), { wrapper });
 
     act(() => result.current.setMobileNumber("98765abc10"));
@@ -46,7 +46,7 @@ describe("useOtpRequest", () => {
     expect(result.current.isValid).toBe(false);
   });
 
-  it("marks a 10-digit numeric number valid", () => {
+  it("TC-CHH-F01-27: marks a 10-digit numeric number valid", () => {
     const { result } = renderHook(() => useOtpRequest(), { wrapper });
 
     act(() => result.current.setMobileNumber("9876543210"));
@@ -54,7 +54,7 @@ describe("useOtpRequest", () => {
     expect(result.current.isValid).toBe(true);
   });
 
-  it("does not call the API when submit is invoked on an invalid number", async () => {
+  it("TC-CHH-F01-28: does not call the API when submit is invoked on an invalid number", async () => {
     const { result } = renderHook(() => useOtpRequest(), { wrapper });
 
     let submitResult;
@@ -67,7 +67,7 @@ describe("useOtpRequest", () => {
     expect(result.current.isPending).toBe(false);
   });
 
-  it("returns the response data on a successful submit", async () => {
+  it("TC-CHH-F01-29: returns the response data on a successful submit", async () => {
     const { result } = renderHook(() => useOtpRequest(), { wrapper });
     act(() => result.current.setMobileNumber("9876543210"));
 
@@ -86,7 +86,7 @@ describe("useOtpRequest", () => {
     });
   });
 
-  it("maps a 422 response to a validation error", async () => {
+  it("TC-CHH-F01-30: maps a 422 response to a validation error", async () => {
     server.use(validationErrorHandler);
     const { result } = renderHook(() => useOtpRequest(), { wrapper });
     act(() => result.current.setMobileNumber("9876543210"));
@@ -99,7 +99,7 @@ describe("useOtpRequest", () => {
     expect(result.current.error?.message).toBe("Please enter a valid 10-digit mobile number");
   });
 
-  it("maps a 429 response to a cooldown error", async () => {
+  it("TC-CHH-F01-31: maps a 429 response to a cooldown error", async () => {
     server.use(cooldownErrorHandler);
     const { result } = renderHook(() => useOtpRequest(), { wrapper });
     act(() => result.current.setMobileNumber("9876543210"));
@@ -112,7 +112,7 @@ describe("useOtpRequest", () => {
     expect(result.current.error?.message).toBe("Please wait before requesting another code.");
   });
 
-  it("maps a 502 response to a generic retry error", async () => {
+  it("TC-CHH-F01-32: maps a 502 response to a generic retry error", async () => {
     server.use(gatewayErrorHandler);
     const { result } = renderHook(() => useOtpRequest(), { wrapper });
     act(() => result.current.setMobileNumber("9876543210"));
@@ -125,7 +125,7 @@ describe("useOtpRequest", () => {
     expect(result.current.error?.message).toBe("Couldn't send the code. Try again.");
   });
 
-  it("maps a plain network failure to a generic retry error", async () => {
+  it("TC-CHH-F01-33: maps a plain network failure to a generic retry error", async () => {
     server.use(networkErrorHandler);
     const { result } = renderHook(() => useOtpRequest(), { wrapper });
     act(() => result.current.setMobileNumber("9876543210"));
@@ -138,7 +138,7 @@ describe("useOtpRequest", () => {
     expect(result.current.error?.message).toBe("Couldn't send the code. Try again.");
   });
 
-  it("clears a previous error once the user edits the number again", async () => {
+  it("TC-CHH-F01-34: clears a previous error once the user edits the number again", async () => {
     server.use(validationErrorHandler);
     const { result } = renderHook(() => useOtpRequest(), { wrapper });
     act(() => result.current.setMobileNumber("9876543210"));

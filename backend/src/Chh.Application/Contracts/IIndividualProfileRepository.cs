@@ -56,4 +56,15 @@ public interface IIndividualProfileRepository
     /// <param name="pageSize">Number of items per page.</param>
     /// <param name="ct">Cancellation token.</param>
     Task<(IReadOnlyList<IndividualProfile> Items, int TotalCount)> SearchAsync(string? search, int page, int pageSize, CancellationToken ct);
+
+    /// <summary>
+    /// Returns every active individual profile with registered coordinates (read-only, untracked)
+    /// — candidates for CHH-42/US-CHH-005-05's "new event published nearby" proximity notification.
+    /// Unlike <see cref="GetActiveDonorsByBloodGroupsAsync"/>, not filtered by blood group or
+    /// <c>IsReceiverOnly</c> — event notifications aren't about donation eligibility. Distance
+    /// filtering against a specific event's venue happens in
+    /// <see cref="IEventPublishNotificationDispatchService"/>, not here.
+    /// </summary>
+    /// <param name="ct">Cancellation token.</param>
+    Task<IReadOnlyList<IndividualProfile>> GetActiveWithKnownLocationAsync(CancellationToken ct);
 }

@@ -28,4 +28,15 @@ public record UpdateIndividualProfileRequest
 
     /// <summary>Required (max 200 chars) when <see cref="IsOtherIllness"/> is true.</summary>
     public string? OtherIllnessDetails { get; init; }
+
+    /// <summary>
+    /// Device-supplied latitude for proximity donor matching (US-CHH-004-02/CHH-80, CHH-84).
+    /// Optional — omitting both this and <see cref="Longitude"/> leaves the profile's stored
+    /// coordinates unchanged rather than clearing them. Providing only one of the pair is a
+    /// validation error.
+    /// </summary>
+    public decimal? Latitude { get; init; }
+
+    /// <summary>Device-supplied longitude — see <see cref="Latitude"/>.</summary>
+    public decimal? Longitude { get; init; }
 }

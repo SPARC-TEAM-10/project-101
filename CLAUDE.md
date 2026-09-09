@@ -55,6 +55,29 @@ implementation plans.
   and `pr-agent` are shared across both sides. Full roster and behavior:
   `backend/CLAUDE.md` §Agent Directory (the orchestrator's entry point doc).
 
+## QA execution (post-merge)
+
+After a developer's PR is merged into `main` (a manual GitHub action — nothing
+in this repo auto-merges; see `.claude/agents/pr-agent.md`), a **QA
+automation tester** runs the **QA Execution Agent**
+(`.claude/agents/qa-execution-agent.md`) independently, by handing it the
+feature-wise QA Test Case Design directly — the Confluence page URL and the
+Feature's ticket ID, e.g. "QA Execution Agent, run these test cases:
+`<ConfluenceUrl>`, `CHH-F04`". This agent is a **fully separate entity**: it
+is not part of the developer pipeline above, is never invoked by the
+Orchestrator, and never itself starts, resumes, or feeds into any SDLC
+pipeline stage in either direction. It never searches Confluence to find
+what to test — the tester always hands it the exact page.
+
+It executes exactly the test cases on the page(s) it was given against
+`.github/workflows/qa-tests.yml`, publishes a QA Execution Report to
+Confluence, and — on failure, with the QA tester's confirmation — opens a
+Jira Bug ticket as a tracking record only. Creating that ticket triggers
+nothing automatically; a developer may separately choose to pick it up later
+via the existing `/dev <TICKET_ID> <BASE_BRANCH>` bugfix entry point, but the
+QA Execution Agent itself never invokes that, and never hands off to the
+Coding Agent, Code Review Agent, or PR Agent.
+
 ## Shared coding standards (apply to every module)
 
 - Commit message format: `<type>(<module>): <short summary>`

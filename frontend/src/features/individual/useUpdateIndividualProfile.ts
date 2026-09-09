@@ -30,6 +30,11 @@ function toFormValues(profile: IndividualProfileDto): IndividualProfileUpdateFor
     isUnderweight: profile.isUnderweight,
     isOtherIllness: profile.isOtherIllness,
     otherIllnessDetails: profile.otherIllnessDetails ?? "",
+    // The API returns null (not undefined) when unset — coerce it, since the Zod schema's
+    // z.number().optional() rejects null and would otherwise fail validation on every submit
+    // for a profile that hasn't shared a location yet.
+    latitude: profile.latitude ?? undefined,
+    longitude: profile.longitude ?? undefined,
   };
 }
 
@@ -45,6 +50,7 @@ function toFormError(err: unknown): IndividualProfileUpdateFormError {
 export function useUpdateIndividualProfile(accessToken: string | null, profile: IndividualProfileDto | undefined) {
   const [values, setValues] = useState<Partial<IndividualProfileUpdateFormValues>>({});
   const [touched, setTouched] = useState(false);
+  const [isSharingLocation, setIsSharingLocation] = useState(false);
   const geolocation = useGeolocation();
 
   useEffect(() => {
@@ -60,6 +66,17 @@ export function useUpdateIndividualProfile(accessToken: string | null, profile: 
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [geolocation.addressLabel]);
+
+  useEffect(() => {
+    if (geolocation.coordinates) {
+      setValues((prev) => ({
+        ...prev,
+        latitude: geolocation.coordinates!.latitude,
+        longitude: geolocation.coordinates!.longitude,
+      }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [geolocation.coordinates]);
 
   const parsed = individualProfileUpdateSchema.safeParse(values);
   const fieldErrors = parsed.success ? {} : parsed.error.flatten().fieldErrors;
@@ -96,8 +113,21 @@ export function useUpdateIndividualProfile(accessToken: string | null, profile: 
     }
   }
 
+  // CHH-85: caller requests the device's coordinates directly, without entering the full edit
+  // form. `isSharingLocation` lets ProfilePage know a resolved coordinate should be auto-saved
+  // via the same `submit()` path (and its existing toast/cache-sync handling) rather than
+  // waiting for a manual "Save changes" click.
+  function shareLocation() {
+    setIsSharingLocation(true);
+    geolocation.request();
+  }
+
   return {
     values,
+    locationShared: profile?.latitude != null && profile?.longitude != null,
+    shareLocation,
+    isSharingLocation,
+    clearSharingLocation: () => setIsSharingLocation(false),
     setLocationCityArea: (v: string) => setField("locationCityArea", v),
     setChronicIllness: (v: boolean) => setField("isChronicIllness", v),
     setRecentSurgery: (v: boolean) => setField("hasRecentSurgery", v),

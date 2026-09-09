@@ -19,7 +19,7 @@ public class IndividualsControllerRouteTests
     /// <param name="factory">The shared API host fixture (see <see cref="ApiTestCollection"/>).</param>
     public IndividualsControllerRouteTests(ApiWebApplicationFactory factory) => _factory = factory;
 
-    [Fact]
+    [Fact(DisplayName = "TC-CHH-F02-01: PostIndividuals_UsesContractPath_IsRouted")]
     public async Task PostIndividuals_UsesContractPath_IsRouted()
     {
         // Arrange

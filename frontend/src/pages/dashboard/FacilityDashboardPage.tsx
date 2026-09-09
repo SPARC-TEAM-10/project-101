@@ -103,6 +103,7 @@ interface FeatureTile {
   icon: React.ReactNode;
   title: string;
   description: string;
+  route?: string;
 }
 
 const FEATURE_TILES: FeatureTile[] = [
@@ -115,6 +116,18 @@ const FEATURE_TILES: FeatureTile[] = [
     ),
     title: "Plan an event",
     description: "Publish a donation camp or screening drive to donors nearby.",
+    route: "/events/new",
+  },
+  {
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <rect x="3.5" y="5" width="17" height="15.5" rx="2.5" />
+        <path d="M3.5 10h17M8 3.5v3M16 3.5v3M8 14h.01M12 14h.01M16 14h.01" />
+      </svg>
+    ),
+    title: "My events",
+    description: "Edit details or cancel an event you've already published.",
+    route: "/events/mine",
   },
   {
     icon: (
@@ -277,7 +290,7 @@ export function FacilityDashboardPage() {
             <button
               key={tile.title}
               type="button"
-              onClick={tryLocked}
+              onClick={() => (locked ? tryLocked() : tile.route && navigate(tile.route))}
               aria-disabled={locked}
               className={
                 locked

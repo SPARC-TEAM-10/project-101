@@ -10,5 +10,11 @@ public enum FacilityCategory
     Hospital = 1,
 
     /// <summary>Non-governmental organization — publishes community health events and camps.</summary>
-    Ngo = 2
+    Ngo = 2,
+
+    /// <summary>
+    /// Ambulance service — searchable via the Emergency Services Hub (CHH-82/Epic CHH-68).
+    /// Self-registration for this category is out of scope for CHH-68; rows are admin-seeded.
+    /// </summary>
+    Ambulance = 3
 }

@@ -23,3 +23,12 @@ if (!window.matchMedia) {
       dispatchEvent: () => false,
     }) as MediaQueryList;
 }
+
+// jsdom doesn't implement Blob object URLs — needed by the CSV export (CHH-45) and calendar-invite
+// (CHH-40) download flows, both of which build a throwaway <a download> link via these two calls.
+if (!URL.createObjectURL) {
+  URL.createObjectURL = () => "blob:mock-url";
+}
+if (!URL.revokeObjectURL) {
+  URL.revokeObjectURL = () => {};
+}
