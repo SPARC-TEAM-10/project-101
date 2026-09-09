@@ -18,6 +18,7 @@ function renderPage() {
         <Routes>
           <Route path="/dashboard/guest" element={<GuestDashboardStubPage />} />
           <Route path="/blood-requests/new" element={<div>Blood Request Form</div>} />
+          <Route path="/emergency" element={<div>Emergency Services Hub</div>} />
           <Route path="/" element={<div>Landing Page</div>} />
           <Route path="/welcome" element={<div>Welcome Page</div>} />
         </Routes>
@@ -43,17 +44,13 @@ describe("GuestDashboardStubPage", () => {
     expect(await screen.findByText("Blood Request Form")).toBeInTheDocument();
   });
 
-  it("'Search Emergency Hub' is disabled and does not navigate", async () => {
+  it("navigates to /emergency when 'Search Emergency Hub' is clicked", async () => {
     const user = userEvent.setup();
     renderPage();
 
-    const searchButton = screen.getByRole("button", { name: /search emergency hub/i });
-    expect(searchButton).toBeDisabled();
+    await user.click(screen.getByRole("button", { name: /search emergency hub/i }));
 
-    await user.click(searchButton);
-
-    expect(screen.getByText("Guest Access")).toBeInTheDocument();
-    expect(screen.queryByText("Blood Request Form")).not.toBeInTheDocument();
+    expect(await screen.findByText("Emergency Services Hub")).toBeInTheDocument();
   });
 
   it("logs out and lands back on the landing page", async () => {

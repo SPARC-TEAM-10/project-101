@@ -257,6 +257,40 @@ export const nominatimReverseGeocodeHandler = http.get(
   () => HttpResponse.json({ address: { city: "Kochi", postcode: "682017" } }),
 );
 
+export const FACILITIES_SEARCH_URL = "/api/v1/facilities/search";
+
+const publicFacilityBase = {
+  id: "44444444-4444-4444-4444-444444444441",
+  facilityName: "City General Hospital",
+  category: "Hospital",
+  subCategory: "Government",
+  address: "MG Road, Kochi",
+  latitude: 9.9816,
+  longitude: 76.2999,
+  contacts: [{ name: "Anitha Kurian", designation: "Admin", mobile: "9876500111" }],
+  distanceKm: 1.2,
+};
+
+export const searchFacilitiesSuccessHandler = http.get(FACILITIES_SEARCH_URL, () =>
+  HttpResponse.json({ items: [publicFacilityBase], totalCount: 1, page: 1, pageSize: 20 }),
+);
+
+export const searchFacilitiesEmptyHandler = http.get(FACILITIES_SEARCH_URL, () =>
+  HttpResponse.json({ items: [], totalCount: 0, page: 1, pageSize: 20 }),
+);
+
+export const searchFacilitiesErrorHandler = http.get(FACILITIES_SEARCH_URL, () => new HttpResponse(null, { status: 500 }));
+
+export const FACILITY_BY_ID_URL = "/api/v1/facilities/:id";
+
+export const getFacilityByIdSuccessHandler = http.get(FACILITY_BY_ID_URL, () => HttpResponse.json(publicFacilityBase));
+
+export const getFacilityByIdNoCoordinatesHandler = http.get(FACILITY_BY_ID_URL, () =>
+  HttpResponse.json({ ...publicFacilityBase, latitude: null, longitude: null, distanceKm: null }),
+);
+
+export const getFacilityByIdNotFoundHandler = http.get(FACILITY_BY_ID_URL, () => new HttpResponse(null, { status: 404 }));
+
 export const ADMIN_PENDING_FACILITIES_URL = "/api/v1/admin/facilities/pending";
 
 export const pendingFacilitiesSuccessHandler = http.get(ADMIN_PENDING_FACILITIES_URL, ({ request }) => {
