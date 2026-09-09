@@ -143,6 +143,22 @@ public static class ProblemDetailsServiceCollectionExtensions
                 {
                     Detail = ex.Message
                 });
+            // CHH-44: manual attendance marking domain exception mappings.
+            options.Map<AlreadyAttendedException>(ex =>
+                new StatusCodeProblemDetails(StatusCodes.Status409Conflict)
+                {
+                    Detail = ex.Message
+                });
+            options.Map<AttendanceOutsideWindowException>(ex =>
+                new StatusCodeProblemDetails(StatusCodes.Status422UnprocessableEntity)
+                {
+                    Detail = ex.Message
+                });
+            options.Map<RsvpNotEligibleForAttendanceException>(ex =>
+                new StatusCodeProblemDetails(StatusCodes.Status422UnprocessableEntity)
+                {
+                    Detail = ex.Message
+                });
             // Surfaces the per-field failure messages (not just the generic exception message) —
             // api-standards.md §7's documented ValidationProblemDetails(ex.Failures) shape.
             options.Map<ChhValidationException>(ex =>
