@@ -1,11 +1,17 @@
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { http, HttpResponse } from "msw";
 import { describe, expect, it, vi } from "vitest";
 
 import { UsersPage } from "./UsersPage";
 import { server } from "../../../tests/setup";
-import { searchAdminUsersEmptyHandler, searchAdminUsersErrorHandler, suspendUserErrorHandler } from "../../../tests/msw/handlers";
+import {
+  ADMIN_USERS_URL,
+  searchAdminUsersEmptyHandler,
+  searchAdminUsersErrorHandler,
+  suspendUserErrorHandler,
+} from "../../../tests/msw/handlers";
 
 const mockUseAuth = vi.fn();
 
@@ -50,6 +56,42 @@ describe("UsersPage", () => {
 
     await waitFor(() => expect(screen.getByText("Active")).toBeInTheDocument());
     expect(screen.getAllByText("Suspended").length).toBeGreaterThan(0);
+  });
+
+  it("CHH-87: shows first-word + last-word initials for a 3+ word name", async () => {
+    server.use(
+      http.get(ADMIN_USERS_URL, () =>
+        HttpResponse.json({
+          items: [
+            {
+              id: "55555555-5555-5555-5555-555555555553",
+              mobileNumber: "9876500789",
+              fullName: "Robin Cherian Mathew",
+              bloodGroup: "AB+",
+              accountStatus: "Active",
+              suspensionReason: null,
+              createdAtUtc: "2026-08-05T00:00:00.000Z",
+            },
+          ],
+          totalCount: 1,
+          page: 1,
+          pageSize: 20,
+          totalPages: 1,
+        }),
+      ),
+    );
+    renderPage();
+
+    await waitFor(() => expect(screen.getByText("Robin Cherian Mathew")).toBeInTheDocument());
+    expect(screen.getByText("RM")).toBeInTheDocument();
+    expect(screen.queryByText("RC")).not.toBeInTheDocument();
+  });
+
+  it("shows first-word + second-word initials for a 2-word name (unaffected by the CHH-87 fix)", async () => {
+    renderPage();
+
+    await waitFor(() => expect(screen.getByText("Ananya Nair")).toBeInTheDocument());
+    expect(screen.getByText("AN")).toBeInTheDocument();
   });
 
   it("shows the empty state when no users are registered", async () => {

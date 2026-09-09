@@ -9,7 +9,12 @@ import { DEFAULT_PAGE_SIZE, useAdminUsers } from "../../features/admin/useAdminU
 
 function userInitials(name: string): string {
   const words = name.trim().split(/\s+/);
-  return ((words[0]?.[0] ?? "") + (words[1]?.[0] ?? "")).toUpperCase();
+  // First + last word, not first + second — for a 3+ word name ("Robin Cherian Mathew"),
+  // first+second gave "RC" (first + middle name), reading as the wrong person's initials;
+  // first+last ("RM") is the conventional monogram.
+  const first = words[0]?.[0] ?? "";
+  const last = words.length > 1 ? words[words.length - 1]?.[0] ?? "" : "";
+  return (first + last).toUpperCase();
 }
 
 function StatusBadge({ user }: { user: AdminUserDto }) {
