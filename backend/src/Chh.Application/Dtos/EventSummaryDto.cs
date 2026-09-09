@@ -17,9 +17,6 @@ public record EventSummaryDto
     public required decimal DistanceKm { get; init; }
     public required int Capacity { get; init; }
 
-    /// <summary>
-    /// Always equals <see cref="Capacity"/> until CHH-40 introduces RSVP tracking — no RSVP
-    /// entity exists yet, so "0 taken" is the honest current value, not a placeholder.
-    /// </summary>
+    /// <summary><see cref="Capacity"/> minus the event's active (non-cancelled) RSVP count.</summary>
     public required int SpotsRemaining { get; init; }
 }

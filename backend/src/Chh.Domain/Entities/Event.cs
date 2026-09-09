@@ -69,4 +69,12 @@ public class Event
 
     /// <summary>UTC timestamp of the last update (e.g. a CHH-41 edit or cancellation).</summary>
     public DateTimeOffset UpdatedAtUtc { get; internal set; }
+
+    /// <summary>
+    /// Count of active (non-cancelled) RSVPs (CHH-40/US-CHH-005-03) — mutated only via
+    /// <c>IEventRepository.TryReserveSpotAsync</c>/<c>ReleaseSpotAsync</c>'s atomic conditional
+    /// update, matching <see cref="BloodRequest.UnitsAccepted"/>'s established race-safety
+    /// pattern. <c>Capacity - RsvpCount</c> is "spots remaining".
+    /// </summary>
+    public int RsvpCount { get; internal set; }
 }

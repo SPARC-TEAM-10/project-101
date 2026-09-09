@@ -795,6 +795,124 @@ paths:
                   $ref: "#/components/schemas/EventSummaryDto"
         "401":
           description: Missing or invalid JWT.
+  /events/{id}:
+    get:
+      tags:
+        - Events
+      summary: Get event detail
+      description: >
+        Returns the event detail view (CHH-40/US-CHH-005-03 detail page). Open
+        to any authenticated role. Includes the caller's own RSVP status when
+        they're an Individual who has RSVP'd — null otherwise. latitude/
+        longitude are optional; when both are supplied, distanceKm is
+        computed against them.
+      operationId: getEventById
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: latitude
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: longitude
+          in: query
+          required: false
+          schema:
+            type: number
+      responses:
+        "200":
+          description: The event detail.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventDetailDto"
+        "401":
+          description: Missing or invalid JWT.
+        "404":
+          description: No event exists with that id.
+  /events/{id}/rsvp:
+    post:
+      tags:
+        - Events
+      summary: RSVP to an event
+      description: >
+        RSVPs the caller to the event (CHH-40/US-CHH-005-03 AC1). Restricted
+        to the Individual role. Returns 422 if the event has no remaining
+        capacity (AC2 — "Event Full"), 409 if the caller already has an
+        active RSVP for this event (AC3).
+      operationId: rsvpToEvent
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: RSVP created (or reactivated after a prior cancellation).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RsvpResponseDto"
+        "401":
+          description: Missing or invalid JWT.
+        "403":
+          description: Authenticated caller does not carry the Individual role.
+        "404":
+          description: No event exists with that id.
+        "409":
+          description: Caller already has an active RSVP for this event.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "422":
+          description: Event has no remaining capacity.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+    delete:
+      tags:
+        - Events
+      summary: Cancel an RSVP
+      description: >
+        Cancels the caller's own active RSVP and releases the spot back to
+        the pool (CHH-40/US-CHH-005-03 Edge Case). Restricted to the
+        Individual role.
+      operationId: cancelEventRsvp
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: RSVP cancelled.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RsvpResponseDto"
+        "401":
+          description: Missing or invalid JWT.
+        "403":
+          description: Authenticated caller does not carry the Individual role.
+        "404":
+          description: No event exists with that id, or the caller has no active RSVP for it.
   /admin/facilities/{id}/verification:
     patch:
       tags:
@@ -1896,6 +2014,98 @@ components:
           type: integer
         spotsRemaining:
           type: integer
-          description: >
-            Always equals capacity until CHH-40 introduces RSVP tracking — no
-            RSVP entity exists yet.
+          description: capacity minus the event's active (non-cancelled) RSVP count.
+    EventDetailDto:
+      type: object
+      description: Response body for GET /events/{id} (CHH-40 detail page).
+      required:
+        - id
+        - title
+        - eventType
+        - description
+        - facilityName
+        - venueName
+        - venueAddress
+        - latitude
+        - longitude
+        - startAtUtc
+        - endAtUtc
+        - capacity
+        - spotsRemaining
+        - coordinatorName
+        - coordinatorContact
+        - status
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        eventType:
+          $ref: "#/components/schemas/EventType"
+        description:
+          type: string
+        facilityName:
+          type: string
+        venueName:
+          type: string
+        venueAddress:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        startAtUtc:
+          type: string
+          format: date-time
+        endAtUtc:
+          type: string
+          format: date-time
+        capacity:
+          type: integer
+        spotsRemaining:
+          type: integer
+        coordinatorName:
+          type: string
+        coordinatorContact:
+          type: string
+        rsvpCutoffAtUtc:
+          type: string
+          format: date-time
+          nullable: true
+        status:
+          type: string
+          enum: ["Published", "Cancelled"]
+        distanceKm:
+          type: number
+          nullable: true
+          description: Only present when the caller supplied latitude/longitude query params.
+        myRsvpStatus:
+          type: string
+          enum: ["Going", "Cancelled"]
+          nullable: true
+          description: The caller's own RSVP status — null if they've never RSVP'd (or aren't an Individual).
+        myReferenceCode:
+          type: string
+          nullable: true
+          description: Present only alongside myRsvpStatus "Going".
+    RsvpResponseDto:
+      type: object
+      description: Response body for POST/DELETE /events/{id}/rsvp (CHH-40).
+      required:
+        - eventId
+        - status
+        - spotsRemaining
+      properties:
+        eventId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: ["Going", "Cancelled"]
+        referenceCode:
+          type: string
+          nullable: true
+          description: Present only alongside status "Going".
+        spotsRemaining:
+          type: integer
