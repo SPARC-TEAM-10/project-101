@@ -7,6 +7,8 @@ attached_to: coding-agent
 
 Creates or checks out a feature branch before any code is written. Called by the Coding Agent as Gate 3 of its PRE-CONDITIONS.
 
+Every git command this skill runs is bound by `.claude/rules/git-safety.md` (forbidden commands, base-branch protection, merge-confirmation, and escalation rules) — this file's own "Hard Rule" and Step 2a below implement that shared rule for branch creation specifically; they don't replace it.
+
 ---
 
 ## Modes

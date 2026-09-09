@@ -13,6 +13,8 @@ Assembles, presents, and raises the pull request after the Unittest Agent confir
 
 The final step of the pipeline. Receives the test report and plan details from the Orchestrator, drafts the PR, gets developer sign-off, runs pre-flight checks, raises the PR via the GitHub PR Skill, and sends the completion notification.
 
+**Mandatory pre-read:** `.claude/rules/git-safety.md` — binding for every git operation in this agent, including the merge-behind-base handling in step 4 (never force-push, never rebase, never merge without explicit developer confirmation).
+
 ---
 
 ## Input from Orchestrator
