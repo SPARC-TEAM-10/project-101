@@ -12,8 +12,9 @@ using Hangfire;
 namespace Chh.Application.Services;
 
 /// <summary>
-/// Orchestrates event creation (CHH-38/US-CHH-005-01: verified-facility guard, persistence),
-/// proximity discovery (CHH-39/US-CHH-005-02), and edit/cancellation (CHH-41/US-CHH-005-04).
+/// Orchestrates event creation (CHH-38/US-CHH-005-01: verified-facility guard, persistence, and
+/// CHH-42/US-CHH-005-05's publish notification fan-out), proximity discovery
+/// (CHH-39/US-CHH-005-02), and edit/cancellation (CHH-41/US-CHH-005-04).
 /// </summary>
 public class EventService : IEventService
 {
@@ -30,7 +31,10 @@ public class EventService : IEventService
     /// <param name="eventRsvpRepository">Data layer for persisting individual RSVP rows (CHH-40).</param>
     /// <param name="individualProfileRepository">Resolves the caller's own <c>IndividualProfile.Id</c> from their mobile number (CHH-40).</param>
     /// <param name="unitOfWork">Persists changes made during the request.</param>
-    /// <param name="backgroundJobClient">Enqueues <see cref="NotifyEventChangeJob"/> after a notify-worthy edit or cancellation (CHH-41).</param>
+    /// <param name="backgroundJobClient">
+    /// Enqueues <see cref="NotifyEventChangeJob"/> after a notify-worthy edit or cancellation
+    /// (CHH-41), and <see cref="NotifyEventPublishedJob"/> after creation (CHH-42).
+    /// </param>
     public EventService(
         IFacilityRepository facilityRepository,
         IEventRepository eventRepository,
@@ -64,6 +68,10 @@ public class EventService : IEventService
 
         await _eventRepository.AddAsync(calendarEvent, ct).ConfigureAwait(false);
         await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
+
+        // Fire-and-forget: proximity notification fan-out must not delay this response
+        // (api-standards.md §6 NFR) — CHH-42/US-CHH-005-05.
+        _backgroundJobClient.Enqueue<NotifyEventPublishedJob>(job => job.RunAsync(calendarEvent.Id, CancellationToken.None));
 
         return ToDto(calendarEvent);
     }

@@ -75,4 +75,12 @@ public class IndividualProfileRepository : IIndividualProfileRepository
 
         return (items, totalCount);
     }
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<IndividualProfile>> GetActiveWithKnownLocationAsync(CancellationToken ct) =>
+        await _context.IndividualProfiles
+            .AsNoTracking()
+            .Where(p => p.AccountStatus == AccountStatus.Active && p.Latitude != null && p.Longitude != null)
+            .ToListAsync(ct)
+            .ConfigureAwait(false);
 }

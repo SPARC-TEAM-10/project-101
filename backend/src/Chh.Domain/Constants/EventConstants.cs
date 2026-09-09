@@ -37,4 +37,12 @@ public static class EventConstants
     public const string EventAlreadyStartedMessage = "This event has already started, so it can't be edited or cancelled.";
     public const string CapacityBelowRsvpCountMessage = "Capacity cannot be reduced below the number already RSVP'd.";
     public const string EventAlreadyCancelledMessage = "This event has already been cancelled.";
+
+    /// <summary>
+    /// Proximity radius for the "new event published nearby" notification (CHH-42/US-CHH-005-05
+    /// AC1 — the PRD/spec never gives a number for "the venue's region", so this reuses the
+    /// frontend discovery page's default search radius (useEventDiscovery.ts's DEFAULT_RADIUS_KM)
+    /// for consistency rather than inventing an unrelated value).
+    /// </summary>
+    public const int EventPublishNotificationRadiusKm = 15;
 }
