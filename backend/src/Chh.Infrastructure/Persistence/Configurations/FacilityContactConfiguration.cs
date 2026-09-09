@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Chh.Infrastructure.Persistence.Configurations;
 
-/// <summary>EF Core fluent configuration for <see cref="FacilityContact"/> (`.claude/rules/db-standards.md`, CHH-73).</summary>
+/// <summary>EF Core fluent configuration for <see cref="FacilityContact"/> (`.claude/rules/db-standards.md`, CHH-73/CHH-78).</summary>
 public class FacilityContactConfiguration : IEntityTypeConfiguration<FacilityContact>
 {
     private const int NameMaxLength = 100;
@@ -30,6 +30,9 @@ public class FacilityContactConfiguration : IEntityTypeConfiguration<FacilityCon
 
         builder.Property(e => e.Mobile)
             .HasMaxLength(MobileMaxLength)
+            .IsRequired();
+
+        builder.Property(e => e.SortOrder)
             .IsRequired();
 
         builder.HasIndex(e => e.FacilityId)

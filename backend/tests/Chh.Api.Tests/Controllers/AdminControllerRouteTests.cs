@@ -62,4 +62,27 @@ public class AdminControllerRouteTests
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
+
+    [Fact]
+    public async Task ReviewFacility_UsesContractPath_IsRouted()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.PatchAsync($"/api/v1/admin/facilities/{Guid.NewGuid()}/verification", content: null);
+
+        response.StatusCode.Should().NotBe(HttpStatusCode.NotFound,
+            "the route convention must resolve AdminController's review action to contracts/chh-api.v1.yaml's documented path");
+    }
+
+    [Fact]
+    public async Task ReviewFacility_WithNonAdminRole_ReturnsForbidden()
+    {
+        var client = _factory.CreateClient();
+        client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", IssueToken(RoleConstants.Individual));
+
+        var response = await client.PatchAsync($"/api/v1/admin/facilities/{Guid.NewGuid()}/verification", content: null);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
 }

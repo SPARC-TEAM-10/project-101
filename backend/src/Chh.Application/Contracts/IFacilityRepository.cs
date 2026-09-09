@@ -3,9 +3,14 @@ using Chh.Domain.Enums;
 
 namespace Chh.Application.Contracts;
 
-/// <summary>Data layer for <see cref="Facility"/> (CHH-F07 Admin Command Center).</summary>
+/// <summary>Data layer for <see cref="Facility"/> (CHH-78/US-CHH-003-01 creation, CHH-F07 Admin Command Center query).</summary>
 public interface IFacilityRepository
 {
+    /// <summary>Adds a new facility (with its contacts) to the context. Does not call <c>SaveChangesAsync</c>.</summary>
+    /// <param name="facility">The facility to add.</param>
+    /// <param name="ct">Cancellation token.</param>
+    Task AddAsync(Facility facility, CancellationToken ct);
+
     /// <summary>
     /// Returns one page of facilities matching <paramref name="status"/>, ordered by
     /// <c>CreatedAtUtc</c> ascending (oldest registration first), plus the total matching count.
@@ -36,8 +41,12 @@ public interface IFacilityRepository
     /// <param name="ct">Cancellation token.</param>
     Task<Facility?> GetByLicenseNumberAsync(string licenseNumber, CancellationToken ct);
 
-    /// <summary>Adds a new facility (with its contacts) to the context. Does not call <c>SaveChangesAsync</c>.</summary>
-    /// <param name="facility">The facility to add.</param>
+    /// <summary>
+    /// Returns the facility for the given id, tracked by the context so mutations made to it
+    /// (CHH-79's <c>LicenseDocumentUrl</c> update) are persisted on <c>SaveChangesAsync</c> — or
+    /// <c>null</c> if none exists.
+    /// </summary>
+    /// <param name="id">The facility id.</param>
     /// <param name="ct">Cancellation token.</param>
-    Task AddAsync(Facility facility, CancellationToken ct);
+    Task<Facility?> GetTrackedByIdAsync(Guid id, CancellationToken ct);
 }

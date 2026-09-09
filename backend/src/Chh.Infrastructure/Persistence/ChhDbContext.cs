@@ -27,7 +27,7 @@ public class ChhDbContext : DbContext
     /// <summary>Blood requests with a search radius for proximity donor matching (CHH-33/US-CHH-004-01).</summary>
     public DbSet<BloodRequest> BloodRequests { get; set; } = default!;
 
-    /// <summary>Registered facilities awaiting or holding a verification decision (CHH-F07 Admin Command Center).</summary>
+    /// <summary>Registered facilities (CHH-78/US-CHH-003-01 creation, CHH-F07 Admin Command Center query).</summary>
     public DbSet<Facility> Facilities { get; set; } = default!;
 
     /// <summary>Contact persons for <see cref="Facility"/> records.</summary>

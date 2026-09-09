@@ -51,8 +51,12 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IBloodRequestRepository, BloodRequestRepository>();
         services.AddScoped<IBloodRequestService, BloodRequestService>();
         services.AddScoped<IFacilityRepository, FacilityRepository>();
-        services.AddScoped<IFacilityAdminService, FacilityAdminService>();
         services.AddScoped<IFacilityService, FacilityService>();
+        services.AddScoped<IFacilityAdminService, FacilityAdminService>();
+        services.AddScoped<IUserAdminService, UserAdminService>();
+        services.Configure<Chh.Infrastructure.Storage.FacilityDocumentStorageOptions>(
+            configuration.GetSection(Chh.Infrastructure.Storage.FacilityDocumentStorageOptions.SectionName));
+        services.AddScoped<IFacilityDocumentStorageService, Chh.Infrastructure.Storage.LocalDiskFacilityDocumentStorageService>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IMatchingEngineService, MatchingEngineService>();
         services.AddScoped<IPresenceTrackerService, PresenceTrackerService>();

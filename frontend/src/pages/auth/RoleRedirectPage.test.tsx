@@ -25,6 +25,8 @@ function renderWithSession(session: AuthSession | null) {
         <Route path="/login" element={<div>Login Screen</div>} />
         <Route path="/dashboard/individual" element={<div>Individual Dashboard</div>} />
         <Route path="/welcome" element={<div>Welcome Screen</div>} />
+        <Route path="/dashboard/facility" element={<div>Facility Dashboard</div>} />
+        <Route path="/admin" element={<div>Admin Command Center</div>} />
       </Routes>
     </MemoryRouter>,
   );
@@ -47,5 +49,23 @@ describe("RoleRedirectPage", () => {
     renderWithSession({ token: "t", role: "Guest", expiresAtUtc: "2099-01-01T00:00:00.000Z" });
 
     expect(screen.getByText("Welcome Screen")).toBeInTheDocument();
+  });
+
+  it("redirects to /dashboard/facility for a Hospital role (CHH-28)", () => {
+    renderWithSession({ token: "t", role: "Hospital", expiresAtUtc: "2099-01-01T00:00:00.000Z" });
+
+    expect(screen.getByText("Facility Dashboard")).toBeInTheDocument();
+  });
+
+  it("redirects to /dashboard/facility for an Ngo role (CHH-28)", () => {
+    renderWithSession({ token: "t", role: "Ngo", expiresAtUtc: "2099-01-01T00:00:00.000Z" });
+
+    expect(screen.getByText("Facility Dashboard")).toBeInTheDocument();
+  });
+
+  it("redirects to /admin for a SystemAdmin role (CHH-73)", () => {
+    renderWithSession({ token: "t", role: "SystemAdmin", expiresAtUtc: "2099-01-01T00:00:00.000Z" });
+
+    expect(screen.getByText("Admin Command Center")).toBeInTheDocument();
   });
 });

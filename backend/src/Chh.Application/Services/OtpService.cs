@@ -122,6 +122,14 @@ public class OtpService : IOtpService
             .GetByMobileNumberAsync(request.MobileNumber, ct)
             .ConfigureAwait(false);
 
+        // CHH-76/US-CHH-001-04 AC2: a suspended account is blocked at login, before any token is
+        // issued. Checked ahead of role resolution — a suspended admin shouldn't be able to log in
+        // to the Admin Command Center either.
+        if (profile is { AccountStatus: AccountStatus.Suspended })
+        {
+            throw new AccountSuspendedException();
+        }
+
         string role;
         if (profile is { IsAdmin: true })
         {

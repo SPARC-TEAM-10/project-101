@@ -186,6 +186,42 @@ export const createEventValidationErrorHandler = http.post(EVENTS_URL, () => {
   );
 });
 
+// No MSW handler for POST /api/v1/facilities/:id/upload — @mswjs/interceptors hangs under jsdom
+// on any XHR request whose body is a FormData containing a Blob/File (see tests/fakeXhr.ts's doc
+// comment). facilityApi.uploadFacilityLicense is tested via that fake XHR instead.
+
+export const FACILITY_ME_URL = "/api/v1/facilities/me";
+
+const facilityMeBase = {
+  id: "22222222-2222-2222-2222-222222222222",
+  facilityName: "Kochi Metro Hospital",
+  category: "Hospital",
+  licenseNumber: "KL-HOSP-448120",
+  address: "Marine Drive, Ernakulam, Kochi",
+  contacts: [{ name: "Anitha Varghese", designation: "Blood bank officer", mobile: "9876500112" }],
+  licenseDocumentUrl: null,
+  createdAtUtc: "2026-09-05T00:00:00.000Z",
+  updatedAtUtc: "2026-09-07T00:00:00.000Z",
+};
+
+export const getMyFacilityPendingHandler = http.get(FACILITY_ME_URL, () =>
+  HttpResponse.json({ ...facilityMeBase, verificationStatus: "Pending", rejectionReason: null }),
+);
+
+export const getMyFacilityApprovedHandler = http.get(FACILITY_ME_URL, () =>
+  HttpResponse.json({ ...facilityMeBase, verificationStatus: "Verified", rejectionReason: null }),
+);
+
+export const getMyFacilityRejectedHandler = http.get(FACILITY_ME_URL, () =>
+  HttpResponse.json({
+    ...facilityMeBase,
+    verificationStatus: "Rejected",
+    rejectionReason: "The licence document expired on 31 March 2025. Upload a currently valid licence and we will review it again.",
+  }),
+);
+
+export const getMyFacilityNotFoundHandler = http.get(FACILITY_ME_URL, () => new HttpResponse(null, { status: 404 }));
+
 export const INDIVIDUALS_ME_URL = "/api/v1/individuals/me";
 
 export const getMyProfileSuccessHandler = http.get(INDIVIDUALS_ME_URL, () =>
@@ -283,6 +319,138 @@ export const osmTileHandler = http.get(
       headers: { "Content-Type": "image/png" },
     }),
 );
+
+export const ADMIN_PENDING_FACILITIES_URL = "/api/v1/admin/facilities/pending";
+
+export const pendingFacilitiesSuccessHandler = http.get(ADMIN_PENDING_FACILITIES_URL, ({ request }) => {
+  const url = new URL(request.url);
+  const page = Number(url.searchParams.get("page") ?? "1");
+  const pageSize = Number(url.searchParams.get("pageSize") ?? "20");
+  const items = [
+    {
+      id: "33333333-3333-3333-3333-333333333331",
+      facilityName: "Sreedhara Multispeciality",
+      category: "Hospital",
+      licenseNumber: "KL-HOSP-100200",
+      address: "Kaloor, Kochi",
+      contacts: [{ name: "Anitha Kurian", designation: "Admin", mobile: "9876500111" }],
+      verificationStatus: "Pending",
+      licenseDocumentUrl: null,
+      rejectionReason: null,
+      createdAtUtc: "2026-09-02T00:00:00.000Z",
+    },
+    {
+      id: "33333333-3333-3333-3333-333333333332",
+      facilityName: "Vayali Jeevan Trust",
+      category: "Ngo",
+      licenseNumber: "KL-NGO-100300",
+      address: "Thrissur",
+      contacts: [{ name: "Rahul Menon", designation: "Coordinator", mobile: "9876500112" }],
+      verificationStatus: "Pending",
+      licenseDocumentUrl: "https://blob.example/vayali-licence.pdf",
+      rejectionReason: null,
+      createdAtUtc: "2026-09-02T00:00:00.000Z",
+    },
+  ];
+  return HttpResponse.json({
+    items,
+    totalCount: items.length,
+    page,
+    pageSize,
+    totalPages: 1,
+  });
+});
+
+export const pendingFacilitiesEmptyHandler = http.get(ADMIN_PENDING_FACILITIES_URL, () => {
+  return HttpResponse.json({ items: [], totalCount: 0, page: 1, pageSize: 20, totalPages: 0 });
+});
+
+export const pendingFacilitiesErrorHandler = http.get(ADMIN_PENDING_FACILITIES_URL, () => {
+  return HttpResponse.error();
+});
+
+export const pendingFacilitiesForbiddenHandler = http.get(ADMIN_PENDING_FACILITIES_URL, () => {
+  return HttpResponse.json(
+    { title: "Forbidden", status: 403, detail: "Authenticated caller does not carry the SystemAdmin role." },
+    { status: 403 },
+  );
+});
+
+export const reviewFacilitySuccessHandler = http.patch(
+  "/api/v1/admin/facilities/:id/verification",
+  async ({ params, request }) => {
+    const body = (await request.json()) as { decision: "Approve" | "Reject"; rejectionReason: string | null };
+    return HttpResponse.json({
+      id: params.id,
+      facilityName: "Sreedhara Multispeciality",
+      category: "Hospital",
+      licenseNumber: "KL-HOSP-100200",
+      address: "Kaloor, Kochi",
+      contacts: [{ name: "Anitha Kurian", designation: "Admin", mobile: "9876500111" }],
+      verificationStatus: body.decision === "Approve" ? "Verified" : "Rejected",
+      licenseDocumentUrl: null,
+      rejectionReason: body.decision === "Reject" ? body.rejectionReason : null,
+      createdAtUtc: "2026-09-02T00:00:00.000Z",
+      updatedAtUtc: "2026-09-08T00:00:00.000Z",
+    });
+  },
+);
+
+export const reviewFacilityErrorHandler = http.patch("/api/v1/admin/facilities/:id/verification", () => {
+  return HttpResponse.error();
+});
+
+export const ADMIN_USERS_URL = "/api/v1/admin/users";
+
+export const searchAdminUsersSuccessHandler = http.get(ADMIN_USERS_URL, ({ request }) => {
+  const url = new URL(request.url);
+  const search = (url.searchParams.get("search") ?? "").toLowerCase();
+  const allUsers = [
+    {
+      id: "55555555-5555-5555-5555-555555555551",
+      mobileNumber: "9876500123",
+      fullName: "Ananya Nair",
+      bloodGroup: "O+",
+      accountStatus: "Active" as const,
+      suspensionReason: null,
+      createdAtUtc: "2026-08-01T00:00:00.000Z",
+    },
+    {
+      id: "55555555-5555-5555-5555-555555555552",
+      mobileNumber: "9876500456",
+      fullName: "Ravi Kumar",
+      bloodGroup: "B+",
+      accountStatus: "Suspended" as const,
+      suspensionReason: "Repeated no-shows after accepting requests",
+      createdAtUtc: "2026-07-15T00:00:00.000Z",
+    },
+  ];
+  const items = search
+    ? allUsers.filter((u) => u.mobileNumber.includes(search) || u.fullName.toLowerCase().includes(search))
+    : allUsers;
+  return HttpResponse.json({ items, totalCount: items.length, page: 1, pageSize: 20, totalPages: 1 });
+});
+
+export const searchAdminUsersEmptyHandler = http.get(ADMIN_USERS_URL, () =>
+  HttpResponse.json({ items: [], totalCount: 0, page: 1, pageSize: 20, totalPages: 0 }),
+);
+
+export const searchAdminUsersErrorHandler = http.get(ADMIN_USERS_URL, () => HttpResponse.error());
+
+export const suspendUserSuccessHandler = http.patch("/api/v1/admin/users/:id/suspend", async ({ params, request }) => {
+  const body = (await request.json()) as { reason: string };
+  return HttpResponse.json({
+    id: params.id,
+    mobileNumber: "9876500456",
+    fullName: "Ravi Kumar",
+    bloodGroup: "B+",
+    accountStatus: "Suspended",
+    suspensionReason: body.reason,
+    createdAtUtc: "2026-07-15T00:00:00.000Z",
+  });
+});
+
+export const suspendUserErrorHandler = http.patch("/api/v1/admin/users/:id/suspend", () => HttpResponse.error());
 
 export const INDIVIDUALS_URL = "/api/v1/individuals";
 
@@ -464,5 +632,9 @@ export const handlers = [
   nominatimReverseGeocodeHandler,
   nominatimForwardGeocodeHandler,
   osmTileHandler,
+  pendingFacilitiesSuccessHandler,
   registerIndividualSuccessHandler,
+  reviewFacilitySuccessHandler,
+  searchAdminUsersSuccessHandler,
+  suspendUserSuccessHandler,
 ];
