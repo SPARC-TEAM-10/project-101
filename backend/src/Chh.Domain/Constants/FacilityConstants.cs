@@ -21,6 +21,17 @@ public static class FacilityConstants
         FacilitySubCategory.Section8Company
     };
 
+    /// <summary>
+    /// Sub-categories a <see cref="FacilityCategory.Ambulance"/> facility may pick (CHH-82/Epic
+    /// CHH-68) — reuses Government/Private rather than introducing dedicated values, since
+    /// ambulance self-registration doesn't exist yet.
+    /// </summary>
+    public static readonly IReadOnlySet<FacilitySubCategory> AmbulanceSubCategories = new HashSet<FacilitySubCategory>
+    {
+        FacilitySubCategory.Government,
+        FacilitySubCategory.Private
+    };
+
     /// <summary>Validation message when the mandatory sub-category is missing.</summary>
     public const string SubCategoryRequiredMessage = "Select a sub-category.";
 
@@ -32,5 +43,10 @@ public static class FacilityConstants
 
     /// <summary>Returns the allowed sub-categories for <paramref name="category"/>.</summary>
     public static IReadOnlySet<FacilitySubCategory> SubCategoriesFor(FacilityCategory category) =>
-        category == FacilityCategory.Hospital ? HospitalSubCategories : NgoSubCategories;
+        category switch
+        {
+            FacilityCategory.Hospital => HospitalSubCategories,
+            FacilityCategory.Ambulance => AmbulanceSubCategories,
+            _ => NgoSubCategories
+        };
 }

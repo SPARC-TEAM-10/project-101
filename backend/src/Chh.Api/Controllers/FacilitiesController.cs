@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Chh.Application.Contracts;
 using Chh.Application.Dtos;
 using Chh.Domain.Constants;
+using Chh.Domain.Enums;
 using Hellang.Middleware.ProblemDetails;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -102,6 +103,67 @@ public class FacilitiesController : ControllerBase
             file?.ContentType ?? string.Empty,
             file?.Length ?? 0,
             cancellationToken);
+
+        return result is null ? NotFound() : Ok(result);
+    }
+
+    /// <summary>
+    /// Searches verified facilities for the Emergency Services Hub (CHH-82/US-CHH-001-01, Epic
+    /// CHH-68). Always restricted to <see cref="FacilityVerificationStatus.Verified"/> facilities
+    /// server-side, regardless of caller role. Requires a valid JWT — any authenticated role,
+    /// including Guest (api-standards.md §5).
+    /// </summary>
+    /// <param name="q">Matches facility name or address, case-insensitive (AC2).</param>
+    /// <param name="category">Optional category filter (AC1).</param>
+    /// <param name="latitude">Caller's device latitude, for distance sort (AC3).</param>
+    /// <param name="longitude">Caller's device longitude, for distance sort (AC3).</param>
+    /// <param name="page">1-based page number.</param>
+    /// <param name="pageSize">Items per page.</param>
+    /// <param name="cancellationToken">Cancellation token forwarded through the service and repository layers.</param>
+    [HttpGet("search")]
+    [Authorize]
+    [ProducesResponseType(typeof(PagedResponse<PublicFacilityDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<ActionResult<PagedResponse<PublicFacilityDto>>> SearchAsync(
+        [FromQuery] string? q,
+        [FromQuery] FacilityCategory? category,
+        [FromQuery] decimal? latitude,
+        [FromQuery] decimal? longitude,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        CancellationToken cancellationToken = default)
+    {
+        var request = new SearchFacilitiesRequest
+        {
+            Q = q,
+            Category = category,
+            Latitude = latitude,
+            Longitude = longitude,
+            Page = page,
+            PageSize = pageSize
+        };
+        var result = await _facilityService.SearchAsync(request, cancellationToken);
+
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Returns one facility's public detail for the Emergency Services Hub (CHH-82/US-CHH-001-02,
+    /// Epic CHH-68) — facility name, category, full address, and contacts. 404 if the facility
+    /// doesn't exist or isn't Verified.
+    /// </summary>
+    /// <param name="id">The facility id.</param>
+    /// <param name="cancellationToken">Cancellation token forwarded through the service and repository layers.</param>
+    [HttpGet("{id:guid}")]
+    [Authorize]
+    [ProducesResponseType(typeof(PublicFacilityDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<PublicFacilityDto>> GetPublicDetailAsync(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        var result = await _facilityService.GetPublicDetailAsync(id, cancellationToken);
 
         return result is null ? NotFound() : Ok(result);
     }

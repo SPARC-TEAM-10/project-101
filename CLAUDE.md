@@ -55,6 +55,29 @@ implementation plans.
   and `pr-agent` are shared across both sides. Full roster and behavior:
   `backend/CLAUDE.md` §Agent Directory (the orchestrator's entry point doc).
 
+## QA execution (post-merge)
+
+After a developer's PR is merged into `main` (a manual GitHub action — nothing
+in this repo auto-merges; see `.claude/agents/pr-agent.md`), a **QA
+automation tester** runs the **QA Execution Agent**
+(`.claude/agents/qa-execution-agent.md`) independently, by handing it the
+feature-wise QA Test Case Design directly — the Confluence page URL and the
+Feature's ticket ID, e.g. "QA Execution Agent, run these test cases:
+`<ConfluenceUrl>`, `CHH-F04`". This agent is a **fully separate entity**: it
+is not part of the developer pipeline above, is never invoked by the
+Orchestrator, and never itself starts, resumes, or feeds into any SDLC
+pipeline stage in either direction. It never searches Confluence to find
+what to test — the tester always hands it the exact page.
+
+It executes exactly the test cases on the page(s) it was given against
+`.github/workflows/qa-tests.yml`, publishes a QA Execution Report to
+Confluence, and — on failure, with the QA tester's confirmation — opens a
+Jira Bug ticket as a tracking record only. Creating that ticket triggers
+nothing automatically; a developer may separately choose to pick it up later
+via the existing `/dev <TICKET_ID> <BASE_BRANCH>` bugfix entry point, but the
+QA Execution Agent itself never invokes that, and never hands off to the
+Coding Agent, Code Review Agent, or PR Agent.
+
 ## Shared coding standards (apply to every module)
 
 - Commit message format: `<type>(<module>): <short summary>`
@@ -120,6 +143,26 @@ Module-specific additions to this checklist (e.g. "matches OpenAPI spec",
   `AdminUser` table/repository were removed. Routing (the global
   `RoutePrefixConvention` + controller-naming coupling — see
   `.claude/rules/api-standards.md` §1) was untouched by this decision.
+- **2026-09-08 — CHH-68 Emergency Services Hub breakdown**: Split into
+  backend ticket CHH-82 and frontend ticket CHH-83, extending the existing
+  Facility domain (no new module/folder) — see the CHH-F06 Technical Design
+  Confluence page linked from both tickets. `Facility` gains nullable
+  `Latitude`/`Longitude`; `FacilityCategory` gains `Ambulance` (additive,
+  non-breaking). Ambulance-operator self-registration stays out of scope
+  (CHH-F03 concern) — ambulance rows are admin-seeded for now.
+- **2026-09-08 — Post-merge QA execution added**: Added a standalone QA
+  Execution Agent (`.claude/agents/qa-execution-agent.md`), run by a QA
+  automation tester **after** a PR merges — not wired into the developer
+  pipeline or `orchestrator.md`'s Task Workflow (an earlier same-day attempt
+  to gate it pre-merge, before PR, was reverted — wrong actor and wrong
+  timing). It reads the Feature's Confluence QA Test Case Design +
+  Automation Mapping pages, runs `.github/workflows/qa-tests.yml`, publishes
+  a QA Execution Report to Confluence, and on failure (with tester
+  confirmation) opens a linked Jira Bug ticket that re-enters development via
+  the existing `/dev` bugfix path. Runs in a degraded "Coarse Mode"
+  (job-status only) until `qa-tests.yml` gains real per-test-case
+  (`TC-CHH-F0X-NN`) aggregation, tracked separately. See root `CLAUDE.md`
+  §"QA execution (post-merge)".
 
 ## Non-goals / out of scope
 
