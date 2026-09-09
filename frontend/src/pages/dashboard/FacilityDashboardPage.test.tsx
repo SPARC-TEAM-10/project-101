@@ -59,7 +59,7 @@ describe("FacilityDashboardPage", () => {
 
     const tile = await screen.findByRole("button", { name: /plan an event/i });
     expect(tile).toHaveAttribute("aria-disabled", "true");
-    expect(screen.getAllByText("Locked").length).toBe(3);
+    expect(screen.getAllByText("Locked").length).toBe(4);
   });
 
   it("shows the restriction explanation when a locked action is attempted (AC3)", async () => {

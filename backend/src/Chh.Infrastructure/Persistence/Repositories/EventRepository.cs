@@ -75,4 +75,19 @@ public class EventRepository : IEventRepository
                     .SetProperty(e => e.RsvpCount, e => e.RsvpCount - 1),
                 ct)
             .ConfigureAwait(false);
+
+    /// <inheritdoc />
+    public async Task<Event?> GetTrackedByIdAsync(Guid id, CancellationToken ct) =>
+        await _context.Events
+            .FirstOrDefaultAsync(e => e.Id == id, ct)
+            .ConfigureAwait(false);
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<Event>> GetByFacilityAsync(Guid facilityId, CancellationToken ct) =>
+        await _context.Events
+            .AsNoTracking()
+            .Where(e => e.FacilityId == facilityId)
+            .OrderByDescending(e => e.StartAtUtc)
+            .ToListAsync(ct)
+            .ConfigureAwait(false);
 }

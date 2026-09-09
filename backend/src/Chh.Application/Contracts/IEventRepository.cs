@@ -49,4 +49,21 @@ public interface IEventRepository
     /// <param name="eventId">The event to release a spot on.</param>
     /// <param name="ct">Cancellation token.</param>
     Task ReleaseSpotAsync(Guid eventId, CancellationToken ct);
+
+    /// <summary>
+    /// Returns the event tracked by the context so mutations (CHH-41 edit/cancel) are persisted on
+    /// <c>SaveChangesAsync</c> — or <c>null</c> if none exists.
+    /// </summary>
+    /// <param name="id">The event's id.</param>
+    /// <param name="ct">Cancellation token.</param>
+    Task<Event?> GetTrackedByIdAsync(Guid id, CancellationToken ct);
+
+    /// <summary>
+    /// Returns every event (any status) organized by <paramref name="facilityId"/>, most recent
+    /// start time first — the facility's own "my events" list (CHH-41's manage-event entry point).
+    /// Read-only — implementations must use <c>AsNoTracking()</c> (api-standards.md §6).
+    /// </summary>
+    /// <param name="facilityId">The organizing facility's id.</param>
+    /// <param name="ct">Cancellation token.</param>
+    Task<IReadOnlyList<Event>> GetByFacilityAsync(Guid facilityId, CancellationToken ct);
 }

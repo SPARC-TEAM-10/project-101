@@ -23,6 +23,9 @@ public record EventDetailDto
     public DateTimeOffset? RsvpCutoffAtUtc { get; init; }
     public required EventStatus Status { get; init; }
 
+    /// <summary>Set only when <see cref="Status"/> is <see cref="EventStatus.Cancelled"/> (CHH-41) — shown verbatim to attendees.</summary>
+    public string? CancellationReason { get; init; }
+
     /// <summary>Only populated when the caller supplied their own coordinates as query params.</summary>
     public decimal? DistanceKm { get; init; }
 

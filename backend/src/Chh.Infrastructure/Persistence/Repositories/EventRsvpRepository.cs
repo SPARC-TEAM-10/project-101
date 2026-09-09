@@ -1,5 +1,6 @@
 using Chh.Application.Contracts;
 using Chh.Domain.Entities;
+using Chh.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace Chh.Infrastructure.Persistence.Repositories;
@@ -38,5 +39,18 @@ public class EventRsvpRepository : IEventRsvpRepository
         await _context.EventRsvps
             .AsNoTracking()
             .CountAsync(r => r.EventId == eventId, ct)
+            .ConfigureAwait(false);
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<string>> GetGoingMobileNumbersAsync(Guid eventId, CancellationToken ct) =>
+        await _context.EventRsvps
+            .AsNoTracking()
+            .Where(r => r.EventId == eventId && r.Status == EventRsvpStatus.Going)
+            .Join(
+                _context.IndividualProfiles.AsNoTracking(),
+                r => r.IndividualProfileId,
+                p => p.Id,
+                (r, p) => p.MobileNumber)
+            .ToListAsync(ct)
             .ConfigureAwait(false);
 }

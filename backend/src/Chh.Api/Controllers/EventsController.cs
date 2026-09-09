@@ -143,4 +143,71 @@ public class EventsController : ControllerBase
         var result = await _eventService.SearchAsync(latitude, longitude, radiusKm, eventType, cancellationToken);
         return Ok(result);
     }
+
+    /// <summary>
+    /// Returns every event (any status) belonging to the caller's own facility, most recent start
+    /// first (CHH-41's manage-event entry point). Requires the Hospital or Ngo role.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token forwarded through the service and repository layers.</param>
+    [HttpGet("mine")]
+    [Authorize(Roles = $"{RoleConstants.Hospital},{RoleConstants.Ngo}")]
+    [ProducesResponseType(typeof(IReadOnlyList<EventDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<ActionResult<IReadOnlyList<EventDto>>> GetMineAsync(CancellationToken cancellationToken)
+    {
+        var callerMobileNumber = User.FindFirstValue(ClaimTypes.MobilePhone)!;
+        var result = await _eventService.GetMineAsync(callerMobileNumber, cancellationToken);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Partially updates the event (AC3). Requires the Hospital or Ngo role, and only the
+    /// organizing facility may edit its own event (403 otherwise). 422 if the event already
+    /// started, is already cancelled, or the new capacity is below the current RSVP count.
+    /// </summary>
+    /// <param name="id">The event to update.</param>
+    /// <param name="request">The partial update.</param>
+    /// <param name="cancellationToken">Cancellation token forwarded through the service and repository layers.</param>
+    [HttpPatch("{id:guid}")]
+    [Authorize(Roles = $"{RoleConstants.Hospital},{RoleConstants.Ngo}")]
+    [ProducesResponseType(typeof(EventDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<EventDto>> UpdateAsync(
+        [FromRoute] Guid id,
+        [FromBody] UpdateEventRequest request,
+        CancellationToken cancellationToken)
+    {
+        var callerMobileNumber = User.FindFirstValue(ClaimTypes.MobilePhone)!;
+        var result = await _eventService.UpdateAsync(callerMobileNumber, id, request, cancellationToken);
+        return result is null ? NotFound() : Ok(result);
+    }
+
+    /// <summary>
+    /// Cancels the event and notifies its RSVP'd attendees (AC1/AC2). Requires the Hospital or Ngo
+    /// role, and only the organizing facility may cancel its own event (403 otherwise). 422 if the
+    /// event already started or is already cancelled.
+    /// </summary>
+    /// <param name="id">The event to cancel.</param>
+    /// <param name="request">The mandatory cancellation reason.</param>
+    /// <param name="cancellationToken">Cancellation token forwarded through the service and repository layers.</param>
+    [HttpPost("{id:guid}/cancel")]
+    [Authorize(Roles = $"{RoleConstants.Hospital},{RoleConstants.Ngo}")]
+    [ProducesResponseType(typeof(EventDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<EventDto>> CancelAsync(
+        [FromRoute] Guid id,
+        [FromBody] CancelEventRequest request,
+        CancellationToken cancellationToken)
+    {
+        var callerMobileNumber = User.FindFirstValue(ClaimTypes.MobilePhone)!;
+        var result = await _eventService.CancelAsync(callerMobileNumber, id, request, cancellationToken);
+        return result is null ? NotFound() : Ok(result);
+    }
 }

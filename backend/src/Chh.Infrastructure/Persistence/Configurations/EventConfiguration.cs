@@ -15,6 +15,7 @@ public class EventConfiguration : IEntityTypeConfiguration<Event>
     private const int CoordinatorNameMaxLength = 50;
     private const int CoordinatorContactMaxLength = 10;
     private const int StatusMaxLength = 50;
+    private const int CancellationReasonMaxLength = 300;
 
     /// <summary>Configures the <c>Event</c> table mapping.</summary>
     public void Configure(EntityTypeBuilder<Event> builder)
@@ -92,6 +93,9 @@ public class EventConfiguration : IEntityTypeConfiguration<Event>
         builder.Property(e => e.RsvpCount)
             .HasDefaultValue(0)
             .IsRequired();
+
+        builder.Property(e => e.CancellationReason)
+            .HasMaxLength(CancellationReasonMaxLength);
 
         // Backs proximity discovery (CHH-39): "published events, starting after now".
         builder.HasIndex(e => new { e.Status, e.StartAtUtc })

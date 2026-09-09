@@ -77,4 +77,11 @@ public class Event
     /// pattern. <c>Capacity - RsvpCount</c> is "spots remaining".
     /// </summary>
     public int RsvpCount { get; internal set; }
+
+    /// <summary>
+    /// The organizer's stated reason for cancelling (CHH-41/US-CHH-005-04 AC1) — shown verbatim to
+    /// RSVP'd attendees (EventEditWeb.dc.html's cancel modal: "Attendees see this word for word").
+    /// Null until <see cref="EventStatus.Cancelled"/>.
+    /// </summary>
+    public string? CancellationReason { get; internal set; }
 }
