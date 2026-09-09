@@ -28,7 +28,7 @@ public class EventRsvp
     /// </summary>
     public string ReferenceCode { get; internal set; } = default!;
 
-    /// <summary>Current status — toggles between <see cref="EventRsvpStatus.Going"/> and <see cref="EventRsvpStatus.Cancelled"/>.</summary>
+    /// <summary>Current status — toggles between <see cref="EventRsvpStatus.Going"/> and <see cref="EventRsvpStatus.Cancelled"/>, or advances to <see cref="EventRsvpStatus.Attended"/>.</summary>
     public EventRsvpStatus Status { get; internal set; }
 
     /// <summary>UTC timestamp the RSVP was first created.</summary>
@@ -36,4 +36,16 @@ public class EventRsvp
 
     /// <summary>UTC timestamp of the most recent cancellation, if any.</summary>
     public DateTimeOffset? CancelledAtUtc { get; internal set; }
+
+    /// <summary>UTC timestamp attendance was marked (CHH-44/US-CHH-005-07 AC1). Null until <see cref="EventRsvpStatus.Attended"/>.</summary>
+    public DateTimeOffset? AttendedAtUtc { get; internal set; }
+
+    /// <summary>
+    /// Display name of whoever marked attendance — resolved once, at mark time, from the marking
+    /// facility contact's name (falling back to the facility name if no contact record matches the
+    /// caller's mobile number), so a read of this row never needs a second lookup. Part of the
+    /// spec §6.1 audit requirement's "actor" field; "method" (always manual here, QR having been
+    /// dropped) and "source device" are not modeled — see EventAttendanceService's doc comment.
+    /// </summary>
+    public string? AttendedByName { get; internal set; }
 }

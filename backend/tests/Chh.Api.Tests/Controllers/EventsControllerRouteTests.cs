@@ -153,4 +153,46 @@ public class EventsControllerRouteTests
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
+
+    [Fact]
+    public async Task GetEventRsvps_UsesContractPath_IsRouted()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.GetAsync($"/api/v1/events/{Guid.NewGuid()}/rsvps?search=nith");
+
+        response.StatusCode.Should().NotBe(HttpStatusCode.NotFound,
+            "the route convention must resolve EventsController.SearchParticipantsAsync to contracts/chh-api.v1.yaml's documented /events/{id}/rsvps path");
+    }
+
+    [Fact]
+    public async Task GetEventRsvps_WithoutAuthorizationHeader_IsUnauthorized()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.GetAsync($"/api/v1/events/{Guid.NewGuid()}/rsvps?search=nith");
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task PostEventRsvpAttend_UsesContractPath_IsRouted()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.PostAsync($"/api/v1/events/{Guid.NewGuid()}/rsvps/{Guid.NewGuid()}/attend", content: null);
+
+        response.StatusCode.Should().NotBe(HttpStatusCode.NotFound,
+            "the route convention must resolve EventsController.MarkAttendedAsync to contracts/chh-api.v1.yaml's documented /events/{id}/rsvps/{rsvpId}/attend path");
+    }
+
+    [Fact]
+    public async Task PostEventRsvpAttend_WithoutAuthorizationHeader_IsUnauthorized()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.PostAsync($"/api/v1/events/{Guid.NewGuid()}/rsvps/{Guid.NewGuid()}/attend", content: null);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
 }
