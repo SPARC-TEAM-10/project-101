@@ -221,4 +221,37 @@ public class IndividualProfileServiceTests
 
         result!.IsReceiverOnly.Should().BeFalse();
     }
+
+    [Fact]
+    public async Task UpdateMyProfileAsync_WhenLatitudeAndLongitudeSupplied_PersistsCoordinates()
+    {
+        var profile = IndividualProfileFactory.Create(ValidRequest(), DateTimeOffset.UtcNow);
+        _individualProfileRepository
+            .Setup(r => r.GetTrackedByMobileNumberAsync(MobileNumber, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(profile);
+
+        var result = await _sut.UpdateMyProfileAsync(
+            MobileNumber,
+            ValidUpdateRequest() with { Latitude = 9.9312m, Longitude = 76.2673m },
+            CancellationToken.None);
+
+        result!.Latitude.Should().Be(9.9312m);
+        result.Longitude.Should().Be(76.2673m);
+    }
+
+    [Fact]
+    public async Task UpdateMyProfileAsync_WhenCoordinatesOmitted_LeavesExistingCoordinatesUnchanged()
+    {
+        var profile = IndividualProfileFactory.Create(ValidRequest(), DateTimeOffset.UtcNow);
+        profile.Latitude = 9.9312m;
+        profile.Longitude = 76.2673m;
+        _individualProfileRepository
+            .Setup(r => r.GetTrackedByMobileNumberAsync(MobileNumber, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(profile);
+
+        var result = await _sut.UpdateMyProfileAsync(MobileNumber, ValidUpdateRequest(), CancellationToken.None);
+
+        result!.Latitude.Should().Be(9.9312m);
+        result.Longitude.Should().Be(76.2673m);
+    }
 }
