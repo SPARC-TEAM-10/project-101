@@ -1,3 +1,4 @@
+using Chh.Application.Dtos;
 using Chh.Domain.Entities;
 using Chh.Domain.Enums;
 
@@ -49,4 +50,26 @@ public interface IFacilityRepository
     /// <param name="id">The facility id.</param>
     /// <param name="ct">Cancellation token.</param>
     Task<Facility?> GetTrackedByIdAsync(Guid id, CancellationToken ct);
+
+    /// <summary>
+    /// Returns every <see cref="FacilityVerificationStatus.Verified"/> facility matching
+    /// <paramref name="request"/>'s <c>Q</c>/<c>Category</c> filters (CHH-82/US-CHH-001-01, Epic
+    /// CHH-68) — unpaged, since a distance sort must run over the full filtered set before the
+    /// Service layer applies paging. Never returns a non-Verified facility. Read-only —
+    /// <c>AsNoTracking()</c> (api-standards.md §6).
+    /// </summary>
+    /// <param name="request">The search filters (paging fields are applied by the Service layer, not here).</param>
+    /// <param name="ct">Cancellation token.</param>
+    Task<IReadOnlyList<Facility>> SearchAsync(SearchFacilitiesRequest request, CancellationToken ct);
+
+    /// <summary>
+    /// Returns the facility for <paramref name="id"/> only if it is
+    /// <see cref="FacilityVerificationStatus.Verified"/> (CHH-82/US-CHH-001-02, Epic CHH-68) — a
+    /// Guest must not be able to fetch a pending/rejected facility's detail by guessing an id.
+    /// <c>null</c> if no such facility exists or it isn't Verified. Read-only — <c>AsNoTracking()</c>
+    /// (api-standards.md §6).
+    /// </summary>
+    /// <param name="id">The facility id.</param>
+    /// <param name="ct">Cancellation token.</param>
+    Task<Facility?> GetVerifiedByIdAsync(Guid id, CancellationToken ct);
 }

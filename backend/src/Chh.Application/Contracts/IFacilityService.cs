@@ -33,4 +33,21 @@ public interface IFacilityService
     /// <exception cref="Abstractions.InvalidFacilityDocumentException">The file's type isn't allowed, it's too large, or none was provided.</exception>
     Task<FacilityDto?> UploadLicenseDocumentAsync(
         Guid facilityId, Stream content, string fileName, string contentType, long contentLength, CancellationToken ct);
+
+    /// <summary>
+    /// Searches verified facilities for the Emergency Services Hub (CHH-82/US-CHH-001-01, Epic
+    /// CHH-68), sorted by distance when <paramref name="request"/> supplies coordinates —
+    /// facilities with no stored coordinates sort last with a null distance.
+    /// </summary>
+    /// <param name="request">The search filters and paging parameters.</param>
+    /// <param name="ct">Cancellation token.</param>
+    Task<PagedResponse<PublicFacilityDto>> SearchAsync(SearchFacilitiesRequest request, CancellationToken ct);
+
+    /// <summary>
+    /// Returns one facility's public detail (CHH-82/US-CHH-001-02, Epic CHH-68), or <c>null</c>
+    /// if it doesn't exist or isn't Verified.
+    /// </summary>
+    /// <param name="id">The facility id.</param>
+    /// <param name="ct">Cancellation token.</param>
+    Task<PublicFacilityDto?> GetPublicDetailAsync(Guid id, CancellationToken ct);
 }

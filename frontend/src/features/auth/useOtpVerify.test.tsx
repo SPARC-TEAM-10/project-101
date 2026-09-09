@@ -22,7 +22,7 @@ function fillDigits(setDigit: (i: number, v: string) => void, code: string) {
 }
 
 describe("useOtpVerify", () => {
-  it("starts with 6 empty digits and a countdown derived from resendAvailableAtUtc", () => {
+  it("TC-CHH-F01-46: starts with 6 empty digits and a countdown derived from resendAvailableAtUtc", () => {
     const { result } = renderHook(() => useOtpVerify("9876543210", FAR_FUTURE), { wrapper });
 
     expect(result.current.digits).toEqual(["", "", "", "", "", ""]);
@@ -30,7 +30,7 @@ describe("useOtpVerify", () => {
     expect(result.current.canResend).toBe(false);
   });
 
-  it("submit() does nothing until all 6 digits are present", async () => {
+  it("TC-CHH-F01-47: submit() does nothing until all 6 digits are present", async () => {
     const { result } = renderHook(() => useOtpVerify("9876543210", FAR_FUTURE), { wrapper });
     fillDigits(result.current.setDigit, "427");
 
@@ -42,7 +42,7 @@ describe("useOtpVerify", () => {
     expect(submitResult).toEqual({ ok: false });
   });
 
-  it("submit() verifies and returns the response on success", async () => {
+  it("TC-CHH-F01-48: submit() verifies and returns the response on success", async () => {
     const { result } = renderHook(() => useOtpVerify("9876543210", FAR_FUTURE), { wrapper });
     fillDigits(result.current.setDigit, "427159");
 
@@ -62,7 +62,7 @@ describe("useOtpVerify", () => {
     });
   });
 
-  it("does not re-submit the same code twice", async () => {
+  it("TC-CHH-F01-49: does not re-submit the same code twice", async () => {
     const { result } = renderHook(() => useOtpVerify("9876543210", FAR_FUTURE), { wrapper });
     fillDigits(result.current.setDigit, "427159");
 
@@ -77,7 +77,7 @@ describe("useOtpVerify", () => {
     expect(secondResult).toEqual({ ok: false });
   });
 
-  it("maps a 422 to the AC2 error and clears the digits", async () => {
+  it("TC-CHH-F01-50: maps a 422 to the AC2 error and clears the digits", async () => {
     server.use(verifyInvalidOtpHandler);
     const { result } = renderHook(() => useOtpVerify("9876543210", FAR_FUTURE), { wrapper });
     fillDigits(result.current.setDigit, "427159");
@@ -90,7 +90,7 @@ describe("useOtpVerify", () => {
     expect(result.current.digits).toEqual(["", "", "", "", "", ""]);
   });
 
-  it("counts down and flips canResend once the resend timestamp elapses", async () => {
+  it("TC-CHH-F01-51: counts down and flips canResend once the resend timestamp elapses", async () => {
     const nearFuture = new Date(Date.now() + 1200).toISOString();
     const { result } = renderHook(() => useOtpVerify("9876543210", nearFuture), { wrapper });
 
@@ -99,7 +99,7 @@ describe("useOtpVerify", () => {
     expect(result.current.resendSecondsLeft).toBe(0);
   });
 
-  it("resend() resets the countdown from the new resendAvailableAtUtc on success", async () => {
+  it("TC-CHH-F01-52: resend() resets the countdown from the new resendAvailableAtUtc on success", async () => {
     server.use(
       http.post(OTP_REQUEST_URL, () =>
         HttpResponse.json({
@@ -121,7 +121,7 @@ describe("useOtpVerify", () => {
     expect(result.current.resendError).toBeNull();
   });
 
-  it("resend() catches failure and surfaces resendError instead of throwing", async () => {
+  it("TC-CHH-F01-53: resend() catches failure and surfaces resendError instead of throwing", async () => {
     server.use(gatewayErrorHandler);
     const nearFuture = new Date(Date.now() + 500).toISOString();
     const { result } = renderHook(() => useOtpVerify("9876543210", nearFuture), { wrapper });

@@ -6,3 +6,8 @@ design/drafts/**/*.html
 backend/publish/
 backend/**/bin/
 backend/**/obj/
+
+# .NET test/coverage artifacts
+backend/**/TestResults/
+coverage-report/
+*.cobertura.xml

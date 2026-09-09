@@ -86,4 +86,48 @@ public class FacilitiesControllerRouteTests
         response.StatusCode.Should().NotBe(HttpStatusCode.Unauthorized,
             "the upload happens right after anonymous registration, matching PostFacilities' precedent");
     }
+
+    [Fact]
+    public async Task GetFacilitiesSearch_UsesContractPath_IsRouted()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.GetAsync("/api/v1/facilities/search");
+
+        response.StatusCode.Should().NotBe(HttpStatusCode.NotFound,
+            "the route convention must resolve SearchAsync to contracts/chh-api.v1.yaml's documented /facilities/search path");
+    }
+
+    [Fact]
+    public async Task GetFacilitiesSearch_WithoutAuthorizationHeader_IsUnauthorized()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.GetAsync("/api/v1/facilities/search");
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized,
+            "the Emergency Services Hub search requires a valid JWT (any authenticated role, incl. Guest) — api-standards.md §5");
+    }
+
+    [Fact]
+    public async Task GetFacilitiesById_UsesContractPath_IsRouted()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.GetAsync($"/api/v1/facilities/{Guid.NewGuid()}");
+
+        response.StatusCode.Should().NotBe(HttpStatusCode.NotFound,
+            "the route convention must resolve GetPublicDetailAsync to contracts/chh-api.v1.yaml's documented /facilities/{id} path");
+    }
+
+    [Fact]
+    public async Task GetFacilitiesById_WithoutAuthorizationHeader_IsUnauthorized()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.GetAsync($"/api/v1/facilities/{Guid.NewGuid()}");
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized,
+            "the facility detail view requires a valid JWT (any authenticated role, incl. Guest) — api-standards.md §5");
+    }
 }

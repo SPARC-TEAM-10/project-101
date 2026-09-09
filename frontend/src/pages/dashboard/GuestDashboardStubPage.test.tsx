@@ -27,7 +27,7 @@ function renderPage() {
 }
 
 describe("GuestDashboardStubPage", () => {
-  it("renders both entry points", () => {
+  it("TC-CHH-F01-67: renders both entry points", () => {
     renderPage();
 
     expect(screen.getByRole("button", { name: /request blood/i })).toBeInTheDocument();

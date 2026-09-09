@@ -33,31 +33,31 @@ function renderWithSession(session: AuthSession | null) {
 }
 
 describe("RoleRedirectPage", () => {
-  it("redirects to /login when there is no session", () => {
+  it("TC-CHH-F01-54: redirects to /login when there is no session", () => {
     renderWithSession(null);
 
     expect(screen.getByText("Login Screen")).toBeInTheDocument();
   });
 
-  it("redirects to /dashboard/individual for an Individual role", () => {
+  it("TC-CHH-F01-55: redirects to /dashboard/individual for an Individual role", () => {
     renderWithSession({ token: "t", role: "Individual", expiresAtUtc: "2099-01-01T00:00:00.000Z" });
 
     expect(screen.getByText("Individual Dashboard")).toBeInTheDocument();
   });
 
-  it("redirects to /welcome for a Guest role (CHH-11)", () => {
+  it("TC-CHH-F01-56: redirects to /welcome for a Guest role (CHH-11)", () => {
     renderWithSession({ token: "t", role: "Guest", expiresAtUtc: "2099-01-01T00:00:00.000Z" });
 
     expect(screen.getByText("Welcome Screen")).toBeInTheDocument();
   });
 
-  it("redirects to /dashboard/facility for a Hospital role (CHH-28)", () => {
+  it("TC-CHH-F01-10: redirects to /dashboard/facility for a Hospital role (CHH-28)", () => {
     renderWithSession({ token: "t", role: "Hospital", expiresAtUtc: "2099-01-01T00:00:00.000Z" });
 
     expect(screen.getByText("Facility Dashboard")).toBeInTheDocument();
   });
 
-  it("redirects to /dashboard/facility for an Ngo role (CHH-28)", () => {
+  it("TC-CHH-F01-11: redirects to /dashboard/facility for an Ngo role (CHH-28)", () => {
     renderWithSession({ token: "t", role: "Ngo", expiresAtUtc: "2099-01-01T00:00:00.000Z" });
 
     expect(screen.getByText("Facility Dashboard")).toBeInTheDocument();
