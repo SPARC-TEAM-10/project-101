@@ -1,0 +1,133 @@
+name: CHH QA Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      featureId:
+        description: "CHH Feature ID"
+        required: true
+        type: string
+
+      testSuite:
+        description: "Test suite to execute"
+        required: true
+        type: choice
+        options:
+          - all
+          - backend
+          - frontend
+
+permissions:
+  contents: read
+
+jobs:
+
+  backend-tests:
+    name: Backend Tests
+    if: ${{ inputs.testSuite == 'all' || inputs.testSuite == 'backend' }}
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore backend dependencies
+        working-directory: backend
+        run: dotnet restore
+
+      - name: Build backend
+        working-directory: backend
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Run backend tests
+        working-directory: backend
+        run: >
+          dotnet test
+          --no-build
+          --configuration Release
+          --logger "trx;LogFileName=backend-test-results.trx"
+          --results-directory ./TestResults
+
+      - name: Upload backend test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-results-${{ inputs.featureId }}
+          path: backend/TestResults/
+
+
+  frontend-tests:
+    name: Frontend Tests
+    if: ${{ inputs.testSuite == 'all' || inputs.testSuite == 'frontend' }}
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Run frontend tests
+        working-directory: frontend
+        run: >
+          npm run test --
+          --run
+
+      - name: Upload frontend test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-test-results-${{ inputs.featureId }}
+          path: frontend/test-results/
+
+
+  qa-summary:
+    name: QA Summary
+    if: always()
+
+    needs:
+      - backend-tests
+      - frontend-tests
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Create QA result
+        shell: bash
+        run: |
+          mkdir -p qa-results
+
+          cat > qa-results/qa-results.json <<EOF
+          {
+            "featureId": "${{ inputs.featureId }}",
+            "testSuite": "${{ inputs.testSuite }}",
+            "backendJobStatus": "${{ needs.backend-tests.result }}",
+            "frontendJobStatus": "${{ needs.frontend-tests.result }}",
+            "overallStatus": "COMPLETED"
+          }
+          EOF
+
+      - name: Upload QA summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-results-${{ inputs.featureId }}
+          path: qa-results/qa-results.json

@@ -26,7 +26,7 @@ describe("NewUserGuestDecisionPage", () => {
     expect(screen.getByRole("button", { name: /emergency guest access/i })).toBeInTheDocument();
   });
 
-  it('"Create Account" navigates to /register', async () => {
+  it('TC-CHH-F01-16: "Create Account" navigates to /register', async () => {
     const user = userEvent.setup();
     renderPage();
 

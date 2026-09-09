@@ -19,7 +19,7 @@ public class AuthControllerRouteTests
     /// <param name="factory">The shared API host fixture (see <see cref="ApiTestCollection"/>).</param>
     public AuthControllerRouteTests(ApiWebApplicationFactory factory) => _factory = factory;
 
-    [Fact]
+    [Fact(DisplayName = "TC-CHH-F01-01: PostOtpRequest_UsesContractPath_IsRouted")]
     public async Task PostOtpRequest_UsesContractPath_IsRouted()
     {
         // Arrange
@@ -33,7 +33,7 @@ public class AuthControllerRouteTests
             "the route convention must still resolve AuthController to contracts/chh-api.v1.yaml's documented path");
     }
 
-    [Fact]
+    [Fact(DisplayName = "TC-CHH-F01-02: PostOtpVerify_UsesContractPath_IsRouted")]
     public async Task PostOtpVerify_UsesContractPath_IsRouted()
     {
         // Arrange
