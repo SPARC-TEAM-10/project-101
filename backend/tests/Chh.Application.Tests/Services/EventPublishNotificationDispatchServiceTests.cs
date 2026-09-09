@@ -71,9 +71,10 @@ public class EventPublishNotificationDispatchServiceTests
             .Setup(r => r.GetActiveWithKnownLocationAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new[] { nearby });
 
-        await _sut.NotifyPublishedAsync(evt, CancellationToken.None);
+        var targetedCount = await _sut.NotifyPublishedAsync(evt, CancellationToken.None);
 
         _smsGatewayClient.Verify(s => s.SendMessageAsync("9000000001", It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
+        targetedCount.Should().Be(1);
     }
 
     [Fact]
@@ -144,9 +145,10 @@ public class EventPublishNotificationDispatchServiceTests
             .Setup(s => s.SendMessageAsync("9000000001", It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new HttpRequestException("gateway down"));
 
-        var act = () => _sut.NotifyPublishedAsync(evt, CancellationToken.None);
+        var result = await _sut.NotifyPublishedAsync(evt, CancellationToken.None);
 
-        await act.Should().NotThrowAsync();
         _smsGatewayClient.Verify(s => s.SendMessageAsync("9000000002", It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
+        // The failed recipient was still targeted — a delivery failure doesn't shrink the count.
+        result.Should().Be(2);
     }
 }

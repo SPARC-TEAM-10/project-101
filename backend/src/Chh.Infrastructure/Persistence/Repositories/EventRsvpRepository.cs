@@ -75,4 +75,17 @@ public class EventRsvpRepository : IEventRsvpRepository
             .Select(x => new EventRsvpWithProfileResult { EventRsvp = x.Rsvp, FullName = x.FullName, MobileNumber = x.MobileNumber })
             .ToListAsync(ct)
             .ConfigureAwait(false);
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<EventRsvpWithProfileResult>> GetAllWithProfileAsync(Guid eventId, CancellationToken ct) =>
+        await _context.EventRsvps
+            .AsNoTracking()
+            .Where(r => r.EventId == eventId)
+            .Join(
+                _context.IndividualProfiles.AsNoTracking(),
+                r => r.IndividualProfileId,
+                p => p.Id,
+                (r, p) => new EventRsvpWithProfileResult { EventRsvp = r, FullName = p.FullName, MobileNumber = p.MobileNumber })
+            .ToListAsync(ct)
+            .ConfigureAwait(false);
 }

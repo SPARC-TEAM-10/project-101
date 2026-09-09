@@ -27,14 +27,17 @@ public class EventsController : ControllerBase
 
     private readonly IEventService _eventService;
     private readonly IEventAttendanceService _eventAttendanceService;
+    private readonly IEventAnalyticsService _eventAnalyticsService;
 
     /// <summary>Creates the controller with its service dependencies.</summary>
     /// <param name="eventService">Logic layer for event creation, discovery, RSVP, and edit/cancellation.</param>
     /// <param name="eventAttendanceService">Logic layer for manual attendance marking (CHH-44).</param>
-    public EventsController(IEventService eventService, IEventAttendanceService eventAttendanceService)
+    /// <param name="eventAnalyticsService">Logic layer for attendance analytics (CHH-45).</param>
+    public EventsController(IEventService eventService, IEventAttendanceService eventAttendanceService, IEventAnalyticsService eventAnalyticsService)
     {
         _eventService = eventService;
         _eventAttendanceService = eventAttendanceService;
+        _eventAnalyticsService = eventAnalyticsService;
     }
 
     /// <summary>
@@ -264,5 +267,75 @@ public class EventsController : ControllerBase
         var callerMobileNumber = User.FindFirstValue(ClaimTypes.MobilePhone)!;
         var result = await _eventAttendanceService.MarkAttendedAsync(callerMobileNumber, id, rsvpId, cancellationToken);
         return result is null ? NotFound() : Ok(result);
+    }
+
+    /// <summary>
+    /// Returns the event's attendance summary (CHH-45 AC1). Requires the Hospital or Ngo role;
+    /// only the organizing facility may view its own event's analytics (403 otherwise).
+    /// </summary>
+    /// <param name="id">The event to summarize.</param>
+    /// <param name="cancellationToken">Cancellation token forwarded through the service and repository layers.</param>
+    [HttpGet("{id:guid}/attendance/summary")]
+    [Authorize(Roles = $"{RoleConstants.Hospital},{RoleConstants.Ngo}")]
+    [ProducesResponseType(typeof(EventAttendanceSummaryDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<EventAttendanceSummaryDto>> GetAttendanceSummaryAsync([FromRoute] Guid id, CancellationToken cancellationToken)
+    {
+        var callerMobileNumber = User.FindFirstValue(ClaimTypes.MobilePhone)!;
+        var result = await _eventAnalyticsService.GetSummaryAsync(callerMobileNumber, id, cancellationToken);
+        return result is null ? NotFound() : Ok(result);
+    }
+
+    /// <summary>
+    /// Returns the event's participants, optionally filtered by status and/or a name/mobile search
+    /// term (CHH-45 AC2). Requires the Hospital or Ngo role; only the organizing facility may view
+    /// its own event's participants (403 otherwise).
+    /// </summary>
+    /// <param name="id">The event to list participants for.</param>
+    /// <param name="status">Optional view-status filter (Going, Cancelled, Attended, or NoShow).</param>
+    /// <param name="search">Optional free-text name/mobile filter.</param>
+    /// <param name="cancellationToken">Cancellation token forwarded through the service and repository layers.</param>
+    [HttpGet("{id:guid}/attendance/participants")]
+    [Authorize(Roles = $"{RoleConstants.Hospital},{RoleConstants.Ngo}")]
+    [ProducesResponseType(typeof(IReadOnlyList<EventParticipantAttendanceDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<IReadOnlyList<EventParticipantAttendanceDto>>> GetAttendanceParticipantsAsync(
+        [FromRoute] Guid id,
+        [FromQuery] AttendanceViewStatus? status,
+        [FromQuery] string? search,
+        CancellationToken cancellationToken)
+    {
+        var callerMobileNumber = User.FindFirstValue(ClaimTypes.MobilePhone)!;
+        var result = await _eventAnalyticsService.GetParticipantsAsync(callerMobileNumber, id, status, search, cancellationToken);
+        return result is null ? NotFound() : Ok(result);
+    }
+
+    /// <summary>
+    /// Exports the event's participants as CSV — permitted fields only, no raw mobile number (CHH-45
+    /// AC3). Requires the Hospital or Ngo role; only the organizing facility may export its own
+    /// event's attendance (403 otherwise).
+    /// </summary>
+    /// <param name="id">The event to export.</param>
+    /// <param name="cancellationToken">Cancellation token forwarded through the service and repository layers.</param>
+    [HttpGet("{id:guid}/attendance/export")]
+    [Authorize(Roles = $"{RoleConstants.Hospital},{RoleConstants.Ngo}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ExportAttendanceCsvAsync([FromRoute] Guid id, CancellationToken cancellationToken)
+    {
+        var callerMobileNumber = User.FindFirstValue(ClaimTypes.MobilePhone)!;
+        var csv = await _eventAnalyticsService.ExportCsvAsync(callerMobileNumber, id, cancellationToken);
+        if (csv is null)
+        {
+            return NotFound();
+        }
+
+        return File(System.Text.Encoding.UTF8.GetBytes(csv), "text/csv", $"event-{id}-attendance.csv");
     }
 }

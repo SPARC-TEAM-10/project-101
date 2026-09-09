@@ -49,10 +49,14 @@ public class NotifyEventPublishedJobTests
         _eventRepository
             .Setup(r => r.GetByIdWithFacilityNameAsync(evt.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new EventWithFacilityNameResult { Event = evt, FacilityName = "Kochi Metro Hospital" });
+        _notificationDispatchService
+            .Setup(d => d.NotifyPublishedAsync(evt, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(340);
 
         await _sut.RunAsync(evt.Id, CancellationToken.None);
 
         _notificationDispatchService.Verify(d => d.NotifyPublishedAsync(evt, It.IsAny<CancellationToken>()), Times.Once);
+        _eventRepository.Verify(r => r.SetNotifiedCountAsync(evt.Id, 340, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]

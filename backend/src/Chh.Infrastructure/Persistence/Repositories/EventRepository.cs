@@ -90,4 +90,13 @@ public class EventRepository : IEventRepository
             .OrderByDescending(e => e.StartAtUtc)
             .ToListAsync(ct)
             .ConfigureAwait(false);
+
+    /// <inheritdoc />
+    public async Task SetNotifiedCountAsync(Guid eventId, int notifiedCount, CancellationToken ct) =>
+        await _context.Events
+            .Where(e => e.Id == eventId)
+            .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(e => e.NotifiedCount, notifiedCount),
+                ct)
+            .ConfigureAwait(false);
 }

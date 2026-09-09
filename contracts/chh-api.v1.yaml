@@ -1172,6 +1172,133 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/ProblemDetails"
+  /events/{id}/attendance/summary:
+    get:
+      tags:
+        - Events
+      summary: Get an event's attendance summary
+      description: >
+        Returns RSVP/attended/no-show/cancelled counts, remaining capacity,
+        and the attendance rate (CHH-45/US-CHH-005-08 AC1). "No-show" is
+        derived, not stored — a Going RSVP reads as No-show once the event
+        has ended without being marked Attended. Restricted to the
+        Hospital/Ngo role, and only the organizing facility may view its own
+        event's analytics (403 otherwise).
+      operationId: getEventAttendanceSummary
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: The event's attendance summary.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventAttendanceSummaryDto"
+        "401":
+          description: Missing or invalid JWT.
+        "403":
+          description: Authenticated caller's facility does not own this event, or does not carry the Hospital/Ngo role.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "404":
+          description: No event exists with that id.
+  /events/{id}/attendance/participants:
+    get:
+      tags:
+        - Events
+      summary: List an event's participants for analytics
+      description: >
+        Returns the event's participants, optionally filtered by view-status
+        and/or a name/mobile search term (CHH-45/US-CHH-005-08 AC2).
+        Restricted to the Hospital/Ngo role, and only the organizing facility
+        may view its own event's participants (403 otherwise).
+      operationId: getEventAttendanceParticipants
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: ["Going", "Cancelled", "Attended", "NoShow"]
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Matching participants.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EventParticipantAttendanceDto"
+        "401":
+          description: Missing or invalid JWT.
+        "403":
+          description: Authenticated caller's facility does not own this event, or does not carry the Hospital/Ngo role.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "404":
+          description: No event exists with that id.
+  /events/{id}/attendance/export:
+    get:
+      tags:
+        - Events
+      summary: Export an event's attendance as CSV
+      description: >
+        Exports every participant as CSV — permitted fields only, mobile
+        number masked, never the raw number (CHH-45/US-CHH-005-08 AC3).
+        Restricted to the Hospital/Ngo role, and only the organizing
+        facility may export its own event's attendance (403 otherwise).
+      operationId: exportEventAttendanceCsv
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: CSV file download.
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: binary
+        "401":
+          description: Missing or invalid JWT.
+        "403":
+          description: Authenticated caller's facility does not own this event, or does not carry the Hospital/Ngo role.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "404":
+          description: No event exists with that id.
   /events/{id}/rsvp:
     post:
       tags:
@@ -2636,3 +2763,100 @@ components:
           type: string
           nullable: true
           description: Display name of whoever marked attendance — present only alongside status "Attended".
+    EventAttendanceSummaryDto:
+      type: object
+      description: Response body for GET /events/{id}/attendance/summary (CHH-45).
+      required:
+        - eventId
+        - title
+        - eventType
+        - venueName
+        - facilityName
+        - status
+        - startAtUtc
+        - endAtUtc
+        - capacity
+        - notifiedCount
+        - rsvpdCount
+        - attendedCount
+        - noShowCount
+        - cancelledCount
+        - remainingCapacity
+        - attendanceRatePercent
+      properties:
+        eventId:
+          type: string
+          format: uuid
+        title:
+          type: string
+        eventType:
+          $ref: "#/components/schemas/EventType"
+        venueName:
+          type: string
+        facilityName:
+          type: string
+        status:
+          type: string
+          enum: ["Published", "Cancelled"]
+        startAtUtc:
+          type: string
+          format: date-time
+        endAtUtc:
+          type: string
+          format: date-time
+        capacity:
+          type: integer
+        notifiedCount:
+          type: integer
+          description: Individuals targeted by the publish-notification fan-out (CHH-42) — 0 until that job has run.
+        rsvpdCount:
+          type: integer
+          description: Going + Attended (non-cancelled RSVPs).
+        attendedCount:
+          type: integer
+        noShowCount:
+          type: integer
+          description: RSVP'd, event ended, never marked attended. Always 0 before the event ends.
+        cancelledCount:
+          type: integer
+        remainingCapacity:
+          type: integer
+        attendanceRatePercent:
+          type: integer
+          description: Attended ÷ RSVP'd as a whole-number percentage (0 if nobody has RSVP'd).
+    EventParticipantAttendanceDto:
+      type: object
+      description: >
+        Response item for GET /events/{id}/attendance/participants (CHH-45).
+        Like EventParticipantDto but carries the derived view-status
+        (including "NoShow") instead of the raw persisted RSVP status.
+      required:
+        - rsvpId
+        - fullName
+        - maskedMobileNumber
+        - referenceCode
+        - status
+        - rsvpCreatedAtUtc
+      properties:
+        rsvpId:
+          type: string
+          format: uuid
+        fullName:
+          type: string
+        maskedMobileNumber:
+          type: string
+        referenceCode:
+          type: string
+        status:
+          type: string
+          enum: ["Going", "Cancelled", "Attended", "NoShow"]
+        rsvpCreatedAtUtc:
+          type: string
+          format: date-time
+        attendedAtUtc:
+          type: string
+          format: date-time
+          nullable: true
+        attendedByName:
+          type: string
+          nullable: true
