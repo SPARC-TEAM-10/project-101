@@ -748,6 +748,53 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/ProblemDetails"
+  /events/search:
+    get:
+      tags:
+        - Events
+      summary: Search for published events within a radius
+      description: >
+        Returns published, upcoming events within radiusKm of the given
+        coordinates, nearest-start-time first (CHH-39/US-CHH-005-02 AC1). Open
+        to any authenticated role. radiusKm is clamped to [5,100] server-side,
+        not rejected (AC3's literal "caps the radius at 100km"). An empty
+        result is a normal 200 with an empty array — the "No events found in
+        your area" message (AC2) is a frontend concern.
+      operationId: searchEvents
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: latitude
+          in: query
+          required: true
+          schema:
+            type: number
+        - name: longitude
+          in: query
+          required: true
+          schema:
+            type: number
+        - name: radiusKm
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: eventType
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/EventType"
+      responses:
+        "200":
+          description: Matching events, nearest start time first.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EventSummaryDto"
+        "401":
+          description: Missing or invalid JWT.
   /admin/facilities/{id}/verification:
     patch:
       tags:
@@ -1805,3 +1852,50 @@ components:
         updatedAtUtc:
           type: string
           format: date-time
+    EventSummaryDto:
+      type: object
+      description: Response item for GET /events/search (CHH-39).
+      required:
+        - id
+        - title
+        - eventType
+        - facilityName
+        - venueName
+        - latitude
+        - longitude
+        - startAtUtc
+        - endAtUtc
+        - distanceKm
+        - capacity
+        - spotsRemaining
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        eventType:
+          $ref: "#/components/schemas/EventType"
+        facilityName:
+          type: string
+        venueName:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        startAtUtc:
+          type: string
+          format: date-time
+        endAtUtc:
+          type: string
+          format: date-time
+        distanceKm:
+          type: number
+        capacity:
+          type: integer
+        spotsRemaining:
+          type: integer
+          description: >
+            Always equals capacity until CHH-40 introduces RSVP tracking — no
+            RSVP entity exists yet.

@@ -24,4 +24,8 @@ public static class EventConstants
     public const string CapacityRangeMessage = "Capacity must be between 1 and 1,000.";
     public const string RsvpCutoffMustPrecedeStartMessage = "RSVP cut-off must be before the event start time.";
     public const string FacilityNotVerifiedMessage = "Only a verified facility can create events.";
+
+    /// <summary>Discovery search radius bounds (CHH-39/US-CHH-005-02) — clamped, not rejected (AC3: "caps the radius at 100km").</summary>
+    public const int MinSearchRadiusKm = 5;
+    public const int MaxSearchRadiusKm = 100;
 }
