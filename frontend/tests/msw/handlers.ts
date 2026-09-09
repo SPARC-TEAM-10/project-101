@@ -229,6 +229,58 @@ export const searchEventsEmptyHandler = http.get(EVENTS_SEARCH_URL, () => HttpRe
 
 export const searchEventsErrorHandler = http.get(EVENTS_SEARCH_URL, () => HttpResponse.error());
 
+export const EVENT_DETAIL_ID = "e1111111-1111-1111-1111-111111111111";
+export const EVENT_DETAIL_URL = `/api/v1/events/${EVENT_DETAIL_ID}`;
+export const EVENT_RSVP_URL = `${EVENT_DETAIL_URL}/rsvp`;
+
+function eventDetailFixture(overrides: Record<string, unknown> = {}) {
+  return {
+    id: EVENT_DETAIL_ID,
+    title: "Community blood drive — Kaloor",
+    eventType: "BloodDonationCamp",
+    description: "Walk-in donors welcome. Bring a photo ID. Refreshments provided.",
+    facilityName: "Kochi Metro Hospital",
+    venueName: "Kaloor Community Hall",
+    venueAddress: "Stadium Link Road, Kaloor, Kochi 682017",
+    latitude: 9.996,
+    longitude: 76.299,
+    startAtUtc: "2026-09-13T09:00:00.000Z",
+    endAtUtc: "2026-09-13T14:00:00.000Z",
+    capacity: 60,
+    spotsRemaining: 18,
+    coordinatorName: "Dr Anitha Varghese",
+    coordinatorContact: "9000010023",
+    rsvpCutoffAtUtc: null,
+    status: "Published",
+    distanceKm: 4.2,
+    myRsvpStatus: null,
+    myReferenceCode: null,
+    ...overrides,
+  };
+}
+
+export const getEventNotGoingHandler = http.get(EVENT_DETAIL_URL, () => HttpResponse.json(eventDetailFixture()));
+
+export const getEventGoingHandler = http.get(EVENT_DETAIL_URL, () =>
+  HttpResponse.json(eventDetailFixture({ myRsvpStatus: "Going", myReferenceCode: "A24", spotsRemaining: 17 })),
+);
+
+export const getEventFullHandler = http.get(EVENT_DETAIL_URL, () => HttpResponse.json(eventDetailFixture({ spotsRemaining: 0 })));
+
+export const getEventNotFoundHandler = http.get(EVENT_DETAIL_URL, () => new HttpResponse(null, { status: 404 }));
+
+export const rsvpToEventSuccessHandler = http.post(EVENT_RSVP_URL, () =>
+  HttpResponse.json({ eventId: EVENT_DETAIL_ID, status: "Going", referenceCode: "A24", spotsRemaining: 17 }),
+);
+
+export const rsvpToEventFullHandler = http.post(EVENT_RSVP_URL, () =>
+  HttpResponse.json({ title: "Event full", status: 422, detail: "This event is full." }, { status: 422 }),
+);
+
+export const cancelEventRsvpSuccessHandler = http.delete(EVENT_RSVP_URL, () =>
+  HttpResponse.json({ eventId: EVENT_DETAIL_ID, status: "Cancelled", referenceCode: null, spotsRemaining: 18 }),
+);
+
 // No MSW handler for POST /api/v1/facilities/:id/upload — @mswjs/interceptors hangs under jsdom
 // on any XHR request whose body is a FormData containing a Blob/File (see tests/fakeXhr.ts's doc
 // comment). facilityApi.uploadFacilityLicense is tested via that fake XHR instead.
@@ -681,4 +733,5 @@ export const handlers = [
   searchAdminUsersSuccessHandler,
   suspendUserSuccessHandler,
   searchEventsSuccessHandler,
+  getEventNotGoingHandler,
 ];
