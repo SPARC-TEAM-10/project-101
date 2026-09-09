@@ -10,6 +10,7 @@ import { BloodRequestFormModal } from "./pages/bloodRequest/BloodRequestFormModa
 import { RequesterMatchDashboardPage } from "./pages/bloodRequest/RequesterMatchDashboardPage";
 import { FacilityRegistrationPage } from "./pages/facility/FacilityRegistrationPage";
 import { CreateEventPage } from "./pages/events/CreateEventPage";
+import { EventDiscoveryPage } from "./pages/events/EventDiscoveryPage";
 import { IndividualDashboardPage } from "./pages/dashboard/IndividualDashboardPage";
 import { GuestDashboardStubPage } from "./pages/dashboard/GuestDashboardStubPage";
 import { PendingVerificationsPage } from "./pages/admin/PendingVerificationsPage";
@@ -137,6 +138,16 @@ export const router = createBrowserRouter([
     element: (
       <RequireAuth roles={["Hospital", "Ngo"]}>
         <CreateEventPage />
+      </RequireAuth>
+    ),
+  },
+  {
+    // Spec's User Role is explicitly "Individual" (US-CHH-005-02) — Hospital/Ngo/Guest aren't
+    // discovery's intended audience per the story.
+    path: "/events",
+    element: (
+      <RequireAuth roles={["Individual"]}>
+        <EventDiscoveryPage />
       </RequireAuth>
     ),
   },
