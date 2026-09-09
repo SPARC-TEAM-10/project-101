@@ -24,6 +24,8 @@ export const MAX_CAPACITY = 1000;
 export const MIN_COORDINATOR_NAME_LENGTH = 2;
 export const MAX_COORDINATOR_NAME_LENGTH = 50;
 export const MIN_LEAD_TIME_MS = 60 * 60 * 1000;
+export const MIN_CANCELLATION_REASON_LENGTH = 10;
+export const MAX_CANCELLATION_REASON_LENGTH = 300;
 
 const MOBILE_PATTERN = /^\d{10}$/;
 

@@ -23,6 +23,8 @@ export interface EventDto extends CreateEventRequest {
   status: "Published" | "Cancelled";
   createdAtUtc: string;
   updatedAtUtc: string;
+  // Set only when status is "Cancelled" (CHH-41).
+  cancellationReason?: string | null;
 }
 
 // Matches contracts/chh-api.v1.yaml's POST /events (CHH-38). [Authorize(Roles = "Hospital,Ngo")]
@@ -94,6 +96,8 @@ export interface EventDetailDto {
   coordinatorContact: string;
   rsvpCutoffAtUtc?: string | null;
   status: "Published" | "Cancelled";
+  // Set only when status is "Cancelled" (CHH-41). Shown verbatim to attendees.
+  cancellationReason?: string | null;
   // Only present when latitude/longitude were passed to getEventById.
   distanceKm?: number | null;
   // The caller's own RSVP status — null if they've never RSVP'd (or aren't an Individual).
@@ -139,5 +143,50 @@ export function cancelEventRsvp(accessToken: string | undefined, eventId: string
   return apiFetch<RsvpResponseDto>(`/events/${eventId}/rsvp`, {
     method: "DELETE",
     headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+  });
+}
+
+export interface UpdateEventRequest {
+  title?: string;
+  eventType?: EventType;
+  description?: string;
+  venueName?: string;
+  venueAddress?: string;
+  latitude?: number;
+  longitude?: number;
+  startAtUtc?: string;
+  endAtUtc?: string;
+  capacity?: number;
+  coordinatorName?: string;
+  coordinatorContact?: string;
+  rsvpCutoffAtUtc?: string | null;
+}
+
+export interface CancelEventRequest {
+  reason: string;
+}
+
+// Matches contracts/chh-api.v1.yaml's GET /events/mine (CHH-41). [Authorize(Roles = "Hospital,Ngo")]
+export function getMyEvents(accessToken: string | undefined): Promise<EventDto[]> {
+  return apiFetch<EventDto[]>("/events/mine", {
+    headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+  });
+}
+
+// Matches contracts/chh-api.v1.yaml's PATCH /events/{id} (CHH-41). [Authorize(Roles = "Hospital,Ngo")]
+export function updateEvent(accessToken: string | undefined, eventId: string, request: UpdateEventRequest): Promise<EventDto> {
+  return apiFetch<EventDto>(`/events/${eventId}`, {
+    method: "PATCH",
+    headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+    body: JSON.stringify(request),
+  });
+}
+
+// Matches contracts/chh-api.v1.yaml's POST /events/{id}/cancel (CHH-41). [Authorize(Roles = "Hospital,Ngo")]
+export function cancelEvent(accessToken: string | undefined, eventId: string, request: CancelEventRequest): Promise<EventDto> {
+  return apiFetch<EventDto>(`/events/${eventId}/cancel`, {
+    method: "POST",
+    headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+    body: JSON.stringify(request),
   });
 }

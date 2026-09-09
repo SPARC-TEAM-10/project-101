@@ -12,6 +12,8 @@ import { FacilityRegistrationPage } from "./pages/facility/FacilityRegistrationP
 import { CreateEventPage } from "./pages/events/CreateEventPage";
 import { EventDiscoveryPage } from "./pages/events/EventDiscoveryPage";
 import { EventDetailPage } from "./pages/events/EventDetailPage";
+import { MyEventsPage } from "./pages/events/MyEventsPage";
+import { EventManagePage } from "./pages/events/EventManagePage";
 import { IndividualDashboardPage } from "./pages/dashboard/IndividualDashboardPage";
 import { GuestDashboardStubPage } from "./pages/dashboard/GuestDashboardStubPage";
 import { PendingVerificationsPage } from "./pages/admin/PendingVerificationsPage";
@@ -139,6 +141,24 @@ export const router = createBrowserRouter([
     element: (
       <RequireAuth roles={["Hospital", "Ngo"]}>
         <CreateEventPage />
+      </RequireAuth>
+    ),
+  },
+  {
+    // CHH-41's manage-event entry point — ownership itself is enforced server-side (403 if the
+    // caller's facility doesn't own the event), matching /events/new's pattern.
+    path: "/events/mine",
+    element: (
+      <RequireAuth roles={["Hospital", "Ngo"]}>
+        <MyEventsPage />
+      </RequireAuth>
+    ),
+  },
+  {
+    path: "/events/:id/manage",
+    element: (
+      <RequireAuth roles={["Hospital", "Ngo"]}>
+        <EventManagePage />
       </RequireAuth>
     ),
   },
