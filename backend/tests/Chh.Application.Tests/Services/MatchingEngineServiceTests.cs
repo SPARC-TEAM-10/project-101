@@ -116,6 +116,31 @@ public class MatchingEngineServiceTests
         result.Should().BeEmpty();
     }
 
+    [Fact(DisplayName = "CHH-84 regression: an otherwise-eligible donor with no registered coordinates is excluded, not an error")]
+    public async Task FindEligibleDonorsAsync_DonorWithNoCoordinates_IsExcluded()
+    {
+        // Reproduces the exact production scenario found via CHH-84's diagnosis: an Active,
+        // non-receiver-only, blood-group-compatible donor whose Latitude/Longitude were never
+        // set (the bug CHH-84 fixes) — matching must find zero donors here, not throw.
+        SetupCandidates(MakeDonor(BloodGroup.OPositive, latitude: null, longitude: null));
+
+        var result = await _sut.FindEligibleDonorsAsync(MakeRequest(BloodGroup.OPositive, 50), CancellationToken.None);
+
+        result.Should().BeEmpty();
+    }
+
+    [Fact(DisplayName = "CHH-84 regression: once a donor registers coordinates, they become eligible")]
+    public async Task FindEligibleDonorsAsync_DonorAfterRegisteringCoordinates_IsIncluded()
+    {
+        // Same donor as the test above, but now with coordinates set via CHH-84's
+        // PATCH /individuals/me — must now be matched.
+        SetupCandidates(MakeDonor(BloodGroup.OPositive, latitude: 9.9312m, longitude: 76.2673m));
+
+        var result = await _sut.FindEligibleDonorsAsync(MakeRequest(BloodGroup.OPositive, 50), CancellationToken.None);
+
+        result.Should().ContainSingle();
+    }
+
     [Fact]
     public async Task FindEligibleDonorsAsync_SuspendedDonor_IsExcluded()
     {

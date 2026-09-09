@@ -66,5 +66,13 @@ public static class IndividualProfileFactory
             || request.IsInfectiousDisease
             || request.IsUnderweight
             || request.IsOtherIllness;
+
+        // Both-or-neither is enforced by UpdateIndividualProfileRequestValidator — omitting both
+        // leaves the profile's existing coordinates untouched rather than clearing them (CHH-84 AC2).
+        if (request.Latitude is { } latitude && request.Longitude is { } longitude)
+        {
+            profile.Latitude = latitude;
+            profile.Longitude = longitude;
+        }
     }
 }
