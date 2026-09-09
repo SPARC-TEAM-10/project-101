@@ -143,6 +143,13 @@ Module-specific additions to this checklist (e.g. "matches OpenAPI spec",
   `AdminUser` table/repository were removed. Routing (the global
   `RoutePrefixConvention` + controller-naming coupling — see
   `.claude/rules/api-standards.md` §1) was untouched by this decision.
+- **2026-09-08 — CHH-68 Emergency Services Hub breakdown**: Split into
+  backend ticket CHH-82 and frontend ticket CHH-83, extending the existing
+  Facility domain (no new module/folder) — see the CHH-F06 Technical Design
+  Confluence page linked from both tickets. `Facility` gains nullable
+  `Latitude`/`Longitude`; `FacilityCategory` gains `Ambulance` (additive,
+  non-breaking). Ambulance-operator self-registration stays out of scope
+  (CHH-F03 concern) — ambulance rows are admin-seeded for now.
 - **2026-09-08 — Post-merge QA execution added**: Added a standalone QA
   Execution Agent (`.claude/agents/qa-execution-agent.md`), run by a QA
   automation tester **after** a PR merges — not wired into the developer

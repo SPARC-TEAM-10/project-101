@@ -7,6 +7,7 @@ using Chh.Application.Factories;
 using Chh.Application.Services;
 using Chh.Domain.Constants;
 using Chh.Domain.Entities;
+using Chh.Domain.Enums;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -154,6 +155,24 @@ public class OtpServiceTests
 
         response.Role.Should().Be(RoleConstants.SystemAdmin);
         _jwtTokenGenerator.Verify(j => j.GenerateToken(adminMobileNumber, RoleConstants.SystemAdmin), Times.Once);
+    }
+
+    [Fact]
+    public async Task VerifyOtpAsync_WhenAccountIsSuspended_ThrowsAccountSuspendedExceptionAndDoesNotIssueToken()
+    {
+        var otpRequest = OtpRequestFactory.Create(MobileNumber, HashOtpCode("123456"), DateTimeOffset.UtcNow);
+        _otpRequestRepository
+            .Setup(r => r.GetLatestTrackedByMobileNumberAsync(MobileNumber, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(otpRequest);
+        _individualProfileRepository
+            .Setup(r => r.GetByMobileNumberAsync(MobileNumber, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new IndividualProfile { AccountStatus = AccountStatus.Suspended });
+
+        var act = () => _sut.VerifyOtpAsync(
+            new OtpVerifyRequest { MobileNumber = MobileNumber, OtpCode = "123456" }, CancellationToken.None);
+
+        await act.Should().ThrowAsync<AccountSuspendedException>();
+        _jwtTokenGenerator.Verify(j => j.GenerateToken(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
     [Fact(DisplayName = "TC-CHH-F01-08: VerifyOtpAsync_WhenNoOtpWasEverRequested_ThrowsInvalidOtpException")]

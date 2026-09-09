@@ -75,4 +75,16 @@ describe("RequireAuth", () => {
 
     expect(screen.getByText("Protected content")).toBeInTheDocument();
   });
+
+  it("redirects a non-admin session away from a SystemAdmin-only route (CHH-73)", () => {
+    renderProtected({ token: "t", role: "Individual", expiresAtUtc: FUTURE }, ["SystemAdmin"]);
+
+    expect(screen.getByText("Login Screen")).toBeInTheDocument();
+  });
+
+  it("renders children for a SystemAdmin session on a SystemAdmin-only route (CHH-73)", () => {
+    renderProtected({ token: "t", role: "SystemAdmin", expiresAtUtc: FUTURE }, ["SystemAdmin"]);
+
+    expect(screen.getByText("Protected content")).toBeInTheDocument();
+  });
 });

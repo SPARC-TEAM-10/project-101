@@ -11,6 +11,8 @@ import { RequesterMatchDashboardPage } from "./pages/bloodRequest/RequesterMatch
 import { FacilityRegistrationPage } from "./pages/facility/FacilityRegistrationPage";
 import { IndividualDashboardPage } from "./pages/dashboard/IndividualDashboardPage";
 import { GuestDashboardStubPage } from "./pages/dashboard/GuestDashboardStubPage";
+import { PendingVerificationsPage } from "./pages/admin/PendingVerificationsPage";
+import { UsersPage } from "./pages/admin/UsersPage";
 import { FacilityDashboardPage } from "./pages/dashboard/FacilityDashboardPage";
 import { ProfilePage } from "./pages/profile/ProfilePage";
 import { NotificationsPage } from "./pages/notifications/NotificationsPage";
@@ -80,6 +82,22 @@ export const router = createBrowserRouter([
     ),
   },
   { path: "/guest", element: <GuestPlaceholderPage /> },
+  {
+    path: "/admin",
+    element: (
+      <RequireAuth roles={["SystemAdmin"]}>
+        <PendingVerificationsPage />
+      </RequireAuth>
+    ),
+  },
+  {
+    path: "/admin/users",
+    element: (
+      <RequireAuth roles={["SystemAdmin"]}>
+        <UsersPage />
+      </RequireAuth>
+    ),
+  },
   // Intentionally unguarded: registering is what makes a mobile number resolve to the
   // Hospital/Ngo role in the first place (CHH-10) — gating this page behind that role would
   // make a facility's first-ever registration impossible.

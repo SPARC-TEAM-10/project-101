@@ -30,6 +30,16 @@ public class Facility
     /// <summary>Facility address, free text.</summary>
     public string Address { get; set; } = default!;
 
+    /// <summary>
+    /// Registered latitude, for proximity sorting in the Emergency Services Hub (CHH-82/Epic
+    /// CHH-68). Null for facilities registered before this field existed — those sort last in
+    /// search results rather than blocking the query.
+    /// </summary>
+    public decimal? Latitude { get; set; }
+
+    /// <summary>Registered longitude — see <see cref="Latitude"/>.</summary>
+    public decimal? Longitude { get; set; }
+
     /// <summary>Verification lifecycle state — defaults to <see cref="FacilityVerificationStatus.Pending"/>.</summary>
     public FacilityVerificationStatus VerificationStatus { get; set; } = FacilityVerificationStatus.Pending;
 

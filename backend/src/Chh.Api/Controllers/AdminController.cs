@@ -49,4 +49,27 @@ public class AdminController : ControllerBase
         var result = await _facilityAdminService.GetPendingFacilitiesAsync(page, pageSize, cancellationToken);
         return Ok(result);
     }
+
+    /// <summary>
+    /// Approves or rejects a pending facility (CHH-75/US-CHH-001-03). 404 if no such facility;
+    /// 409 if it isn't Pending anymore (already reviewed); 422 if rejecting without a reason.
+    /// </summary>
+    /// <param name="id">The facility being reviewed.</param>
+    /// <param name="request">Approve or reject, with a mandatory reason on reject.</param>
+    /// <param name="cancellationToken">Cancellation token forwarded through the service and repository layers.</param>
+    [HttpPatch("{id:guid}/verification")]
+    [ProducesResponseType(typeof(FacilityDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+    public async Task<ActionResult<FacilityDto>> ReviewAsync(
+        Guid id,
+        [FromBody] UpdateFacilityVerificationRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await _facilityAdminService.ReviewFacilityAsync(id, request.Decision, request.RejectionReason, cancellationToken);
+        return result is null ? NotFound() : Ok(result);
+    }
 }

@@ -195,6 +195,10 @@ namespace Chh.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
+                    b.Property<decimal?>("Latitude")
+                        .HasPrecision(9, 6)
+                        .HasColumnType("numeric(9,6)");
+
                     b.Property<string>("LicenseDocumentUrl")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
@@ -203,6 +207,10 @@ namespace Chh.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<decimal?>("Longitude")
+                        .HasPrecision(9, 6)
+                        .HasColumnType("numeric(9,6)");
 
                     b.Property<string>("RejectionReason")
                         .HasMaxLength(500)
@@ -367,6 +375,10 @@ namespace Chh.Infrastructure.Migrations
                     b.Property<string>("OtherIllnessDetails")
                         .HasMaxLength(512)
                         .HasColumnType("character varying(512)");
+
+                    b.Property<string>("SuspensionReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.HasKey("Id");
 

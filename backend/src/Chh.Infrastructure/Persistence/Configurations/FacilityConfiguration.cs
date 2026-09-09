@@ -47,6 +47,13 @@ public class FacilityConfiguration : IEntityTypeConfiguration<Facility>
             .HasMaxLength(AddressMaxLength)
             .IsRequired();
 
+        // Nullable — same precision as IndividualProfile.Latitude/Longitude (CHH-82/Epic CHH-68).
+        builder.Property(e => e.Latitude)
+            .HasPrecision(9, 6);
+
+        builder.Property(e => e.Longitude)
+            .HasPrecision(9, 6);
+
         builder.Property(e => e.VerificationStatus)
             .HasConversion<string>()
             .HasMaxLength(VerificationStatusMaxLength)

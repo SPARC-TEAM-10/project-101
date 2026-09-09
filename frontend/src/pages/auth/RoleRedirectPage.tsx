@@ -9,11 +9,12 @@ export const DASHBOARD_ROUTE_BY_ROLE = {
   Guest: "/welcome",
   Hospital: "/dashboard/facility",
   Ngo: "/dashboard/facility",
+  SystemAdmin: "/admin",
 } as const;
 
 // Brief "Verifying..." transition (CHH-10 UI Notes) between OTP verification and the
-// role-appropriate destination. SystemAdmin has no frontend surface yet (see AuthProvider's
-// Role type) so isn't routed here.
+// role-appropriate destination. SystemAdmin (CHH-73, the CHH-F07 interim shortcut) routes to
+// the Admin Command Center.
 export function RoleRedirectPage() {
   const { session } = useAuth();
 

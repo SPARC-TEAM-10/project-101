@@ -45,4 +45,34 @@ public class IndividualProfileRepository : IIndividualProfileRepository
                 && p.Longitude != null)
             .ToListAsync(ct)
             .ConfigureAwait(false);
+
+    /// <inheritdoc />
+    public async Task<IndividualProfile?> GetTrackedByIdAsync(Guid id, CancellationToken ct) =>
+        await _context.IndividualProfiles
+            .FirstOrDefaultAsync(p => p.Id == id, ct)
+            .ConfigureAwait(false);
+
+    /// <inheritdoc />
+    public async Task<(IReadOnlyList<IndividualProfile> Items, int TotalCount)> SearchAsync(
+        string? search, int page, int pageSize, CancellationToken ct)
+    {
+        var query = _context.IndividualProfiles.AsNoTracking().AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = search.Trim().ToLowerInvariant();
+            query = query.Where(p => p.MobileNumber.Contains(term) || p.FullName.ToLower().Contains(term));
+        }
+
+        var totalCount = await query.CountAsync(ct).ConfigureAwait(false);
+
+        var items = await query
+            .OrderBy(p => p.FullName)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(ct)
+            .ConfigureAwait(false);
+
+        return (items, totalCount);
+    }
 }
