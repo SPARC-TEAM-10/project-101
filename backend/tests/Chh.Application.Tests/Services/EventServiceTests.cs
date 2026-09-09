@@ -83,6 +83,23 @@ public class EventServiceTests
     }
 
     [Fact]
+    public async Task CreateAsync_EnqueuesNotifyEventPublishedJobExactlyOnce()
+    {
+        var facility = VerifiedFacility();
+        _facilityRepository
+            .Setup(r => r.GetByContactMobileNumberAsync("9876543210", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(facility);
+
+        await _sut.CreateAsync("9876543210", ValidRequest(), CancellationToken.None);
+
+        _backgroundJobClient.Verify(
+            c => c.Create(
+                It.Is<Job>(job => job.Type == typeof(NotifyEventPublishedJob) && job.Method.Name == nameof(NotifyEventPublishedJob.RunAsync)),
+                It.IsAny<EnqueuedState>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task CreateAsync_WhenFacilityIsPending_ThrowsFacilityNotVerifiedException()
     {
         var facility = VerifiedFacility();

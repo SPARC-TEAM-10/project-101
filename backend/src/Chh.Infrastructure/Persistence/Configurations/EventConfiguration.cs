@@ -97,6 +97,10 @@ public class EventConfiguration : IEntityTypeConfiguration<Event>
         builder.Property(e => e.CancellationReason)
             .HasMaxLength(CancellationReasonMaxLength);
 
+        builder.Property(e => e.NotifiedCount)
+            .HasDefaultValue(0)
+            .IsRequired();
+
         // Backs proximity discovery (CHH-39): "published events, starting after now".
         builder.HasIndex(e => new { e.Status, e.StartAtUtc })
             .HasDatabaseName("IX_Event_Status_StartAtUtc");

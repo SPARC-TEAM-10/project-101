@@ -26,12 +26,18 @@ public class EventsController : ControllerBase
     private const string GetByIdRouteName = "GetEventById";
 
     private readonly IEventService _eventService;
+    private readonly IEventAttendanceService _eventAttendanceService;
+    private readonly IEventAnalyticsService _eventAnalyticsService;
 
-    /// <summary>Creates the controller with its service dependency.</summary>
-    /// <param name="eventService">Logic layer for event creation.</param>
-    public EventsController(IEventService eventService)
+    /// <summary>Creates the controller with its service dependencies.</summary>
+    /// <param name="eventService">Logic layer for event creation, discovery, RSVP, and edit/cancellation.</param>
+    /// <param name="eventAttendanceService">Logic layer for manual attendance marking (CHH-44).</param>
+    /// <param name="eventAnalyticsService">Logic layer for attendance analytics (CHH-45).</param>
+    public EventsController(IEventService eventService, IEventAttendanceService eventAttendanceService, IEventAnalyticsService eventAnalyticsService)
     {
         _eventService = eventService;
+        _eventAttendanceService = eventAttendanceService;
+        _eventAnalyticsService = eventAnalyticsService;
     }
 
     /// <summary>
@@ -209,5 +215,127 @@ public class EventsController : ControllerBase
         var callerMobileNumber = User.FindFirstValue(ClaimTypes.MobilePhone)!;
         var result = await _eventService.CancelAsync(callerMobileNumber, id, request, cancellationToken);
         return result is null ? NotFound() : Ok(result);
+    }
+
+    /// <summary>
+    /// Searches the event's RSVP'd participants by name (3+ characters) or full mobile number
+    /// (CHH-44 AC1/AC2) — the organizer's "mark attendance" lookup. Requires the Hospital or Ngo
+    /// role; only the organizing facility may search its own event's participants (403 otherwise).
+    /// </summary>
+    /// <param name="id">The event to search participants for.</param>
+    /// <param name="search">A name fragment (3+ characters) or a full 10-digit mobile number.</param>
+    /// <param name="cancellationToken">Cancellation token forwarded through the service and repository layers.</param>
+    [HttpGet("{id:guid}/rsvps")]
+    [Authorize(Roles = $"{RoleConstants.Hospital},{RoleConstants.Ngo}")]
+    [ProducesResponseType(typeof(IReadOnlyList<EventParticipantDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<IReadOnlyList<EventParticipantDto>>> SearchParticipantsAsync(
+        [FromRoute] Guid id,
+        [FromQuery] string search,
+        CancellationToken cancellationToken)
+    {
+        var callerMobileNumber = User.FindFirstValue(ClaimTypes.MobilePhone)!;
+        var result = await _eventAttendanceService.SearchParticipantsAsync(callerMobileNumber, id, search ?? "", cancellationToken);
+        return result is null ? NotFound() : Ok(result);
+    }
+
+    /// <summary>
+    /// Marks the given RSVP attended (CHH-44 AC1). Requires the Hospital or Ngo role; only the
+    /// organizing facility may mark its own event's participants (403 otherwise). 409 if already
+    /// marked (duplicate prevention), 422 if the RSVP was cancelled or it's outside the check-in
+    /// window (1 hour before the event starts until it ends).
+    /// </summary>
+    /// <param name="id">The event the RSVP belongs to.</param>
+    /// <param name="rsvpId">The RSVP to mark attended.</param>
+    /// <param name="cancellationToken">Cancellation token forwarded through the service and repository layers.</param>
+    [HttpPost("{id:guid}/rsvps/{rsvpId:guid}/attend")]
+    [Authorize(Roles = $"{RoleConstants.Hospital},{RoleConstants.Ngo}")]
+    [ProducesResponseType(typeof(EventParticipantDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<EventParticipantDto>> MarkAttendedAsync(
+        [FromRoute] Guid id,
+        [FromRoute] Guid rsvpId,
+        CancellationToken cancellationToken)
+    {
+        var callerMobileNumber = User.FindFirstValue(ClaimTypes.MobilePhone)!;
+        var result = await _eventAttendanceService.MarkAttendedAsync(callerMobileNumber, id, rsvpId, cancellationToken);
+        return result is null ? NotFound() : Ok(result);
+    }
+
+    /// <summary>
+    /// Returns the event's attendance summary (CHH-45 AC1). Requires the Hospital or Ngo role;
+    /// only the organizing facility may view its own event's analytics (403 otherwise).
+    /// </summary>
+    /// <param name="id">The event to summarize.</param>
+    /// <param name="cancellationToken">Cancellation token forwarded through the service and repository layers.</param>
+    [HttpGet("{id:guid}/attendance/summary")]
+    [Authorize(Roles = $"{RoleConstants.Hospital},{RoleConstants.Ngo}")]
+    [ProducesResponseType(typeof(EventAttendanceSummaryDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<EventAttendanceSummaryDto>> GetAttendanceSummaryAsync([FromRoute] Guid id, CancellationToken cancellationToken)
+    {
+        var callerMobileNumber = User.FindFirstValue(ClaimTypes.MobilePhone)!;
+        var result = await _eventAnalyticsService.GetSummaryAsync(callerMobileNumber, id, cancellationToken);
+        return result is null ? NotFound() : Ok(result);
+    }
+
+    /// <summary>
+    /// Returns the event's participants, optionally filtered by status and/or a name/mobile search
+    /// term (CHH-45 AC2). Requires the Hospital or Ngo role; only the organizing facility may view
+    /// its own event's participants (403 otherwise).
+    /// </summary>
+    /// <param name="id">The event to list participants for.</param>
+    /// <param name="status">Optional view-status filter (Going, Cancelled, Attended, or NoShow).</param>
+    /// <param name="search">Optional free-text name/mobile filter.</param>
+    /// <param name="cancellationToken">Cancellation token forwarded through the service and repository layers.</param>
+    [HttpGet("{id:guid}/attendance/participants")]
+    [Authorize(Roles = $"{RoleConstants.Hospital},{RoleConstants.Ngo}")]
+    [ProducesResponseType(typeof(IReadOnlyList<EventParticipantAttendanceDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<IReadOnlyList<EventParticipantAttendanceDto>>> GetAttendanceParticipantsAsync(
+        [FromRoute] Guid id,
+        [FromQuery] AttendanceViewStatus? status,
+        [FromQuery] string? search,
+        CancellationToken cancellationToken)
+    {
+        var callerMobileNumber = User.FindFirstValue(ClaimTypes.MobilePhone)!;
+        var result = await _eventAnalyticsService.GetParticipantsAsync(callerMobileNumber, id, status, search, cancellationToken);
+        return result is null ? NotFound() : Ok(result);
+    }
+
+    /// <summary>
+    /// Exports the event's participants as CSV — permitted fields only, no raw mobile number (CHH-45
+    /// AC3). Requires the Hospital or Ngo role; only the organizing facility may export its own
+    /// event's attendance (403 otherwise).
+    /// </summary>
+    /// <param name="id">The event to export.</param>
+    /// <param name="cancellationToken">Cancellation token forwarded through the service and repository layers.</param>
+    [HttpGet("{id:guid}/attendance/export")]
+    [Authorize(Roles = $"{RoleConstants.Hospital},{RoleConstants.Ngo}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ExportAttendanceCsvAsync([FromRoute] Guid id, CancellationToken cancellationToken)
+    {
+        var callerMobileNumber = User.FindFirstValue(ClaimTypes.MobilePhone)!;
+        var csv = await _eventAnalyticsService.ExportCsvAsync(callerMobileNumber, id, cancellationToken);
+        if (csv is null)
+        {
+            return NotFound();
+        }
+
+        return File(System.Text.Encoding.UTF8.GetBytes(csv), "text/csv", $"event-{id}-attendance.csv");
     }
 }

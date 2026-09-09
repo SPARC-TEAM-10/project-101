@@ -1,4 +1,4 @@
-import { apiFetch } from "./httpClient";
+import { apiFetch, ApiError } from "./httpClient";
 import type { EventType } from "../lib/validation/eventSchemas";
 
 export interface CreateEventRequest {
@@ -76,7 +76,7 @@ export function searchEvents(accessToken: string | undefined, params: SearchEven
   });
 }
 
-export type EventRsvpStatus = "Going" | "Cancelled";
+export type EventRsvpStatus = "Going" | "Cancelled" | "Attended";
 
 export interface EventDetailDto {
   id: string;
@@ -189,4 +189,110 @@ export function cancelEvent(accessToken: string | undefined, eventId: string, re
     headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
     body: JSON.stringify(request),
   });
+}
+
+export interface EventParticipantDto {
+  rsvpId: string;
+  fullName: string;
+  maskedMobileNumber: string;
+  referenceCode: string;
+  status: EventRsvpStatus;
+  rsvpCreatedAtUtc: string;
+  attendedAtUtc?: string | null;
+  attendedByName?: string | null;
+}
+
+// Matches contracts/chh-api.v1.yaml's GET /events/{id}/rsvps (CHH-44). [Authorize(Roles = "Hospital,Ngo")]
+export function searchEventParticipants(accessToken: string | undefined, eventId: string, search: string): Promise<EventParticipantDto[]> {
+  const query = new URLSearchParams({ search });
+  return apiFetch<EventParticipantDto[]>(`/events/${eventId}/rsvps?${query.toString()}`, {
+    headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+  });
+}
+
+// Matches contracts/chh-api.v1.yaml's POST /events/{id}/rsvps/{rsvpId}/attend (CHH-44). [Authorize(Roles = "Hospital,Ngo")]
+export function markEventRsvpAttended(accessToken: string | undefined, eventId: string, rsvpId: string): Promise<EventParticipantDto> {
+  return apiFetch<EventParticipantDto>(`/events/${eventId}/rsvps/${rsvpId}/attend`, {
+    method: "POST",
+    headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+  });
+}
+
+export type AttendanceViewStatus = "Going" | "Cancelled" | "Attended" | "NoShow";
+
+export interface EventAttendanceSummaryDto {
+  eventId: string;
+  title: string;
+  eventType: EventType;
+  venueName: string;
+  facilityName: string;
+  status: "Published" | "Cancelled";
+  startAtUtc: string;
+  endAtUtc: string;
+  capacity: number;
+  notifiedCount: number;
+  rsvpdCount: number;
+  attendedCount: number;
+  noShowCount: number;
+  cancelledCount: number;
+  remainingCapacity: number;
+  attendanceRatePercent: number;
+}
+
+export interface EventParticipantAttendanceDto {
+  rsvpId: string;
+  fullName: string;
+  maskedMobileNumber: string;
+  referenceCode: string;
+  status: AttendanceViewStatus;
+  rsvpCreatedAtUtc: string;
+  attendedAtUtc?: string | null;
+  attendedByName?: string | null;
+}
+
+// Matches contracts/chh-api.v1.yaml's GET /events/{id}/attendance/summary (CHH-45). [Authorize(Roles = "Hospital,Ngo")]
+export function getEventAttendanceSummary(accessToken: string | undefined, eventId: string): Promise<EventAttendanceSummaryDto> {
+  return apiFetch<EventAttendanceSummaryDto>(`/events/${eventId}/attendance/summary`, {
+    headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+  });
+}
+
+export interface GetAttendanceParticipantsParams {
+  status?: AttendanceViewStatus;
+  search?: string;
+}
+
+// Matches contracts/chh-api.v1.yaml's GET /events/{id}/attendance/participants (CHH-45). [Authorize(Roles = "Hospital,Ngo")]
+export function getEventAttendanceParticipants(
+  accessToken: string | undefined,
+  eventId: string,
+  params: GetAttendanceParticipantsParams,
+): Promise<EventParticipantAttendanceDto[]> {
+  const query = new URLSearchParams();
+  if (params.status) {
+    query.set("status", params.status);
+  }
+  if (params.search) {
+    query.set("search", params.search);
+  }
+  const queryString = query.toString();
+  const suffix = queryString.length > 0 ? `?${queryString}` : "";
+  return apiFetch<EventParticipantAttendanceDto[]>(`/events/${eventId}/attendance/participants${suffix}`, {
+    headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+  });
+}
+
+// Matches contracts/chh-api.v1.yaml's GET /events/{id}/attendance/export (CHH-45). [Authorize(Roles = "Hospital,Ngo")]
+// Returns a CSV Blob rather than JSON — bypasses apiFetch, which always parses the response body
+// as JSON.
+export async function exportEventAttendanceCsv(accessToken: string | undefined, eventId: string): Promise<Blob> {
+  const baseUrl = `${import.meta.env.VITE_API_BASE_URL ?? ""}/api/v1`;
+  const res = await fetch(`${baseUrl}/events/${eventId}/attendance/export`, {
+    headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+  });
+  if (!res.ok) {
+    const problem = await res.json().catch(() => ({}));
+    throw new ApiError(res.status, problem);
+  }
+  return res.blob();
 }

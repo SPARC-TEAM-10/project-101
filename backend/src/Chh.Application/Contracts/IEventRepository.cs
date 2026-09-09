@@ -66,4 +66,14 @@ public interface IEventRepository
     /// <param name="facilityId">The organizing facility's id.</param>
     /// <param name="ct">Cancellation token.</param>
     Task<IReadOnlyList<Event>> GetByFacilityAsync(Guid facilityId, CancellationToken ct);
+
+    /// <summary>
+    /// Sets <see cref="Event.NotifiedCount"/> in a single <c>UPDATE</c> statement — called once by
+    /// <c>NotifyEventPublishedJob</c> after dispatch (CHH-42/US-CHH-005-05), never re-computed
+    /// afterward. No-ops if the event no longer exists.
+    /// </summary>
+    /// <param name="eventId">The event whose notified count was just computed.</param>
+    /// <param name="notifiedCount">The number of individuals targeted by the publish notification.</param>
+    /// <param name="ct">Cancellation token.</param>
+    Task SetNotifiedCountAsync(Guid eventId, int notifiedCount, CancellationToken ct);
 }

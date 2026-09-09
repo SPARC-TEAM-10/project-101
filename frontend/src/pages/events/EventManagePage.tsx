@@ -144,6 +144,25 @@ export function EventManagePage() {
           </p>
         </div>
 
+        <div className="flex gap-3">
+          {!isCancelled && (
+            <button
+              type="button"
+              onClick={() => navigate(`/events/${event.id}/attendance`)}
+              className="h-[54px] flex-1 rounded-md bg-clay text-base font-bold text-white hover:bg-clay-hover"
+            >
+              Mark attendance
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => navigate(`/events/${event.id}/analytics`)}
+            className="h-[54px] flex-1 rounded-md border-[1.5px] border-line-strong text-base font-bold hover:bg-sand-2"
+          >
+            View attendance
+          </button>
+        </div>
+
         {isCancelled && (
           <div className="flex gap-2.5 rounded-lg bg-error-tint p-3.5">
             <div>

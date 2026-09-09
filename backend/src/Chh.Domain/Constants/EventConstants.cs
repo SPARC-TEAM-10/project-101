@@ -37,4 +37,23 @@ public static class EventConstants
     public const string EventAlreadyStartedMessage = "This event has already started, so it can't be edited or cancelled.";
     public const string CapacityBelowRsvpCountMessage = "Capacity cannot be reduced below the number already RSVP'd.";
     public const string EventAlreadyCancelledMessage = "This event has already been cancelled.";
+
+    /// <summary>
+    /// Proximity radius for the "new event published nearby" notification (CHH-42/US-CHH-005-05
+    /// AC1 — the PRD/spec never gives a number for "the venue's region", so this reuses the
+    /// frontend discovery page's default search radius (useEventDiscovery.ts's DEFAULT_RADIUS_KM)
+    /// for consistency rather than inventing an unrelated value).
+    /// </summary>
+    public const int EventPublishNotificationRadiusKm = 15;
+
+    /// <summary>Minimum characters for a name search (CHH-44/US-CHH-005-07 AC2) — a full 10-digit mobile number is accepted at any point count.</summary>
+    public const int MinAttendanceSearchNameLength = 3;
+
+    /// <summary>How long before <see cref="Entities.Event.StartAtUtc"/> the attendance check-in window opens (spec §6.1: "1 hour before event start until event end").</summary>
+    public static readonly TimeSpan AttendanceWindowBeforeStart = TimeSpan.FromHours(1);
+
+    public const string AttendanceSearchTooShortMessage = "Enter at least 3 characters of a name, or a full mobile number.";
+    public const string AlreadyAttendedMessage = "This participant has already been marked attended.";
+    public const string AttendanceOutsideWindowMessage = "Attendance can only be marked from 1 hour before the event starts until it ends.";
+    public const string RsvpNotEligibleForAttendanceMessage = "This RSVP was cancelled, so attendance can't be marked.";
 }

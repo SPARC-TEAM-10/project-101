@@ -14,6 +14,8 @@ import { EventDiscoveryPage } from "./pages/events/EventDiscoveryPage";
 import { EventDetailPage } from "./pages/events/EventDetailPage";
 import { MyEventsPage } from "./pages/events/MyEventsPage";
 import { EventManagePage } from "./pages/events/EventManagePage";
+import { MarkAttendancePage } from "./pages/events/MarkAttendancePage";
+import { EventAnalyticsPage } from "./pages/events/EventAnalyticsPage";
 import { IndividualDashboardPage } from "./pages/dashboard/IndividualDashboardPage";
 import { GuestDashboardStubPage } from "./pages/dashboard/GuestDashboardStubPage";
 import { PendingVerificationsPage } from "./pages/admin/PendingVerificationsPage";
@@ -159,6 +161,25 @@ export const router = createBrowserRouter([
     element: (
       <RequireAuth roles={["Hospital", "Ngo"]}>
         <EventManagePage />
+      </RequireAuth>
+    ),
+  },
+  {
+    // CHH-44's manual attendance marking — ownership is enforced server-side (403 if the caller's
+    // facility doesn't own the event), matching /events/:id/manage's pattern.
+    path: "/events/:id/attendance",
+    element: (
+      <RequireAuth roles={["Hospital", "Ngo"]}>
+        <MarkAttendancePage />
+      </RequireAuth>
+    ),
+  },
+  {
+    // CHH-45's attendance analytics dashboard — same ownership pattern as manage/attendance.
+    path: "/events/:id/analytics",
+    element: (
+      <RequireAuth roles={["Hospital", "Ngo"]}>
+        <EventAnalyticsPage />
       </RequireAuth>
     ),
   },

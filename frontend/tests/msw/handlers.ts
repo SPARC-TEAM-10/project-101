@@ -343,6 +343,145 @@ export const cancelEventAlreadyStartedHandler = http.post(EVENT_CANCEL_URL, () =
   ),
 );
 
+// --- CHH-44: manual attendance (GET /events/{id}/rsvps, POST /events/{id}/rsvps/{rsvpId}/attend) ---
+
+export const EVENT_RSVPS_URL = `${EVENT_DETAIL_URL}/rsvps`;
+export const RSVP_ID_GOING = "b1111111-1111-1111-1111-111111111111";
+export const RSVP_ID_ATTENDED = "b2222222-2222-2222-2222-222222222222";
+
+function participantFixture(overrides: Record<string, unknown> = {}) {
+  return {
+    rsvpId: RSVP_ID_GOING,
+    fullName: "Nithya Menon",
+    maskedMobileNumber: "+91 ••••••7213",
+    referenceCode: "A1",
+    status: "Going",
+    rsvpCreatedAtUtc: "2026-09-04T10:00:00.000Z",
+    attendedAtUtc: null,
+    attendedByName: null,
+    ...overrides,
+  };
+}
+
+export const searchParticipantsSuccessHandler = http.get(EVENT_RSVPS_URL, () =>
+  HttpResponse.json([
+    participantFixture(),
+    participantFixture({
+      rsvpId: RSVP_ID_ATTENDED,
+      fullName: "Nithya Rajan",
+      maskedMobileNumber: "+91 ••••••4410",
+      referenceCode: "A2",
+      status: "Attended",
+      attendedAtUtc: "2026-09-13T09:12:00.000Z",
+      attendedByName: "A. Thomas",
+    }),
+  ]),
+);
+
+export const searchParticipantsEmptyHandler = http.get(EVENT_RSVPS_URL, () => HttpResponse.json([]));
+
+export const markAttendedSuccessHandler = http.post(`${EVENT_RSVPS_URL}/${RSVP_ID_GOING}/attend`, () =>
+  HttpResponse.json(
+    participantFixture({
+      status: "Attended",
+      attendedAtUtc: new Date().toISOString(),
+      attendedByName: "You",
+    }),
+  ),
+);
+
+export const markAttendedAlreadyAttendedHandler = http.post(`${EVENT_RSVPS_URL}/${RSVP_ID_GOING}/attend`, () =>
+  HttpResponse.json(
+    { title: "Already attended", status: 409, detail: "This participant has already been marked attended." },
+    { status: 409 },
+  ),
+);
+
+// --- CHH-45: attendance analytics (summary, participants, CSV export) ---
+
+export const EVENT_ATTENDANCE_SUMMARY_URL = `${EVENT_DETAIL_URL}/attendance/summary`;
+export const EVENT_ATTENDANCE_PARTICIPANTS_URL = `${EVENT_DETAIL_URL}/attendance/participants`;
+export const EVENT_ATTENDANCE_EXPORT_URL = `${EVENT_DETAIL_URL}/attendance/export`;
+
+function attendanceSummaryFixture(overrides: Record<string, unknown> = {}) {
+  return {
+    eventId: EVENT_DETAIL_ID,
+    title: "Community blood drive — Kaloor",
+    eventType: "BloodDonationCamp",
+    venueName: "Kaloor Community Hall",
+    facilityName: "Kochi Metro Hospital",
+    status: "Published",
+    startAtUtc: "2026-09-13T09:00:00.000Z",
+    endAtUtc: "2026-09-13T14:00:00.000Z",
+    capacity: 60,
+    notifiedCount: 340,
+    rsvpdCount: 43,
+    attendedCount: 31,
+    noShowCount: 12,
+    cancelledCount: 6,
+    remainingCapacity: 17,
+    attendanceRatePercent: 72,
+    ...overrides,
+  };
+}
+
+export const getAttendanceSummarySuccessHandler = http.get(EVENT_ATTENDANCE_SUMMARY_URL, () => HttpResponse.json(attendanceSummaryFixture()));
+
+export const getAttendanceSummaryNotFoundHandler = http.get(EVENT_ATTENDANCE_SUMMARY_URL, () => new HttpResponse(null, { status: 404 }));
+
+const attendanceParticipantFixtures = [
+  {
+    rsvpId: "c1111111-1111-1111-1111-111111111111",
+    fullName: "Rahul Suresh",
+    maskedMobileNumber: "+91 ••••••5871",
+    referenceCode: "A17",
+    status: "Attended",
+    rsvpCreatedAtUtc: "2026-09-04T11:02:00.000Z",
+    attendedAtUtc: "2026-09-13T09:04:00.000Z",
+    attendedByName: "A. Thomas",
+  },
+  {
+    rsvpId: "c2222222-2222-2222-2222-222222222222",
+    fullName: "Tom Jacob",
+    maskedMobileNumber: "+91 ••••••1004",
+    referenceCode: "A31",
+    status: "NoShow",
+    rsvpCreatedAtUtc: "2026-09-04T12:15:00.000Z",
+    attendedAtUtc: null,
+    attendedByName: null,
+  },
+  {
+    rsvpId: "c3333333-3333-3333-3333-333333333333",
+    fullName: "Vishnu Nair",
+    maskedMobileNumber: "+91 ••••••1120",
+    referenceCode: "A44",
+    status: "Cancelled",
+    rsvpCreatedAtUtc: "2026-09-05T15:03:00.000Z",
+    attendedAtUtc: null,
+    attendedByName: null,
+  },
+];
+
+export const getAttendanceParticipantsSuccessHandler = http.get(EVENT_ATTENDANCE_PARTICIPANTS_URL, ({ request }) => {
+  const url = new URL(request.url);
+  const status = url.searchParams.get("status");
+  const search = url.searchParams.get("search")?.toLowerCase();
+  let items = attendanceParticipantFixtures;
+  if (status) {
+    items = items.filter((p) => p.status === status);
+  }
+  if (search) {
+    items = items.filter((p) => p.fullName.toLowerCase().includes(search));
+  }
+  return HttpResponse.json(items);
+});
+
+export const exportAttendanceCsvSuccessHandler = http.get(EVENT_ATTENDANCE_EXPORT_URL, () =>
+  HttpResponse.text("Full Name,Reference Code,Mobile Number\r\n\"Rahul Suresh\",\"A17\",\"+91 ••••••5871\"\r\n", {
+    headers: { "Content-Type": "text/csv" },
+  }),
+);
+
 // No MSW handler for POST /api/v1/facilities/:id/upload — @mswjs/interceptors hangs under jsdom
 // on any XHR request whose body is a FormData containing a Blob/File (see tests/fakeXhr.ts's doc
 // comment). facilityApi.uploadFacilityLicense is tested via that fake XHR instead.
