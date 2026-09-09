@@ -33,18 +33,7 @@ export function FacilityDetailModal({ facilityId, onClose }: { facilityId: strin
 
         {isLoading && <p className="text-sm text-ink-2">Loading…</p>}
 
-        {isError && (
-          <div className="flex flex-col gap-3">
-            <p className="text-sm text-error">Couldn&apos;t load this facility.</p>
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex h-11 w-full items-center justify-center rounded-md border-[1.5px] border-line-strong text-[14px] font-semibold text-ink transition-colors hover:bg-sand-2"
-            >
-              Close
-            </button>
-          </div>
-        )}
+        {isError && <p className="text-sm text-error">Couldn&apos;t load this facility.</p>}
 
         {facility && (
           <div className="flex flex-col gap-3">
