@@ -38,4 +38,41 @@ public class EventRepository : IEventRepository
             .ToListAsync(ct)
             .ConfigureAwait(false);
     }
+
+    /// <inheritdoc />
+    public async Task<EventWithFacilityNameResult?> GetByIdWithFacilityNameAsync(Guid id, CancellationToken ct) =>
+        await _context.Events
+            .AsNoTracking()
+            .Where(e => e.Id == id)
+            .Join(
+                _context.Facilities.AsNoTracking(),
+                e => e.FacilityId,
+                f => f.Id,
+                (e, f) => new EventWithFacilityNameResult { Event = e, FacilityName = f.FacilityName })
+            .FirstOrDefaultAsync(ct)
+            .ConfigureAwait(false);
+
+    /// <inheritdoc />
+    public async Task<bool> TryReserveSpotAsync(Guid eventId, CancellationToken ct)
+    {
+        var rowsAffected = await _context.Events
+            .Where(e => e.Id == eventId
+                && e.Status == EventStatus.Published
+                && e.RsvpCount < e.Capacity)
+            .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(e => e.RsvpCount, e => e.RsvpCount + 1),
+                ct)
+            .ConfigureAwait(false);
+
+        return rowsAffected > 0;
+    }
+
+    /// <inheritdoc />
+    public async Task ReleaseSpotAsync(Guid eventId, CancellationToken ct) =>
+        await _context.Events
+            .Where(e => e.Id == eventId && e.RsvpCount > 0)
+            .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(e => e.RsvpCount, e => e.RsvpCount - 1),
+                ct)
+            .ConfigureAwait(false);
 }

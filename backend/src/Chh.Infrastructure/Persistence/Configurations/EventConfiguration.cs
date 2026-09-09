@@ -89,6 +89,10 @@ public class EventConfiguration : IEntityTypeConfiguration<Event>
         builder.Property(e => e.UpdatedAtUtc)
             .IsRequired();
 
+        builder.Property(e => e.RsvpCount)
+            .HasDefaultValue(0)
+            .IsRequired();
+
         // Backs proximity discovery (CHH-39): "published events, starting after now".
         builder.HasIndex(e => new { e.Status, e.StartAtUtc })
             .HasDatabaseName("IX_Event_Status_StartAtUtc");

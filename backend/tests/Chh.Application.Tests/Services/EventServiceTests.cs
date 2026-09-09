@@ -14,12 +14,19 @@ public class EventServiceTests
 {
     private readonly Mock<IFacilityRepository> _facilityRepository = new();
     private readonly Mock<IEventRepository> _eventRepository = new();
+    private readonly Mock<IEventRsvpRepository> _eventRsvpRepository = new();
+    private readonly Mock<IIndividualProfileRepository> _individualProfileRepository = new();
     private readonly Mock<IUnitOfWork> _unitOfWork = new();
     private readonly EventService _sut;
 
     public EventServiceTests()
     {
-        _sut = new EventService(_facilityRepository.Object, _eventRepository.Object, _unitOfWork.Object);
+        _sut = new EventService(
+            _facilityRepository.Object,
+            _eventRepository.Object,
+            _eventRsvpRepository.Object,
+            _individualProfileRepository.Object,
+            _unitOfWork.Object);
     }
 
     private static readonly DateTimeOffset Start = DateTimeOffset.UtcNow.AddDays(2);
@@ -214,7 +221,7 @@ public class EventServiceTests
     }
 
     [Fact]
-    public async Task SearchAsync_ReturnsSpotsRemainingEqualToCapacity_NoRsvpEntityYet()
+    public async Task SearchAsync_ReturnsSpotsRemainingEqualToCapacity_WhenNoRsvpsExist()
     {
         var evt = NearbyEvent();
         _eventRepository
@@ -224,5 +231,211 @@ public class EventServiceTests
         var result = await _sut.SearchAsync(SearchLatitude, SearchLongitude, 25, null, CancellationToken.None);
 
         result.Single().SpotsRemaining.Should().Be(evt.Capacity);
+    }
+
+    // --- CHH-40/US-CHH-005-03: GetByIdAsync, RsvpAsync, CancelRsvpAsync ---
+
+    private const string CallerMobileNumber = "9876543210";
+
+    private static IndividualProfile MakeProfile() => new()
+    {
+        MobileNumber = CallerMobileNumber,
+        FullName = "Jane Doe",
+        Email = "jane@example.com",
+        BloodGroup = BloodGroup.OPositive,
+        DateOfBirth = new DateOnly(1990, 1, 1),
+        Gender = Gender.Female,
+        LocationCityArea = "Kochi",
+        CreatedAtUtc = DateTimeOffset.UtcNow
+    };
+
+    [Fact]
+    public async Task GetByIdAsync_ReturnsNull_WhenEventDoesNotExist()
+    {
+        _eventRepository
+            .Setup(r => r.GetByIdWithFacilityNameAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((EventWithFacilityNameResult?)null);
+
+        var result = await _sut.GetByIdAsync(Guid.NewGuid(), CallerMobileNumber, null, null, CancellationToken.None);
+
+        result.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_IncludesCallerOwnRsvpStatus_WhenTheyHaveRsvpd()
+    {
+        var evt = NearbyEvent();
+        var profile = MakeProfile();
+        var rsvp = new EventRsvp
+        {
+            EventId = evt.Id,
+            IndividualProfileId = profile.Id,
+            ReferenceCode = "A1",
+            Status = EventRsvpStatus.Going,
+            CreatedAtUtc = DateTimeOffset.UtcNow
+        };
+        _eventRepository
+            .Setup(r => r.GetByIdWithFacilityNameAsync(evt.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new EventWithFacilityNameResult { Event = evt, FacilityName = "Kochi Metro Hospital" });
+        _individualProfileRepository
+            .Setup(r => r.GetByMobileNumberAsync(CallerMobileNumber, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(profile);
+        _eventRsvpRepository
+            .Setup(r => r.GetByEventAndIndividualAsync(evt.Id, profile.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(rsvp);
+
+        var result = await _sut.GetByIdAsync(evt.Id, CallerMobileNumber, null, null, CancellationToken.None);
+
+        result.Should().NotBeNull();
+        result!.MyRsvpStatus.Should().Be(EventRsvpStatus.Going);
+        result.MyReferenceCode.Should().Be("A1");
+    }
+
+    [Fact]
+    public async Task RsvpAsync_ReturnsNull_WhenEventDoesNotExist()
+    {
+        _individualProfileRepository
+            .Setup(r => r.GetByMobileNumberAsync(CallerMobileNumber, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(MakeProfile());
+        _eventRepository
+            .Setup(r => r.GetByIdWithFacilityNameAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((EventWithFacilityNameResult?)null);
+
+        var result = await _sut.RsvpAsync(CallerMobileNumber, Guid.NewGuid(), CancellationToken.None);
+
+        result.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task RsvpAsync_ThrowsEventFullException_WhenNoCapacityRemains()
+    {
+        var evt = NearbyEvent();
+        var profile = MakeProfile();
+        _individualProfileRepository
+            .Setup(r => r.GetByMobileNumberAsync(CallerMobileNumber, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(profile);
+        _eventRepository
+            .Setup(r => r.GetByIdWithFacilityNameAsync(evt.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new EventWithFacilityNameResult { Event = evt, FacilityName = "Kochi Metro Hospital" });
+        _eventRsvpRepository
+            .Setup(r => r.GetTrackedByEventAndIndividualAsync(evt.Id, profile.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((EventRsvp?)null);
+        _eventRepository
+            .Setup(r => r.TryReserveSpotAsync(evt.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        var act = () => _sut.RsvpAsync(CallerMobileNumber, evt.Id, CancellationToken.None);
+
+        await act.Should().ThrowAsync<EventFullException>();
+    }
+
+    [Fact]
+    public async Task RsvpAsync_ThrowsAlreadyRsvpdException_WhenCallerAlreadyGoing()
+    {
+        var evt = NearbyEvent();
+        var profile = MakeProfile();
+        var existingRsvp = new EventRsvp
+        {
+            EventId = evt.Id,
+            IndividualProfileId = profile.Id,
+            ReferenceCode = "A1",
+            Status = EventRsvpStatus.Going,
+            CreatedAtUtc = DateTimeOffset.UtcNow
+        };
+        _individualProfileRepository
+            .Setup(r => r.GetByMobileNumberAsync(CallerMobileNumber, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(profile);
+        _eventRepository
+            .Setup(r => r.GetByIdWithFacilityNameAsync(evt.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new EventWithFacilityNameResult { Event = evt, FacilityName = "Kochi Metro Hospital" });
+        _eventRsvpRepository
+            .Setup(r => r.GetTrackedByEventAndIndividualAsync(evt.Id, profile.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existingRsvp);
+
+        var act = () => _sut.RsvpAsync(CallerMobileNumber, evt.Id, CancellationToken.None);
+
+        await act.Should().ThrowAsync<AlreadyRsvpdException>();
+        _eventRepository.Verify(r => r.TryReserveSpotAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task RsvpAsync_Succeeds_ReservesSpotAndAssignsAReferenceCode()
+    {
+        var evt = NearbyEvent();
+        var profile = MakeProfile();
+        _individualProfileRepository
+            .Setup(r => r.GetByMobileNumberAsync(CallerMobileNumber, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(profile);
+        _eventRepository
+            .Setup(r => r.GetByIdWithFacilityNameAsync(evt.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new EventWithFacilityNameResult { Event = evt, FacilityName = "Kochi Metro Hospital" });
+        _eventRsvpRepository
+            .Setup(r => r.GetTrackedByEventAndIndividualAsync(evt.Id, profile.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((EventRsvp?)null);
+        _eventRepository
+            .Setup(r => r.TryReserveSpotAsync(evt.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        _eventRsvpRepository
+            .Setup(r => r.CountForEventAsync(evt.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(5);
+
+        var result = await _sut.RsvpAsync(CallerMobileNumber, evt.Id, CancellationToken.None);
+
+        result.Should().NotBeNull();
+        result!.Status.Should().Be(EventRsvpStatus.Going);
+        result.ReferenceCode.Should().Be("A6");
+        _eventRsvpRepository.Verify(r => r.AddAsync(It.IsAny<EventRsvp>(), It.IsAny<CancellationToken>()), Times.Once);
+        _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task CancelRsvpAsync_ReturnsNull_WhenCallerHasNoActiveRsvp()
+    {
+        var evt = NearbyEvent();
+        var profile = MakeProfile();
+        _individualProfileRepository
+            .Setup(r => r.GetByMobileNumberAsync(CallerMobileNumber, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(profile);
+        _eventRsvpRepository
+            .Setup(r => r.GetTrackedByEventAndIndividualAsync(evt.Id, profile.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((EventRsvp?)null);
+
+        var result = await _sut.CancelRsvpAsync(CallerMobileNumber, evt.Id, CancellationToken.None);
+
+        result.Should().BeNull();
+        _eventRepository.Verify(r => r.ReleaseSpotAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task CancelRsvpAsync_Succeeds_ReleasesTheSpot()
+    {
+        var evt = NearbyEvent();
+        var profile = MakeProfile();
+        var rsvp = new EventRsvp
+        {
+            EventId = evt.Id,
+            IndividualProfileId = profile.Id,
+            ReferenceCode = "A1",
+            Status = EventRsvpStatus.Going,
+            CreatedAtUtc = DateTimeOffset.UtcNow
+        };
+        _individualProfileRepository
+            .Setup(r => r.GetByMobileNumberAsync(CallerMobileNumber, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(profile);
+        _eventRsvpRepository
+            .Setup(r => r.GetTrackedByEventAndIndividualAsync(evt.Id, profile.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(rsvp);
+        _eventRepository
+            .Setup(r => r.GetByIdWithFacilityNameAsync(evt.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new EventWithFacilityNameResult { Event = evt, FacilityName = "Kochi Metro Hospital" });
+
+        var result = await _sut.CancelRsvpAsync(CallerMobileNumber, evt.Id, CancellationToken.None);
+
+        result.Should().NotBeNull();
+        result!.Status.Should().Be(EventRsvpStatus.Cancelled);
+        rsvp.Status.Should().Be(EventRsvpStatus.Cancelled);
+        rsvp.CancelledAtUtc.Should().NotBeNull();
+        _eventRepository.Verify(r => r.ReleaseSpotAsync(evt.Id, It.IsAny<CancellationToken>()), Times.Once);
+        _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 }

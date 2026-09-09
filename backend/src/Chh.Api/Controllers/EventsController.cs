@@ -23,6 +23,7 @@ namespace Chh.Api.Controllers;
 public class EventsController : ControllerBase
 {
     private const string RouteName = "CreateEvent";
+    private const string GetByIdRouteName = "GetEventById";
 
     private readonly IEventService _eventService;
 
@@ -53,9 +54,70 @@ public class EventsController : ControllerBase
         var creatorMobileNumber = User.FindFirstValue(ClaimTypes.MobilePhone)!;
         var result = await _eventService.CreateAsync(creatorMobileNumber, request, cancellationToken);
 
-        // Same CreatedAtRoute-pointing-back-at-itself simplification as FacilitiesController —
-        // no GET /events/{id} exists yet (out of scope for this story).
-        return CreatedAtRoute(RouteName, new { id = result.Id }, result);
+        return CreatedAtRoute(GetByIdRouteName, new { id = result.Id }, result);
+    }
+
+    /// <summary>
+    /// Returns the event detail view (CHH-40 detail page) — open to any authenticated role.
+    /// Includes the caller's own RSVP status when they're an Individual who has RSVP'd.
+    /// </summary>
+    /// <param name="id">The event's id.</param>
+    /// <param name="latitude">Optional caller latitude, to compute <c>distanceKm</c>.</param>
+    /// <param name="longitude">Optional caller longitude, to compute <c>distanceKm</c>.</param>
+    /// <param name="cancellationToken">Cancellation token forwarded through the service and repository layers.</param>
+    [HttpGet("{id:guid}", Name = GetByIdRouteName)]
+    [ProducesResponseType(typeof(EventDetailDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<EventDetailDto>> GetByIdAsync(
+        [FromRoute] Guid id,
+        [FromQuery] decimal? latitude,
+        [FromQuery] decimal? longitude,
+        CancellationToken cancellationToken)
+    {
+        var callerMobileNumber = User.FindFirstValue(ClaimTypes.MobilePhone)!;
+        var result = await _eventService.GetByIdAsync(id, callerMobileNumber, latitude, longitude, cancellationToken);
+        return result is null ? NotFound() : Ok(result);
+    }
+
+    /// <summary>
+    /// RSVPs the caller to the event (AC1). Requires the Individual role. 422 if the event is full
+    /// (AC2), 409 if the caller already has an active RSVP (AC3).
+    /// </summary>
+    /// <param name="id">The event to RSVP to.</param>
+    /// <param name="cancellationToken">Cancellation token forwarded through the service and repository layers.</param>
+    [HttpPost("{id:guid}/rsvp")]
+    [Authorize(Roles = RoleConstants.Individual)]
+    [ProducesResponseType(typeof(RsvpResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<RsvpResponseDto>> RsvpAsync([FromRoute] Guid id, CancellationToken cancellationToken)
+    {
+        var mobileNumber = User.FindFirstValue(ClaimTypes.MobilePhone)!;
+        var result = await _eventService.RsvpAsync(mobileNumber, id, cancellationToken);
+        return result is null ? NotFound() : Ok(result);
+    }
+
+    /// <summary>
+    /// Cancels the caller's own active RSVP and releases the spot (Edge Case). Requires the
+    /// Individual role. 404 if the caller has no active RSVP for that event.
+    /// </summary>
+    /// <param name="id">The event to cancel the RSVP for.</param>
+    /// <param name="cancellationToken">Cancellation token forwarded through the service and repository layers.</param>
+    [HttpDelete("{id:guid}/rsvp")]
+    [Authorize(Roles = RoleConstants.Individual)]
+    [ProducesResponseType(typeof(RsvpResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<RsvpResponseDto>> CancelRsvpAsync([FromRoute] Guid id, CancellationToken cancellationToken)
+    {
+        var mobileNumber = User.FindFirstValue(ClaimTypes.MobilePhone)!;
+        var result = await _eventService.CancelRsvpAsync(mobileNumber, id, cancellationToken);
+        return result is null ? NotFound() : Ok(result);
     }
 
     /// <summary>

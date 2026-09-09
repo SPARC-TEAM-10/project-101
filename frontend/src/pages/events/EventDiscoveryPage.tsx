@@ -25,13 +25,17 @@ function EventTypePill({ eventType }: { eventType: EventType }) {
   return <span className={`inline-flex h-[26px] items-center rounded-full px-2.5 text-xs font-bold ${cls}`}>{EVENT_TYPE_LABELS[eventType]}</span>;
 }
 
-function EventCard({ event }: { event: EventSummaryDto }) {
+function EventCard({ event, onOpen }: { event: EventSummaryDto; onOpen: () => void }) {
   const { weekday, day, month } = formatDateBadge(event.startAtUtc);
   const isFull = event.spotsRemaining <= 0;
   const pctFilled = Math.round(((event.capacity - event.spotsRemaining) / event.capacity) * 100);
 
   return (
-    <div className="flex gap-3 rounded-lg border border-line bg-cream p-3.5 shadow-sm">
+    <button
+      type="button"
+      onClick={onOpen}
+      className="flex gap-3 rounded-lg border border-line bg-cream p-3.5 text-left shadow-sm transition-colors hover:bg-sand-2"
+    >
       <div className="flex w-14 flex-none flex-col items-center justify-center rounded-md bg-sand-2 py-2 text-ink-2">
         <span className="text-[11.5px] font-semibold">{weekday}</span>
         <b className="text-xl font-extrabold leading-none text-ink [font-variant-numeric:tabular-nums]">{day}</b>
@@ -61,7 +65,7 @@ function EventCard({ event }: { event: EventSummaryDto }) {
           </div>
         )}
       </div>
-    </div>
+    </button>
   );
 }
 
@@ -237,7 +241,11 @@ export function EventDiscoveryPage() {
             {!isLoading && events.length > 0 && viewMode === "list" && (
               <div className="flex flex-col gap-3">
                 {events.map((event) => (
-                  <EventCard key={event.id} event={event} />
+                  <EventCard
+                    key={event.id}
+                    event={event}
+                    onOpen={() => navigate(`/events/${event.id}`, { state: { coordinates } })}
+                  />
                 ))}
               </div>
             )}

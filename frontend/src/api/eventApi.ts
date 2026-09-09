@@ -47,7 +47,7 @@ export interface EventSummaryDto {
   endAtUtc: string;
   distanceKm: number;
   capacity: number;
-  // Always equals capacity until CHH-40 introduces RSVP tracking — no RSVP entity exists yet.
+  // capacity minus the event's active (non-cancelled) RSVP count (CHH-40).
   spotsRemaining: number;
 }
 
@@ -70,6 +70,74 @@ export function searchEvents(accessToken: string | undefined, params: SearchEven
     query.set("eventType", params.eventType);
   }
   return apiFetch<EventSummaryDto[]>(`/events/search?${query.toString()}`, {
+    headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+  });
+}
+
+export type EventRsvpStatus = "Going" | "Cancelled";
+
+export interface EventDetailDto {
+  id: string;
+  title: string;
+  eventType: EventType;
+  description: string;
+  facilityName: string;
+  venueName: string;
+  venueAddress: string;
+  latitude: number;
+  longitude: number;
+  startAtUtc: string;
+  endAtUtc: string;
+  capacity: number;
+  spotsRemaining: number;
+  coordinatorName: string;
+  coordinatorContact: string;
+  rsvpCutoffAtUtc?: string | null;
+  status: "Published" | "Cancelled";
+  // Only present when latitude/longitude were passed to getEventById.
+  distanceKm?: number | null;
+  // The caller's own RSVP status — null if they've never RSVP'd (or aren't an Individual).
+  myRsvpStatus?: EventRsvpStatus | null;
+  myReferenceCode?: string | null;
+}
+
+export interface RsvpResponseDto {
+  eventId: string;
+  status: EventRsvpStatus;
+  referenceCode?: string | null;
+  spotsRemaining: number;
+}
+
+// Matches contracts/chh-api.v1.yaml's GET /events/{id} (CHH-40). Open to any authenticated role.
+export function getEventById(
+  accessToken: string | undefined,
+  eventId: string,
+  coordinates?: { latitude: number; longitude: number },
+): Promise<EventDetailDto> {
+  const query = new URLSearchParams();
+  if (coordinates) {
+    query.set("latitude", String(coordinates.latitude));
+    query.set("longitude", String(coordinates.longitude));
+  }
+  const queryString = query.toString();
+  const suffix = queryString.length > 0 ? `?${queryString}` : "";
+  return apiFetch<EventDetailDto>(`/events/${eventId}${suffix}`, {
+    headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+  });
+}
+
+// Matches contracts/chh-api.v1.yaml's POST /events/{id}/rsvp (CHH-40). [Authorize(Roles = "Individual")]
+export function rsvpToEvent(accessToken: string | undefined, eventId: string): Promise<RsvpResponseDto> {
+  return apiFetch<RsvpResponseDto>(`/events/${eventId}/rsvp`, {
+    method: "POST",
+    headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+  });
+}
+
+// Matches contracts/chh-api.v1.yaml's DELETE /events/{id}/rsvp (CHH-40). [Authorize(Roles = "Individual")]
+export function cancelEventRsvp(accessToken: string | undefined, eventId: string): Promise<RsvpResponseDto> {
+  return apiFetch<RsvpResponseDto>(`/events/${eventId}/rsvp`, {
+    method: "DELETE",
     headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
   });
 }

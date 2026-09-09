@@ -20,4 +20,33 @@ public interface IEventRepository
     /// </summary>
     /// <param name="ct">Cancellation token.</param>
     Task<IReadOnlyList<EventWithFacilityNameResult>> GetUpcomingPublishedWithFacilityNameAsync(CancellationToken ct);
+
+    /// <summary>
+    /// Returns the event (joined with its organizing facility's name), or <c>null</c> if none
+    /// exists (CHH-40's event detail page, GET /events/{id}). Read-only — implementations must
+    /// use <c>AsNoTracking()</c> (api-standards.md §6).
+    /// </summary>
+    /// <param name="id">The event's id.</param>
+    /// <param name="ct">Cancellation token.</param>
+    Task<EventWithFacilityNameResult?> GetByIdWithFacilityNameAsync(Guid id, CancellationToken ct);
+
+    /// <summary>
+    /// Atomically reserves one spot on <paramref name="eventId"/> — increments
+    /// <see cref="Event.RsvpCount"/> in a single conditional <c>UPDATE</c> statement, only if the
+    /// event is still <see cref="Chh.Domain.Enums.EventStatus.Published"/> and has capacity left
+    /// (CHH-40 AC2, race-safe under concurrent RSVPs — mirrors
+    /// <c>BloodRequestRepository.TryAcceptUnitAsync</c>). Returns <c>false</c> if the event
+    /// doesn't exist, isn't published, or is already full.
+    /// </summary>
+    /// <param name="eventId">The event to reserve a spot on.</param>
+    /// <param name="ct">Cancellation token.</param>
+    Task<bool> TryReserveSpotAsync(Guid eventId, CancellationToken ct);
+
+    /// <summary>
+    /// Atomically releases one previously-reserved spot back to the pool (Edge Case: cancelling an
+    /// RSVP). No-ops (returns without effect) if <see cref="Event.RsvpCount"/> is already zero.
+    /// </summary>
+    /// <param name="eventId">The event to release a spot on.</param>
+    /// <param name="ct">Cancellation token.</param>
+    Task ReleaseSpotAsync(Guid eventId, CancellationToken ct);
 }

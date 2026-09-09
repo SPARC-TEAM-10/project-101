@@ -60,4 +60,45 @@ public class EventsControllerRouteTests
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
+
+    [Fact]
+    public async Task GetEventById_UsesContractPath_IsRouted()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.GetAsync($"/api/v1/events/{Guid.NewGuid()}");
+
+        response.StatusCode.Should().NotBe(HttpStatusCode.NotFound,
+            "the route convention must resolve EventsController.GetByIdAsync to contracts/chh-api.v1.yaml's documented /events/{id} path — a missing event still routes, it just 404s inside the handler, but an unauthenticated request 401s first");
+    }
+
+    [Fact]
+    public async Task GetEventById_WithoutAuthorizationHeader_IsUnauthorized()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.GetAsync($"/api/v1/events/{Guid.NewGuid()}");
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task PostEventRsvp_WithoutAuthorizationHeader_IsUnauthorized()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.PostAsync($"/api/v1/events/{Guid.NewGuid()}/rsvp", content: null);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task DeleteEventRsvp_WithoutAuthorizationHeader_IsUnauthorized()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.DeleteAsync($"/api/v1/events/{Guid.NewGuid()}/rsvp");
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
 }

@@ -16,16 +16,27 @@ public class EventService : IEventService
 {
     private readonly IFacilityRepository _facilityRepository;
     private readonly IEventRepository _eventRepository;
+    private readonly IEventRsvpRepository _eventRsvpRepository;
+    private readonly IIndividualProfileRepository _individualProfileRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     /// <summary>Creates the service with its repository and unit-of-work dependencies.</summary>
     /// <param name="facilityRepository">Resolves the caller's own facility and its verification status (reuses CHH-10/CHH-28's lookup).</param>
-    /// <param name="eventRepository">Data layer for persisting events.</param>
+    /// <param name="eventRepository">Data layer for persisting events and the atomic RSVP-count reserve/release (CHH-40).</param>
+    /// <param name="eventRsvpRepository">Data layer for persisting individual RSVP rows (CHH-40).</param>
+    /// <param name="individualProfileRepository">Resolves the caller's own <c>IndividualProfile.Id</c> from their mobile number (CHH-40).</param>
     /// <param name="unitOfWork">Persists changes made during the request.</param>
-    public EventService(IFacilityRepository facilityRepository, IEventRepository eventRepository, IUnitOfWork unitOfWork)
+    public EventService(
+        IFacilityRepository facilityRepository,
+        IEventRepository eventRepository,
+        IEventRsvpRepository eventRsvpRepository,
+        IIndividualProfileRepository individualProfileRepository,
+        IUnitOfWork unitOfWork)
     {
         _facilityRepository = facilityRepository;
         _eventRepository = eventRepository;
+        _eventRsvpRepository = eventRsvpRepository;
+        _individualProfileRepository = individualProfileRepository;
         _unitOfWork = unitOfWork;
     }
 
@@ -114,10 +125,161 @@ public class EventService : IEventService
                 EndAtUtc = r.Candidate.Event.EndAtUtc,
                 DistanceKm = r.DistanceKm,
                 Capacity = r.Candidate.Event.Capacity,
-                // No RSVP entity exists yet (CHH-40) — every event's true current spotsRemaining is
-                // its full capacity, not a placeholder.
-                SpotsRemaining = r.Candidate.Event.Capacity
+                SpotsRemaining = r.Candidate.Event.Capacity - r.Candidate.Event.RsvpCount
             })
             .ToList();
+    }
+
+    /// <inheritdoc />
+    public async Task<EventDetailDto?> GetByIdAsync(
+        Guid eventId, string callerMobileNumber, decimal? latitude, decimal? longitude, CancellationToken ct)
+    {
+        var candidate = await _eventRepository.GetByIdWithFacilityNameAsync(eventId, ct).ConfigureAwait(false);
+        if (candidate is null)
+        {
+            return null;
+        }
+
+        var calendarEvent = candidate.Event;
+
+        EventRsvpStatus? myRsvpStatus = null;
+        string? myReferenceCode = null;
+
+        var profile = await _individualProfileRepository.GetByMobileNumberAsync(callerMobileNumber, ct).ConfigureAwait(false);
+        if (profile is not null)
+        {
+            var myRsvp = await _eventRsvpRepository.GetByEventAndIndividualAsync(eventId, profile.Id, ct).ConfigureAwait(false);
+            if (myRsvp is not null)
+            {
+                myRsvpStatus = myRsvp.Status;
+                myReferenceCode = myRsvp.ReferenceCode;
+            }
+        }
+
+        return new EventDetailDto
+        {
+            Id = calendarEvent.Id,
+            Title = calendarEvent.Title,
+            EventType = calendarEvent.EventType,
+            Description = calendarEvent.Description,
+            FacilityName = candidate.FacilityName,
+            VenueName = calendarEvent.VenueName,
+            VenueAddress = calendarEvent.VenueAddress,
+            Latitude = calendarEvent.Latitude,
+            Longitude = calendarEvent.Longitude,
+            StartAtUtc = calendarEvent.StartAtUtc,
+            EndAtUtc = calendarEvent.EndAtUtc,
+            Capacity = calendarEvent.Capacity,
+            SpotsRemaining = calendarEvent.Capacity - calendarEvent.RsvpCount,
+            CoordinatorName = calendarEvent.CoordinatorName,
+            CoordinatorContact = calendarEvent.CoordinatorContact,
+            RsvpCutoffAtUtc = calendarEvent.RsvpCutoffAtUtc,
+            Status = calendarEvent.Status,
+            DistanceKm = latitude is not null && longitude is not null
+                ? HaversineDistanceCalculator.CalculateDistanceKm(latitude.Value, longitude.Value, calendarEvent.Latitude, calendarEvent.Longitude)
+                : null,
+            MyRsvpStatus = myRsvpStatus,
+            MyReferenceCode = myReferenceCode
+        };
+    }
+
+    /// <inheritdoc />
+    public async Task<RsvpResponseDto?> RsvpAsync(string mobileNumber, Guid eventId, CancellationToken ct)
+    {
+        var profile = await _individualProfileRepository.GetByMobileNumberAsync(mobileNumber, ct).ConfigureAwait(false);
+        if (profile is null)
+        {
+            return null;
+        }
+
+        var calendarEvent = await _eventRepository.GetByIdWithFacilityNameAsync(eventId, ct).ConfigureAwait(false);
+        if (calendarEvent is null)
+        {
+            return null;
+        }
+
+        var existingRsvp = await _eventRsvpRepository
+            .GetTrackedByEventAndIndividualAsync(eventId, profile.Id, ct)
+            .ConfigureAwait(false);
+
+        if (existingRsvp is not null && existingRsvp.Status == EventRsvpStatus.Going)
+        {
+            throw new AlreadyRsvpdException();
+        }
+
+        var reserved = await _eventRepository.TryReserveSpotAsync(eventId, ct).ConfigureAwait(false);
+        if (!reserved)
+        {
+            throw new EventFullException();
+        }
+
+        var now = DateTimeOffset.UtcNow;
+
+        if (existingRsvp is not null)
+        {
+            // Re-RSVPing after a prior cancellation — reactivate the same row so ReferenceCode stays stable.
+            existingRsvp.Status = EventRsvpStatus.Going;
+            existingRsvp.CancelledAtUtc = null;
+        }
+        else
+        {
+            var referenceCode = await NextReferenceCodeAsync(eventId, ct).ConfigureAwait(false);
+            existingRsvp = EventRsvpFactory.Create(eventId, profile.Id, referenceCode, now);
+            await _eventRsvpRepository.AddAsync(existingRsvp, ct).ConfigureAwait(false);
+        }
+
+        await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
+
+        var updatedEvent = await _eventRepository.GetByIdWithFacilityNameAsync(eventId, ct).ConfigureAwait(false);
+
+        return new RsvpResponseDto
+        {
+            EventId = eventId,
+            Status = existingRsvp.Status,
+            ReferenceCode = existingRsvp.ReferenceCode,
+            SpotsRemaining = updatedEvent is null ? 0 : updatedEvent.Event.Capacity - updatedEvent.Event.RsvpCount
+        };
+    }
+
+    /// <inheritdoc />
+    public async Task<RsvpResponseDto?> CancelRsvpAsync(string mobileNumber, Guid eventId, CancellationToken ct)
+    {
+        var profile = await _individualProfileRepository.GetByMobileNumberAsync(mobileNumber, ct).ConfigureAwait(false);
+        if (profile is null)
+        {
+            return null;
+        }
+
+        var rsvp = await _eventRsvpRepository
+            .GetTrackedByEventAndIndividualAsync(eventId, profile.Id, ct)
+            .ConfigureAwait(false);
+
+        if (rsvp is null || rsvp.Status != EventRsvpStatus.Going)
+        {
+            return null;
+        }
+
+        var now = DateTimeOffset.UtcNow;
+        rsvp.Status = EventRsvpStatus.Cancelled;
+        rsvp.CancelledAtUtc = now;
+
+        await _eventRepository.ReleaseSpotAsync(eventId, ct).ConfigureAwait(false);
+        await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
+
+        var updatedEvent = await _eventRepository.GetByIdWithFacilityNameAsync(eventId, ct).ConfigureAwait(false);
+
+        return new RsvpResponseDto
+        {
+            EventId = eventId,
+            Status = rsvp.Status,
+            ReferenceCode = null,
+            SpotsRemaining = updatedEvent is null ? 0 : updatedEvent.Event.Capacity - updatedEvent.Event.RsvpCount
+        };
+    }
+
+    private async Task<string> NextReferenceCodeAsync(Guid eventId, CancellationToken ct)
+    {
+        var count = await _eventRsvpRepository.CountForEventAsync(eventId, ct).ConfigureAwait(false);
+        return $"A{count + 1}";
     }
 }

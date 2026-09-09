@@ -66,6 +66,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IDonorResponseService, DonorResponseService>();
         services.AddScoped<MatchDonorsJob>();
         services.AddScoped<IEventRepository, EventRepository>();
+        services.AddScoped<IEventRsvpRepository, EventRsvpRepository>();
         services.AddScoped<IEventService, EventService>();
 
         services.AddFast2Sms(configuration);

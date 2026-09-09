@@ -11,6 +11,7 @@ import { RequesterMatchDashboardPage } from "./pages/bloodRequest/RequesterMatch
 import { FacilityRegistrationPage } from "./pages/facility/FacilityRegistrationPage";
 import { CreateEventPage } from "./pages/events/CreateEventPage";
 import { EventDiscoveryPage } from "./pages/events/EventDiscoveryPage";
+import { EventDetailPage } from "./pages/events/EventDetailPage";
 import { IndividualDashboardPage } from "./pages/dashboard/IndividualDashboardPage";
 import { GuestDashboardStubPage } from "./pages/dashboard/GuestDashboardStubPage";
 import { PendingVerificationsPage } from "./pages/admin/PendingVerificationsPage";
@@ -148,6 +149,17 @@ export const router = createBrowserRouter([
     element: (
       <RequireAuth roles={["Individual"]}>
         <EventDiscoveryPage />
+      </RequireAuth>
+    ),
+  },
+  {
+    // Detail is open to any authenticated role (GET /events/{id} has no role gate) — RSVP/Cancel
+    // actions themselves are gated to Individual server-side and hidden client-side for other
+    // roles (CHH-40/US-CHH-005-03).
+    path: "/events/:id",
+    element: (
+      <RequireAuth>
+        <EventDetailPage />
       </RequireAuth>
     ),
   },
