@@ -37,32 +37,32 @@ function renderProtected(session: AuthSession | null, roles?: Role[]) {
 }
 
 describe("RequireAuth", () => {
-  it("redirects to /login when there is no session", () => {
+  it("TC-CHH-F01-57: redirects to /login when there is no session", () => {
     renderProtected(null);
 
     expect(screen.getByText("Login Screen")).toBeInTheDocument();
     expect(screen.queryByText("Protected content")).not.toBeInTheDocument();
   });
 
-  it("redirects to /login when the session role is not in the allowed roles", () => {
+  it("TC-CHH-F01-58: redirects to /login when the session role is not in the allowed roles", () => {
     renderProtected({ token: "t", role: "Individual", expiresAtUtc: FUTURE }, ["Guest"]);
 
     expect(screen.getByText("Login Screen")).toBeInTheDocument();
   });
 
-  it("renders children when authenticated and no roles restriction is given", () => {
+  it("TC-CHH-F01-59: renders children when authenticated and no roles restriction is given", () => {
     renderProtected({ token: "t", role: "Individual", expiresAtUtc: FUTURE });
 
     expect(screen.getByText("Protected content")).toBeInTheDocument();
   });
 
-  it("renders children when authenticated and the role matches", () => {
+  it("TC-CHH-F01-60: renders children when authenticated and the role matches", () => {
     renderProtected({ token: "t", role: "Individual", expiresAtUtc: FUTURE }, ["Individual", "Guest"]);
 
     expect(screen.getByText("Protected content")).toBeInTheDocument();
   });
 
-  it("redirects to /login when the session has expired", () => {
+  it("TC-CHH-F01-61: redirects to /login when the session has expired", () => {
     const past = new Date(Date.now() - 1000).toISOString();
     renderProtected({ token: "t", role: "Individual", expiresAtUtc: past });
 
@@ -70,7 +70,7 @@ describe("RequireAuth", () => {
     expect(screen.queryByText("Protected content")).not.toBeInTheDocument();
   });
 
-  it("renders children when the session has not yet expired and the role matches", () => {
+  it("TC-CHH-F01-62: renders children when the session has not yet expired and the role matches", () => {
     renderProtected({ token: "t", role: "Guest", expiresAtUtc: FUTURE }, ["Guest"]);
 
     expect(screen.getByText("Protected content")).toBeInTheDocument();

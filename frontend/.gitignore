@@ -3,6 +3,7 @@ dist
 dist-ssr
 *.local
 coverage
+test-results
 *.tsbuildinfo
 vite.config.js
 vite.config.d.ts

@@ -20,7 +20,7 @@ public class BloodRequestsControllerRouteTests
     /// <param name="factory">The shared API host fixture (see <see cref="ApiTestCollection"/>).</param>
     public BloodRequestsControllerRouteTests(ApiWebApplicationFactory factory) => _factory = factory;
 
-    [Fact]
+    [Fact(DisplayName = "TC-CHH-F04-01: PostBloodRequests_UsesContractPath_IsRouted")]
     public async Task PostBloodRequests_UsesContractPath_IsRouted()
     {
         var client = _factory.CreateClient();
@@ -31,7 +31,7 @@ public class BloodRequestsControllerRouteTests
             "the route convention must still resolve BloodRequestsController to contracts/chh-api.v1.yaml's documented path");
     }
 
-    [Fact]
+    [Fact(DisplayName = "TC-CHH-F04-02: PostBloodRequests_WithoutAuthorizationHeader_ReturnsUnauthorized")]
     public async Task PostBloodRequests_WithoutAuthorizationHeader_ReturnsUnauthorized()
     {
         var client = _factory.CreateClient();
