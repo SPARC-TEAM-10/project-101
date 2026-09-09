@@ -2,11 +2,16 @@ using Chh.Application.Abstractions;
 using Chh.Application.Contracts;
 using Chh.Application.Dtos;
 using Chh.Application.Factories;
+using Chh.Domain.Constants;
 using Chh.Domain.Enums;
+using Chh.Domain.Utilities;
 
 namespace Chh.Application.Services;
 
-/// <summary>Orchestrates event creation (CHH-38/US-CHH-005-01): verified-facility guard, persistence.</summary>
+/// <summary>
+/// Orchestrates event creation (CHH-38/US-CHH-005-01: verified-facility guard, persistence) and
+/// proximity discovery (CHH-39/US-CHH-005-02).
+/// </summary>
 public class EventService : IEventService
 {
     private readonly IFacilityRepository _facilityRepository;
@@ -63,5 +68,56 @@ public class EventService : IEventService
             CreatedAtUtc = calendarEvent.CreatedAtUtc,
             UpdatedAtUtc = calendarEvent.UpdatedAtUtc
         };
+    }
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<EventSummaryDto>> SearchAsync(
+        decimal latitude, decimal longitude, int radiusKm, EventType? eventType, CancellationToken ct)
+    {
+        var clampedRadiusKm = Math.Clamp(radiusKm, EventConstants.MinSearchRadiusKm, EventConstants.MaxSearchRadiusKm);
+
+        var candidates = await _eventRepository
+            .GetUpcomingPublishedWithFacilityNameAsync(ct)
+            .ConfigureAwait(false);
+
+        var results = new List<(EventWithFacilityNameResult Candidate, decimal DistanceKm)>();
+        foreach (var candidate in candidates)
+        {
+            if (eventType is not null && candidate.Event.EventType != eventType)
+            {
+                continue;
+            }
+
+            var distanceKm = HaversineDistanceCalculator.CalculateDistanceKm(
+                latitude, longitude, candidate.Event.Latitude, candidate.Event.Longitude);
+
+            if (distanceKm > clampedRadiusKm)
+            {
+                continue;
+            }
+
+            results.Add((candidate, distanceKm));
+        }
+
+        return results
+            .OrderBy(r => r.Candidate.Event.StartAtUtc)
+            .Select(r => new EventSummaryDto
+            {
+                Id = r.Candidate.Event.Id,
+                Title = r.Candidate.Event.Title,
+                EventType = r.Candidate.Event.EventType,
+                FacilityName = r.Candidate.FacilityName,
+                VenueName = r.Candidate.Event.VenueName,
+                Latitude = r.Candidate.Event.Latitude,
+                Longitude = r.Candidate.Event.Longitude,
+                StartAtUtc = r.Candidate.Event.StartAtUtc,
+                EndAtUtc = r.Candidate.Event.EndAtUtc,
+                DistanceKm = r.DistanceKm,
+                Capacity = r.Candidate.Event.Capacity,
+                // No RSVP entity exists yet (CHH-40) — every event's true current spotsRemaining is
+                // its full capacity, not a placeholder.
+                SpotsRemaining = r.Candidate.Event.Capacity
+            })
+            .ToList();
     }
 }

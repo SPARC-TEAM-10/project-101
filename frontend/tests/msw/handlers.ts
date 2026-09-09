@@ -197,6 +197,49 @@ export const createEventValidationErrorHandler = http.post(EVENTS_URL, () => {
   );
 });
 
+export const EVENTS_SEARCH_URL = "/api/v1/events/search";
+
+const eventSummaryFixtures = [
+  {
+    id: "e1111111-1111-1111-1111-111111111111",
+    title: "Community blood drive — Kaloor",
+    eventType: "BloodDonationCamp",
+    facilityName: "Kochi Metro Hospital",
+    venueName: "Kaloor Community Hall",
+    latitude: 9.996,
+    longitude: 76.299,
+    startAtUtc: "2026-09-13T09:00:00.000Z",
+    endAtUtc: "2026-09-13T14:00:00.000Z",
+    distanceKm: 4.2,
+    capacity: 60,
+    spotsRemaining: 18,
+  },
+  {
+    id: "e2222222-2222-2222-2222-222222222222",
+    title: "Free health screening camp",
+    eventType: "HealthCamp",
+    facilityName: "Ernakulam NGO Collective",
+    venueName: "Palarivattom",
+    latitude: 10.02,
+    longitude: 76.31,
+    startAtUtc: "2026-09-14T10:00:00.000Z",
+    endAtUtc: "2026-09-14T16:00:00.000Z",
+    distanceKm: 9.1,
+    capacity: 40,
+    spotsRemaining: 22,
+  },
+];
+
+export const searchEventsSuccessHandler = http.get(EVENTS_SEARCH_URL, ({ request }) => {
+  const eventType = new URL(request.url).searchParams.get("eventType");
+  const items = eventType ? eventSummaryFixtures.filter((e) => e.eventType === eventType) : eventSummaryFixtures;
+  return HttpResponse.json(items);
+});
+
+export const searchEventsEmptyHandler = http.get(EVENTS_SEARCH_URL, () => HttpResponse.json([]));
+
+export const searchEventsErrorHandler = http.get(EVENTS_SEARCH_URL, () => HttpResponse.error());
+
 // No MSW handler for POST /api/v1/facilities/:id/upload — @mswjs/interceptors hangs under jsdom
 // on any XHR request whose body is a FormData containing a Blob/File (see tests/fakeXhr.ts's doc
 // comment). facilityApi.uploadFacilityLicense is tested via that fake XHR instead.
@@ -648,4 +691,5 @@ export const handlers = [
   reviewFacilitySuccessHandler,
   searchAdminUsersSuccessHandler,
   suspendUserSuccessHandler,
+  searchEventsSuccessHandler,
 ];

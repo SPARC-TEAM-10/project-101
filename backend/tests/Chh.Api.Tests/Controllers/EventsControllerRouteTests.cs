@@ -7,7 +7,7 @@ namespace Chh.Api.Tests.Controllers;
 
 /// <summary>
 /// Guards the global "api/v1/[controller]" route convention for <c>EventsController</c> and its
-/// role gate (CHH-38/US-CHH-005-01).
+/// role gates (CHH-38/US-CHH-005-01, CHH-39/US-CHH-005-02).
 /// </summary>
 [Collection(ApiTestCollection.Name)]
 public class EventsControllerRouteTests
@@ -38,5 +38,26 @@ public class EventsControllerRouteTests
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized,
             "event creation requires the Hospital/Ngo role, unlike facility registration");
+    }
+
+    [Fact]
+    public async Task GetEventsSearch_UsesContractPath_IsRouted()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.GetAsync("/api/v1/events/search?latitude=9.93&longitude=76.26&radiusKm=25");
+
+        response.StatusCode.Should().NotBe(HttpStatusCode.NotFound,
+            "the route convention must resolve EventsController.SearchAsync to contracts/chh-api.v1.yaml's documented /events/search path");
+    }
+
+    [Fact]
+    public async Task GetEventsSearch_WithoutAuthorizationHeader_IsUnauthorized()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.GetAsync("/api/v1/events/search?latitude=9.93&longitude=76.26&radiusKm=25");
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 }

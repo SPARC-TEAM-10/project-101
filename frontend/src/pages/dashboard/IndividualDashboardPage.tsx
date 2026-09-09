@@ -7,13 +7,15 @@ import { useIndividualDashboard } from "../../features/dashboard/useIndividualDa
 import { useNotifications } from "../../features/notifications/useNotifications";
 
 // "Home" and "My requests" both resolve on this same page (request history already lives here —
-// "My requests" jumps to that section) since there's no separate page for it yet. Events/
-// Emergency services stay disabled: CHH-37 and CHH-68 exist as Jira epics but neither has a
-// frontend route yet — an enabled link with nowhere real to go would be worse than being honest.
+// "My requests" jumps to that section) since there's no separate page for it yet. Emergency
+// services stays disabled: CHH-68 exists as a Jira epic but has no frontend route yet — an
+// enabled link with nowhere real to go would be worse than being honest. Events now links to the
+// real discovery page (CHH-39) — the "No events near you yet" card below is a different feature
+// (an RSVP'd-events summary, CHH-40 territory) and stays as its own honest placeholder.
 const NAV_ITEMS = [
   { label: "Home", to: "/dashboard/individual", enabled: true },
   { label: "My requests", to: "/dashboard/individual#your-requests", enabled: true },
-  { label: "Events", to: "/dashboard/individual", enabled: false },
+  { label: "Events", to: "/events", enabled: true },
   { label: "Emergency services", to: "/dashboard/individual", enabled: false },
 ] as const;
 
