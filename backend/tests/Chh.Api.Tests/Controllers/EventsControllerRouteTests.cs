@@ -195,4 +195,67 @@ public class EventsControllerRouteTests
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
+
+    [Fact]
+    public async Task GetAttendanceSummary_UsesContractPath_IsRouted()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.GetAsync($"/api/v1/events/{Guid.NewGuid()}/attendance/summary");
+
+        response.StatusCode.Should().NotBe(HttpStatusCode.NotFound,
+            "the route convention must resolve EventsController.GetAttendanceSummaryAsync to contracts/chh-api.v1.yaml's documented /events/{id}/attendance/summary path");
+    }
+
+    [Fact]
+    public async Task GetAttendanceSummary_WithoutAuthorizationHeader_IsUnauthorized()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.GetAsync($"/api/v1/events/{Guid.NewGuid()}/attendance/summary");
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task GetAttendanceParticipants_UsesContractPath_IsRouted()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.GetAsync($"/api/v1/events/{Guid.NewGuid()}/attendance/participants");
+
+        response.StatusCode.Should().NotBe(HttpStatusCode.NotFound,
+            "the route convention must resolve EventsController.GetAttendanceParticipantsAsync to contracts/chh-api.v1.yaml's documented /events/{id}/attendance/participants path");
+    }
+
+    [Fact]
+    public async Task GetAttendanceParticipants_WithoutAuthorizationHeader_IsUnauthorized()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.GetAsync($"/api/v1/events/{Guid.NewGuid()}/attendance/participants");
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task GetAttendanceExport_UsesContractPath_IsRouted()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.GetAsync($"/api/v1/events/{Guid.NewGuid()}/attendance/export");
+
+        response.StatusCode.Should().NotBe(HttpStatusCode.NotFound,
+            "the route convention must resolve EventsController.ExportAttendanceCsvAsync to contracts/chh-api.v1.yaml's documented /events/{id}/attendance/export path");
+    }
+
+    [Fact]
+    public async Task GetAttendanceExport_WithoutAuthorizationHeader_IsUnauthorized()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.GetAsync($"/api/v1/events/{Guid.NewGuid()}/attendance/export");
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
 }
