@@ -144,10 +144,11 @@ Only after all three gates are explicitly cleared may the agent proceed to the B
 
 ## C# / ASP.NET Core Standards
 
-> **Mandatory pre-read:** Before writing any .NET code, read all three standards in full — all rules are binding:
+> **Mandatory pre-read:** Before writing any .NET code, read all standards in full — all rules are binding:
 > - `.claude/standards/DOTNET-RULES.md` — general .NET coding standards
 > - `.claude/rules/api-standards.md` — CHH REST API standards (read when adding or modifying endpoints)
 > - `.claude/rules/db-standards.md` — CHH database standards (read when adding or modifying entities or migrations)
+> - `.claude/rules/git-safety.md` — forbidden git commands and escalation rule; binding for every commit this agent makes, including Rework Mode
 
 **Async rules:**
 - All controller actions are `async Task<ActionResult<T>>` — never synchronous
@@ -292,6 +293,7 @@ public class OrderRepository : IOrderRepository
    - `.claude/standards/DOTNET-RULES.md` — always
    - `.claude/rules/api-standards.md` — if the plan adds or modifies any endpoints
    - `.claude/rules/db-standards.md` — if the plan adds or modifies any entities, tables, or migrations
+   - `.claude/rules/git-safety.md` — always (governs the commit in step 9 and any rework commit)
 3. Use **Glob** and **Grep** for targeted lookups of specific files, classes, and method signatures called out in the plan — the Knowledge Agent has already explored the codebase; this step is for implementation-level detail, not re-discovery
 4. Use **Read** to understand existing files before modifying them
 5. Work through the Scope of Change row by row

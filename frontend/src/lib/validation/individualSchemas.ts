@@ -63,6 +63,11 @@ export const individualProfileUpdateSchema = z
     isUnderweight: z.boolean(),
     isOtherIllness: z.boolean(),
     otherIllnessDetails: z.string().trim().max(MAX_OTHER_ILLNESS_LENGTH, "Please specify other illness."),
+    // Never rendered as a text input — only ever set from a resolved device geolocation
+    // (CHH-85's "Share my location" action). Mirrors the backend validator's -90..90/-180..180
+    // bounds; the backend remains the source of truth.
+    latitude: z.number().min(-90).max(90).optional(),
+    longitude: z.number().min(-180).max(180).optional(),
   })
   .refine((values) => !values.isOtherIllness || values.otherIllnessDetails.length > 0, {
     message: "Please specify other illness.",

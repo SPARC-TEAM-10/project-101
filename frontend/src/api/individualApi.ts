@@ -31,6 +31,8 @@ export interface IndividualProfileDto {
   isUnderweight: boolean;
   isOtherIllness: boolean;
   otherIllnessDetails?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface UpdateIndividualProfileRequest {
@@ -41,6 +43,8 @@ export interface UpdateIndividualProfileRequest {
   isUnderweight: boolean;
   isOtherIllness: boolean;
   otherIllnessDetails?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 // CHH-F02 (contracts/chh-api.v1.yaml `POST /individuals`) — `security: []`: mobileNumber only

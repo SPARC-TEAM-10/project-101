@@ -112,7 +112,7 @@ Perform steps 4–8 using the Confluence URLs/IDs found in Phase 1. Each step bu
     - `DomainKeywords`: all noun keywords extracted from the Jira story, AC, and Confluence findings
     - `GitBaseBranch`: use `BaseBranchOverride` if the Orchestrator passed it (e.g. `release/0.17.2` for a `/dev` task); otherwise read `gitBaseBranch` from `project_config.md`.
 
-    Wait for the Codebase Analysis Agent to return its output package (`CodebaseFindings`, `codebaseRef`).
+    Wait for the Codebase Analysis Agent to return its output package (`CodebaseFindings`, `codebaseRef`, `CacheMode`).
 
 ---
 
@@ -155,11 +155,11 @@ Structured context package containing:
 4. **Standards Summary** — specific rules from DOTNET-RULES that apply to this feature domain
 5. **FRD Findings** — functional requirements and business rules from the FRD page (if found)
 6. **Confluence Findings** — architecture decisions, API contracts, data schemas from HLD and LLD
-7. **Codebase Findings** — existing services, domain classes, and utilities in `backend/` that overlap with the task; conventions observed
-8. **Gaps** — explicit list of anything not found that the Planning Agent may need to clarify with the user
+7. **Codebase Findings** — existing services, domain classes, and utilities in `backend/` that overlap with the task; conventions observed. Includes `CacheMode` (`"full"` | `"incremental"` | `"rebuilt"`) passed through unchanged from the Codebase Analysis Agent, so a reader can see whether findings came from a fresh scan or the `.claude/backend-symbol-map.md` cache
+8. **Gaps** — explicit list of anything not found that the Planning Agent may need to clarify with the user. Each gap entry carries an `Owner`: `Owner: Developer` for a fetch/lookup gap resolvable by the coder or Planning Agent from codebase/context (e.g. missing Confluence FRD/HLD page, unresolved LLD page ID, ambiguous file path) — handled today, unchanged. `Owner: BA` for a **semantic** gap — the ticket's own intent, scope, or acceptance criteria is unclear or contradictory and only the requester can resolve it (e.g. an AC that conflicts with the FRD, a referenced flow/field that doesn't exist anywhere in Jira or Confluence, scope silently narrower than the Epic implies). For every `Owner: BA` gap, invoke `gap-flag-skill` (see `.claude/skills/gap-flag-skill/SKILL.md`) before handing off to the Planning Agent, passing `RaisedByStage: "Knowledge Agent"`. Do not invoke it for `Owner: Developer` gaps.
 9. **Source References** — Confluence page IDs/URLs used
 10. **`hldPageId`** — Confluence page ID of the HLD found in step 7. `null` if not found. Passed to the Planning Agent and forwarded to the Confluence Publish Skill as `HldPageId`. The skill uses it as a scoped fallback (`ancestor = <hldPageId> AND title ~ "LLD"`) when `lldPageId` is null and the broader CQL search returns too many results.
 11. **`lldPageId`** — Confluence page ID of the LLD found in step 8. Passed to the Confluence Publish Skill as the direct parent page for the implementation plan. `null` if not found — the skill will run its CQL fallback in that case.
 12. **`codebaseRef`** — HEAD commit SHA after sync, so the Planning Agent can note the codebase state the plan was built against.
 
-Never summarize away detail. The Planning Agent depends on precise names, file paths, and contract shapes.
+Never summarize away detail. The Planning Agent depends on precise names, file paths, and contract shapes. See `gap-flag-skill` for the BA-flagging flow triggered by `Owner: BA` gaps.

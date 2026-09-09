@@ -5,6 +5,29 @@ import { describe, expect, it, vi } from "vitest";
 
 import { ProfilePage } from "./ProfilePage";
 import { ToastProvider } from "../../context/ToastProvider";
+import { server } from "../../../tests/setup";
+import { INDIVIDUALS_ME_URL } from "../../../tests/msw/handlers";
+import { http, HttpResponse } from "msw";
+
+function mockGeolocationSuccess() {
+  Object.defineProperty(global.navigator, "geolocation", {
+    configurable: true,
+    value: {
+      getCurrentPosition: (success: PositionCallback) =>
+        success({ coords: { latitude: 9.9312, longitude: 76.2673 } } as GeolocationPosition),
+    },
+  });
+}
+
+function mockGeolocationDenied() {
+  Object.defineProperty(global.navigator, "geolocation", {
+    configurable: true,
+    value: {
+      getCurrentPosition: (_success: PositionCallback, error: PositionErrorCallback) =>
+        error({ code: 1, message: "denied" } as GeolocationPositionError),
+    },
+  });
+}
 
 const mockUseAuth = vi.fn();
 
@@ -97,5 +120,59 @@ describe("ProfilePage", () => {
 
     expect(screen.queryByLabelText(/Location \(City \/ Area\)/)).not.toBeInTheDocument();
     expect(screen.getAllByText("Kaloor, Kochi").length).toBeGreaterThan(0);
+  });
+
+  describe("CHH-85: location sharing", () => {
+    it("shows a 'Share my location' action when the profile has no coordinates yet", async () => {
+      renderPage();
+
+      expect(await screen.findByRole("button", { name: "Share my location" })).toBeInTheDocument();
+    });
+
+    it("auto-saves and shows a 'Shared' badge once geolocation resolves", async () => {
+      mockGeolocationSuccess();
+      renderPage();
+
+      fireEvent.click(await screen.findByRole("button", { name: "Share my location" }));
+
+      expect(await screen.findByText("Shared")).toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: "Share my location" })).not.toBeInTheDocument();
+    });
+
+    it("shows a 'Shared' badge on load when the profile already has coordinates", async () => {
+      server.use(
+        http.get(INDIVIDUALS_ME_URL, () =>
+          HttpResponse.json({
+            id: "33333333-3333-3333-3333-333333333333",
+            fullName: "Ananya Nair",
+            bloodGroup: "O+",
+            isReceiverOnly: false,
+            locationCityArea: "Kaloor, Kochi",
+            createdAtUtc: "2026-08-01T00:00:00.000Z",
+            isChronicIllness: false,
+            hasRecentSurgery: false,
+            isInfectiousDisease: false,
+            isUnderweight: false,
+            isOtherIllness: false,
+            otherIllnessDetails: null,
+            latitude: 9.9312,
+            longitude: 76.2673,
+          }),
+        ),
+      );
+      renderPage();
+
+      expect(await screen.findByText("Shared")).toBeInTheDocument();
+    });
+
+    it("shows a denial message with a retry action when permission is denied", async () => {
+      mockGeolocationDenied();
+      renderPage();
+
+      fireEvent.click(await screen.findByRole("button", { name: "Share my location" }));
+
+      expect(await screen.findByText("Permission denied")).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "Try again" })).toBeInTheDocument();
+    });
   });
 });

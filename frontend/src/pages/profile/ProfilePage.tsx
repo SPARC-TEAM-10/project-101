@@ -41,6 +41,10 @@ export function ProfilePage() {
 
   const {
     values,
+    locationShared,
+    shareLocation,
+    isSharingLocation,
+    clearSharingLocation,
     setLocationCityArea,
     setChronicIllness,
     setRecentSurgery,
@@ -63,8 +67,7 @@ export function ProfilePage() {
     }
   }, [isSuccess]);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function saveProfile() {
     const result = await submit();
     if (result.ok && result.data) {
       queryClient.setQueryData(["individual", "me", session?.token], result.data);
@@ -72,7 +75,28 @@ export function ProfilePage() {
     } else if (result.error) {
       toast.error(result.error.message);
     }
+    return result;
   }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    await saveProfile();
+  }
+
+  // CHH-85: "Share my location" auto-saves as soon as the browser resolves coordinates, reusing
+  // the same save path (and its toast/cache-sync) as a manual edit — no need to enter edit mode.
+  // Keyed on `values.latitude`/`values.longitude` (not `geolocation.status`) because the hook's
+  // own effect that copies resolved coordinates into `values` runs in the same effect flush as
+  // this one, one step earlier — reading `geolocation.status` here would race and submit before
+  // `values` (and therefore `submit()`'s payload) actually has the new coordinates.
+  useEffect(() => {
+    if (!isSharingLocation || values.latitude == null || values.longitude == null) {
+      return;
+    }
+    clearSharingLocation();
+    void saveProfile();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSharingLocation, values.latitude, values.longitude]);
 
   const otherIllnessLength = (values.otherIllnessDetails ?? "").length;
 
@@ -134,7 +158,37 @@ export function ProfilePage() {
                 <dt className="text-sm text-ink-2">Location</dt>
                 <dd className="text-sm font-semibold">{profile.locationCityArea}</dd>
               </div>
+              <div className="flex items-center justify-between px-5 py-3.5">
+                <dt className="text-sm text-ink-2">Location sharing</dt>
+                <dd className="text-sm font-semibold">
+                  {locationShared ? (
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-go bg-go-tint px-2.5 py-1 text-[12.5px] font-bold text-go-deep">
+                      Shared
+                    </span>
+                  ) : geolocation.status === "locating" ? (
+                    <span className="text-ink-3">Detecting…</span>
+                  ) : geolocation.status === "denied" ? (
+                    <span className="flex flex-col items-end gap-1">
+                      <span className="text-[12.5px] text-error">Permission denied</span>
+                      <button type="button" onClick={shareLocation} className="text-[13px] font-semibold text-clay underline">
+                        Try again
+                      </button>
+                    </span>
+                  ) : geolocation.status === "unavailable" ? (
+                    <span className="text-[12.5px] text-ink-3">Not supported on this device</span>
+                  ) : (
+                    <button type="button" onClick={shareLocation} className="text-[13px] font-semibold text-clay underline">
+                      Share my location
+                    </button>
+                  )}
+                </dd>
+              </div>
             </dl>
+            {!locationShared && geolocation.status !== "denied" && geolocation.status !== "unavailable" && (
+              <p className="px-1 text-xs text-ink-3">
+                Sharing your location lets us alert you when someone nearby needs your blood type.
+              </p>
+            )}
 
             <p className="px-1 text-xs text-ink-3">
               Name, email, blood group, date of birth, and gender can&apos;t be changed here — reach out to support if

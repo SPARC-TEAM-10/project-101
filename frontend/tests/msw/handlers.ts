@@ -534,6 +534,8 @@ export const getMyProfileSuccessHandler = http.get(INDIVIDUALS_ME_URL, () =>
     isUnderweight: false,
     isOtherIllness: false,
     otherIllnessDetails: null,
+    latitude: null,
+    longitude: null,
   }),
 );
 
@@ -556,6 +558,8 @@ export const updateMyProfileSuccessHandler = http.patch(INDIVIDUALS_ME_URL, asyn
     isUnderweight: Boolean(body.isUnderweight),
     isOtherIllness: Boolean(body.isOtherIllness),
     otherIllnessDetails: body.otherIllnessDetails ?? null,
+    latitude: body.latitude ?? null,
+    longitude: body.longitude ?? null,
   });
 });
 
