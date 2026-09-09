@@ -1,0 +1,23 @@
+{
+  "mcpServers": {
+    "atlassian": {
+      "type": "sse",
+      "url": "https://mcp.atlassian.com/v1/sse"
+    },
+    "github": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/"
+    },
+    "figma": {
+      "type": "http",
+      "url": "https://mcp.figma.com/mcp"
+    },
+    "cclsp": {
+      "command": "npx",
+      "args": ["--yes", "cclsp@latest"],
+      "env": {
+        "CCLSP_CONFIG_PATH": ".claude/lsp/cclsp.config.json"
+      }
+    }
+  }
+}

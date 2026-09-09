@@ -170,6 +170,20 @@ Module-specific additions to this checklist (e.g. "matches OpenAPI spec",
   comment + Jira comment, always confirmed with the developer first) —
   see Rule 10's narrow exception in `orchestrator.md`. Jira status
   transitions and all other comment uses remain prohibited.
+- **2026-09-09 — Frontend LSP pilot added (token-efficiency)**: Wired
+  `cclsp` (an npm-installable MCP server, `.mcp.json`) bridging to
+  `typescript-language-server` (pinned devDependency, `frontend/package.json`)
+  so the frontend Knowledge Agent can look up an exact symbol's definition
+  or every call site (`mcp__cclsp__find_definition`/`find_references`)
+  instead of a full Grep+Read, cutting tokens on large files — see
+  `frontend-knowledge-agent.md` step 11a. **Backend (C#) LSP deferred**:
+  both the general-purpose LSP bridge (Go toolchain) and a C# language
+  server (.NET SDK) were unavailable in this environment; revisit once
+  confirmed available on real dev/CI machines. Falls back silently to
+  Grep/Read if the MCP server isn't connected — never a hard dependency.
+  The existing `.claude/backend-symbol-map.md` cache (see the 2026-09-09
+  caching entry above) remains backend's only token-reduction mechanism
+  until then.
 - **2026-09-08 — CHH-68 Emergency Services Hub breakdown**: Split into
   backend ticket CHH-82 and frontend ticket CHH-83, extending the existing
   Facility domain (no new module/folder) — see the CHH-F06 Technical Design

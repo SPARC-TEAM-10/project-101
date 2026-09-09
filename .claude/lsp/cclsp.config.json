@@ -1,0 +1,9 @@
+{
+  "servers": [
+    {
+      "extensions": ["ts", "tsx"],
+      "command": ["node", "node_modules/typescript-language-server/lib/cli.mjs", "--stdio"],
+      "rootDir": "frontend"
+    }
+  ]
+}

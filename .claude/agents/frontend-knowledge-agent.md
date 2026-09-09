@@ -1,6 +1,6 @@
 ---
 agent: knowledge
-tools: [Read, Glob, Grep, mcp__claude_ai_Atlassian__getJiraIssue, mcp__claude_ai_Atlassian__getConfluencePage, mcp__claude_ai_Atlassian__searchConfluenceUsingCql, mcp__claude_ai_Atlassian__search]
+tools: [Read, Glob, Grep, mcp__claude_ai_Atlassian__getJiraIssue, mcp__claude_ai_Atlassian__getConfluencePage, mcp__claude_ai_Atlassian__searchConfluenceUsingCql, mcp__claude_ai_Atlassian__search, mcp__cclsp__find_definition, mcp__cclsp__find_references, mcp__cclsp__get_diagnostics]
 ---
 
 # Knowledge Agent (Frontend)
@@ -75,6 +75,8 @@ Perform steps 3–7 using the Confluence URLs/IDs found in Phase 1. Each step bu
 9. **Confirm the backend contract.** Use **Glob**/**Read** to check for `contracts/chh-api.v1.yaml` at the repo root. If it exists, confirm the endpoint(s) this ticket needs are defined in it (request/response shape). If the file or the specific endpoint doesn't exist yet, record it as a **Gap** — flag explicitly that the frontend cannot be planned against an undocumented backend shape; the Planning Agent must surface this to the developer rather than guess a shape.
 10. **Explore `frontend/src/`** — use **Glob** and **Grep** to find existing pages, feature hooks, API client functions, and shared components that overlap with the domain keywords (see `frontend/CLAUDE.md` Application Code Structure for where each kind of file lives).
 11. Use **Read** to read 1–3 representative files to understand existing conventions (component structure, hook naming, form-handling pattern, styling approach). If `frontend/src/` doesn't exist yet (first frontend ticket in the project), report that explicitly — there's nothing to pattern-match against yet, and the plan will be establishing the initial structure.
+11a. **Prefer LSP over Read/Grep for single-symbol lookups.** When step 10's Glob/Grep surfaces a candidate hook, component prop type, or exported function and you only need *that symbol's* exact shape (signature, prop types, or every call site) rather than the whole file's conventions — use `mcp__cclsp__find_definition` (exact declaration) or `mcp__cclsp__find_references` (every usage) instead of reading or grepping the whole file. This is strictly a token-efficiency substitution for a targeted lookup; it does not replace step 11's representative-file reads, which exist to learn a file's overall structure and style, not one symbol's shape. Use `mcp__cclsp__get_diagnostics` on a candidate file if you need to confirm it isn't currently broken before recommending it as a pattern to extend.
+    - **Fallback (required):** if any `mcp__cclsp__*` call errors, times out, or the tool isn't available in this session (MCP server not connected), fall back silently to Grep/Read as in steps 10–11 — never block or report a gap because LSP was unavailable. This is a pilot on the frontend side only (see root `CLAUDE.md` Decisions Log) — treat it as an optimization, never a dependency.
 
 ---
 
@@ -96,6 +98,9 @@ Perform steps 3–7 using the Confluence URLs/IDs found in Phase 1. Each step bu
 | Glob | Find files by pattern in `frontend/src/`, and check for `contracts/chh-api.v1.yaml` |
 | Grep | Search for component/hook names, constants, or patterns |
 | Read | Read the contract file and existing codebase files |
+| `mcp__cclsp__find_definition` | Get a symbol's exact declaration (signature, prop types) without reading the whole file — see step 11a. Falls back to Read/Grep if unavailable. |
+| `mcp__cclsp__find_references` | Get every call site of a symbol without a broad Grep — see step 11a. Falls back to Read/Grep if unavailable. |
+| `mcp__cclsp__get_diagnostics` | Confirm a candidate file isn't currently broken before recommending it as a pattern — see step 11a. Falls back silently if unavailable. |
 | Notify Skill | Send cross-platform desktop toast and phone push on completion or block |
 
 ---
