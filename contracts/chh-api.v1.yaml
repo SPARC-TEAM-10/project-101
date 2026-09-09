@@ -1131,6 +1131,23 @@ components:
           type: string
           description: Required (max 200 chars) when isOtherIllness is true.
           maxLength: 200
+        latitude:
+          type: number
+          format: double
+          description: >
+            Device-supplied latitude (CHH-84), for proximity donor matching
+            (US-CHH-004-02/CHH-80). Optional — omitting both this and
+            longitude leaves the caller's stored coordinates unchanged
+            rather than clearing them. Providing only one of the pair is a
+            422 validation error.
+          minimum: -90
+          maximum: 90
+        longitude:
+          type: number
+          format: double
+          description: Device-supplied longitude — see latitude.
+          minimum: -180
+          maximum: 180
     IndividualProfileDto:
       type: object
       description: >
@@ -1183,6 +1200,18 @@ components:
         otherIllnessDetails:
           type: string
           maxLength: 200
+        latitude:
+          type: number
+          format: double
+          nullable: true
+          description: >
+            Registered latitude for proximity donor matching (CHH-84); null
+            if the caller has never shared their location.
+        longitude:
+          type: number
+          format: double
+          nullable: true
+          description: Registered longitude — see latitude.
     AdminUserDto:
       type: object
       description: >
