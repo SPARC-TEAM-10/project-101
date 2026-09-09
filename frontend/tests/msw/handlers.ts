@@ -281,6 +281,57 @@ export const cancelEventRsvpSuccessHandler = http.delete(EVENT_RSVP_URL, () =>
   HttpResponse.json({ eventId: EVENT_DETAIL_ID, status: "Cancelled", referenceCode: null, spotsRemaining: 18 }),
 );
 
+// --- CHH-41: manage/edit/cancel (GET /events/mine, PATCH /events/{id}, POST /events/{id}/cancel) ---
+
+export const EVENTS_MINE_URL = "/api/v1/events/mine";
+export const EVENT_CANCEL_URL = `${EVENT_DETAIL_URL}/cancel`;
+
+function myEventDtoFixture(overrides: Record<string, unknown> = {}) {
+  return {
+    id: EVENT_DETAIL_ID,
+    facilityId: "22222222-2222-2222-2222-222222222222",
+    title: "Community blood drive — Kaloor",
+    eventType: "BloodDonationCamp",
+    description: "Walk-in donors welcome. Bring a photo ID. Refreshments provided.",
+    venueName: "Kaloor Community Hall",
+    venueAddress: "Stadium Link Road, Kaloor, Kochi 682017",
+    latitude: 9.996,
+    longitude: 76.299,
+    startAtUtc: "2026-09-13T09:00:00.000Z",
+    endAtUtc: "2026-09-13T14:00:00.000Z",
+    capacity: 60,
+    coordinatorName: "Dr Anitha Varghese",
+    coordinatorContact: "9000010023",
+    rsvpCutoffAtUtc: null,
+    status: "Published",
+    createdAtUtc: "2026-09-04T10:00:00.000Z",
+    updatedAtUtc: "2026-09-04T10:00:00.000Z",
+    cancellationReason: null,
+    ...overrides,
+  };
+}
+
+export const getMyEventsSuccessHandler = http.get(EVENTS_MINE_URL, () => HttpResponse.json([myEventDtoFixture()]));
+
+export const getMyEventsEmptyHandler = http.get(EVENTS_MINE_URL, () => HttpResponse.json([]));
+
+export const updateEventSuccessHandler = http.patch(EVENT_DETAIL_URL, async ({ request }) => {
+  const body = (await request.json()) as Record<string, unknown>;
+  return HttpResponse.json(myEventDtoFixture(body));
+});
+
+export const cancelEventSuccessHandler = http.post(EVENT_CANCEL_URL, async ({ request }) => {
+  const body = (await request.json()) as { reason: string };
+  return HttpResponse.json(myEventDtoFixture({ status: "Cancelled", cancellationReason: body.reason }));
+});
+
+export const cancelEventAlreadyStartedHandler = http.post(EVENT_CANCEL_URL, () =>
+  HttpResponse.json(
+    { title: "Event already started", status: 422, detail: "This event has already started, so it can't be edited or cancelled." },
+    { status: 422 },
+  ),
+);
+
 // No MSW handler for POST /api/v1/facilities/:id/upload — @mswjs/interceptors hangs under jsdom
 // on any XHR request whose body is a FormData containing a Blob/File (see tests/fakeXhr.ts's doc
 // comment). facilityApi.uploadFacilityLicense is tested via that fake XHR instead.
