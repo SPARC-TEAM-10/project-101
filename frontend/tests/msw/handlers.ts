@@ -343,6 +343,60 @@ export const cancelEventAlreadyStartedHandler = http.post(EVENT_CANCEL_URL, () =
   ),
 );
 
+// --- CHH-44: manual attendance (GET /events/{id}/rsvps, POST /events/{id}/rsvps/{rsvpId}/attend) ---
+
+export const EVENT_RSVPS_URL = `${EVENT_DETAIL_URL}/rsvps`;
+export const RSVP_ID_GOING = "b1111111-1111-1111-1111-111111111111";
+export const RSVP_ID_ATTENDED = "b2222222-2222-2222-2222-222222222222";
+
+function participantFixture(overrides: Record<string, unknown> = {}) {
+  return {
+    rsvpId: RSVP_ID_GOING,
+    fullName: "Nithya Menon",
+    maskedMobileNumber: "+91 ••••••7213",
+    referenceCode: "A1",
+    status: "Going",
+    rsvpCreatedAtUtc: "2026-09-04T10:00:00.000Z",
+    attendedAtUtc: null,
+    attendedByName: null,
+    ...overrides,
+  };
+}
+
+export const searchParticipantsSuccessHandler = http.get(EVENT_RSVPS_URL, () =>
+  HttpResponse.json([
+    participantFixture(),
+    participantFixture({
+      rsvpId: RSVP_ID_ATTENDED,
+      fullName: "Nithya Rajan",
+      maskedMobileNumber: "+91 ••••••4410",
+      referenceCode: "A2",
+      status: "Attended",
+      attendedAtUtc: "2026-09-13T09:12:00.000Z",
+      attendedByName: "A. Thomas",
+    }),
+  ]),
+);
+
+export const searchParticipantsEmptyHandler = http.get(EVENT_RSVPS_URL, () => HttpResponse.json([]));
+
+export const markAttendedSuccessHandler = http.post(`${EVENT_RSVPS_URL}/${RSVP_ID_GOING}/attend`, () =>
+  HttpResponse.json(
+    participantFixture({
+      status: "Attended",
+      attendedAtUtc: new Date().toISOString(),
+      attendedByName: "You",
+    }),
+  ),
+);
+
+export const markAttendedAlreadyAttendedHandler = http.post(`${EVENT_RSVPS_URL}/${RSVP_ID_GOING}/attend`, () =>
+  HttpResponse.json(
+    { title: "Already attended", status: 409, detail: "This participant has already been marked attended." },
+    { status: 409 },
+  ),
+);
+
 // No MSW handler for POST /api/v1/facilities/:id/upload — @mswjs/interceptors hangs under jsdom
 // on any XHR request whose body is a FormData containing a Blob/File (see tests/fakeXhr.ts's doc
 // comment). facilityApi.uploadFacilityLicense is tested via that fake XHR instead.

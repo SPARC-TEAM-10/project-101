@@ -1,3 +1,4 @@
+using Chh.Application.Dtos;
 using Chh.Domain.Entities;
 
 namespace Chh.Application.Contracts;
@@ -47,4 +48,24 @@ public interface IEventRsvpRepository
     /// <param name="eventId">The event whose attendees should be notified.</param>
     /// <param name="ct">Cancellation token.</param>
     Task<IReadOnlyList<string>> GetGoingMobileNumbersAsync(Guid eventId, CancellationToken ct);
+
+    /// <summary>
+    /// Returns the RSVP row for <paramref name="rsvpId"/>, tracked by the context so the
+    /// attendance-marking mutation (CHH-44) is persisted on <c>SaveChangesAsync</c> — or
+    /// <c>null</c> if none exists.
+    /// </summary>
+    /// <param name="rsvpId">The RSVP row's id.</param>
+    /// <param name="ct">Cancellation token.</param>
+    Task<EventRsvp?> GetTrackedByIdAsync(Guid rsvpId, CancellationToken ct);
+
+    /// <summary>
+    /// Returns every <c>Going</c> or <c>Attended</c> RSVP for the event whose individual's full
+    /// name contains <paramref name="search"/> (case-insensitive) or whose mobile number equals it
+    /// exactly, joined with that individual's name/mobile (CHH-44's participant search, AC1/AC2).
+    /// Read-only — implementations must use <c>AsNoTracking()</c> (api-standards.md §6).
+    /// </summary>
+    /// <param name="eventId">The event to search participants for.</param>
+    /// <param name="search">Already-validated search term (name fragment or full mobile number).</param>
+    /// <param name="ct">Cancellation token.</param>
+    Task<IReadOnlyList<EventRsvpWithProfileResult>> SearchParticipantsAsync(Guid eventId, string search, CancellationToken ct);
 }

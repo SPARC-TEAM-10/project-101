@@ -144,6 +144,16 @@ export function EventManagePage() {
           </p>
         </div>
 
+        {!isCancelled && (
+          <button
+            type="button"
+            onClick={() => navigate(`/events/${event.id}/attendance`)}
+            className="h-[54px] rounded-md bg-clay text-base font-bold text-white hover:bg-clay-hover"
+          >
+            Mark attendance
+          </button>
+        )}
+
         {isCancelled && (
           <div className="flex gap-2.5 rounded-lg bg-error-tint p-3.5">
             <div>

@@ -45,4 +45,15 @@ public static class EventConstants
     /// for consistency rather than inventing an unrelated value).
     /// </summary>
     public const int EventPublishNotificationRadiusKm = 15;
+
+    /// <summary>Minimum characters for a name search (CHH-44/US-CHH-005-07 AC2) — a full 10-digit mobile number is accepted at any point count.</summary>
+    public const int MinAttendanceSearchNameLength = 3;
+
+    /// <summary>How long before <see cref="Entities.Event.StartAtUtc"/> the attendance check-in window opens (spec §6.1: "1 hour before event start until event end").</summary>
+    public static readonly TimeSpan AttendanceWindowBeforeStart = TimeSpan.FromHours(1);
+
+    public const string AttendanceSearchTooShortMessage = "Enter at least 3 characters of a name, or a full mobile number.";
+    public const string AlreadyAttendedMessage = "This participant has already been marked attended.";
+    public const string AttendanceOutsideWindowMessage = "Attendance can only be marked from 1 hour before the event starts until it ends.";
+    public const string RsvpNotEligibleForAttendanceMessage = "This RSVP was cancelled, so attendance can't be marked.";
 }

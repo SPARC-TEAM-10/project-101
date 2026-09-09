@@ -7,5 +7,12 @@ public enum EventRsvpStatus
     Going = 1,
 
     /// <summary>Cancelled by the individual (Edge Case) — the spot has been released back to the pool.</summary>
-    Cancelled = 2
+    Cancelled = 2,
+
+    /// <summary>
+    /// Marked attended by the organizing facility (CHH-44/US-CHH-005-07) — a terminal state
+    /// reached only from <see cref="Going"/>; a <see cref="Cancelled"/> RSVP cannot be marked
+    /// attended.
+    /// </summary>
+    Attended = 3
 }

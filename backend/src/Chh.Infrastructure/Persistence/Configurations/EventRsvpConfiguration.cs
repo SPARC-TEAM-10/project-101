@@ -9,6 +9,7 @@ public class EventRsvpConfiguration : IEntityTypeConfiguration<EventRsvp>
 {
     private const int ReferenceCodeMaxLength = 20;
     private const int StatusMaxLength = 50;
+    private const int AttendedByNameMaxLength = 200;
 
     /// <summary>Configures the <c>EventRsvp</c> table mapping.</summary>
     public void Configure(EntityTypeBuilder<EventRsvp> builder)
@@ -44,5 +45,10 @@ public class EventRsvpConfiguration : IEntityTypeConfiguration<EventRsvp>
             .IsRequired();
 
         builder.Property(e => e.CancelledAtUtc);
+
+        builder.Property(e => e.AttendedAtUtc);
+
+        builder.Property(e => e.AttendedByName)
+            .HasMaxLength(AttendedByNameMaxLength);
     }
 }

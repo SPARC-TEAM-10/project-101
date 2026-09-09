@@ -72,6 +72,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<NotifyEventChangeJob>();
         services.AddScoped<IEventPublishNotificationDispatchService, EventPublishNotificationDispatchService>();
         services.AddScoped<NotifyEventPublishedJob>();
+        services.AddScoped<IEventAttendanceService, EventAttendanceService>();
 
         services.AddFast2Sms(configuration);
         services.AddJwt(configuration);

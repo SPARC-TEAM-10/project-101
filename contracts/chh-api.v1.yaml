@@ -1064,6 +1064,114 @@ paths:
           description: Missing or invalid JWT.
         "403":
           description: Authenticated caller does not carry the Hospital/Ngo role.
+  /events/{id}/rsvps:
+    get:
+      tags:
+        - Events
+      summary: Search an event's RSVP'd participants
+      description: >
+        Searches the event's Going/Attended RSVPs by participant name (3+
+        characters) or full mobile number (CHH-44/US-CHH-005-07 AC1/AC2) —
+        the organizer's manual "mark attendance" lookup. Restricted to the
+        Hospital/Ngo role, and only the organizing facility may search its
+        own event's participants (403 otherwise).
+      operationId: searchEventParticipants
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: search
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Matching participants.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EventParticipantDto"
+        "401":
+          description: Missing or invalid JWT.
+        "403":
+          description: Authenticated caller's facility does not own this event, or does not carry the Hospital/Ngo role.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "404":
+          description: No event exists with that id.
+        "422":
+          description: search is fewer than 3 characters and not a full 10-digit mobile number.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+  /events/{id}/rsvps/{rsvpId}/attend:
+    post:
+      tags:
+        - Events
+      summary: Mark an RSVP attended
+      description: >
+        Marks the given RSVP attended (CHH-44/US-CHH-005-07 AC1). Restricted
+        to the Hospital/Ngo role, and only the organizing facility may mark
+        its own event's participants (403 otherwise). 409 if already marked
+        (duplicate prevention), 422 if the RSVP was cancelled or the call is
+        outside the check-in window (1 hour before the event starts until it
+        ends).
+      operationId: markEventRsvpAttended
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: rsvpId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: The updated participant record.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventParticipantDto"
+        "401":
+          description: Missing or invalid JWT.
+        "403":
+          description: Authenticated caller's facility does not own this event, or does not carry the Hospital/Ngo role.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "404":
+          description: No event exists with that id, or no RSVP exists with that id for this event.
+        "409":
+          description: The RSVP is already marked attended.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
+        "422":
+          description: The RSVP was cancelled, or the call is outside the check-in window.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetails"
   /events/{id}/rsvp:
     post:
       tags:
@@ -2430,9 +2538,12 @@ components:
           description: Only present when the caller supplied latitude/longitude query params.
         myRsvpStatus:
           type: string
-          enum: ["Going", "Cancelled"]
+          enum: ["Going", "Cancelled", "Attended"]
           nullable: true
-          description: The caller's own RSVP status — null if they've never RSVP'd (or aren't an Individual).
+          description: >
+            The caller's own RSVP status — null if they've never RSVP'd (or
+            aren't an Individual). "Attended" is set once the organizing
+            facility marks them attended (CHH-44).
         myReferenceCode:
           type: string
           nullable: true
@@ -2457,3 +2568,42 @@ components:
           description: Present only alongside status "Going".
         spotsRemaining:
           type: integer
+    EventParticipantDto:
+      type: object
+      description: >
+        Response item for GET /events/{id}/rsvps and response body for POST
+        /events/{id}/rsvps/{rsvpId}/attend (CHH-44). Never the raw EventRsvp
+        entity (db-standards.md §2b) — the participant's mobile number is
+        masked, not exposed in full.
+      required:
+        - rsvpId
+        - fullName
+        - maskedMobileNumber
+        - referenceCode
+        - status
+        - rsvpCreatedAtUtc
+      properties:
+        rsvpId:
+          type: string
+          format: uuid
+        fullName:
+          type: string
+        maskedMobileNumber:
+          type: string
+          description: 'e.g. "+91 ••••••7213" — last 4 digits visible, the rest masked.'
+        referenceCode:
+          type: string
+        status:
+          type: string
+          enum: ["Going", "Cancelled", "Attended"]
+        rsvpCreatedAtUtc:
+          type: string
+          format: date-time
+        attendedAtUtc:
+          type: string
+          format: date-time
+          nullable: true
+        attendedByName:
+          type: string
+          nullable: true
+          description: Display name of whoever marked attendance — present only alongside status "Attended".
