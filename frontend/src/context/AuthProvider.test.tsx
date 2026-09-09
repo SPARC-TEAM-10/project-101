@@ -16,13 +16,13 @@ beforeEach(() => {
 });
 
 describe("AuthProvider / useAuth", () => {
-  it("starts with a null session when localStorage is empty", () => {
+  it("TC-CHH-F01-63: starts with a null session when localStorage is empty", () => {
     const { result } = renderHook(() => useAuth(), { wrapper });
 
     expect(result.current.session).toBeNull();
   });
 
-  it("setSession stores the session and persists it to localStorage", () => {
+  it("TC-CHH-F01-64: setSession stores the session and persists it to localStorage", () => {
     const { result } = renderHook(() => useAuth(), { wrapper });
 
     act(() => result.current.setSession({ token: "abc", role: "Individual", expiresAtUtc: FUTURE }));
@@ -35,7 +35,7 @@ describe("AuthProvider / useAuth", () => {
     });
   });
 
-  it("clearSession resets the session to null and removes it from localStorage", () => {
+  it("TC-CHH-F01-65: clearSession resets the session to null and removes it from localStorage", () => {
     const { result } = renderHook(() => useAuth(), { wrapper });
 
     act(() => result.current.setSession({ token: "abc", role: "Individual", expiresAtUtc: FUTURE }));
@@ -72,7 +72,7 @@ describe("AuthProvider / useAuth", () => {
     expect(result.current.session).toBeNull();
   });
 
-  it("throws when used outside an AuthProvider", () => {
+  it("TC-CHH-F01-66: throws when used outside an AuthProvider", () => {
     expect(() => renderHook(() => useAuth())).toThrow(
       "useAuth must be used within an AuthProvider",
     );

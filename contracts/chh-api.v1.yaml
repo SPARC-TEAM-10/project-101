@@ -21,7 +21,10 @@ tags:
       Per-donor notifications for matched blood requests (CHH-34/US-CHH-004-03,
       CHH-F04, Epic CHH-25).
   - name: Facilities
-    description: Facility (hospital/blood-bank or NGO) self-registration (CHH-F03/CHH-78)
+    description: >
+      Facility (hospital/blood-bank, ambulance, or NGO) self-registration
+      (CHH-F03/CHH-78), plus the public search/detail read surface for the
+      CHH-F06 Emergency Services Hub (Epic CHH-68).
   - name: Events
     description: Community health events created by verified facilities (CHH-F05/CHH-38, Epic CHH-37)
   - name: Admin
@@ -453,6 +456,104 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/ProblemDetails"
+  /facilities/search:
+    get:
+      tags:
+        - Facilities
+      summary: Search verified facilities (Emergency Services Hub)
+      description: >
+        Searches facilities for the guest-facing Emergency Services Hub
+        (CHH-69/US-CHH-001-01, Epic CHH-68). Always filters to
+        `verificationStatus = Verified` server-side, regardless of caller
+        role — the Business Rule from the CHH-F06 doc ("Only 'Verified'
+        facilities are displayed in the Hub"). `q` matches against facility
+        name or address, case-insensitive. When `latitude`/`longitude` are
+        supplied, results are ordered by ascending distance (Haversine);
+        facilities with no stored coordinates sort last with `distanceKm`
+        null. Every endpoint requires a valid JWT (`.claude/rules/api-standards.md`
+        §5) — Guest-tier callers included, this is not `[AllowAnonymous]`.
+      operationId: searchFacilities
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: q
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+          description: Matches facility name or address (AC2).
+        - name: category
+          in: query
+          schema:
+            $ref: "#/components/schemas/FacilityCategory"
+        - name: latitude
+          in: query
+          schema:
+            type: number
+            format: double
+            minimum: -90
+            maximum: 90
+        - name: longitude
+          in: query
+          schema:
+            type: number
+            format: double
+            minimum: -180
+            maximum: 180
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        "200":
+          description: Page of matching, verified facilities.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PagedResponseOfPublicFacilityDto"
+        "401":
+          description: Missing or invalid JWT.
+  /facilities/{id}:
+    get:
+      tags:
+        - Facilities
+      summary: Get a facility's public details (Emergency Services Hub)
+      description: >
+        Returns one facility's public detail (CHH-70/US-CHH-001-02, Epic
+        CHH-68) — facility name, category, full address, and contact
+        persons for click-to-call/view-on-map. 404 if the facility doesn't
+        exist or isn't `Verified` (a Guest should not be able to fetch a
+        pending/rejected facility's detail by guessing an id).
+      operationId: getFacilityById
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: The facility's public detail.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicFacilityDto"
+        "401":
+          description: Missing or invalid JWT.
+        "404":
+          description: No such facility, or it isn't Verified.
   /facilities/{id}/upload:
     post:
       tags:
@@ -1311,7 +1412,12 @@ components:
           description: createdAtUtc plus the 6-hour validity window.
     FacilityCategory:
       type: string
-      enum: ["Hospital", "Ngo"]
+      description: >
+        "Ambulance" added for the CHH-F06 Emergency Services Hub (Epic
+        CHH-68) — ambulance-operator self-registration is out of scope for
+        that epic (CHH-F03 concern), so ambulance facility rows are
+        admin-seeded for now, same as any other pre-launch facility data.
+      enum: ["Hospital", "Ngo", "Ambulance"]
     FacilitySubCategory:
       type: string
       description: >
@@ -1456,6 +1562,71 @@ components:
           type: string
           maxLength: 500
           description: Mandatory when decision is "Reject" (AC2); ignored otherwise.
+    PublicFacilityDto:
+      type: object
+      description: >
+        Public read shape for the CHH-F06 Emergency Services Hub (Epic
+        CHH-68) — deliberately not FacilityDto: excludes licenseNumber,
+        licenseDocumentUrl, and rejectionReason, which db-standards.md §3
+        gates to System Admin. Only ever returned for a Verified facility.
+      required:
+        - id
+        - facilityName
+        - category
+        - subCategory
+        - address
+        - contacts
+      properties:
+        id:
+          type: string
+          format: uuid
+        facilityName:
+          type: string
+        category:
+          $ref: "#/components/schemas/FacilityCategory"
+        subCategory:
+          $ref: "#/components/schemas/FacilitySubCategory"
+        address:
+          type: string
+        latitude:
+          type: number
+          format: double
+          nullable: true
+          description: Null if this facility has no stored coordinates yet.
+        longitude:
+          type: number
+          format: double
+          nullable: true
+        contacts:
+          type: array
+          items:
+            $ref: "#/components/schemas/FacilityContactDto"
+        distanceKm:
+          type: number
+          nullable: true
+          description: >
+            Populated only when the search request supplied latitude/longitude;
+            null on GET /facilities/{id} and on search results with no
+            caller-supplied coordinates.
+    PagedResponseOfPublicFacilityDto:
+      type: object
+      description: Generic paging envelope (DOTNET-RULES §12) — see PagedResponseOfFacilityDto.
+      required:
+        - items
+        - totalCount
+        - page
+        - pageSize
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/PublicFacilityDto"
+        totalCount:
+          type: integer
+        page:
+          type: integer
+        pageSize:
+          type: integer
     PagedResponseOfFacilityDto:
       type: object
       description: >
