@@ -140,6 +140,33 @@ Module-specific additions to this checklist (e.g. "matches OpenAPI spec",
   Rule 13 and referenced from `backend-coding-agent.md`,
   `frontend-coding-agent.md`, `pr-agent.md`, `git-branch-skill.md`, and
   `github-pr-skill.md`.
+- **2026-09-09 — BA gap-flag flow added**: Prompted by CHH-43 (QR check-in
+  dropped from scope with no rationale recorded anywhere). Knowledge Agent
+  and Planning Agent now flag `Owner: BA` gaps/Open-Questions rows to the
+  ticket's Jira reporter via a new `gap-flag-skill` (Confluence footer
+  comment + Jira comment, always confirmed with the developer first) —
+  see Rule 10's narrow exception in `orchestrator.md`. Jira status
+  transitions and all other comment uses remain prohibited.
+- **2026-09-08 — CHH-68 Emergency Services Hub breakdown**: Split into
+  backend ticket CHH-82 and frontend ticket CHH-83, extending the existing
+  Facility domain (no new module/folder) — see the CHH-F06 Technical Design
+  Confluence page linked from both tickets. `Facility` gains nullable
+  `Latitude`/`Longitude`; `FacilityCategory` gains `Ambulance` (additive,
+  non-breaking). Ambulance-operator self-registration stays out of scope
+  (CHH-F03 concern) — ambulance rows are admin-seeded for now.
+- **2026-09-08 — Post-merge QA execution added**: Added a standalone QA
+  Execution Agent (`.claude/agents/qa-execution-agent.md`), run by a QA
+  automation tester **after** a PR merges — not wired into the developer
+  pipeline or `orchestrator.md`'s Task Workflow (an earlier same-day attempt
+  to gate it pre-merge, before PR, was reverted — wrong actor and wrong
+  timing). It reads the Feature's Confluence QA Test Case Design +
+  Automation Mapping pages, runs `.github/workflows/qa-tests.yml`, publishes
+  a QA Execution Report to Confluence, and on failure (with tester
+  confirmation) opens a linked Jira Bug ticket that re-enters development via
+  the existing `/dev` bugfix path. Runs in a degraded "Coarse Mode"
+  (job-status only) until `qa-tests.yml` gains real per-test-case
+  (`TC-CHH-F0X-NN`) aggregation, tracked separately. See root `CLAUDE.md`
+  §"QA execution (post-merge)".
 
 ## Non-goals / out of scope
 

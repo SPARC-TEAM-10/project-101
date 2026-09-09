@@ -377,9 +377,13 @@ Adapt these items to the project's Tech Stack. Remove inapplicable items; add st
 
 ### 15. Open Questions
 
-| Question | Owner | Blocking? | Resolution Needed By |
-|---|---|---|---|
-| | | | |
+`Owner` is the trigger discriminator for the BA gap-flag flow (see Rule 10's exception in `orchestrator.md`, `gap-flag-skill`): `Owner: Developer` rows are resolved in conversation with the developer as before and never flagged externally. `Owner: BA` rows are gaps in the ticket's own intent/scope/AC that only the requester can resolve — as soon as such a row is added (whether carried over from the Knowledge Agent's Gaps §8 or newly identified during planning), invoke `gap-flag-skill` with `RaisedByStage: "Planning Agent"` and record the result in `Flagged?` below. On any subsequent plan revision, check `Flagged?` first — if it already holds a comment URL for this exact question, do not re-invoke the skill; only re-flag if the question's wording materially changed.
+
+| Question | Owner | Blocking? | Resolution Needed By | Flagged? |
+|---|---|---|---|---|
+| | | | | |
+
+`Flagged?` — `—` (Owner: Developer, no flag needed) \| `Not yet` (Owner: BA, not yet flagged) \| `<Confluence comment URL> / <Jira comment URL>` (flagged, both links) \| `Confluence only` / `Jira only` (partial — see `gap-flag-skill`'s `PartiallyFlagged` status) \| `Skipped` (developer declined to flag).
 
 ---
 

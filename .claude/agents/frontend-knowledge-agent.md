@@ -116,9 +116,9 @@ Structured context package containing:
 5. **FRD Findings** — functional requirements and business rules from the FRD page (if found)
 6. **Confluence Findings** — architecture decisions, API contracts, screen/flow descriptions from HLD and LLD
 7. **Codebase Findings** — existing pages, feature hooks, API client functions, and shared components in `frontend/src/` that overlap with the task; conventions observed
-8. **Gaps** — explicit list of anything not found (including an undocumented contract) that the Planning Agent may need to clarify with the user
+8. **Gaps** — explicit list of anything not found (including an undocumented contract) that the Planning Agent may need to clarify with the user. Each gap entry carries an `Owner`: `Owner: Developer` for a fetch/lookup gap (missing FRD/HLD page, undocumented contract resolvable by inspecting the codebase) — handled today, unchanged. `Owner: BA` for a semantic gap in the ticket's own intent/scope/AC that only the requester can resolve. For every `Owner: BA` gap, invoke `gap-flag-skill` before handing off to the Planning Agent, passing `RaisedByStage: "Knowledge Agent"`, `Side: "Frontend"`. Do not invoke it for `Owner: Developer` gaps.
 9. **Source References** — Confluence page IDs/URLs used
 10. **`hldPageId`** / **`lldPageId`** — Confluence page IDs (or `null`), passed through to the Confluence Publish Skill the same way as the backend side
 11. **`codebaseRef`** — HEAD commit SHA of the repo at exploration time
 
-Never summarize away detail. The Planning Agent depends on precise names, file paths, and contract shapes.
+Never summarize away detail. The Planning Agent depends on precise names, file paths, and contract shapes. See `gap-flag-skill` for the BA-flagging flow triggered by `Owner: BA` gaps.
